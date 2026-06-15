@@ -1,0 +1,323 @@
+---
+sidebar_label: Streaming to moderation
+description: Stream records straight from Jetstream into Coop, an open-source moderation tool, with no middleware — then surface and action them, and close the loop back to a labeler.
+---
+
+# Feeding Jetstream into a moderation tool
+
+Most of the Jetstream guides so far end with data landing in *your* code: a
+webhook, a datastore, a notification. This one points Jetstream at a
+**moderation tool** instead: [Coop](https://roostorg.github.io/coop/), an
+open-source Trust & Safety platform from [Roost](https://roost.tools/). The goal
+is to get records off the network and in front of automated rules and human
+reviewers, with no glue service in the middle.
+
+The pipeline is small: point Jetstream at a collection, map each record onto a
+Coop *item type*, and `POST` it. No transformation service to run, no schema
+negotiation — the JSON Jetstream already hands you is most of the way there.
+
+This guide uses [`site.standard.document`](https://pdsls.dev/at://did:plc:vmt7o7y6titkqzzxav247zrn/site.standard.document)
+as a record type; an article or
+blog post published to the network. You can optionally use [Jetstream-side slicing](/docs/jetstream#filtering-ask-for-just-your-slice) for Lexicons that produce an especially high volume of records.
+
+:::note Getting history, not just live
+The live tail keeps Coop fed with new documents. To backfill from existing records, use [tap](https://atproto.com/guides/backfilling).
+:::
+
+## The data you'll be moving
+
+A `site.standard.document` commit off Jetstream looks like this:
+
+```json
+{
+  "did": "did:plc:5tgw2qz3xk4n6m8p0r2s4u6w",
+  "kind": "commit",
+  "commit": {
+    "operation": "create",
+    "collection": "site.standard.document",
+    "rkey": "3l5xb2cw7yk2a",
+    "record": {
+      "$type": "site.standard.document",
+      "title": "How to start a balcony herb garden",
+      "textContent": "A short guide to growing basil, mint, and thyme in small containers on a sunny balcony.",
+      "site": "https://example.com",
+      "path": "/2026/06/15/balcony-herb-garden/",
+      "publishedAt": "2026-06-15T17:21:17.000Z",
+      "updatedAt": "2026-06-15T17:23:21.000Z",
+      "tags": ["gardening"],
+      "bskyPostRef": {
+        "uri": "at://did:plc:5tgw2qz3xk4n6m8p0r2s4u6w/app.bsky.feed.post/3l5xb2cw7y22a",
+        "cid": "bafyreieoxbxp7oudqjg2d33rbffmmqbpamkqzfloo45p7hn75iz6643qwe"
+      },
+      "coverImage": { "$type": "blob", "ref": { "$link": "bafkrei…" }, "mimeType": "image/jpeg", "size": 2453099 }
+    }
+  }
+}
+```
+
+The fields you can rely on being present are `title`, `textContent`, `site`,
+`path`, `publishedAt`, and `bskyPostRef`.
+
+`tags`, `updatedAt`, and `coverImage` are optional, so you need to handle their absence.
+
+:::caution `coverImage` is a blob, not a URL
+`coverImage` is a [blob reference](/docs/about-bluesky-content/video), not a
+fetchable link. Coop fetches media fields by URL (for HMA hashing and reviewer
+display), so you can't hand it the raw blob ref. To use the image you'd resolve
+the blob to a CDN URL first — e.g.
+`https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{$link}@jpeg`. This guide
+maps the **text fields only** and leaves images out of the main path.
+:::
+
+## Set up the item type in Coop
+
+Coop needs to know the shape of what you're sending before it can render or
+rule-match it. That's a one-time setup step, not middleware: every item you
+submit references an **item type**, and its `data` must match that type's schema.
+See Coop's [Basic Concepts](https://roostorg.github.io/coop/latest/user/concepts.html)
+for the full model.
+
+In the Coop dashboard, go to **Settings → Item Types** and create a **Content**
+item type called *Standard Document* with these fields:
+
+| Field         | Coop type  | Notes                                          |
+| ------------- | ---------- | ---------------------------------------------- |
+| `authorDid`   | `String`   | The repo DID that published the document       |
+| `title`       | `String`   | Set this field's role to **Display Name**      |
+| `textContent` | `String`   | The document body / summary                    |
+| `site`        | `String`   | Source site, e.g. `https://example.com`        |
+| `path`        | `String`   | Path of the document on that site              |
+| `bskyPostUri` | `URL`      | Link to the Bluesky post (see the gotcha below) |
+| `publishedAt` | `Datetime` | Set this field's role to **Created At**        |
+| `updatedAt`   | `Datetime` | Optional                                       |
+
+![Creating the Standard Document content item type in Coop](/img/docs/coop-item-type.png)
+
+A couple of things worth knowing before you build the schema, because they're
+easy to trip over:
+
+- **Don't map the author DID to the *Creator* role.** Coop's field roles are
+  type-checked: the *Creator* role must point at a `Related Item` field (a link
+  to a User item), not a plain string. If you set the author DID as the creator
+  role on a `String` field, the item type won't save. Keep `authorDid` as a
+  roleless `String` (or model a proper User item type and link to it — out of
+  scope here). The roles that *do* fit plain fields are **Display Name** (a
+  `String`, here `title`) and **Created At** (a `Datetime`, here `publishedAt`).
+- **A `URL` field rejects `at://` URIs.** Coop validates `URL` fields as real
+  web URLs, so you can't drop the document's `bskyPostRef.uri`
+  (`at://…/app.bsky.feed.post/…`) straight in. Convert it to the `https`
+  permalink instead. This is more useful for a reviewer anyway, since it's
+  clickable. That conversion is the one transform the bridge does.
+
+Once the type is created, copy its **ID** from the dashboard — you'll pass it as
+`typeId` on every item. Then create an **API key** under **Settings → API Keys**.
+
+## The bridge
+
+That's the whole pipeline: read the collection off Jetstream, map each record
+onto the item type, and batch-`POST` to Coop's
+[Submit Items API](https://roostorg.github.io/coop/latest/api/items.html). It's
+asynchronous; Coop returns `202 Accepted` and runs your
+[proactive rules](https://roostorg.github.io/coop/latest/user/automated-enforcement.html)
+against each item on a background worker.
+
+Coop's API isn't an atproto service, so this side is just a WebSocket and an
+authenticated `fetch`.
+
+```typescript
+import WebSocket from "ws"; // npm install ws
+
+const COOP_URL = "http://localhost:8080/api/v1/items/async/";
+const API_KEY = "…"; // Settings → API Keys
+const TYPE_ID = "…"; // the Standard Document item type's ID
+
+// Server-side filter does the work: one low-volume collection, whole network.
+const JETSTREAM =
+  "wss://jetstream2.us-east.bsky.network/subscribe" +
+  "?wantedCollections=site.standard.document";
+
+const BATCH = 25; // the items API accepts batches; one request, many items
+const FLUSH_MS = 3000; // ...but don't let a slow collection sit unsent
+
+// Map a Jetstream commit onto a Coop item. The record arrives already decoded,
+// so this is just field selection plus one URL conversion.
+function toItem(msg: any) {
+  const did: string = msg.did;
+  const record = msg.commit.record;
+  const uri: string = record.bskyPostRef?.uri ?? "";
+  // at:// URIs aren't valid for a Coop URL field — use the https permalink.
+  const postRkey = uri ? uri.split("/").pop() : msg.commit.rkey;
+  const data: Record<string, unknown> = {
+    authorDid: did,
+    title: record.title,
+    textContent: record.textContent,
+    site: record.site,
+    path: record.path,
+    bskyPostUri: `https://bsky.app/profile/${did}/post/${postRkey}`,
+    publishedAt: record.publishedAt,
+  };
+  if (record.updatedAt) data.updatedAt = record.updatedAt;
+  // Key the item on the record's at:// URI so re-deliveries are idempotent.
+  return {
+    id: uri || `at://${did}/site.standard.document/${msg.commit.rkey}`,
+    typeId: TYPE_ID,
+    data,
+  };
+}
+
+async function submit(items: unknown[]) {
+  const res = await fetch(COOP_URL, {
+    method: "POST",
+    headers: { "X-API-KEY": API_KEY, "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+  if (res.status !== 202) {
+    console.error("submit failed:", res.status, await res.text());
+  }
+}
+
+let buffer: unknown[] = [];
+let lastFlush = Date.now();
+
+const ws = new WebSocket(JETSTREAM);
+ws.on("message", (raw) => {
+  const msg = JSON.parse(raw.toString());
+  if (msg.kind !== "commit") return;
+  if (!["create", "update"].includes(msg.commit.operation)) return;
+  buffer.push(toItem(msg));
+
+  if (buffer.length >= BATCH || Date.now() - lastFlush >= FLUSH_MS) {
+    // Fire the batch and keep draining the socket — don't await a slow POST
+    // inside the read loop.
+    void submit(buffer);
+    buffer = [];
+    lastFlush = Date.now();
+  }
+});
+```
+
+Leave that running and Coop fills up with documents. Each submission is keyed on
+the record's `at://` URI, so [Jetstream's at-least-once
+delivery](/docs/jetstream#resuming-where-you-left-off) is harmless — re-submitting
+the same URI updates the existing item rather than duplicating it. To survive a
+restart, persist the last `cursor` and reconnect with `?cursor=N`, exactly as in
+the other Jetstream guides.
+
+## Watch it land
+
+Submitted items run through Coop's proactive rules and are recorded immediately.
+You can confirm any one of them in **Investigation** by its `at://` URI; the
+full record is there, mapped onto your fields, and ready to action:
+
+![An ingested Standard Document in Coop's investigation view, with every mapped field populated and an action panel](/img/docs/coop-investigation.png)
+
+To put documents in front of a human reviewer *automatically* rather than
+looking them up by hand, Coop gives you two routes:
+
+- **A [Proactive Rule](https://roostorg.github.io/coop/latest/user/automated-enforcement.html).**
+  Configure a rule (e.g. a text bank matching keywords in `title`/`textContent`,
+  scoped to the *Standard Document* type) with the action **Enqueue Item to
+  Manual Review**. Matching documents are routed to a review queue as Jobs as
+  they arrive.
+- **The [Report API](https://roostorg.github.io/coop/latest/api/report.html).**
+  If your bridge already knows a document is worth a look, `POST` it to
+  `/api/v1/report` to create a Job directly. Same item type, same `data`.
+
+Both feed Coop's **Review Console** queues, which is where moderators work
+through Jobs at volume. (Routing reports to a queue is a one-time Review Console
+setup — create a queue and a routing rule — separate from ingest.)
+
+## Closing the loop: emitting a label
+
+Actioning a document in Coop should *do* something back on the network. Coop's
+model for that is [Actions](https://roostorg.github.io/coop/latest/api/actions.html):
+you define an action (say, *Label as spam*) with a callback URL, and when a
+moderator (or a rule) applies it, Coop `POST`s the decision to your endpoint.
+That's where you translate a Coop decision into an atproto
+[moderation label](https://atproto.com/guides/labels).
+
+A minimal receiver verifies the request came from Coop, maps the action to a
+label value, and emits it through your labeler. If you run [Ozone](https://atproto.com/guides/using-ozone),
+that's a single `tools.ozone.moderation.emitEvent` call with the
+[`lex`](https://atproto.com/guides/installing-lexicons) SDK.
+
+Run
+`lex install tools.ozone.moderation.emitEvent && lex build` to generate
+`./lexicons` first, then:
+
+```typescript
+import express from "express"; // npm install express @atproto/lex @atproto/lex-password-session
+import { Client } from "@atproto/lex";
+import { PasswordSession } from "@atproto/lex-password-session";
+import * as tools from "./lexicons/tools.js"; // generated by `lex build`
+
+const LABELER_DID = process.env.LABELER_DID!; // your labeler's DID
+
+// Authenticated session for your labeler account (the one declared as a
+// labeler in its DID document). See the labeler guide linked below.
+const session = await PasswordSession.login({
+  service: "https://bsky.social",
+  identifier: "your-labeler.bsky.social",
+  password: process.env.APP_PASSWORD!,
+});
+const client = new Client(session);
+
+// Map Coop actions -> label values your labeler defines.
+const ACTION_TO_LABEL: Record<string, string> = {
+  "label-as-spam": "spam",
+};
+
+const app = express();
+app.use(express.json());
+
+app.post("/coop/action", async (req, res) => {
+  // Verify the Coop-Signature header before trusting the payload — see
+  // https://roostorg.github.io/coop/latest/development/api-auth.html
+  const labelVal = ACTION_TO_LABEL[req.body.action.id];
+  if (!labelVal) return res.status(204).end();
+
+  // Coop's item id is the document's at:// URI; index 2 is the repo (author) DID.
+  const authorDid = req.body.item.id.split("/")[2];
+
+  await client.call(
+    tools.ozone.moderation.emitEvent,
+    {
+      createdBy: session.did,
+      subject: { $type: "com.atproto.admin.defs#repoRef", did: authorDid },
+      event: {
+        $type: "tools.ozone.moderation.defs#modEventLabel",
+        createLabelVals: [labelVal],
+        negateLabelVals: [],
+      },
+    },
+    { service: `${LABELER_DID}#atproto_labeler` },
+  );
+
+  res.status(200).end();
+});
+
+app.listen(3000);
+```
+
+That's the full round trip: a document leaves the network through Jetstream,
+gets reviewed in Coop, and a label goes back onto it through your labeler, where
+any client that subscribes to your labeler will see it.
+
+To stand up an atproto Labeler, refer to:
+
+- **[Labels](https://atproto.com/guides/labels)** — what labels are and how they
+  behave.
+- **[Creating a labeler](https://atproto.com/guides/creating-a-labeler)** and
+  **[Using Ozone](https://atproto.com/guides/using-ozone)** — running the
+  service that publishes them.
+
+## See also
+
+- **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints this
+  builds on.
+- **[Backfilling with Jetstream](/docs/jetstream-backfill)** — load the document
+  back catalogue before going live.
+- **[Forwarding to webhooks](/docs/jetstream-webhooks)** — the same ingest shape,
+  pointed at a chat channel instead of a moderation tool.
+- **[Coop documentation](https://roostorg.github.io/coop/)** — item types,
+  rules, the review console, and the APIs used here.
