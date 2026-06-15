@@ -69,7 +69,7 @@ the blob to a CDN URL first — e.g.
 maps the **text fields only** and leaves images out of the main path.
 :::
 
-## Set up the item type in Coop
+## Set up the item types in Coop
 
 Coop needs to know the shape of what you're sending before it can render or
 rule-match it. That's a one-time setup step, not middleware: every item you
@@ -77,40 +77,50 @@ submit references an **item type**, and its `data` must match that type's schema
 See Coop's [Basic Concepts](https://roostorg.github.io/coop/latest/user/concepts.html)
 for the full model.
 
-In the Coop dashboard, go to **Settings → Item Types** and create a **Content**
-item type called *Standard Document* with these fields:
+You'll create two: a **Bluesky User** for the document's author, and a
+**Standard Document** for the document itself. Modelling the author as its own
+item is what lets a reviewer pivot on the DID — every document, plus any reports
+submitted later via `com.atproto.moderation.createReport`, collects on one
+record. A plain `authorDid` string would just repeat in a column.
 
-| Field         | Coop type  | Notes                                          |
-| ------------- | ---------- | ---------------------------------------------- |
-| `authorDid`   | `String`   | The repo DID that published the document       |
-| `title`       | `String`   | Set this field's role to **Display Name**      |
-| `textContent` | `String`   | The document body / summary                    |
-| `site`        | `String`   | Source site, e.g. `https://example.com`        |
-| `path`        | `String`   | Path of the document on that site              |
-| `bskyPostUri` | `URL`      | Link to the Bluesky post (see the gotcha below) |
-| `publishedAt` | `Datetime` | Set this field's role to **Created At**        |
-| `updatedAt`   | `Datetime` | Optional                                       |
+### Bluesky User
+
+In the Coop dashboard, go to **Settings → Item Types** and create a **User**
+item type called *Bluesky User* with:
+
+| Field    | Coop type | Notes                                                |
+| -------- | --------- | ---------------------------------------------------- |
+| `did`    | `String`  | The repo DID; the item's `id` is set to match.       |
+| `handle` | `String`  | Set this field's role to **Display Name**.           |
+
+### Standard Document
+
+Then create a **Content** item type called *Standard Document* with:
+
+| Field         | Coop type      | Notes                                                           |
+| ------------- | -------------- | --------------------------------------------------------------- |
+| `author`      | `Related Item` | Linked to *Bluesky User*; set this field's role to **Creator**. Payloads use `{ id, typeId }`, not a bare string. |
+| `title`       | `String`       | Set this field's role to **Display Name**.                      |
+| `textContent` | `String`       | The document body / summary.                                    |
+| `site`        | `String`       | Source site, e.g. `https://example.com`.                        |
+| `path`        | `String`       | Path of the document on that site.                              |
+| `bskyPostUri` | `URL`          | Link to the Bluesky post (see the gotcha below).                |
+| `publishedAt` | `Datetime`     | Set this field's role to **Created At**.                        |
+| `updatedAt`   | `Datetime`     | Optional.                                                       |
 
 ![Creating the Standard Document content item type in Coop](/img/docs/coop-item-type.png)
 
-A couple of things worth knowing before you build the schema, because they're
-easy to trip over:
+One gotcha worth knowing before you build the Document schema:
 
-- **Don't map the author DID to the *Creator* role.** Coop's field roles are
-  type-checked: the *Creator* role must point at a `Related Item` field (a link
-  to a User item), not a plain string. If you set the author DID as the creator
-  role on a `String` field, the item type won't save. Keep `authorDid` as a
-  roleless `String` (or model a proper User item type and link to it — out of
-  scope here). The roles that *do* fit plain fields are **Display Name** (a
-  `String`, here `title`) and **Created At** (a `Datetime`, here `publishedAt`).
 - **A `URL` field rejects `at://` URIs.** Coop validates `URL` fields as real
   web URLs, so you can't drop the document's `bskyPostRef.uri`
   (`at://…/app.bsky.feed.post/…`) straight in. Convert it to the `https`
   permalink instead. This is more useful for a reviewer anyway, since it's
   clickable. That conversion is the one transform the bridge does.
 
-Once the type is created, copy its **ID** from the dashboard — you'll pass it as
-`typeId` on every item. Then create an **API key** under **Settings → API Keys**.
+Once both types are created, copy each one's **ID** from the dashboard — you'll
+pass them as `typeId` on every item. Then create an **API key** under
+**Settings → API Keys**.
 
 ## The bridge
 
@@ -129,7 +139,8 @@ import WebSocket from "ws"; // npm install ws
 
 const COOP_URL = "http://localhost:8080/api/v1/items/async/";
 const API_KEY = "…"; // Settings → API Keys
-const TYPE_ID = "…"; // the Standard Document item type's ID
+const USER_TYPE_ID = "…"; // the Bluesky User item type's ID
+const DOC_TYPE_ID = "…"; // the Standard Document item type's ID
 
 // Server-side filter does the work: one low-volume collection, whole network.
 const JETSTREAM =
@@ -139,16 +150,44 @@ const JETSTREAM =
 const BATCH = 25; // the items API accepts batches; one request, many items
 const FLUSH_MS = 3000; // ...but don't let a slow collection sit unsent
 
-// Map a Jetstream commit onto a Coop item. The record arrives already decoded,
-// so this is just field selection plus one URL conversion.
-function toItem(msg: any) {
+// Resolve a DID to its handle once and cache. Falls back to the DID so an
+// appview hiccup never stalls ingest.
+const handleCache = new Map<string, string>();
+async function resolveHandle(did: string): Promise<string> {
+  const cached = handleCache.get(did);
+  if (cached) return cached;
+  try {
+    const res = await fetch(
+      `https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${did}`,
+    );
+    if (res.ok) {
+      const { handle } = (await res.json()) as { handle: string };
+      handleCache.set(did, handle);
+      return handle;
+    }
+  } catch {}
+  return did;
+}
+
+// Map a Jetstream commit onto two Coop items: the User for the author (so all
+// records and any later reports for that DID collect on one item) and the
+// Document itself.
+async function toItems(msg: any) {
   const did: string = msg.did;
   const record = msg.commit.record;
   const uri: string = record.bskyPostRef?.uri ?? "";
   // at:// URIs aren't valid for a Coop URL field — use the https permalink.
   const postRkey = uri ? uri.split("/").pop() : msg.commit.rkey;
-  const data: Record<string, unknown> = {
-    authorDid: did,
+
+  const user = {
+    id: did,
+    typeId: USER_TYPE_ID,
+    data: { did, handle: await resolveHandle(did) },
+  };
+
+  const docData: Record<string, unknown> = {
+    // Related Item fields are serialized as { id, typeId } — not a bare string.
+    author: { id: did, typeId: USER_TYPE_ID },
     title: record.title,
     textContent: record.textContent,
     site: record.site,
@@ -156,13 +195,18 @@ function toItem(msg: any) {
     bskyPostUri: `https://bsky.app/profile/${did}/post/${postRkey}`,
     publishedAt: record.publishedAt,
   };
-  if (record.updatedAt) data.updatedAt = record.updatedAt;
+  if (record.updatedAt) docData.updatedAt = record.updatedAt;
+
   // Key the item on the record's at:// URI so re-deliveries are idempotent.
-  return {
-    id: uri || `at://${did}/site.standard.document/${msg.commit.rkey}`,
-    typeId: TYPE_ID,
-    data,
+  const document = {
+    id: uri || `at://${did}/${msg.commit.collection}/${msg.commit.rkey}`,
+    typeId: DOC_TYPE_ID,
+    data: docData,
   };
+
+  // User first: if Coop validates the Related Item link on intake, the target
+  // exists by the time it gets to the Document.
+  return [user, document];
 }
 
 async function submit(items: unknown[]) {
@@ -180,18 +224,19 @@ let buffer: unknown[] = [];
 let lastFlush = Date.now();
 
 const ws = new WebSocket(JETSTREAM);
-ws.on("message", (raw) => {
+ws.on("message", async (raw) => {
   const msg = JSON.parse(raw.toString());
   if (msg.kind !== "commit") return;
   if (!["create", "update"].includes(msg.commit.operation)) return;
-  buffer.push(toItem(msg));
+  buffer.push(...(await toItems(msg)));
 
   if (buffer.length >= BATCH || Date.now() - lastFlush >= FLUSH_MS) {
-    // Fire the batch and keep draining the socket — don't await a slow POST
-    // inside the read loop.
-    void submit(buffer);
+    // Snapshot and clear before the async POST so new items arriving during
+    // the request go into the next batch, not this one.
+    const batch = buffer;
     buffer = [];
     lastFlush = Date.now();
+    void submit(batch);
   }
 });
 ```
