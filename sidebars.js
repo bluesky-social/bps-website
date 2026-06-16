@@ -37,7 +37,6 @@ const sidebars = {
         'get-started/muting-and-blocking',
         'get-started/user-lists',
         'get-started/custom-feeds',
-        'get-started/thread-gates',
       ],
     },
     {
@@ -49,6 +48,7 @@ const sidebars = {
         'about-bluesky-content/posts',
         'about-bluesky-content/post-richtext',
         'about-bluesky-content/timestamps',
+        'get-started/thread-gates',
         'oembed',
         'intent-links',
       ],
@@ -60,7 +60,7 @@ const sidebars = {
     // to ~9-10 items. The category links to the parent doc itself.
     { type: 'category', label: 'API Hosts and Auth', link: { type: 'doc', id: 'api-directory' }, items: ['rate-limits', 'oauth-client']},
     {type: 'category', label: 'Resolving Identities', link: {type: 'doc', id: 'resolving-identities'}, items: ['entryway']},
-    { type: 'link', label: 'HTTP Reference', href: 'https://endpoints-production-21ea.up.railway.app/' },
+    { type: 'link', label: 'HTTP Reference', href: 'https://endpoints.bsky.app' },
     {type: 'category', label: 'Bluesky Dev Guidelines', link: {type: 'doc', id: 'developer-guidelines'}, items: ['mailing-list']},
   ],
 

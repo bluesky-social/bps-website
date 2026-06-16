@@ -431,7 +431,7 @@ export default function Home() {
               cta="Browse the reference"
               // NOTE: temporary target — the HTTP reference is moving off this
               // site to a standalone OpenAPI site. Update when that lands.
-              href="https://endpoints-production-21ea.up.railway.app/"
+              href="https://endpoints.bsky.app/"
             />
             <div className="cell friendly logocard" aria-hidden="true">
               <Butterfly className="friendlyBfly" />
