@@ -449,3 +449,28 @@
 .markdown table th {
   font-weight: 640; text-align: left;
 }
+
+/* =====================================================================
+ * DOCS READING SURFACE — code block chrome (§3)
+ * Docusaurus markup: .theme-code-block > .codeBlockTitle (optional) and a
+ * .buttonGroup holding the copy button. We restyle the container + header.
+ * ===================================================================== */
+.theme-code-block {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  box-shadow: none;
+}
+/* the title bar (shown when a code block has a title="...") */
+div[class*='codeBlockTitle_'] {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.72rem; letter-spacing: 0.02em;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+/* copy button → quieter */
+.theme-code-block button[class*='copyButton_'] {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.7rem;
+}
+/* code body uses the mono stack already via --ifm-font-family-monospace */
+.theme-code-block pre code { font-size: 0.85rem; line-height: 1.6; }
