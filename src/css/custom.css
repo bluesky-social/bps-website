@@ -30,6 +30,34 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+/* =====================================================================
+ * DOCS READING SURFACE — type & accent foundation (mono-accent anchor)
+ * Body & headings: Inter. Monospace (JetBrains Mono) is a deliberate
+ * accent only (nav category, breadcrumb, admonition labels, code, inline
+ * code). Reuses the landing page's font stacks. Keeps the existing blue
+ * primary; does NOT change the palette.
+ * ===================================================================== */
+:root {
+  --ifm-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ifm-heading-font-family: var(--ifm-font-family-base);
+
+  /* heading scale — Inter, title case, tight tracking */
+  --ifm-h1-font-size: 2rem;       /* ~32px page title via article h1 (see §2 width note) */
+  --ifm-heading-font-weight: 680;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.65;
+
+  /* mono accent token reused across docs chrome */
+  --bps-docs-mono: var(--ifm-font-family-monospace);
+}
+
+/* Per-heading sizing/tracking for the docs article body. Scoped to
+ * .markdown so it doesn't affect navbar/footer/landing. */
+.markdown h1 { font-size: 1.95rem; font-weight: 680; letter-spacing: -0.02em; }
+.markdown h2 { font-size: 1.45rem; font-weight: 660; letter-spacing: -0.015em; }
+.markdown h3 { font-size: 1.18rem; font-weight: 620; letter-spacing: -0.012em; }
+.markdown h4 { font-size: 1.02rem; font-weight: 620; letter-spacing: -0.01em; }
 
 .screen-reader-only {
   border: 0;
