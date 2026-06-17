@@ -474,3 +474,32 @@ div[class*='codeBlockTitle_'] {
 }
 /* code body uses the mono stack already via --ifm-font-family-monospace */
 .theme-code-block pre code { font-size: 0.85rem; line-height: 1.6; }
+
+/* =====================================================================
+ * DOCS READING SURFACE — left sidebar (§4)
+ * Scoped to .theme-doc-sidebar-menu so it never touches the navbar drawer.
+ * ===================================================================== */
+.theme-doc-sidebar-menu { font-size: 0.9rem; }
+
+/* Top-level category labels → mono, uppercase, tracked. First-level items
+ * are direct children of .theme-doc-sidebar-menu. */
+.theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
+.theme-doc-sidebar-menu > .menu__list-item > .menu__link--sublist {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* Items: Inter; comfortable spacing. */
+.theme-doc-sidebar-menu .menu__link {
+  line-height: 1.5; border-radius: 5px;
+}
+
+/* Active item: soft blue tint + inset accent bar. */
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+  background: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
+  color: var(--ifm-color-primary);
+  box-shadow: inset 2px 0 0 var(--ifm-color-primary);
+  font-weight: 600;
+}
