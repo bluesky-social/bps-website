@@ -379,3 +379,73 @@
 .markdown .hash-link { color: var(--ifm-color-emphasis-400); opacity: 0; }
 .markdown :hover > .hash-link { opacity: 1; }
 .markdown .hash-link:hover { color: var(--ifm-color-primary); }
+
+/* =====================================================================
+ * DOCS READING SURFACE — content components (§3)
+ * ===================================================================== */
+
+/* Inline code → mono token pill. */
+.markdown :not(pre) > code {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.86em;
+  padding: 1px 5px; border-radius: 4px;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Prose links: blue, low-contrast underline that strengthens on hover. */
+.markdown a:not(.card):not(.hash-link) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
+}
+.markdown a:not(.card):not(.hash-link):hover {
+  text-decoration-color: var(--ifm-color-primary);
+}
+
+/* Admonitions → bordered card, left accent rule, mono "// label" header.
+ * Docusaurus markup: .theme-admonition.alert.alert--<type> with a
+ * .admonitionHeading. We override per Infima alert variant. */
+.theme-admonition {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left-width: 3px;
+  border-radius: 8px;
+  background: var(--ifm-color-emphasis-100);
+}
+.theme-admonition .admonitionHeading,
+.theme-admonition .admonitionHeading > * {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+/* prefix the heading text with a mono comment marker */
+.theme-admonition .admonitionHeading::before { content: '// '; opacity: 0.7; }
+/* per-type accent (tip=green, warning/caution=amber, danger=red, note/info=blue) */
+.theme-admonition.alert--success { border-left-color: #2e9e57; }
+.theme-admonition.alert--success .admonitionHeading { color: #2e9e57; }
+.theme-admonition.alert--warning { border-left-color: #c98a14; }
+.theme-admonition.alert--warning .admonitionHeading { color: #c98a14; }
+.theme-admonition.alert--danger  { border-left-color: #d0454c; }
+.theme-admonition.alert--danger .admonitionHeading { color: #d0454c; }
+.theme-admonition.alert--info,
+.theme-admonition.alert--secondary {
+  border-left-color: var(--ifm-color-primary);
+}
+.theme-admonition.alert--info .admonitionHeading,
+.theme-admonition.alert--secondary .admonitionHeading {
+  color: var(--ifm-color-primary);
+}
+
+/* Tables: light row borders, subtle header, comfy padding, scroll on overflow. */
+.markdown table {
+  display: block; width: max-content; max-width: 100%;
+  overflow-x: auto; border-collapse: collapse;
+}
+.markdown table thead { background: var(--ifm-color-emphasis-100); }
+.markdown table th, .markdown table td {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  padding: 8px 12px;
+}
+.markdown table th {
+  font-weight: 640; text-align: left;
+}
