@@ -46,7 +46,11 @@ const config = {
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "ja"],
+    localeConfigs: {
+      en: { label: "English" },
+      ja: { label: "日本語" },
+    },
   },
   plugins: ["@docusaurus/plugin-ideal-image"],
 
@@ -125,6 +129,10 @@ const config = {
             // routes (where the real sidebar already fills the drawer).
             type: "custom-docsMenu",
             position: "left",
+          },
+          {
+            type: "localeDropdown",
+            position: "right",
           },
           {
             href: "https://github.com/bluesky-social",

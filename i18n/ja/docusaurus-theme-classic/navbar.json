@@ -1,0 +1,14 @@
+{
+  "item.label.Get Started": {
+    "message": "Get Started",
+    "description": "Navbar item with label Get Started"
+  },
+  "item.label.AT Protocol": {
+    "message": "AT Protocol",
+    "description": "Navbar item with label AT Protocol"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

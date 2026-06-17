@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
 import { useLocation } from '@docusaurus/router'
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 
 // Top-level docs sections, mirroring the sidebar (kept in sync by hand).
 const DOCS_LINKS = [
@@ -21,8 +22,12 @@ const DOCS_LINKS = [
 // (the masthead top bar carries navigation instead).
 export default function DocsMenu({ mobile }) {
   const { pathname } = useLocation()
+  const { i18n: { currentLocale, defaultLocale } } = useDocusaurusContext()
   if (!mobile) return null
-  if (pathname.startsWith('/docs')) return null
+  // Strip the locale prefix (`/ja`) before checking; on non-default locales
+  // a docs route looks like `/ja/docs/...`, not `/docs/...`.
+  const localePrefix = currentLocale === defaultLocale ? '' : `/${currentLocale}`
+  if (pathname.startsWith(`${localePrefix}/docs`)) return null
   return (
     <>
       <li className="menu__list-item bpsDocsMenuHeading" aria-hidden="true">
