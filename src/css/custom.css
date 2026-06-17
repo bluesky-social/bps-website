@@ -329,3 +329,53 @@
   letter-spacing: 0.08em; text-transform: uppercase;
   color: #6b7686;
 }
+
+/* =====================================================================
+ * DOCS READING SURFACE — layout & rhythm (§2)
+ * ===================================================================== */
+
+/* Cap the prose measure (~46rem ≈ 75-90 chars) while the 3-col shell keeps
+ * full width. Target the article's markdown container only. */
+.theme-doc-markdown.markdown { max-width: 46rem; }
+.theme-doc-markdown.markdown > * { max-width: 100%; }
+/* let code blocks and tables use a touch more width than prose */
+.theme-doc-markdown.markdown > .theme-code-block,
+.theme-doc-markdown.markdown > pre,
+.theme-doc-markdown.markdown > .table-wrapper { max-width: 52rem; }
+
+/* Breadcrumb → mono, lowercase, slash-separated, tracked. Docusaurus
+ * renders breadcrumbs as .breadcrumbs > .breadcrumbs__item > a/span. */
+.breadcrumbs { font-family: var(--bps-docs-mono); }
+.breadcrumbs__item { text-transform: lowercase; }
+.breadcrumbs__link {
+  font-size: 0.72rem; letter-spacing: 0.02em;
+  background: transparent; padding: 2px 4px;
+}
+/* replace the default chevron with a slash */
+.breadcrumbs__item:not(:last-child)::after {
+  content: '/'; opacity: 0.5; margin: 0 2px; background: none;
+  width: auto; height: auto; transform: none;
+}
+.breadcrumbs__item--active .breadcrumbs__link { color: var(--ifm-color-primary); background: transparent; }
+
+/* Right-hand TOC: quiet it. */
+.table-of-contents { font-size: 0.8rem; }
+.table-of-contents__left-border { border-left-color: var(--ifm-toc-border-color); }
+.table-of-contents__link { color: var(--ifm-color-emphasis-700); line-height: 1.5; }
+.table-of-contents__link--active,
+.table-of-contents__link:hover {
+  color: var(--ifm-color-primary);
+}
+/* a small mono label feel for the "On this page" heading if present */
+.table-of-contents > li > .table-of-contents__link { letter-spacing: -0.005em; }
+
+/* Vertical rhythm: even spacing between blocks. */
+.markdown > :where(p, ul, ol, pre, blockquote, .theme-admonition, .table-wrapper) {
+  margin-bottom: 1.15rem;
+}
+.markdown > :where(h2, h3, h4) { margin-top: 2rem; }
+
+/* Heading anchor links: muted, accent on hover (Docusaurus .hash-link). */
+.markdown .hash-link { color: var(--ifm-color-emphasis-400); opacity: 0; }
+.markdown :hover > .hash-link { opacity: 1; }
+.markdown .hash-link:hover { color: var(--ifm-color-primary); }
