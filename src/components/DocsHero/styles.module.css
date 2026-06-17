@@ -1,0 +1,43 @@
+/* Light-native tinted hero for docs index pages. The wash fades to
+ * transparent before the page content; topo lines ghost in from the corner. */
+.hero {
+  position: relative;
+  margin: 0 0 2rem;
+  padding: 0.5rem 0 0;
+  overflow: hidden;
+}
+.wash {
+  position: absolute; left: -2rem; right: -2rem; top: -2rem;
+  height: 240px; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg,
+    #eaf2fb 0%, #f2f7fc 46%, rgba(255,255,255,0) 100%);
+}
+:global([data-theme='dark']) .wash {
+  background: linear-gradient(180deg,
+    #13243a 0%, #101a28 46%, rgba(13,17,23,0) 100%);
+}
+.topo {
+  position: absolute; right: -16px; top: -6px;
+  width: 50%; height: 200px; z-index: 0; pointer-events: none;
+}
+.topo path { fill: none; stroke: #bcd5ef; stroke-width: 1.1; }
+:global([data-theme='dark']) .topo path { stroke: #27425f; }
+
+.hero > :not(.wash):not(.topo) { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ifm-color-primary);
+  margin-bottom: 0.6rem;
+}
+.title {
+  font-size: 2rem; font-weight: 740; letter-spacing: -0.024em;
+  line-height: 1.1; margin: 0 0 0.6rem;
+}
+.lede {
+  font-size: 1rem; line-height: 1.55;
+  color: var(--ifm-color-emphasis-700);
+  max-width: 34em; margin: 0;
+}
