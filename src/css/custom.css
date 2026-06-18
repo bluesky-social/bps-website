@@ -52,16 +52,20 @@
   --bps-docs-mono: var(--ifm-font-family-monospace);
 
   /* Paper surfaces — match the BPS design system per theme. Light mode uses
-   * an almost-white "paper-light"; dark mode reuses --bps-paper (#0d1117) so
-   * the docs surface is seamless with the always-dark navbar. */
-  --bps-paper-light: #fbfcfd;
+   * an off-white "paper-light"; dark mode uses the BPS paper #0d1117 so the
+   * docs surface is seamless with the always-dark navbar.
+   * NOTE: --bps-paper itself is defined in landing.css, which is only loaded
+   * on the homepage — so we use literal hex here (not var(--bps-paper)) to be
+   * self-contained on docs pages. Selectors below use `html[data-theme=...]`
+   * to match Docusaurus's own specificity and override its default bg. */
+  --bps-paper-light: #f4f6f9;
+}
+html[data-theme='light'] {
   --ifm-background-color: var(--bps-paper-light);
 }
-
-[data-theme='dark'] {
-  /* --bps-paper is defined globally in landing.css (#0d1117) */
-  --ifm-background-color: var(--bps-paper);
-  --ifm-background-surface-color: var(--bps-paper-2, #161c26);
+html[data-theme='dark'] {
+  --ifm-background-color: #0d1117;
+  --ifm-background-surface-color: #161c26;
 }
 
 /* Per-heading sizing/tracking for the docs article body. Scoped to
