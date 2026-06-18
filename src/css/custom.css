@@ -176,16 +176,49 @@ html[data-theme='dark'] {
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap');
 
 .navbar {
-  --ifm-navbar-background-color: #0d1117;
-  --ifm-navbar-link-color: #c4ccd8;
-  --ifm-navbar-link-hover-color: #3994ff;
+  /* ----- navbar palette tokens (dark defaults; light overrides below) ----- */
+  --bps-nav-bg: #0d1117;
+  --bps-nav-border: #1f2733;       /* bottom rule */
+  --bps-nav-ink: #f0f6fc;          /* wordmark line 1 */
+  --bps-nav-ink-soft: #c4ccd8;     /* links, wordmark line 2, toggle */
+  --bps-nav-hover: #3994ff;        /* accent on hover */
+  --bps-nav-sep: #4B5563;          /* middot separator */
+  --bps-nav-divider: #2a3340;      /* vertical dividers */
+  --bps-nav-surface: #161c26;      /* search box fill */
+  --bps-nav-surface-hover: #1c2330;
+  --bps-nav-rule: #2a3340;         /* search box + key borders */
+  --bps-nav-rule-hover: #38424f;
+  --bps-nav-key-bg: #0d1117;       /* ⌘K key caps */
+  --bps-nav-muted: #9ca3af;        /* search icon + placeholder + keys */
+
+  --ifm-navbar-background-color: var(--bps-nav-bg);
+  --ifm-navbar-link-color: var(--bps-nav-ink-soft);
+  --ifm-navbar-link-hover-color: var(--bps-nav-hover);
   --ifm-navbar-height: 64px;
-  border-bottom: 1px solid #1f2733;
+  --ifm-navbar-shadow: none;
+  box-shadow: none;
+  border-bottom: 1px solid var(--bps-nav-border);
   /* NOTE: don't set position here — Docusaurus's .navbar--fixed-top supplies
    * position: sticky, which we must preserve. A sticky element is still a
    * containing block for the absolutely-positioned topo ::before, so the
    * background layer works without overriding the sticky behavior. */
   overflow: hidden;
+}
+/* ----- light-mode navbar palette ----- */
+html[data-theme='light'] .navbar {
+  --bps-nav-bg: #f4f6f9;           /* matches the docs paper-light surface */
+  --bps-nav-border: #dfe3e8;
+  --bps-nav-ink: #0d1117;
+  --bps-nav-ink-soft: #3a444f;
+  --bps-nav-hover: #0057a8;
+  --bps-nav-sep: #9aa3ad;
+  --bps-nav-divider: #dfe3e8;
+  --bps-nav-surface: #ffffff;
+  --bps-nav-surface-hover: #ffffff;
+  --bps-nav-rule: #dfe3e8;
+  --bps-nav-rule-hover: #c7ccd3;
+  --bps-nav-key-bg: #f4f6f9;
+  --bps-nav-muted: #6b7480;
 }
 /* Faint topo-line graphic bleeding behind the masthead (prototype .topo-bg):
  * sits left of center, masked to fade at all edges so it doesn't terminate
@@ -217,9 +250,11 @@ html[data-theme='dark'] {
   z-index: 1;
   padding: 0 32px 0 40px;
 }
-/* keep the bar dark even in light mode */
-[data-theme='light'] .navbar {
-  --ifm-navbar-background-color: #0d1117;
+/* Light-mode topo: re-tint the lines to a faint blue-gray that reads on the
+ * light bar (the dark default uses near-white lines at low opacity). */
+html[data-theme='light'] .navbar::before {
+  opacity: 0.7;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 76' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%2398a9c0' stroke-opacity='0.5'%3E%3Cpath d='M 0,-10 C 80,4 180,12 280,16 C 380,20 480,18 600,8 C 660,2 700,-4 720,-10'/%3E%3Cpath d='M 0,18 C 100,28 200,38 320,44 C 440,50 560,42 660,32 C 690,28 710,24 720,22'/%3E%3Cpath stroke-opacity='0.7' stroke-width='1.4' d='M 0,38 C 120,52 220,64 360,70 C 500,74 620,66 720,54'/%3E%3Cpath d='M 0,62 C 100,78 220,86 380,86 C 540,86 640,78 720,68'/%3E%3Cpath d='M 0,86 C 140,90 260,96 400,98 C 540,100 660,96 720,90'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='360' cy='40' r='2.5' fill='%237088a6'/%3E%3Ccircle cx='360' cy='40' r='7' fill='none' stroke='%237088a6' stroke-opacity='0.5' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
 }
 /* no default brand link (we render our own lockup as the first item) */
 .navbar__brand:empty { display: none; }
@@ -229,10 +264,10 @@ html[data-theme='dark'] {
   gap: 22px;
   align-items: center;
 }
-/* keep right-side controls legible on the dark bar */
+/* keep right-side controls legible on the bar (both themes) */
 .navbar .clean-btn,
 .navbar__toggle {
-  color: #c4ccd8;
+  color: var(--bps-nav-ink-soft);
 }
 
 /* ----- brand lockup — matches the prototype .masthead .lockup ----- */
@@ -262,6 +297,10 @@ html[data-theme='dark'] {
   height: 44px; width: auto;
   display: block;
 }
+/* Light mode: swap the butterfly fill to the inverted (dark-core) gradient so
+ * the halftone dots stay legible against the pale bar. */
+html[data-theme='light'] .bpsBrand__pulse { fill: url(#bsky-grad-light); }
+html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); }
 .bpsBrand,
 .bpsBrand:hover { text-decoration: none; }
 .bpsBrand__word {
@@ -273,11 +312,11 @@ html[data-theme='dark'] {
 }
 .bpsBrand__full { display: flex; flex-direction: column; }
 .bpsBrand__w1 {
-  font-size: 18px; font-weight: 500; letter-spacing: -0.012em; color: #f0f6fc;
+  font-size: 18px; font-weight: 500; letter-spacing: -0.012em; color: var(--bps-nav-ink);
 }
 .bpsBrand__w2 {
   margin-top: 3px;
-  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: #c4ccd8;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--bps-nav-ink-soft);
 }
 
 /* ----- mono nav-mini links (Get Started, GitHub) — prototype's .nav-mini a:
@@ -289,14 +328,14 @@ html[data-theme='dark'] {
   font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
-  color: #c4ccd8;
+  color: var(--bps-nav-ink-soft);
   text-decoration: none;
 }
-.bpsNav--link:hover { color: #3994ff; }
+.bpsNav--link:hover { color: var(--bps-nav-hover); }
 /* middot separator between the mono links (prototype .nav-mini .sep) — a real
  * flex child so the right group's even gaps sit on both sides. */
 .bpsNav__sep {
-  color: #4B5563;
+  color: var(--bps-nav-sep);
   font-weight: 700;
   user-select: none;
   line-height: 1;
@@ -307,7 +346,7 @@ html[data-theme='dark'] {
   width: 1px;
   align-self: stretch;
   margin: 14px 0;
-  background: #2a3340;
+  background: var(--bps-nav-divider);
 }
 /* outbound-arrow icon on external links (GitHub) */
 .bpsNav__extIcon {
@@ -324,10 +363,10 @@ html[data-theme='dark'] {
   .navbar__items--right { gap: 14px; }
 }
 
-/* ----- dark Algolia search box on the masthead ----- */
+/* ----- Algolia search box on the masthead (token-driven, both themes) ----- */
 .navbar .DocSearch-Button {
-  background: #161c26;
-  border: 1px solid #2a3340;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
   border-radius: 6px;
   height: 36px;
   /* balanced internal spacing: icon · placeholder ······ keys */
@@ -336,15 +375,15 @@ html[data-theme='dark'] {
   min-width: 200px;
 }
 .navbar .DocSearch-Button:hover {
-  background: #1c2330;
+  background: var(--bps-nav-surface-hover);
   box-shadow: none;
-  border-color: #38424f;
+  border-color: var(--bps-nav-rule-hover);
 }
-.navbar .DocSearch-Button .DocSearch-Search-Icon { color: #9ca3af; width: 16px; height: 16px; }
+.navbar .DocSearch-Button .DocSearch-Search-Icon { color: var(--bps-nav-muted); width: 16px; height: 16px; }
 /* let the placeholder take the slack so the keys sit flush right. Inter for the
  * "Search" text. */
 .navbar .DocSearch-Button-Placeholder {
-  color: #9ca3af;
+  color: var(--bps-nav-muted);
   padding: 0 12px 0 8px;
   margin-right: auto;
   font-family: var(--ifm-font-family-base);
@@ -367,34 +406,36 @@ html[data-theme='dark'] {
   padding: 0;
   top: 0;
   margin: 0;
-  background: #0d1117;
-  border: 1px solid #2a3340;
+  background: var(--bps-nav-key-bg);
+  border: 1px solid var(--bps-nav-rule);
   border-radius: 4px;
   box-shadow: none;
-  color: #9ca3af;
+  color: var(--bps-nav-muted);
   font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   line-height: 1;
 }
 
-/* ----- mobile hamburger drawer: it inherits the dark navbar background, so
- * make its menu text legible (light) in both color modes. ----- */
+/* ----- mobile hamburger drawer: it inherits the navbar background, so drive
+ * its menu colors from the same nav tokens (legible in both themes). ----- */
 .navbar-sidebar {
-  --ifm-menu-color: #c4ccd8;
-  --ifm-menu-color-active: #fff;
+  --ifm-menu-color: var(--bps-nav-ink-soft);
+  --ifm-menu-color-active: var(--bps-nav-ink);
 }
 .navbar-sidebar .menu__link,
 .navbar-sidebar .menu__list-item-collapsible > .menu__link {
-  color: #c4ccd8;
+  color: var(--bps-nav-ink-soft);
 }
 .navbar-sidebar .menu__link:hover,
 .navbar-sidebar .menu__link--active,
 .navbar-sidebar .menu__list-item-collapsible:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.06);
+  color: var(--bps-nav-ink);
+  background: color-mix(in srgb, var(--bps-nav-ink) 7%, transparent);
 }
-.navbar-sidebar .menu__link--sublist-caret::after,
-.navbar-sidebar .menu__caret::before {
+/* caret carets: invert only on the dark bar (they're dark glyphs by default,
+ * which already read on the light bar). */
+html[data-theme='dark'] .navbar-sidebar .menu__link--sublist-caret::after,
+html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
   filter: invert(1) brightness(1.6);
 }
 /* small section label for the docs links surfaced on non-docs routes */
@@ -403,7 +444,7 @@ html[data-theme='dark'] {
   padding: 8px 12px 4px;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.08em; text-transform: uppercase;
-  color: #6b7686;
+  color: var(--bps-nav-muted);
 }
 
 /* =====================================================================
