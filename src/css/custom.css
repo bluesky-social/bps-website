@@ -363,15 +363,22 @@ html[data-theme='dark'] {
  * over the column's horizontal padding (measured 16px = --ifm-spacing-horizontal). */
 .theme-doc-markdown.markdown > .bpsDocHero { max-width: none; }
 
-/* Breadcrumb → mono, lowercase, slash-separated, tracked. Docusaurus
- * renders breadcrumbs as .breadcrumbs > .breadcrumbs__item > a/span. */
+/* Breadcrumb → mono, natural case, slash-separated, tracked. Docusaurus
+ * renders breadcrumbs as .breadcrumbs > .breadcrumbs__item > a/span, with a
+ * leading Home item carrying an icon. */
 .breadcrumbs { font-family: var(--bps-docs-mono); }
-.breadcrumbs__item { text-transform: lowercase; }
 .breadcrumbs__link {
   font-size: 0.72rem; letter-spacing: 0.02em;
   background: transparent; padding: 2px 4px;
+  border-radius: 4px;
 }
-/* replace the default chevron with a slash */
+/* Hide the Home item (icon link), but keep a leading slash before the first
+ * real crumb so the path still reads "/ get started / ...". */
+.breadcrumbs__item:first-child { display: none; }
+.breadcrumbs__item:nth-child(2)::before {
+  content: '/'; opacity: 0.5; margin-right: 2px;
+}
+/* slash separator between the remaining crumbs */
 .breadcrumbs__item:not(:last-child)::after {
   content: '/'; opacity: 0.5; margin: 0 2px; background: none;
   width: auto; height: auto; transform: none;
@@ -435,10 +442,22 @@ html[data-theme='dark'] {
  * Docusaurus markup: .theme-admonition.alert.alert--<type> with a
  * .admonitionHeading. We override per Infima alert variant. */
 .theme-admonition {
+  position: relative;
   border: 1px solid var(--ifm-color-emphasis-200);
-  border-left-width: 3px;
   border-radius: 8px;
   background: var(--ifm-color-emphasis-100);
+  /* per-type accent, defaulting to the primary; overridden per variant below */
+  --bps-admon-accent: var(--ifm-color-primary);
+}
+/* Left accent bar as a ::before so it sits flush inside the 8px radius rather
+ * than a square-cornered border-left. 3px wide, matching the card radius. */
+.theme-admonition::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+  background-color: var(--bps-admon-accent);
+  border-radius: 8px 0 0 8px;
 }
 /* The heading class is hashed by Docusaurus (admonitionHeading_xxxx), so match
  * it by substring rather than literal class. */
@@ -452,16 +471,17 @@ html[data-theme='dark'] {
 .theme-admonition [class*='admonitionIcon_'] { display: none; }
 /* prefix the heading text with a mono comment marker */
 .theme-admonition [class*='admonitionHeading_']::before { content: '// '; opacity: 0.7; }
-/* per-type accent (tip=green, warning/caution=amber, danger=red, note/info=blue) */
-.theme-admonition.alert--success { border-left-color: #2e9e57; }
+/* per-type accent (tip=green, warning/caution=amber, danger=red, note/info=blue).
+ * Drives both the ::before accent bar (via --bps-admon-accent) and the label. */
+.theme-admonition.alert--success { --bps-admon-accent: #2e9e57; }
 .theme-admonition.alert--success [class*='admonitionHeading_'] { color: #2e9e57; }
-.theme-admonition.alert--warning { border-left-color: #c98a14; }
+.theme-admonition.alert--warning { --bps-admon-accent: #c98a14; }
 .theme-admonition.alert--warning [class*='admonitionHeading_'] { color: #c98a14; }
-.theme-admonition.alert--danger  { border-left-color: #d0454c; }
+.theme-admonition.alert--danger  { --bps-admon-accent: #d0454c; }
 .theme-admonition.alert--danger [class*='admonitionHeading_'] { color: #d0454c; }
 .theme-admonition.alert--info,
 .theme-admonition.alert--secondary {
-  border-left-color: var(--ifm-color-primary);
+  --bps-admon-accent: var(--ifm-color-primary);
 }
 .theme-admonition.alert--info [class*='admonitionHeading_'],
 .theme-admonition.alert--secondary [class*='admonitionHeading_'] {
@@ -528,10 +548,20 @@ div[class*='codeBlockTitle_'] {
   line-height: 1.5; border-radius: 5px;
 }
 
-/* Active item: soft blue tint + inset accent bar. */
+/* Active item: soft blue tint + left accent bar. The bar is a ::before
+ * pseudo-element (not an inset box-shadow) so it sits flush inside the item's
+ * border-radius rather than being clipped square at the corner. */
 .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+  position: relative;
   background: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
   color: var(--ifm-color-primary);
-  box-shadow: inset 2px 0 0 var(--ifm-color-primary);
   font-weight: 600;
+}
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 2px;
+  background-color: var(--ifm-color-primary);
+  border-radius: 2px 0 0 2px;
 }
