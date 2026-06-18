@@ -20,15 +20,9 @@
   box-shadow: 0 2px 10px color-mix(in srgb, var(--ifm-color-primary) 16%, transparent);
   text-decoration: none;
 }
-.tag {
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 0.6rem; font-weight: 700;
-  letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--ifm-color-primary);
-}
 .title {
   font-size: 0.95rem; font-weight: 640; letter-spacing: -0.01em;
-  margin: 0.3rem 0 0.2rem;
+  margin: 0 0 0.2rem;
   color: var(--ifm-heading-color);
 }
 .body {
