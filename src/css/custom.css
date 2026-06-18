@@ -845,3 +845,58 @@ html[data-theme='dark'] .markdown table th,
 html[data-theme='dark'] .markdown table td {
   border-color: var(--bps-d-rule);
 }
+
+/* =====================================================================
+ * FOOTER — light/dark via tokens. Column TITLES are emphasized vs. the
+ * link ITEMS (color + weight); copyright line in Atkinson mono.
+ * ===================================================================== */
+.footer {
+  /* light defaults */
+  --bps-footer-bg: #eef1f5;
+  --bps-footer-border: #dfe3e8;
+  --bps-footer-title: var(--ifm-color-primary);  /* column headers — docs link/accent color */
+  --bps-footer-link: #26303a;      /* link items — normal text color */
+  --bps-footer-link-hover: var(--ifm-color-primary);
+  --bps-footer-copy: #8a929c;      /* copyright — de-emphasized text color */
+
+  background: var(--bps-footer-bg);
+  border-top: 1px solid var(--bps-footer-border);
+  --ifm-footer-background-color: var(--bps-footer-bg);
+  --ifm-footer-color: var(--bps-footer-link);
+  --ifm-footer-link-color: var(--bps-footer-link);
+  --ifm-footer-link-hover-color: var(--bps-footer-link-hover);
+  --ifm-footer-title-color: var(--bps-footer-title);
+}
+html[data-theme='dark'] .footer {
+  --bps-footer-bg: #0b0e13;        /* a touch deeper than the page for separation */
+  --bps-footer-border: #1f2733;
+  /* title + hover inherit var(--ifm-color-primary), which is already remapped
+   * for dark mode — no per-theme override needed. */
+  --bps-footer-link: #c4ccd8;      /* normal text color */
+  --bps-footer-copy: #6b7686;      /* de-emphasized */
+}
+
+/* Column titles → strong color + the mono UI accent, echoing the sidebar/nav
+ * category labels (distinguishes headers from items). */
+.footer__title {
+  color: var(--bps-footer-title);
+  font-family: var(--bps-docs-mono);
+  font-size: 0.82rem; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+}
+/* Link items → quieter, Inter, normal weight. */
+.footer__link-item {
+  color: var(--bps-footer-link);
+  font-size: 0.9rem;
+}
+.footer__link-item:hover { color: var(--bps-footer-link-hover); }
+
+/* Copyright line — Atkinson mono, uppercase, de-emphasized, with extra breathing
+ * room above it. */
+.footer__bottom { margin-top: 1.5rem; }
+.footer__copyright,
+.bpsFooterCopy {
+  color: var(--bps-footer-copy);
+  font-family: var(--bps-docs-mono);
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+}

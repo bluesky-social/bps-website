@@ -184,7 +184,8 @@ const config = {
         ],
       },
       footer: {
-        style: "dark",
+        // Light/dark handled via custom.css footer tokens (was forced "dark").
+        style: "light",
         links: [
           {
             title: "Docs",
@@ -242,7 +243,8 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Bluesky, PBC.`,
+        // Wrapped in a span so custom.css can render it in Atkinson mono.
+        copyright: `<span class="bpsFooterCopy">Bluesky Protocol Services · ${new Date().getFullYear()} · operated by Bluesky PBC</span>`,
       },
       prism: {
         theme: lightCodeTheme,
