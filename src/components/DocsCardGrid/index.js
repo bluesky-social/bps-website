@@ -8,7 +8,7 @@ export default function DocsCardGrid({ items = [] }) {
   return (
     <div className={styles.grid}>
       {items.map((item) => (
-        <Link key={item.to} to={item.to} className={styles.card}>
+        <Link key={item.to} to={item.to} className={`bpsDocCard ${styles.card}`}>
           {item.tag && <span className={styles.tag}>{item.tag}</span>}
           <h3 className={styles.title}>{item.title}</h3>
           {item.body && <p className={styles.body}>{item.body}</p>}

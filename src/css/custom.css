@@ -50,6 +50,18 @@
 
   /* mono accent token reused across docs chrome */
   --bps-docs-mono: var(--ifm-font-family-monospace);
+
+  /* Paper surfaces — match the BPS design system per theme. Light mode uses
+   * an almost-white "paper-light"; dark mode reuses --bps-paper (#0d1117) so
+   * the docs surface is seamless with the always-dark navbar. */
+  --bps-paper-light: #fbfcfd;
+  --ifm-background-color: var(--bps-paper-light);
+}
+
+[data-theme='dark'] {
+  /* --bps-paper is defined globally in landing.css (#0d1117) */
+  --ifm-background-color: var(--bps-paper);
+  --ifm-background-surface-color: var(--bps-paper-2, #161c26);
 }
 
 /* Per-heading sizing/tracking for the docs article body. Scoped to
@@ -334,14 +346,18 @@
  * DOCS READING SURFACE — layout & rhythm (§2)
  * ===================================================================== */
 
-/* Cap the prose measure (~46rem ≈ 75-90 chars) while the 3-col shell keeps
- * full width. Target the article's markdown container only. */
-.theme-doc-markdown.markdown { max-width: 46rem; }
-.theme-doc-markdown.markdown > * { max-width: 100%; }
+/* Cap the prose MEASURE (~46rem ≈ 75-90 chars) by limiting the article's
+ * direct children, NOT the container — so full-bleed blocks (the docs hero)
+ * can still span the whole content column. The container itself stays full
+ * width within the 3-col shell. */
+.theme-doc-markdown.markdown > * { max-width: 46rem; }
 /* let code blocks and tables use a touch more width than prose */
 .theme-doc-markdown.markdown > .theme-code-block,
 .theme-doc-markdown.markdown > pre,
 .theme-doc-markdown.markdown > .table-wrapper { max-width: 52rem; }
+/* the docs index hero breaks out of the measure to fill the column and bleed
+ * over the column's horizontal padding (measured 16px = --ifm-spacing-horizontal). */
+.theme-doc-markdown.markdown > .bpsDocHero { max-width: none; }
 
 /* Breadcrumb → mono, lowercase, slash-separated, tracked. Docusaurus
  * renders breadcrumbs as .breadcrumbs > .breadcrumbs__item > a/span. */
@@ -393,13 +409,15 @@
   border: 1px solid var(--ifm-color-emphasis-200);
 }
 
-/* Prose links: blue, low-contrast underline that strengthens on hover. */
-.markdown a:not(.card):not(.hash-link) {
+/* Prose links: blue, low-contrast underline that strengthens on hover.
+ * Excludes .bpsDocCard (the DocsCardGrid card link — a stable global class,
+ * since the CSS-module class is hashed and can't be matched by name here). */
+.markdown a:not(.bpsDocCard):not(.hash-link) {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
 }
-.markdown a:not(.card):not(.hash-link):hover {
+.markdown a:not(.bpsDocCard):not(.hash-link):hover {
   text-decoration-color: var(--ifm-color-primary);
 }
 
@@ -412,27 +430,31 @@
   border-radius: 8px;
   background: var(--ifm-color-emphasis-100);
 }
-.theme-admonition .admonitionHeading,
-.theme-admonition .admonitionHeading > * {
+/* The heading class is hashed by Docusaurus (admonitionHeading_xxxx), so match
+ * it by substring rather than literal class. */
+.theme-admonition [class*='admonitionHeading_'] {
   font-family: var(--bps-docs-mono);
   font-size: 0.66rem; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
 }
+/* Hide the default Docusaurus admonition icon — the design uses a mono "//"
+ * marker instead (the icon span is also hashed). */
+.theme-admonition [class*='admonitionIcon_'] { display: none; }
 /* prefix the heading text with a mono comment marker */
-.theme-admonition .admonitionHeading::before { content: '// '; opacity: 0.7; }
+.theme-admonition [class*='admonitionHeading_']::before { content: '// '; opacity: 0.7; }
 /* per-type accent (tip=green, warning/caution=amber, danger=red, note/info=blue) */
 .theme-admonition.alert--success { border-left-color: #2e9e57; }
-.theme-admonition.alert--success .admonitionHeading { color: #2e9e57; }
+.theme-admonition.alert--success [class*='admonitionHeading_'] { color: #2e9e57; }
 .theme-admonition.alert--warning { border-left-color: #c98a14; }
-.theme-admonition.alert--warning .admonitionHeading { color: #c98a14; }
+.theme-admonition.alert--warning [class*='admonitionHeading_'] { color: #c98a14; }
 .theme-admonition.alert--danger  { border-left-color: #d0454c; }
-.theme-admonition.alert--danger .admonitionHeading { color: #d0454c; }
+.theme-admonition.alert--danger [class*='admonitionHeading_'] { color: #d0454c; }
 .theme-admonition.alert--info,
 .theme-admonition.alert--secondary {
   border-left-color: var(--ifm-color-primary);
 }
-.theme-admonition.alert--info .admonitionHeading,
-.theme-admonition.alert--secondary .admonitionHeading {
+.theme-admonition.alert--info [class*='admonitionHeading_'],
+.theme-admonition.alert--secondary [class*='admonitionHeading_'] {
   color: var(--ifm-color-primary);
 }
 

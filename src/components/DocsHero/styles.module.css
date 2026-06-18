@@ -1,24 +1,35 @@
-/* Light-native tinted hero for docs index pages. The wash fades to
- * transparent before the page content; topo lines ghost in from the corner. */
+/* Light-native tinted hero for docs index pages. The tint band bleeds to the
+ * top/left/right edges of the doc area (clearing Docusaurus's content padding
+ * via a wide negative inset) and fades to transparent before the page content;
+ * topo lines ghost in from the corner. Inner padding keeps the text aligned to
+ * the prose column rather than flush against the bleed edge. */
 .hero {
   position: relative;
-  margin: 0 0 2rem;
-  padding: 0.5rem 0 0;
-  overflow: hidden;
+  /* Break out of the column's horizontal padding (--ifm-spacing-horizontal,
+   * 16px) so the tint band reaches the left/right edges of the content column,
+   * and pull up over the top padding so it bleeds to the top. Inner padding
+   * then re-aligns the text to the prose column. */
+  margin-top: calc(-1 * var(--ifm-spacing-vertical, 1rem));
+  margin-left: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
+  margin-right: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
+  margin-bottom: 2rem;
+  padding: 2.25rem var(--ifm-spacing-horizontal, 1rem) 0;
 }
 .wash {
-  position: absolute; left: -2rem; right: -2rem; top: -2rem;
-  height: 240px; z-index: 0; pointer-events: none;
+  position: absolute;
+  /* full-bleed within the (broken-out) hero box; no negative inset needed now */
+  left: 0; right: 0; top: 0;
+  height: 280px; z-index: 0; pointer-events: none;
   background: linear-gradient(180deg,
-    #eaf2fb 0%, #f2f7fc 46%, rgba(255,255,255,0) 100%);
+    #eaf2fb 0%, #eef4fa 46%, rgba(238,244,250,0) 100%);
 }
 :global([data-theme='dark']) .wash {
   background: linear-gradient(180deg,
-    #13243a 0%, #101a28 46%, rgba(13,17,23,0) 100%);
+    #13243a 0%, #101a28 46%, rgba(16,26,40,0) 100%);
 }
 .topo {
-  position: absolute; right: -16px; top: -6px;
-  width: 50%; height: 200px; z-index: 0; pointer-events: none;
+  position: absolute; right: 0; top: 0;
+  width: 52%; height: 220px; z-index: 0; pointer-events: none;
 }
 .topo path { fill: none; stroke: #bcd5ef; stroke-width: 1.1; }
 :global([data-theme='dark']) .topo path { stroke: #27425f; }

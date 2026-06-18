@@ -6,7 +6,7 @@ import styles from './styles.module.css'
 // deep blue-charcoal in dark mode. Presentational only.
 export default function DocsHero({ eyebrow, title, children }) {
   return (
-    <header className={styles.hero}>
+    <header className={`bpsDocHero ${styles.hero}`}>
       <div className={styles.wash} aria-hidden="true" />
       <svg
         className={styles.topo}
