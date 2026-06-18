@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
 import { useLocation } from '@docusaurus/router'
+import { useNavbarMobileSidebar } from '@docusaurus/theme-common/internal'
 
 // Top-level docs sections, mirroring the sidebar (kept in sync by hand).
 const DOCS_LINKS = [
@@ -21,8 +22,10 @@ const DOCS_LINKS = [
 // (the masthead top bar carries navigation instead).
 export default function DocsMenu({ mobile }) {
   const { pathname } = useLocation()
+  const mobileSidebar = useNavbarMobileSidebar()
   if (!mobile) return null
   if (pathname.startsWith('/docs')) return null
+  const close = () => mobileSidebar.toggle()
   return (
     <>
       <li className="menu__list-item bpsDocsMenuHeading" aria-hidden="true">
@@ -31,11 +34,11 @@ export default function DocsMenu({ mobile }) {
       {DOCS_LINKS.map((l) => (
         <li className="menu__list-item" key={l.to || l.href}>
           {l.href ? (
-            <a className="menu__link" href={l.href} target="_blank" rel="noopener noreferrer">
+            <a className="menu__link" href={l.href} target="_blank" rel="noopener noreferrer" onClick={close}>
               {l.label}
             </a>
           ) : (
-            <Link className="menu__link" to={l.to}>
+            <Link className="menu__link" to={l.to} onClick={close}>
               {l.label}
             </Link>
           )}

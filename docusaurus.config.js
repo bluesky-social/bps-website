@@ -71,6 +71,17 @@ const config = {
     defaultLocale: "en",
     locales: ["en"],
   },
+  // Load the design-system fonts site-wide via real <link> tags. (A CSS @import
+  // placed after other rules in custom.css is invalid and was being ignored, so
+  // Atkinson didn't load on some pages.) Inter + JetBrains Mono + Atkinson
+  // Hyperlegible Mono.
+  stylesheets: [
+    { href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap", rel: "stylesheet" },
+  ],
+  headTags: [
+    { tagName: "link", attributes: { rel: "preconnect", href: "https://fonts.googleapis.com" } },
+    { tagName: "link", attributes: { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "true" } },
+  ],
   plugins: ["@docusaurus/plugin-ideal-image"],
 
   // The HTTP/XRPC endpoint reference is no longer generated into this site. It

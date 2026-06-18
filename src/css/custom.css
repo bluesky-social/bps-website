@@ -173,7 +173,8 @@ html[data-theme='dark'] {
  * src/theme/NavbarItem/ComponentTypes.js).
  * ===================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap');
+/* Fonts are loaded site-wide via `stylesheets` in docusaurus.config.js (a CSS
+ * @import here would be invalid — it must precede all rules — and was ignored). */
 
 .navbar {
   /* ----- navbar palette tokens (dark defaults; light overrides below) ----- */
@@ -201,8 +202,10 @@ html[data-theme='dark'] {
   /* NOTE: don't set position here — Docusaurus's .navbar--fixed-top supplies
    * position: sticky, which we must preserve. A sticky element is still a
    * containing block for the absolutely-positioned topo ::before, so the
-   * background layer works without overriding the sticky behavior. */
-  overflow: hidden;
+   * background layer works without overriding the sticky behavior.
+   * Do NOT set overflow:hidden here — the mobile drawer (.navbar-sidebar) is a
+   * child of .navbar and would be clipped to the bar height. The topo ::before
+   * is clipped by its own radial mask + the row height instead. */
 }
 /* ----- light-mode navbar palette ----- */
 html[data-theme='light'] .navbar {
@@ -356,13 +359,6 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   transform: translateY(-0.5px);
 }
 
-/* ----- mobile: the brand stays full-strength; the mono links collapse into
- * the hamburger drawer (they return null there, so the drawer keeps the
- * standard Docusaurus menu). Search + theme toggle stay in the bar. ----- */
-@media (max-width: 996px) {
-  .navbar__items--right { gap: 14px; }
-}
-
 /* ----- Algolia search box on the masthead (token-driven, both themes) ----- */
 .navbar .DocSearch-Button {
   background: var(--bps-nav-surface);
@@ -416,16 +412,104 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   line-height: 1;
 }
 
+/* ----- mobile (≤996px): compact bar = hamburger · logo lockup (left) … search
+ * icon (right). The mono links, dividers, separator, and theme toggle drop out
+ * of the bar and live in the hamburger drawer instead.
+ * NOTE: this block is placed AFTER the base search-box styles above so its
+ * rules win at equal specificity (source order) — otherwise the base
+ * border-radius:6px would override the circular 50% here. ----- */
+@media (max-width: 996px) {
+  .navbar__inner { padding: 0 14px; }
+
+  /* smaller hamburger, with breathing room before the lockup */
+  .navbar__toggle { padding: 4px; margin-right: 12px; }
+  .navbar__toggle svg { width: 22px; height: 22px; }
+
+  /* full lockup stays, tightened; pulse a touch smaller to save width */
+  .bpsBrand { column-gap: 12px; }
+  .bpsBrand__pulseWrap { width: 40px; height: 34px; }
+  .bpsBrand__pulse { height: 36px; }
+  .bpsBrand__w1 { font-size: 16px; }
+  .bpsBrand__w2 { font-size: 10px; }
+
+  /* hide the bar's link cluster + dividers + separator + toggle — these move to
+   * the drawer. Search stays (as an icon). */
+  .navbar__items--right > .bpsNav--link,
+  .navbar__items--right > .bpsNav__divider,
+  .navbar__items--right > .bpsNav__sep,
+  .navbar__items--right > [class*='colorModeToggle'],
+  .navbar__items--right > [class*='toggle_'] {
+    display: none;
+  }
+  .navbar__items--right { gap: 0; }
+
+  /* collapse the search box to a circular icon button (placeholder + keys hidden) */
+  .navbar .navbarSearchContainer_Bca1,
+  .navbar [class*='navbarSearchContainer'] { width: 38px; }
+  .navbar .DocSearch-Button {
+    min-width: 0;
+    width: 38px; height: 38px;
+    padding: 0;
+    border-radius: 50%;            /* circular icon button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .navbar .DocSearch-Button-Placeholder,
+  .navbar .DocSearch-Button-Keys { display: none; }
+  /* the icon sits in a Container span; zero its margins and center it */
+  .navbar .DocSearch-Button .DocSearch-Button-Container { margin: 0; }
+  .navbar .DocSearch-Button .DocSearch-Search-Icon { margin: 0; display: block; }
+
+  /* When the drawer is open, hide the bar's right group (the search icon) so it
+   * can't peek through in the strip beside the drawer. */
+  .navbar-sidebar--show .navbar__items--right { visibility: hidden; }
+}
+
 /* ----- mobile hamburger drawer: it inherits the navbar background, so drive
  * its menu colors from the same nav tokens (legible in both themes). ----- */
 .navbar-sidebar {
   --ifm-menu-color: var(--bps-nav-ink-soft);
   --ifm-menu-color-active: var(--bps-nav-ink);
+  /* The drawer is fixed but nested in .navbar (z-index:200) with z:auto, so the
+   * bar's own content (search icon, etc.) bleeds over the drawer's top corner.
+   * Lift the drawer above the bar content so it fully covers the masthead. */
+  z-index: 300;
 }
 .navbar-sidebar .menu__link,
 .navbar-sidebar .menu__list-item-collapsible > .menu__link {
   color: var(--bps-nav-ink-soft);
 }
+/* Mirror the desktop sidebar's type split:
+ *  - MAIN menu (level-1 category labels + top-level links, incl. our custom
+ *    NavCustomLink items) → Atkinson mono, uppercase, tracked
+ *  - SUBMENU (level-2 children) → Inter (inherits base) */
+.navbar-sidebar__items .menu__list > .menu__list-item > .menu__link,
+.navbar-sidebar__items .menu__list > .menu__list-item > .menu__list-item-collapsible > .menu__link {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.09em; text-transform: uppercase;
+}
+/* nested (submenu) items stay Inter, normal case */
+.navbar-sidebar__items .menu__list .menu__list .menu__link {
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.9rem; font-weight: 400;
+  letter-spacing: normal; text-transform: none;
+}
+
+/* drawer header: lockup on the left, theme toggle just to its right, close at
+ * the far right. */
+.navbar-sidebar__brand {
+  gap: 12px;
+  box-shadow: none;
+  border-bottom: 1px solid var(--bps-nav-border);
+}
+/* lockup pushed left; toggle + close sit together at the far right */
+.navbar-sidebar__brand .bpsBrand { margin-right: auto; }
+.navbar-sidebar__brand .bpsDrawerToggle { margin: 0; }
+/* smaller close (X) button, snug against the toggle */
+.navbar-sidebar__close { padding: 4px; margin-left: 0; }
+.navbar-sidebar__close svg { width: 18px; height: 18px; }
 .navbar-sidebar .menu__link:hover,
 .navbar-sidebar .menu__link--active,
 .navbar-sidebar .menu__list-item-collapsible:hover {
