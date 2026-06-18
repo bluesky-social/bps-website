@@ -181,6 +181,38 @@ html[data-theme='dark'] {
   --ifm-navbar-link-hover-color: #3994ff;
   --ifm-navbar-height: 64px;
   border-bottom: 1px solid #1f2733;
+  position: relative;
+  overflow: hidden;
+}
+/* Faint topo-line graphic bleeding behind the masthead (prototype .topo-bg):
+ * sits left of center, masked to fade at all edges so it doesn't terminate
+ * abruptly. Inline SVG data-URI; behind the nav content (which Docusaurus
+ * positions above via its own stacking). */
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0;
+  width: 760px; max-width: 70%;
+  transform: translateX(18%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+          mask-image: radial-gradient(ellipse at center, #000 30%, transparent 80%);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 76' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%23e8eef6' stroke-opacity='0.16'%3E%3Cpath d='M 0,-10 C 80,4 180,12 280,16 C 380,20 480,18 600,8 C 660,2 700,-4 720,-10'/%3E%3Cpath d='M 0,18 C 100,28 200,38 320,44 C 440,50 560,42 660,32 C 690,28 710,24 720,22'/%3E%3Cpath stroke-opacity='0.28' stroke-width='1.4' d='M 0,38 C 120,52 220,64 360,70 C 500,74 620,66 720,54'/%3E%3Cpath d='M 0,62 C 100,78 220,86 380,86 C 540,86 640,78 720,68'/%3E%3Cpath d='M 0,86 C 140,90 260,96 400,98 C 540,100 660,96 720,90'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='360' cy='40' r='2.5' fill='%239CA3AF'/%3E%3Ccircle cx='360' cy='40' r='7' fill='none' stroke='%239CA3AF' stroke-opacity='0.4' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
+}
+/* keep the navbar content above the topo layer; match the prototype masthead's
+ * asymmetric padding (40px left of the logo, 32px right). Docusaurus's own
+ * .navbar padding is symmetric, so neutralize it and pad the inner row. */
+.navbar { padding-left: 0; padding-right: 0; }
+.navbar__inner {
+  position: relative;
+  z-index: 1;
+  padding: 0 32px 0 40px;
 }
 /* keep the bar dark even in light mode */
 [data-theme='light'] .navbar {
@@ -188,117 +220,103 @@ html[data-theme='dark'] {
 }
 /* no default brand link (we render our own lockup as the first item) */
 .navbar__brand:empty { display: none; }
-/* spacing between the left entries */
-.navbar__items:not(.navbar__items--right) { gap: 28px; }
+/* right group = the prototype's "nav-mini" cluster: search · Get Started ·
+ * GitHub↗ · theme toggle, baseline-aligned with comfortable gaps. */
+.navbar__items--right {
+  gap: 22px;
+  align-items: center;
+}
 /* keep right-side controls legible on the dark bar */
 .navbar .clean-btn,
 .navbar__toggle {
   color: #c4ccd8;
 }
 
-/* ----- brand lockup ----- */
+/* ----- brand lockup — matches the prototype .masthead .lockup ----- */
 .bpsBrand {
   display: inline-flex;
   align-items: center;
-  column-gap: 12px;
+  column-gap: 18px;
   text-decoration: none;
 }
+/* logo renders at 44px but the wrapper holds the nominal row height so the SVG
+ * can overflow without growing the bar (prototype .lockup .pulse). */
 .bpsBrand__pulseWrap {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 34px;
+  width: 50px;
+  height: 40px;
   color: #3994ff;
   flex: 0 0 auto;
+  overflow: visible;
 }
-.bpsBrand__pulse { height: 36px; width: auto; display: block; }
+.bpsBrand__pulse {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  height: 44px; width: auto;
+  display: block;
+}
 .bpsBrand__word {
   display: inline-flex;
   flex-direction: column;
   line-height: 1;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 .bpsBrand__full { display: flex; flex-direction: column; }
 .bpsBrand__w1 {
-  font-size: 17px; font-weight: 600; letter-spacing: -0.012em; color: #f0f6fc;
+  font-size: 18px; font-weight: 500; letter-spacing: -0.012em; color: #f0f6fc;
 }
 .bpsBrand__w2 {
   margin-top: 3px;
-  font-size: 10.5px; font-weight: 500; letter-spacing: 0.02em; color: #c4ccd8;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: #c4ccd8;
 }
-/* On mobile the pulse butterfly is hidden and "bps" carries the brand instead.
- * Plain lowercase blue monospace wordmark for now — a placeholder to be
- * replaced by a real dithered "bps" logo asset later in design. */
-.bpsBrand__short {
-  display: none;
-  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 22px; font-weight: 700; letter-spacing: 0.02em;
-  color: #3994ff;
-}
-.bpsBrand:hover .bpsBrand__w1 { color: #fff; }
-.bpsBrand:hover .bpsBrand__short { color: #5aa6ff; }
 
-/* ----- mono links (Get Started, AT Protocol) ----- */
+/* ----- mono nav-mini links (Get Started, GitHub) — prototype's .nav-mini a:
+ * uppercase JetBrains mono, soft ink, blue on hover. ----- */
 .bpsNav--link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  gap: 5px;
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: #c4ccd8;
   text-decoration: none;
 }
 .bpsNav--link:hover { color: #3994ff; }
-.bpsNav--plain { text-transform: none; font-size: 14px; transform: translateY(1px); }
-
-/* The short label is mobile-only; the long label is the desktop default. */
-.bpsNav__label--short { display: none; }
-
-/* "Get Started" reads friendlier than the mono masthead links: title case in
- * the default navbar font, to match the GitHub link on the right. */
-.bpsNav--friendly {
-  font-family: var(--ifm-font-family-base);
-  font-weight: var(--ifm-font-weight-semibold);
-  font-size: 1rem;
-  letter-spacing: normal;
-  text-transform: none;
-  gap: 10px;
+/* middot separator between the mono links (prototype .nav-mini .sep) — a real
+ * flex child so the right group's even gaps sit on both sides. */
+.bpsNav__sep {
+  color: #4B5563;
+  font-weight: 700;
+  user-select: none;
+  line-height: 1;
 }
-
-/* sized to match the brand "pulse" butterfly for consistency */
-.bpsNav__butterfly {
-  width: 41px; height: 36px;
-  color: #3994ff;
+/* vertical divider bracketing the link cluster (prototype live-pill /
+ * version-stamp borders). */
+.bpsNav__divider {
+  width: 1px;
+  align-self: stretch;
+  margin: 14px 0;
+  background: #2a3340;
+}
+/* outbound-arrow icon on external links (GitHub) */
+.bpsNav__extIcon {
+  width: 11px; height: 11px;
   flex: 0 0 auto;
+  opacity: 0.8;
+  transform: translateY(-0.5px);
 }
 
-/* AT Protocol globe — masked to a disc so the amber dots read against the
- * dark navbar; sized to sit comfortably next to the "plain" 14px label. */
-.bpsNav__image {
-  width: 42px; height: 42px;
-  object-fit: cover;
-  flex: 0 0 auto;
-  -webkit-mask-image: radial-gradient(circle, #000 54%, transparent 70%);
-  mask-image: radial-gradient(circle, #000 54%, transparent 70%);
-}
-.bpsNav--plain { gap: 6px; }
-
-/* ----- mobile: brand stays full-strength; the other two entries abbreviate.
- * The hamburger holds GitHub + the docs sidebar (docs routes) or the docs
- * sections surfaced by custom-docsMenu (non-docs routes). ----- */
+/* ----- mobile: the brand stays full-strength; the mono links collapse into
+ * the hamburger drawer (they return null there, so the drawer keeps the
+ * standard Docusaurus menu). Search + theme toggle stay in the bar. ----- */
 @media (max-width: 996px) {
-  /* Get Started collapses to just the butterfly (label hidden, no extra gap) */
-  .bpsNav--friendly .bpsNav__label { display: none; }
-  .bpsNav--friendly { gap: 0; }
-  .bpsNav__butterfly { width: 32px; height: 28px; }
-  /* AT Protocol -> at:// on mobile (globe icon hidden too) */
-  .bpsNav__image { display: none; }
-  .bpsNav__label--long { display: none; }
-  .bpsNav__label--short { display: inline; }
-  /* tighten spacing between the entries on narrow screens */
-  .navbar__items:not(.navbar__items--right) { gap: 16px; }
+  .navbar__items--right { gap: 14px; }
 }
 
 /* ----- dark Algolia search button on the masthead ----- */

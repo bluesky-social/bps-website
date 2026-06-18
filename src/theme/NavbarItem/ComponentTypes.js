@@ -3,11 +3,13 @@
 import ComponentTypes from '@theme-original/NavbarItem/ComponentTypes'
 import BpsBrand from '@site/src/components/Navbar/BpsBrand'
 import NavCustomLink from '@site/src/components/Navbar/NavCustomLink'
+import NavSep from '@site/src/components/Navbar/NavSep'
 import DocsMenu from '@site/src/components/Navbar/DocsMenu'
 
 export default {
   ...ComponentTypes,
   'custom-bpsBrand': BpsBrand,
   'custom-navLink': NavCustomLink,
+  'custom-navSep': NavSep,
   'custom-docsMenu': DocsMenu,
 }

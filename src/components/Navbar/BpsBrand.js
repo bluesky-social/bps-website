@@ -80,7 +80,6 @@ export default function BpsBrand({ mobile, to, href }) {
           <span className="bpsBrand__w1">Bluesky</span>
           <span className="bpsBrand__w2">Protocol Services</span>
         </span>
-        <span className="bpsBrand__short">bps</span>
       </span>
     </>
   )

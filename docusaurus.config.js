@@ -110,37 +110,16 @@ const config = {
     ({
       image: "img/social-card-default.png",
       navbar: {
-        // The brand lockup is rendered by the custom `custom-bpsBrand` item
-        // below (see src/components/Navbar/), so no default logo/title here.
+        // Masthead modeled on the landing-bsky prototype's nav. The brand
+        // lockup is the custom `custom-bpsBrand` item; the right group is the
+        // prototype's "nav-mini": [search] · Get Started · GitHub↗ · [theme
+        // toggle]. The color-mode toggle auto-renders last on the right.
         items: [
           {
             // "Bluesky Protocol Services" lockup → homepage.
             type: "custom-bpsBrand",
             position: "left",
             to: "/",
-          },
-          {
-            // "Get Started" — old Bluesky butterfly + label; points where the
-            // Docs link used to. `friendly` renders it in title case with the
-            // default navbar font (vs. the mono/uppercase masthead style).
-            // Collapses to just the butterfly on mobile.
-            type: "custom-navLink",
-            position: "left",
-            icon: "butterfly",
-            friendly: true,
-            label: "Get Started",
-            to: "/docs/get-started",
-          },
-          {
-            // "AT Protocol" — collapses to "at://" on mobile. The icon is a
-            // masked crop of the amber dot-globe used on the homepage card.
-            type: "custom-navLink",
-            position: "left",
-            plain: true,
-            image: "/img/atproto-globe.png",
-            label: "AT Protocol",
-            shortLabel: "at://",
-            href: "https://atproto.com",
           },
           {
             // Mobile-only: renders the docs sections into the hamburger on
@@ -150,9 +129,46 @@ const config = {
             position: "left",
           },
           {
-            href: "https://github.com/bluesky-social",
-            label: "GitHub",
+            // Search box (Algolia DocSearch) — placed first on the right so it
+            // sits at the left of the nav-mini cluster, where "evt/s" was.
+            type: "search",
             position: "right",
+          },
+          {
+            // Vertical divider bracketing the link cluster (prototype's
+            // live-pill border-right).
+            type: "custom-navSep",
+            position: "right",
+            variant: "divider",
+          },
+          {
+            // "Get Started" — the prototype's "Docs" link, renamed. Mono
+            // masthead style.
+            type: "custom-navLink",
+            position: "right",
+            label: "Get Started",
+            to: "/docs/get-started",
+          },
+          {
+            // Middot separator between the two mono links (prototype ".sep").
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // "GitHub" with an outbound-arrow icon.
+            type: "custom-navLink",
+            position: "right",
+            label: "GitHub",
+            href: "https://github.com/bluesky-social",
+            external: true,
+          },
+          {
+            // Trailing vertical divider before the auto-appended theme toggle
+            // (prototype's version-stamp border-left).
+            type: "custom-navSep",
+            position: "right",
+            variant: "divider",
           },
         ],
       },

@@ -1,41 +1,35 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
-import Butterfly from './Butterfly'
 
-// Generic mockup-styled navbar link used for the "Get Started" (butterfly +
-// label) and "AT Protocol" entries.
-//
-// These stay in the top bar at all widths (abbreviated on mobile via CSS:
-// Get Started -> butterfly only, AT Protocol -> "at://"), so they return null
-// in the mobile hamburger — which keeps the standard Docusaurus menu (GitHub
-// + the docs sidebar) intact rather than being replaced by these.
-//
-// `shortLabel`, when provided, renders alongside `label` and the two spans
-// swap visibility at the mobile breakpoint via CSS.
-export default function NavCustomLink({
-  mobile,
-  label,
-  shortLabel,
-  to,
-  href,
-  icon,
-  image,
-  plain,
-  friendly,
-}) {
+// Mono masthead nav link, modeled on the landing-bsky prototype's "nav-mini"
+// entries (uppercase JetBrains mono). Used for "Get Started" (internal `to`)
+// and "GitHub" (external `href`). External links get a trailing outbound-arrow
+// icon. Returns null in the mobile hamburger — these stay in the top bar at all
+// widths, so the drawer keeps the standard Docusaurus menu.
+function ExternalArrow() {
+  return (
+    <svg
+      className="bpsNav__extIcon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  )
+}
+
+export default function NavCustomLink({ mobile, label, to, href, external }) {
   if (mobile) return null
-  const cls =
-    'bpsNav bpsNav--link' +
-    (plain ? ' bpsNav--plain' : '') +
-    (friendly ? ' bpsNav--friendly' : '')
+  const cls = 'bpsNav bpsNav--link'
   const content = (
     <>
-      {icon === 'butterfly' && <Butterfly className="bpsNav__butterfly" />}
-      {image && <img className="bpsNav__image" src={image} alt="" aria-hidden="true" />}
-      <span className="bpsNav__label bpsNav__label--long">{label}</span>
-      {shortLabel && (
-        <span className="bpsNav__label bpsNav__label--short">{shortLabel}</span>
-      )}
+      <span className="bpsNav__label">{label}</span>
+      {external && <ExternalArrow />}
     </>
   )
   if (href) {
