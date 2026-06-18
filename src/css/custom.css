@@ -6,27 +6,30 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #0057a8;
-  --ifm-color-primary-dark: #004e97;
-  --ifm-color-primary-darker: #004a8f;
-  --ifm-color-primary-darkest: #003d76;
-  --ifm-color-primary-light: #0060b9;
-  --ifm-color-primary-lighter: #0064c1;
-  --ifm-color-primary-lightest: #0071da;
+  /* Light-mode primary = #0052CC — the dark stop of the butterfly logo gradient
+   * (#bsky-grad). Variants are conventional Infima shade/tint steps. */
+  --ifm-color-primary: #0052cc;
+  --ifm-color-primary-dark: #004ab8;
+  --ifm-color-primary-darker: #0046ad;
+  --ifm-color-primary-darkest: #00398f;
+  --ifm-color-primary-light: #1a64d1;
+  --ifm-color-primary-lighter: #2670d4;
+  --ifm-color-primary-lightest: #4d89dc;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --site-color-svg-icon-favorite: #D00C61;
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* Dark-mode primary = #7DD3FC — the light stop of the butterfly logo gradient
+ * (#bsky-grad); a lighter palette for legibility on the dark surface. */
 [data-theme='dark'] {
-  --ifm-color-primary: #75bcff;
-  --ifm-color-primary-dark: #50aaff;
-  --ifm-color-primary-darker: #3da1ff;
-  --ifm-color-primary-darkest: #0586ff;
-  --ifm-color-primary-light: #9aceff;
-  --ifm-color-primary-lighter: #add7ff;
-  --ifm-color-primary-lightest: #e5f2ff;
+  --ifm-color-primary: #7dd3fc;
+  --ifm-color-primary-dark: #5cc6fb;
+  --ifm-color-primary-darker: #4fc0fb;
+  --ifm-color-primary-darkest: #1cabf8;
+  --ifm-color-primary-light: #9eddfd;
+  --ifm-color-primary-lighter: #ade3fd;
+  --ifm-color-primary-lightest: #dbf3fe;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
