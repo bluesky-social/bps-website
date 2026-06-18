@@ -499,6 +499,13 @@ html[data-theme='dark'] {
   overflow-x: auto; border-collapse: collapse;
 }
 .markdown table thead { background: var(--ifm-color-emphasis-100); }
+/* Disable Infima's zebra striping — keep a flat row background. */
+.markdown table tr,
+.markdown table tr:nth-child(2n) {
+  background: transparent;
+}
+/* Thin the head/body divider (Infima defaults to a 2px thead border). */
+.markdown table thead tr { border-bottom: 1px solid var(--ifm-color-emphasis-200); }
 .markdown table th, .markdown table td {
   border: 1px solid var(--ifm-color-emphasis-200);
   padding: 8px 12px;
