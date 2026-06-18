@@ -421,13 +421,14 @@ html[data-theme='dark'] {
  * ===================================================================== */
 
 /* Inline code → mono token pill. This IS code, so it uses the code font
- * (--ifm-font-family-monospace = JetBrains), not the UI mono (Atkinson). */
+ * (--ifm-font-family-monospace = JetBrains), not the UI mono (Atkinson).
+ * No border — the tinted background alone carries the pill. */
 .markdown :not(pre) > code {
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.86em;
   padding: 1px 5px; border-radius: 4px;
-  background: var(--ifm-color-emphasis-100);
-  border: 1px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-200);
+  border: 0;
 }
 
 /* Prose links: blue, low-contrast underline that strengthens on hover.
@@ -447,7 +448,7 @@ html[data-theme='dark'] {
  * .admonitionHeading. We override per Infima alert variant. */
 .theme-admonition {
   position: relative;
-  border: 1px solid var(--ifm-color-emphasis-200);
+  border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 5px;
   background: var(--ifm-color-emphasis-100);
   /* per-type accent, defaulting to the primary; overridden per variant below */
@@ -505,9 +506,9 @@ html[data-theme='dark'] {
   background: transparent;
 }
 /* Thin the head/body divider (Infima defaults to a 2px thead border). */
-.markdown table thead tr { border-bottom: 1px solid var(--ifm-color-emphasis-200); }
+.markdown table thead tr { border-bottom: 1px solid var(--ifm-color-emphasis-300); }
 .markdown table th, .markdown table td {
-  border: 1px solid var(--ifm-color-emphasis-200);
+  border: 1px solid var(--ifm-color-emphasis-300);
   padding: 8px 12px;
 }
 .markdown table th {
@@ -520,7 +521,7 @@ html[data-theme='dark'] {
  * .buttonGroup holding the copy button. We restyle the container + header.
  * ===================================================================== */
 .theme-code-block {
-  border: 1px solid var(--ifm-color-emphasis-200);
+  border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 8px;
   box-shadow: none;
 }
@@ -530,7 +531,7 @@ div[class*='codeBlockTitle_'] {
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.72rem; letter-spacing: 0.02em;
   background: var(--ifm-color-emphasis-100);
-  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
 }
 /* copy button → quieter */
 .theme-code-block button[class*='copyButton_'] {
@@ -628,10 +629,16 @@ html[data-theme='dark'] div[class*='codeBlockTitle_'] {
   border-bottom-color: var(--bps-d-rule);
   color: #c4ccd8;
 }
-/* inline code pill */
+/* inline code pill (borderless, set in the base rule). */
 html[data-theme='dark'] .markdown :not(pre) > code {
   background: var(--bps-d-surface-2);
-  border-color: var(--bps-d-rule-2);
+}
+/* The ONLY inline-code border in the design: dark-mode admonitions. There the
+ * code pill background (--bps-d-surface-2) equals the admonition background, so
+ * without a border the pill is invisible. Light mode needs no border because
+ * the code bg (emphasis-200) differs from the admonition bg (emphasis-100). */
+html[data-theme='dark'] .theme-admonition :not(pre) > code {
+  border: 1px solid var(--bps-d-rule-2);
 }
 
 /* b. Admonitions */
