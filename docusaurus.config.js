@@ -42,9 +42,6 @@ const config = {
       async: true,
     },
   ],
-  clientModules: [
-    require.resolve('./src/clientModules/kapaAlgoliaIntegration.js'),
-  ],
   title: "Bluesky",
   tagline: "Get started with the Bluesky API.",
   favicon: "img/favicon.png",
