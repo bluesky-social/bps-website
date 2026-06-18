@@ -128,45 +128,6 @@ html[data-theme='dark'] {
   transition: all 0.3s ease;
 }
 
-/* Kapa AI + Algolia integration */
-.kapa-ask-ai-container {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--docsearch-muted-color);
-}
-
-.kapa-ask-ai-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px 16px;
-  background: rgba(65, 173, 255, 0.1);
-  border: 1px solid var(--ifm-color-primary);
-  border-radius: 6px;
-  color: var(--ifm-color-primary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.kapa-ask-ai-button:hover {
-  background: rgba(65, 173, 255, 0.2);
-}
-
-.kapa-ask-ai-button:active {
-  transform: scale(0.98);
-}
-
-[data-theme='dark'] .kapa-ask-ai-button {
-  background: rgba(117, 188, 255, 0.1);
-}
-
-[data-theme='dark'] .kapa-ask-ai-button:hover {
-  background: rgba(117, 188, 255, 0.2);
-}
-
 /* =====================================================================
  * BPS masthead navbar — adapted from the landing mockup
  * (../bps-website/prototypes/landing-bsky.html). Applies site-wide and
@@ -415,6 +376,52 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   line-height: 1;
 }
 
+/* ----- Algolia DocSearch modal (the search popover) — align its CSS variables
+ * to our design tokens. DocSearch is fully --docsearch-* driven, so theming via
+ * these vars is the idiomatic approach. --docsearch-primary-color already
+ * inherits --ifm-color-primary via Docusaurus.
+ * IMPORTANT: @docsearch/css ships its own defaults (on :root and
+ * html[data-theme=dark]) that are concatenated AFTER custom.css, so bare :root
+ * overrides LOSE on source order. We use higher-specificity selectors
+ * (html[data-theme='light'] and html[data-theme='dark']:root) to win. ----- */
+html[data-theme='light'] {
+  --docsearch-modal-background: var(--bps-paper-light);
+  --docsearch-searchbox-background: #ffffff;
+  --docsearch-searchbox-focus-background: #ffffff;
+  --docsearch-hit-background: #ffffff;
+  --docsearch-hit-color: #2b333d;
+  --docsearch-text-color: #1a2530;
+  --docsearch-muted-color: #6b7480;
+  --docsearch-container-background: rgba(13, 17, 23, 0.4);
+  --docsearch-modal-shadow: 0 16px 48px rgba(13, 17, 23, 0.18);
+  --docsearch-searchbox-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+  --docsearch-key-gradient: linear-gradient(-225deg, #f4f6f9, #ffffff);
+  --docsearch-key-shadow: none;
+  --docsearch-footer-background: var(--bps-paper-light);
+  --docsearch-footer-shadow: 0 -1px 0 #dfe3e8;
+}
+html[data-theme='dark']:root {
+  --docsearch-modal-background: #161c26;
+  --docsearch-searchbox-background: #0d1117;
+  --docsearch-searchbox-focus-background: #0d1117;
+  --docsearch-hit-background: #1c2532;
+  --docsearch-hit-color: #c4ccd8;
+  --docsearch-text-color: #f0f6fc;
+  --docsearch-muted-color: #8893a2;
+  --docsearch-container-background: rgba(2, 4, 8, 0.6);
+  --docsearch-modal-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --docsearch-key-gradient: linear-gradient(-225deg, #161c26, #0d1117);
+  --docsearch-footer-background: #161c26;
+  --docsearch-footer-shadow: 0 -1px 0 #1f2733;
+}
+/* Inter for the modal UI; the search input + hit titles align with the docs. */
+.DocSearch-Modal { font-family: var(--ifm-font-family-base); border-radius: 12px; }
+.DocSearch-Form { border-radius: 8px; }
+.DocSearch-Hit a { border-radius: 8px; }
+/* hint key caps use the same Atkinson mono treatment as the nav ⌘K caps */
+.DocSearch-Commands-Key,
+.DocSearch-Hit-action .DocSearch-Hit-Select-Icon { font-family: var(--bps-docs-mono); }
+
 /* ----- mobile (≤996px): compact bar = hamburger · logo lockup (left) … search
  * icon (right). The mono links, dividers, separator, and theme toggle drop out
  * of the bar and live in the hamburger drawer instead.
@@ -543,10 +550,14 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
  * can still span the whole content column. The container itself stays full
  * width within the 3-col shell. */
 .theme-doc-markdown.markdown > * { max-width: 46rem; }
-/* let code blocks and tables use a touch more width than prose */
+/* let code blocks use a touch more width than prose */
 .theme-doc-markdown.markdown > .theme-code-block,
-.theme-doc-markdown.markdown > pre,
-.theme-doc-markdown.markdown > .table-wrapper { max-width: 52rem; }
+.theme-doc-markdown.markdown > pre { max-width: 52rem; }
+/* Tables render as direct <table> children (no .table-wrapper), so the 46rem
+ * measure cap above would squeeze them. Let them fill the content column and
+ * govern their own width — their own max-width:100% + overflow-x:auto handles
+ * wider content by scrolling. */
+.theme-doc-markdown.markdown > table { max-width: 100%; }
 /* the docs index hero breaks out of the measure to fill the column and bleed
  * over the column's horizontal padding (measured 16px = --ifm-spacing-horizontal). */
 .theme-doc-markdown.markdown > .bpsDocHero { max-width: none; }
