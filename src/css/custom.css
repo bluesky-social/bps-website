@@ -586,6 +586,15 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
 article:has(.bpsDocHero) > .theme-doc-toc-mobile {
   display: none;
 }
+/* Breathing room around the in-content TOC on hero pages: exactly 1.5rem above
+ * and below. The hero carries its own margin-bottom: 2rem, so when the TOC
+ * directly follows it, drop the hero's bottom margin and let the TOC's own
+ * margin-top own the gap (otherwise they stack to ~3.5rem). */
+.markdown > .bpsDocHero:has(+ .theme-doc-toc-mobile) { margin-bottom: 0; }
+.markdown > .theme-doc-toc-mobile {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
 
 /* Right-hand TOC: quiet it. */
 .table-of-contents { font-size: 0.8rem; }
@@ -626,13 +635,15 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 
 /* Prose links: blue, low-contrast underline that strengthens on hover.
  * Excludes .bpsDocCard (the DocsCardGrid card link — a stable global class,
- * since the CSS-module class is hashed and can't be matched by name here). */
-.markdown a:not(.bpsDocCard):not(.hash-link) {
+ * since the CSS-module class is hashed and can't be matched by name here) and
+ * .table-of-contents__link (the in-content mobile TOC on hero pages renders
+ * inside .markdown, so its links would otherwise pick up the prose underline). */
+.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link) {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
 }
-.markdown a:not(.bpsDocCard):not(.hash-link):hover {
+.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):hover {
   text-decoration-color: var(--ifm-color-primary);
 }
 
