@@ -181,7 +181,10 @@ html[data-theme='dark'] {
   --ifm-navbar-link-hover-color: #3994ff;
   --ifm-navbar-height: 64px;
   border-bottom: 1px solid #1f2733;
-  position: relative;
+  /* NOTE: don't set position here — Docusaurus's .navbar--fixed-top supplies
+   * position: sticky, which we must preserve. A sticky element is still a
+   * containing block for the absolutely-positioned topo ::before, so the
+   * background layer works without overriding the sticky behavior. */
   overflow: hidden;
 }
 /* Faint topo-line graphic bleeding behind the masthead (prototype .topo-bg):
@@ -259,6 +262,8 @@ html[data-theme='dark'] {
   height: 44px; width: auto;
   display: block;
 }
+.bpsBrand,
+.bpsBrand:hover { text-decoration: none; }
 .bpsBrand__word {
   display: inline-flex;
   flex-direction: column;
@@ -281,7 +286,7 @@ html[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: #c4ccd8;
@@ -319,23 +324,57 @@ html[data-theme='dark'] {
   .navbar__items--right { gap: 14px; }
 }
 
-/* ----- dark Algolia search button on the masthead ----- */
+/* ----- dark Algolia search box on the masthead ----- */
 .navbar .DocSearch-Button {
   background: #161c26;
   border: 1px solid #2a3340;
   border-radius: 6px;
+  height: 36px;
+  /* balanced internal spacing: icon · placeholder ······ keys */
+  padding: 0 8px 0 12px;
+  margin: 0;
+  min-width: 200px;
 }
 .navbar .DocSearch-Button:hover {
   background: #1c2330;
   box-shadow: none;
+  border-color: #38424f;
 }
-.navbar .DocSearch-Button .DocSearch-Search-Icon { color: #9ca3af; }
-.navbar .DocSearch-Button-Placeholder { color: #9ca3af; }
+.navbar .DocSearch-Button .DocSearch-Search-Icon { color: #9ca3af; width: 16px; height: 16px; }
+/* let the placeholder take the slack so the keys sit flush right. Inter for the
+ * "Search" text. */
+.navbar .DocSearch-Button-Placeholder {
+  color: #9ca3af;
+  padding: 0 12px 0 8px;
+  margin-right: auto;
+  font-family: var(--ifm-font-family-base);
+  font-size: 13px;
+}
+.navbar .DocSearch-Button-Keys {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  min-width: 0;
+}
 .navbar .DocSearch-Button-Key {
+  /* normalize the key cap: DocSearch ships an asymmetric bottom padding + a
+   * top:-1px nudge tuned for its own font, which misaligns the ⌘/K glyphs in
+   * JetBrains Mono. Reset to an evenly-centered cap. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px; height: 18px;
+  padding: 0;
+  top: 0;
+  margin: 0;
   background: #0d1117;
   border: 1px solid #2a3340;
+  border-radius: 4px;
   box-shadow: none;
   color: #9ca3af;
+  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1;
 }
 
 /* ----- mobile hamburger drawer: it inherits the dark navbar background, so
