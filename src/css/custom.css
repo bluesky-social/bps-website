@@ -39,6 +39,7 @@
  * ===================================================================== */
 :root {
   --ifm-font-family-base: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* CODE mono (code blocks, inline code) — JetBrains Mono. */
   --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --ifm-heading-font-family: var(--ifm-font-family-base);
 
@@ -48,8 +49,10 @@
   --ifm-font-size-base: 16px;
   --ifm-line-height-base: 1.65;
 
-  /* mono accent token reused across docs chrome */
-  --bps-docs-mono: var(--ifm-font-family-monospace);
+  /* UI mono accent — Atkinson Hyperlegible Mono — used for the mono "sprinkle"
+   * in NON-code chrome (left nav category labels, breadcrumbs, admonition
+   * labels). Code blocks/inline code keep --ifm-font-family-monospace. */
+  --bps-docs-mono: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Paper surfaces — match the BPS design system per theme. Light mode uses
    * an off-white "paper-light"; dark mode uses the BPS paper #0d1117 so the
@@ -170,7 +173,7 @@ html[data-theme='dark'] {
  * src/theme/NavbarItem/ComponentTypes.js).
  * ===================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap');
 
 .navbar {
   --ifm-navbar-background-color: #0d1117;
@@ -229,7 +232,7 @@ html[data-theme='dark'] {
  * replaced by a real dithered "bps" logo asset later in design. */
 .bpsBrand__short {
   display: none;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 22px; font-weight: 700; letter-spacing: 0.02em;
   color: #3994ff;
 }
@@ -241,7 +244,7 @@ html[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: #c4ccd8;
@@ -417,9 +420,10 @@ html[data-theme='dark'] {
  * DOCS READING SURFACE — content components (§3)
  * ===================================================================== */
 
-/* Inline code → mono token pill. */
+/* Inline code → mono token pill. This IS code, so it uses the code font
+ * (--ifm-font-family-monospace = JetBrains), not the UI mono (Atkinson). */
 .markdown :not(pre) > code {
-  font-family: var(--bps-docs-mono);
+  font-family: var(--ifm-font-family-monospace);
   font-size: 0.86em;
   padding: 1px 5px; border-radius: 4px;
   background: var(--ifm-color-emphasis-100);
@@ -513,16 +517,17 @@ html[data-theme='dark'] {
   border-radius: 8px;
   box-shadow: none;
 }
-/* the title bar (shown when a code block has a title="...") */
+/* the title bar (shown when a code block has a title="...") — code chrome, so
+ * it uses the code font (JetBrains), matching the code it labels. */
 div[class*='codeBlockTitle_'] {
-  font-family: var(--bps-docs-mono);
+  font-family: var(--ifm-font-family-monospace);
   font-size: 0.72rem; letter-spacing: 0.02em;
   background: var(--ifm-color-emphasis-100);
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
 }
 /* copy button → quieter */
 .theme-code-block button[class*='copyButton_'] {
-  font-family: var(--bps-docs-mono);
+  font-family: var(--ifm-font-family-monospace);
   font-size: 0.7rem;
 }
 /* code body uses the mono stack already via --ifm-font-family-monospace */
@@ -534,12 +539,14 @@ div[class*='codeBlockTitle_'] {
  * ===================================================================== */
 .theme-doc-sidebar-menu { font-size: 0.9rem; }
 
-/* Top-level category labels → mono, uppercase, tracked. First-level items
- * are direct children of .theme-doc-sidebar-menu. */
+/* Top-level labels → mono, uppercase, tracked. Covers both collapsible
+ * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
+ * which are theme-doc-sidebar-item-link-level-1, not categories) so all
+ * first-level siblings share the same heading style. */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
-.theme-doc-sidebar-menu > .menu__list-item > .menu__link--sublist {
+.theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
   font-family: var(--bps-docs-mono);
-  font-size: 0.7rem; font-weight: 700;
+  font-size: 0.75rem; font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
   color: var(--ifm-color-emphasis-600);
 }
@@ -547,6 +554,16 @@ div[class*='codeBlockTitle_'] {
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
   line-height: 1.5; border-radius: 4px;
+}
+
+/* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
+ * left corners so it sits flush against the sibling label. The caret glyph is
+ * a background-image on the button; size it via background-size. */
+.theme-doc-sidebar-menu .menu__caret {
+  border-radius: 0 4px 4px 0;
+}
+.theme-doc-sidebar-menu .menu__caret::before {
+  background-size: 1.25rem 1.25rem;
 }
 
 /* Active item: soft blue tint + left accent bar. The bar is a ::before
