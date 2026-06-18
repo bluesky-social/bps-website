@@ -575,6 +575,14 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
 [class*='docItemContainer']:has(.bpsDocHero) .theme-doc-breadcrumbs {
   display: none;
 }
+/* On hero pages, hide the Layout-rendered mobile "On this page" dropdown (a
+ * direct child of <article>, above the hero) — these pages instead render their
+ * own <DocItemTOCMobile/> inside the content, just beneath the hero. The
+ * in-content one lives inside .markdown, so `article > ` only matches the
+ * original. */
+article:has(.bpsDocHero) > .theme-doc-toc-mobile {
+  display: none;
+}
 
 /* Right-hand TOC: quiet it. */
 .table-of-contents { font-size: 0.8rem; }

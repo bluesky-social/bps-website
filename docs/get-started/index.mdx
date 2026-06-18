@@ -8,10 +8,16 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import DocsHero from '@site/src/components/DocsHero';
 import DocsCardGrid from '@site/src/components/DocsCardGrid';
+import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
 
 <DocsHero eyebrow="Get Started" title="Build on Bluesky">
   Make your first post to the Bluesky app via the API in under 5 minutes — then keep going with the guides below.
 </DocsHero>
+
+{/* Mobile "On this page" dropdown, placed beneath the hero (the Layout-rendered
+    one above the hero is hidden on hero pages via custom.css). Auto-hides on
+    desktop via Docusaurus's .theme-doc-toc-mobile styles. */}
+<DocItemTOCMobile />
 
 <DocsCardGrid
   items={[

@@ -6,10 +6,15 @@ hide_title: true
 
 import DocsHero from '@site/src/components/DocsHero';
 import DocsCardGrid from '@site/src/components/DocsCardGrid';
+import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
 
 <DocsHero eyebrow="About Bluesky Content" title="About Bluesky Content">
   How Bluesky represents the content people post — and everything you need to understand Bluesky the app and its infrastructure services.
 </DocsHero>
+
+{/* Mobile "On this page" dropdown beneath the hero (Layout-rendered one hidden
+    via custom.css on hero pages; auto-hides on desktop). */}
+<DocItemTOCMobile />
 
 This docs site contains everything you need to understand Bluesky the [app](https://bsky.social/about) and Bluesky's own infrastructure services. If Bluesky were just an app and not a gateway to the [AT Protocol ecosystem](https://atproto.com/guides/understanding-atproto) (also called the Atmosphere), these would be comprehensive docs.
 
