@@ -2,7 +2,30 @@
 // Note: type annotations allow type checking and IDEs autocompletion
 
 const lightCodeTheme = require("prism-react-renderer").themes.github;
-const darkCodeTheme = require("prism-react-renderer").themes.vsDark;
+
+// Dark code theme aligned with the homepage proof window (GitHub-dark token
+// palette on the BPS paper surface). Defined inline so Prism writes these as
+// the token inline styles directly (avoids fighting inline styles with
+// !important from custom.css). See src/css/landing.css `.proof .tk-*`.
+const darkCodeTheme = {
+  plain: {
+    color: "#E6EDF3",
+    // paper-2, lifted above the #0d1117 page background so the code block reads
+    // as a raised panel rather than blending into the page.
+    backgroundColor: "#161c26",
+  },
+  styles: [
+    { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "#8B949E", fontStyle: "italic" } },
+    { types: ["punctuation", "operator"], style: { color: "#E6EDF3" } },
+    { types: ["keyword", "tag", "selector"], style: { color: "#FF7B72" } },
+    { types: ["function"], style: { color: "#D2A8FF" } },
+    { types: ["class-name", "maybe-class-name", "number", "constant", "boolean", "builtin", "property"], style: { color: "#79C0FF" } },
+    { types: ["string", "char", "attr-value", "template-string"], style: { color: "#A5D6FF" } },
+    { types: ["attr-name", "variable"], style: { color: "#79C0FF" } },
+    { types: ["deleted"], style: { color: "#FF7B72" } },
+    { types: ["inserted"], style: { color: "#A5D6FF" } },
+  ],
+};
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {

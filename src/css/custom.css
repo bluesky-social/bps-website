@@ -548,6 +548,15 @@ div[class*='codeBlockTitle_'] {
   font-family: var(--bps-docs-mono);
   font-size: 0.75rem; font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
+  /* darker than the old emphasis-600 — aligns with the item link color so the
+   * headings don't read as low-contrast in light mode. */
+  color: var(--ifm-color-emphasis-800);
+}
+html[data-theme='dark']
+  .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
+html[data-theme='dark']
+  .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
+  /* in dark mode keep the quieter label tone (light bg uses the darker value) */
   color: var(--ifm-color-emphasis-600);
 }
 
@@ -582,4 +591,53 @@ div[class*='codeBlockTitle_'] {
   width: 4px;
   background-color: var(--ifm-color-primary);
   border-radius: 4px 0 0 4px;
+}
+
+/* =====================================================================
+ * DOCS READING SURFACE — dark-mode brand surfaces + syntax
+ * Align code blocks, admonitions, and tables with the homepage's BPS dark
+ * palette (paper #0d1117 / paper-2 #161c26, rules #1f2733/#2a3340), and map
+ * the homepage's GitHub-dark syntax tokens onto Prism's .token.* classes.
+ * Literal hex (landing.css tokens aren't loaded on docs pages).
+ * ===================================================================== */
+html[data-theme='dark'] {
+  /* Surfaces lifted ABOVE the #0d1117 page so panels read as raised, not flush.
+   * --bps-d-surface (code body, set via Prism plain.bg in config) = #161c26;
+   * --bps-d-surface-2 (admonitions, inline code, tables, code title bar) is a
+   * touch lighter for clear definition against the page + the code body. */
+  --bps-d-surface: #161c26;
+  --bps-d-surface-2: #1c2532;
+  --bps-d-rule: #2a3340;
+  --bps-d-rule-2: #38424f;
+}
+
+/* a. Code blocks — border + title chrome (the code surface itself comes from
+ * the dark Prism theme's plain.backgroundColor (#161c26) in the config). */
+html[data-theme='dark'] .theme-code-block {
+  border-color: var(--bps-d-rule);
+}
+html[data-theme='dark'] div[class*='codeBlockTitle_'] {
+  background: var(--bps-d-surface-2);
+  border-bottom-color: var(--bps-d-rule);
+  color: #c4ccd8;
+}
+/* inline code pill */
+html[data-theme='dark'] .markdown :not(pre) > code {
+  background: var(--bps-d-surface-2);
+  border-color: var(--bps-d-rule-2);
+}
+
+/* b. Admonitions */
+html[data-theme='dark'] .theme-admonition {
+  background: var(--bps-d-surface-2);
+  border-color: var(--bps-d-rule);
+}
+
+/* c. Tables */
+html[data-theme='dark'] .markdown table thead {
+  background: var(--bps-d-surface-2);
+}
+html[data-theme='dark'] .markdown table th,
+html[data-theme='dark'] .markdown table td {
+  border-color: var(--bps-d-rule);
 }
