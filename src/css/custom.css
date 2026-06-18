@@ -444,20 +444,21 @@ html[data-theme='dark'] {
 .theme-admonition {
   position: relative;
   border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 8px;
+  border-radius: 5px;
   background: var(--ifm-color-emphasis-100);
   /* per-type accent, defaulting to the primary; overridden per variant below */
   --bps-admon-accent: var(--ifm-color-primary);
 }
-/* Left accent bar as a ::before so it sits flush inside the 8px radius rather
- * than a square-cornered border-left. 3px wide, matching the card radius. */
+/* Left accent bar as a ::before so it sits flush inside the 5px radius rather
+ * than a square-cornered border-left. Offset by -1px on top/left/bottom to
+ * cover the 1px card border and align with the rounded corner. */
 .theme-admonition::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; bottom: 0;
-  width: 3px;
+  top: -1px; left: -1px; bottom: -1px;
+  width: 5px;
   background-color: var(--bps-admon-accent);
-  border-radius: 8px 0 0 8px;
+  border-radius: 5px 0 0 5px;
 }
 /* The heading class is hashed by Docusaurus (admonitionHeading_xxxx), so match
  * it by substring rather than literal class. */
@@ -545,7 +546,7 @@ div[class*='codeBlockTitle_'] {
 
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
-  line-height: 1.5; border-radius: 5px;
+  line-height: 1.5; border-radius: 4px;
 }
 
 /* Active item: soft blue tint + left accent bar. The bar is a ::before
@@ -561,7 +562,7 @@ div[class*='codeBlockTitle_'] {
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0;
-  width: 2px;
+  width: 4px;
   background-color: var(--ifm-color-primary);
-  border-radius: 2px 0 0 2px;
+  border-radius: 4px 0 0 4px;
 }
