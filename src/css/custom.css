@@ -377,6 +377,12 @@ html[data-theme='dark'] {
   width: auto; height: auto; transform: none;
 }
 .breadcrumbs__item--active .breadcrumbs__link { color: var(--ifm-color-primary); background: transparent; }
+/* Hide breadcrumbs on docs index/landing pages (those with a DocsHero) — the
+ * hero is the page's entry point there, so the breadcrumb is redundant. */
+.docItemContainer:has(.bpsDocHero) .theme-doc-breadcrumbs,
+[class*='docItemContainer']:has(.bpsDocHero) .theme-doc-breadcrumbs {
+  display: none;
+}
 
 /* Right-hand TOC: quiet it. */
 .table-of-contents { font-size: 0.8rem; }

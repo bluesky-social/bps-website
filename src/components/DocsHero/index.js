@@ -7,7 +7,6 @@ import styles from './styles.module.css'
 export default function DocsHero({ eyebrow, title, children }) {
   return (
     <header className={`bpsDocHero ${styles.hero}`}>
-      <div className={styles.wash} aria-hidden="true" />
       <svg
         className={styles.topo}
         viewBox="0 0 300 200"

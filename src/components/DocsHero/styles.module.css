@@ -5,36 +5,31 @@
  * the prose column rather than flush against the bleed edge. */
 .hero {
   position: relative;
-  /* Break out of the column's horizontal padding (--ifm-spacing-horizontal,
-   * 16px) so the tint band reaches the left/right edges of the content column,
-   * and pull up over the top padding so it bleeds to the top. Inner padding
-   * then re-aligns the text to the prose column. */
+  overflow: hidden;
+  border-radius: 0 0 10px 0;
+  /* Break out of the content column's padding: pull up over the top padding
+   * and out to the left edge, and extend further right past the column's
+   * right padding into the gutter toward the TOC. Inner padding re-aligns the
+   * text to the prose column. */
   margin-top: calc(-1 * var(--ifm-spacing-vertical, 1rem));
   margin-left: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
-  margin-right: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
+  margin-right: -3rem;
   margin-bottom: 2rem;
-  padding: 2.25rem var(--ifm-spacing-horizontal, 1rem) 0;
+  padding: 2.25rem var(--ifm-spacing-horizontal, 1rem) 1.75rem;
+  /* Simple gradient confined to the box (no separate full-bleed element). */
+  background: linear-gradient(135deg, #e7f0fb 0%, #eef4fa 42%, #f4f6f9 100%);
 }
-.wash {
-  position: absolute;
-  /* full-bleed within the (broken-out) hero box; no negative inset needed now */
-  left: 0; right: 0; top: 0;
-  height: 280px; z-index: 0; pointer-events: none;
-  background: linear-gradient(180deg,
-    #eaf2fb 0%, #eef4fa 46%, rgba(238,244,250,0) 100%);
-}
-:global([data-theme='dark']) .wash {
-  background: linear-gradient(180deg,
-    #13243a 0%, #101a28 46%, rgba(16,26,40,0) 100%);
+:global([data-theme='dark']) .hero {
+  background: linear-gradient(135deg, #14253b 0%, #101a28 48%, #0d1117 100%);
 }
 .topo {
   position: absolute; right: 0; top: 0;
-  width: 52%; height: 220px; z-index: 0; pointer-events: none;
+  width: 52%; height: 100%; z-index: 0; pointer-events: none;
 }
 .topo path { fill: none; stroke: #bcd5ef; stroke-width: 1.1; }
 :global([data-theme='dark']) .topo path { stroke: #27425f; }
 
-.hero > :not(.wash):not(.topo) { position: relative; z-index: 1; }
+.hero > :not(.topo) { position: relative; z-index: 1; }
 
 .eyebrow {
   font-family: var(--ifm-font-family-monospace);
