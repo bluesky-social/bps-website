@@ -13,7 +13,9 @@
    * text to the prose column. */
   margin-top: calc(-1 * var(--ifm-spacing-vertical, 1rem));
   margin-left: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
-  margin-right: -3rem;
+  /* clear the column's own right padding so the box reaches the content-area
+   * edge, but stop short of the TOC gutter (don't run under the TOC text). */
+  margin-right: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
   margin-bottom: 2rem;
   padding: 2.25rem var(--ifm-spacing-horizontal, 1rem) 1.75rem;
   /* Simple gradient confined to the box (no separate full-bleed element). */
