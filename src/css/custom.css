@@ -520,6 +520,40 @@ html[data-theme='dark']:root {
 /* smaller close (X) button, snug against the toggle */
 .navbar-sidebar__close { padding: 4px; margin-left: 0; }
 .navbar-sidebar__close svg { width: 18px; height: 18px; }
+/* Hide the standalone locale switcher in the drawer's main menu list — it's
+ * surfaced inside the Documentation group / docs sidebar instead. Scoped to
+ * the mobile drawer, so the desktop top-bar picker is unaffected. The
+ * className lands on the dropdown's inner link, so hide its list item. */
+.navbar-sidebar__items .menu__list-item:has(> .bpsMainMenuLocale) {
+  display: none;
+}
+/* Desktop top-bar locale switcher as an icon-only button: the current-locale
+ * label ("English" / "日本語") is a bare text node after the icon, so collapse
+ * it with font-size:0. The link isn't natively flex, so make it an explicit
+ * inline-flex box to keep the icon centered once the text is gone, and drop
+ * the icon's trailing margin. Scoped to the navbar variant (`.navbar__link`);
+ * the mobile drawer copy uses `.menu__link` and keeps its label. */
+/* The dropdown wrapper is display:block and taller than the icon-only link,
+ * which leaves the link sitting near its top (other masthead links center
+ * fine because they're direct flex children of the right group; this one is
+ * wrapped a level deeper). Make the wrapper center its link. */
+.navbar__items--right .dropdown:has(> .bpsMainMenuLocale) {
+  display: flex;
+  align-items: center;
+}
+.navbar__link.bpsMainMenuLocale {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0;
+}
+.navbar__link.bpsMainMenuLocale svg {
+  margin-right: 0;
+}
+/* Neutral hover (matches the color-mode toggle / other controls), not the
+ * default blue link-hover. */
+.navbar__link.bpsMainMenuLocale:hover {
+  color: var(--bps-nav-ink-soft);
+}
 .navbar-sidebar .menu__link:hover,
 .navbar-sidebar .menu__link--active,
 .navbar-sidebar .menu__list-item-collapsible:hover {
@@ -790,11 +824,22 @@ html[data-theme='dark']
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
  * left corners so it sits flush against the sibling label. The caret glyph is
- * a background-image on the button; size it via background-size. */
-.theme-doc-sidebar-menu .menu__caret {
+ * a background-image on the button; size it via background-size. Applied across
+ * the whole drawer so the locale ("Languages") dropdown caret matches the docs
+ * category carets in both the main menu and docs-sidebar panes (the latter
+ * scoped to .theme-doc-sidebar-menu, the former not). */
+.theme-doc-sidebar-menu .menu__caret,
+.navbar-sidebar .menu__caret {
   border-radius: 0 4px 4px 0;
 }
-.theme-doc-sidebar-menu .menu__caret::before {
+.theme-doc-sidebar-menu .menu__caret::before,
+.navbar-sidebar .menu__caret::before {
+  background-size: 1.25rem 1.25rem;
+}
+/* The locale ("Languages") dropdown in the primary menu draws its caret as the
+ * link's ::after (not a .menu__caret button), which Infima sizes at 2rem —
+ * oversized next to the rest. Match the 1.25rem treatment above. */
+.navbar-sidebar .menu__link--sublist-caret::after {
   background-size: 1.25rem 1.25rem;
 }
 

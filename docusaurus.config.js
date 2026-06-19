@@ -15,12 +15,29 @@ const darkCodeTheme = {
     backgroundColor: "#161c26",
   },
   styles: [
-    { types: ["comment", "prolog", "doctype", "cdata"], style: { color: "#8B949E", fontStyle: "italic" } },
+    {
+      types: ["comment", "prolog", "doctype", "cdata"],
+      style: { color: "#8B949E", fontStyle: "italic" },
+    },
     { types: ["punctuation", "operator"], style: { color: "#E6EDF3" } },
     { types: ["keyword", "tag", "selector"], style: { color: "#FF7B72" } },
     { types: ["function"], style: { color: "#D2A8FF" } },
-    { types: ["class-name", "maybe-class-name", "number", "constant", "boolean", "builtin", "property"], style: { color: "#79C0FF" } },
-    { types: ["string", "char", "attr-value", "template-string"], style: { color: "#A5D6FF" } },
+    {
+      types: [
+        "class-name",
+        "maybe-class-name",
+        "number",
+        "constant",
+        "boolean",
+        "builtin",
+        "property",
+      ],
+      style: { color: "#79C0FF" },
+    },
+    {
+      types: ["string", "char", "attr-value", "template-string"],
+      style: { color: "#A5D6FF" },
+    },
     { types: ["attr-name", "variable"], style: { color: "#79C0FF" } },
     { types: ["deleted"], style: { color: "#FF7B72" } },
     { types: ["inserted"], style: { color: "#A5D6FF" } },
@@ -35,10 +52,12 @@ const config = {
       "data-website-id": "58c0dcc5-974f-4718-aeac-6edfafbf3c68",
       "data-project-name": "Bluesky",
       "data-project-color": "#41ADFF",
-      "data-project-logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Bluesky_Logo.svg/330px-Bluesky_Logo.svg.png",
+      "data-project-logo":
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Bluesky_Logo.svg/330px-Bluesky_Logo.svg.png",
       "data-modal-title": "Bluesky Docs AI",
       "data-button-hide": "true",
-      "data-modal-ask-ai-input-placeholder": "Find solutions from the docs, Github, forums, and more...",
+      "data-modal-ask-ai-input-placeholder":
+        "Find solutions from the docs, Github, forums, and more...",
       async: true,
     },
   ],
@@ -59,25 +78,42 @@ const config = {
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  onBrokenAnchors: 'ignore',
+  onBrokenAnchors: "ignore",
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
   // to replace "en" with "zh-Hans".
   i18n: {
     defaultLocale: "en",
-    locales: ["en"],
+    locales: ["en", "ja"],
+    localeConfigs: {
+      en: { label: "English" },
+      ja: { label: "日本語" },
+    },
   },
   // Load the design-system fonts site-wide via real <link> tags. (A CSS @import
   // placed after other rules in custom.css is invalid and was being ignored, so
   // Atkinson didn't load on some pages.) Inter + JetBrains Mono + Atkinson
   // Hyperlegible Mono.
   stylesheets: [
-    { href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap", rel: "stylesheet" },
+    {
+      href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Atkinson+Hyperlegible+Mono:wght@400;700&display=swap",
+      rel: "stylesheet",
+    },
   ],
   headTags: [
-    { tagName: "link", attributes: { rel: "preconnect", href: "https://fonts.googleapis.com" } },
-    { tagName: "link", attributes: { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "true" } },
+    {
+      tagName: "link",
+      attributes: { rel: "preconnect", href: "https://fonts.googleapis.com" },
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossorigin: "true",
+      },
+    },
   ],
   plugins: ["@docusaurus/plugin-ideal-image"],
 
@@ -104,8 +140,8 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
           blogSidebarCount: "ALL",
-          onInlineAuthors: 'ignore',
-          onUntruncatedBlogPosts: 'ignore',
+          onInlineAuthors: "ignore",
+          onUntruncatedBlogPosts: "ignore",
         },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
@@ -178,6 +214,16 @@ const config = {
             position: "right",
             variant: "divider",
           },
+          {
+            // Sits last so it lands beside the auto-appended color-mode toggle.
+            // On mobile this same item would also render into the drawer's main
+            // menu list; `bpsMainMenuLocale` lets CSS hide that copy there, since
+            // the picker is surfaced inside the Documentation group / docs
+            // sidebar instead (see DocsMenu + DocSidebar/Mobile swizzles).
+            type: "localeDropdown",
+            position: "right",
+            className: "bpsMainMenuLocale",
+          },
         ],
       },
       footer: {
@@ -248,12 +294,12 @@ const config = {
         darkTheme: darkCodeTheme,
       },
       algolia: {
-        appId: 'T5MN80JFZF',
+        appId: "T5MN80JFZF",
         // Public API key: it is safe to commit it
-        apiKey: 'fd8d166a53279da4c51abddb2f4a1269',
-        indexName: 'wwwbsky',
+        apiKey: "fd8d166a53279da4c51abddb2f4a1269",
+        indexName: "wwwbsky",
         contextualSearch: false,
-      }
+      },
     }),
 };
 

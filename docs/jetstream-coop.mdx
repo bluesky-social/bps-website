@@ -3,6 +3,8 @@ sidebar_label: Streaming to moderation
 description: Stream records straight from Jetstream into Coop, an open-source moderation tool, with no middleware — then surface and action them, and close the loop back to a labeler.
 ---
 
+import DocumentRecord from './_snippets/jetstream-coop-document-record.mdx';
+
 # Feeding Jetstream into a moderation tool
 
 Most of the Jetstream guides so far end with data landing in *your* code: a
@@ -28,32 +30,7 @@ The live tail keeps Coop fed with new documents. To backfill from existing recor
 
 A `site.standard.document` commit off Jetstream looks like this:
 
-```json
-{
-  "did": "did:plc:5tgw2qz3xk4n6m8p0r2s4u6w",
-  "kind": "commit",
-  "commit": {
-    "operation": "create",
-    "collection": "site.standard.document",
-    "rkey": "3l5xb2cw7yk2a",
-    "record": {
-      "$type": "site.standard.document",
-      "title": "How to start a balcony herb garden",
-      "textContent": "A short guide to growing basil, mint, and thyme in small containers on a sunny balcony.",
-      "site": "https://example.com",
-      "path": "/2026/06/15/balcony-herb-garden/",
-      "publishedAt": "2026-06-15T17:21:17.000Z",
-      "updatedAt": "2026-06-15T17:23:21.000Z",
-      "tags": ["gardening"],
-      "bskyPostRef": {
-        "uri": "at://did:plc:5tgw2qz3xk4n6m8p0r2s4u6w/app.bsky.feed.post/3l5xb2cw7y22a",
-        "cid": "bafyreieoxbxp7oudqjg2d33rbffmmqbpamkqzfloo45p7hn75iz6643qwe"
-      },
-      "coverImage": { "$type": "blob", "ref": { "$link": "bafkrei…" }, "mimeType": "image/jpeg", "size": 2453099 }
-    }
-  }
-}
-```
+<DocumentRecord />
 
 The fields you can rely on being present are `title`, `textContent`, `site`,
 `path`, `publishedAt`, and `bskyPostRef`.
