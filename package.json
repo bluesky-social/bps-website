@@ -1,0 +1,63 @@
+{
+  "name": "bsky-docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "docusaurus": "docusaurus",
+    "start": "docusaurus start --no-open",
+    "start:ja": "docusaurus start --no-open --locale ja",
+    "build": "docusaurus build",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "clear": "docusaurus clear",
+    "serve": "docusaurus serve",
+    "write-translations": "docusaurus write-translations",
+    "write-heading-ids": "docusaurus write-heading-ids"
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.6.2",
+    "@docusaurus/plugin-content-docs": "^3.6.2",
+    "@docusaurus/plugin-ideal-image": "^3.6.2",
+    "@docusaurus/preset-classic": "^3.6.2",
+    "@mdx-js/react": "^3.0.0",
+    "@tippyjs/react": "^4.2.5",
+    "clsx": "^1.2.1",
+    "isotope-layout": "^3.0.6",
+    "jsx-runtime": "^1.2.0",
+    "prettier": "^3.1.0",
+    "prism-react-renderer": "^2.1.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-icons": "^4.2.0",
+    "react-popper": "^2.3.0",
+    "tippy.js": "^6.3.1"
+  },
+  "overrides": {
+    "react-live": ">=3.1.1 <4.0.0"
+  },
+  "resolutions": {
+    "react-live": ">=3.1.1 <4.0.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.6.2",
+    "@docusaurus/tsconfig": "^3.6.2",
+    "@docusaurus/types": "^3.6.2",
+    "typescript": "~5.2.2",
+    "typescript-plugin-css-modules": "^3.4.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

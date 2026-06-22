@@ -1,0 +1,42 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Get Started": {
+    "message": "はじめに",
+    "description": "The label for category Get Started in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.About Bluesky Content": {
+    "message": "Blueskyのコンテンツについて",
+    "description": "The label for category About Bluesky Content in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Jetstream": {
+    "message": "Jetstream",
+    "description": "The label for category Jetstream in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Relay": {
+    "message": "Relay",
+    "description": "The label for category Relay in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.API Hosts and Auth": {
+    "message": "APIホストと認証",
+    "description": "The label for category API Hosts and Auth in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Resolving Identities": {
+    "message": "アイデンティティの解決",
+    "description": "The label for category Resolving Identities in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.category.Bluesky Dev Guidelines": {
+    "message": "Bluesky開発者ガイドライン",
+    "description": "The label for category Bluesky Dev Guidelines in sidebar tutorialSidebar"
+  },
+  "sidebar.tutorialSidebar.link.Tutorials": {
+    "message": "チュートリアル",
+    "description": "The label for link Tutorials in sidebar tutorialSidebar, linking to https://atproto.com/guides/tutorials"
+  },
+  "sidebar.tutorialSidebar.link.HTTP Reference": {
+    "message": "HTTPリファレンス",
+    "description": "The label for link HTTP Reference in sidebar tutorialSidebar, linking to https://endpoints.bsky.app"
+  }
+}
