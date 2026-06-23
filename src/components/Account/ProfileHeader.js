@@ -35,7 +35,11 @@ function Avatar({ src, handle }) {
   }
 
   return (
-    <span className={styles.avatarFallback} aria-hidden="true">
+    <span
+      className={styles.avatarFallback}
+      role="img"
+      aria-label={handle ? `@${handle}` : 'Account avatar'}
+    >
       {mono}
     </span>
   )

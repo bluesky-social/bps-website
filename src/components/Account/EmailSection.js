@@ -36,8 +36,8 @@ function isValidEmail(email) {
   return /^[^@]+@[^@]+$/.test(email.trim())
 }
 
-function SectionHeading({ children }) {
-  return <h2 className={styles.sectionHeading}>{children}</h2>
+function SectionHeading({ id, children }) {
+  return <h2 id={id} className={styles.sectionHeading}>{children}</h2>
 }
 
 // ── Email form ───────────────────────────────────────────────────────────────

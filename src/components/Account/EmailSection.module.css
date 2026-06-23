@@ -144,12 +144,12 @@ html[data-theme='dark'] .emailInput:focus {
   cursor: not-allowed;
 }
 
-.emailInputError {
-  border-color: #d0454c !important;
+.emailInput.emailInputError {
+  border-color: #d0454c;
 }
 
-html[data-theme='dark'] .emailInputError {
-  border-color: #ff7b72 !important;
+html[data-theme='dark'] .emailInput.emailInputError {
+  border-color: #ff7b72;
 }
 
 .saveBtn {
