@@ -1,0 +1,36 @@
+{
+  "name": "@bps/account-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "node --watch --env-file=.env src/server.ts",
+    "start": "node --env-file=.env src/server.ts",
+    "test": "node --test --experimental-test-module-mocks 'src/**/*.test.ts'",
+    "migrate": "node --env-file=.env src/db/migrate.ts",
+    "lex:build": "lex build --lexicons ../lexicons --out ./src/lexicons --clear"
+  },
+  "dependencies": {
+    "@atproto/lex": "^0.1.4",
+    "@atproto/lex-server": "^0.1.2",
+    "@atproto/oauth-client-node": "^0.4.2",
+    "@atproto/jwk-jose": "^0.1.6",
+    "@atproto/syntax": "^0.4.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.52.0",
+    "@opentelemetry/sdk-node": "^0.55.0",
+    "express": "^5.2.1",
+    "iron-session": "^8.0.4",
+    "kysely": "^0.29.2",
+    "pg": "^8.13.0",
+    "pino": "^9.5.0",
+    "ulid": "^2.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.7.0"
+  }
+}
