@@ -233,6 +233,10 @@ const config = {
                 to: "/docs/get-started",
               },
               {
+                label: "Jetstream",
+                to: "/docs/jetstream",
+              },
+              {
                 label: "Tutorials",
                 href: "https://atproto.com/guides/tutorials",
               },
@@ -248,10 +252,6 @@ const config = {
               {
                 label: "Bluesky",
                 href: "https://bsky.app/profile/bsky.app",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/bluesky",
               },
               {
                 label: "Community-run Discord",
