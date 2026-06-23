@@ -55,7 +55,7 @@
   /* UI mono accent — Atkinson Hyperlegible Mono — used for the mono "sprinkle"
    * in NON-code chrome (left nav category labels, breadcrumbs, admonition
    * labels). Code blocks/inline code keep --ifm-font-family-monospace. */
-  --bps-docs-mono: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --bps-docs-mono: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Paper surfaces — match the BPS design system per theme. Light mode uses
    * an off-white "paper-light"; dark mode uses the BPS paper #0d1117 so the
@@ -292,7 +292,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-nav-ink-soft);
@@ -371,7 +371,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   border-radius: 4px;
   box-shadow: none;
   color: var(--bps-nav-muted);
-  font-family: 'Atkinson Hyperlegible Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
   line-height: 1;
 }
@@ -442,13 +442,14 @@ html[data-theme='dark']:root {
   .bpsBrand__w1 { font-size: 16px; }
   .bpsBrand__w2 { font-size: 10px; }
 
-  /* hide the bar's link cluster + dividers + separator + toggle — these move to
-   * the drawer. Search stays (as an icon). */
+  /* hide the bar's link cluster + dividers + separator + toggle + locale picker
+   * — these move to the drawer. Search stays (as an icon). */
   .navbar__items--right > .bpsNav--link,
   .navbar__items--right > .bpsNav__divider,
   .navbar__items--right > .bpsNav__sep,
   .navbar__items--right > [class*='colorModeToggle'],
-  .navbar__items--right > [class*='toggle_'] {
+  .navbar__items--right > [class*='toggle_'],
+  .navbar__items--right > .dropdown:has(> .bpsMainMenuLocale) {
     display: none;
   }
   .navbar__items--right { gap: 0; }
@@ -536,10 +537,14 @@ html[data-theme='dark']:root {
 /* The dropdown wrapper is display:block and taller than the icon-only link,
  * which leaves the link sitting near its top (other masthead links center
  * fine because they're direct flex children of the right group; this one is
- * wrapped a level deeper). Make the wrapper center its link. */
-.navbar__items--right .dropdown:has(> .bpsMainMenuLocale) {
-  display: flex;
-  align-items: center;
+ * wrapped a level deeper). Make the wrapper center its link. Desktop only —
+ * on mobile the picker is hidden from the bar (same specificity, so this
+ * `display:flex` would otherwise win on source order and unhide it). */
+@media (min-width: 997px) {
+  .navbar__items--right .dropdown:has(> .bpsMainMenuLocale) {
+    display: flex;
+    align-items: center;
+  }
 }
 .navbar__link.bpsMainMenuLocale {
   display: inline-flex;

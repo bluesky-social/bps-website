@@ -34,7 +34,7 @@
 .hero > :not(.topo) { position: relative; z-index: 1; }
 
 .eyebrow {
-  font-family: var(--ifm-font-family-monospace);
+  font-family: var(--bps-docs-mono);
   font-size: 0.66rem; font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ifm-color-primary);
