@@ -1,6 +1,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import type { AddressInfo } from 'node:net'
+import type { Server } from 'node:http'
 import { createDb, type DB } from './db/index.ts'
 import { buildApp } from './app.ts'
 
@@ -9,7 +10,7 @@ const url =
   'postgres://bps:bps@localhost:5433/bps_account'
 
 let db: DB
-let server: ReturnType<ReturnType<typeof buildApp>['listen']>
+let server: Server
 let base: string
 
 before(async () => {

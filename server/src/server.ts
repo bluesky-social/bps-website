@@ -17,9 +17,12 @@ async function main() {
     logger.info(`account server listening on :${cfg.port}`)
   })
 
+  let shuttingDown = false
   const shutdown = async (signal: string) => {
+    if (shuttingDown) return
+    shuttingDown = true
     logger.info(`received ${signal}, shutting down`)
-    server.close()
+    await new Promise<void>((resolve) => server.close(() => resolve()))
     await db.destroy()
     await otel.shutdown()
     process.exit(0)
@@ -29,6 +32,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  logger.error(err)
+  logger.error({ err }, 'fatal boot error')
   process.exit(1)
 })
