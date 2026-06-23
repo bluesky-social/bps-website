@@ -15,6 +15,7 @@ import { useAuth } from '@site/src/auth/AuthContext'
 import ProfileHeader from './ProfileHeader'
 import EmailSection from './EmailSection'
 import ApiKeysSection from './ApiKeysSection'
+import DangerZone from './DangerZone'
 import styles from './AccountApp.module.css'
 
 // ── Skeleton ────────────────────────────────────────────────────────────────
@@ -161,7 +162,9 @@ function AuthedView() {
 
         <ApiKeysSection />
 
-        {/* TODO: Task 7 — DangerZone */}
+        <div className={styles.divider} />
+
+        <DangerZone />
       </div>
     </div>
   )

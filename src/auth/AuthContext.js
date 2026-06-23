@@ -65,8 +65,17 @@ export function AuthProvider({ children }) {
     }
   }, [client])
 
+  // Local-only reset — same state transition as logout's finally-block but
+  // without a network call. Used by DangerZone after accountDelete() succeeds:
+  // the backend has already destroyed the session, so a server logout would
+  // 401; we just need the client-side state + hint cleared.
+  const resetToAnon = useCallback(() => {
+    setState({ status: 'anon', did: null, profile: null, hasEmail: false })
+    writeHint(null)
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ ...state, client, signIn, logout, refresh }}>
+    <AuthContext.Provider value={{ ...state, client, signIn, logout, resetToAnon, refresh }}>
       {children}
     </AuthContext.Provider>
   )
