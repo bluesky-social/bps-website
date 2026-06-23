@@ -38,3 +38,47 @@ curl localhost:8080/xrpc/internal.bps.health         # {"status":"ok","db":true}
 - Erasable-only TS (no enum/namespace/parameter-properties).
 - Lexicons are authored under repo-root `lexicons/` and committed; generated TS
   in `server/src/lexicons/` is git-ignored.
+
+## OAuth (Phase 2)
+
+Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
+- **App login cookie** (`bps_session`, iron-session): holds only `{ did }`.
+- **atproto OAuth tokens**: stored server-side in Postgres (`oauth_session`),
+  used to call the user's PDS/AppView.
+
+### Endpoints
+- `GET /oauth-client-metadata.json` — OAuth client metadata; this URL is the
+  `client_id` (production / hosted-metadata mode).
+- `GET /jwks.json` — public signing keys (ES256, `private_key_jwt`). Empty in
+  dev (loopback client uses `token_endpoint_auth_method: none`).
+- `GET /oauth-callback` — redirect_uri; finishes login, sets the cookie, 302s to
+  `${BPS_SITE_ORIGIN}/account`.
+- XRPC `internal.bps.oauth.start?handle=…` — returns `{ authorizeUrl }`
+  (400 `InvalidHandle` if the handle can't be resolved).
+- XRPC `internal.bps.oauth.logout` (POST, authed) — revokes the atproto session,
+  deletes the `oauth_session` row, clears the cookie.
+- XRPC `internal.bps.account.whoami` (authed) — `{ did, hasEmail }`.
+
+### Dev vs production client
+- **Dev** (`NODE_ENV` ≠ `production` with an `http://` `BPS_API_ORIGIN`): uses the
+  atproto **loopback** client — `client_id = http://localhost?redirect_uri=…`,
+  no hosted metadata, no signing key. Leave `BPS_OAUTH_PRIVATE_KEY` empty.
+- **Production**: hosted-metadata + `private_key_jwt`. Set `BPS_OAUTH_PRIVATE_KEY`
+  (PKCS8 PEM or JWK JSON) and `BPS_OAUTH_KEY_ID`.
+
+### Manual e2e smoke test (verified 2026-06-23)
+The full authorization-code + PKCE + DPoP round-trip can't run in CI (needs a
+live atproto auth server + a real account). To exercise it manually:
+1. `npm run dev`, then
+   `curl "localhost:8080/xrpc/internal.bps.oauth.start?handle=YOUR_HANDLE"`.
+2. Open the returned `authorizeUrl` in a browser and approve. You'll be
+   redirected to `${BPS_SITE_ORIGIN}/account` — that page 404s until the
+   frontend (Phase 4) exists; **the success signal is in the database**.
+3. Confirm rows were created:
+   ```bash
+   docker compose exec postgres psql -U bps -d bps_account \
+     -c "select did, email is not null as has_email from account;"
+   docker compose exec postgres psql -U bps -d bps_account \
+     -c "select did, length(session) from oauth_session;"
+   ```
+   A row in **both** tables for your DID = pass.
