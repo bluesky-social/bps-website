@@ -30,9 +30,12 @@ export function createPostgresApiKeyProvider(db: DB): ApiKeyProvider {
     },
 
     async deleteConsumer(did: DidString): Promise<void> {
+      // Wrap in a transaction so api_key + account are removed atomically.
       // api_key rows cascade via the FK, but delete explicitly for clarity/portability.
-      await db.deleteFrom('api_key').where('did', '=', did).execute()
-      await db.deleteFrom('account').where('did', '=', did).execute()
+      await db.transaction().execute(async (trx) => {
+        await trx.deleteFrom('api_key').where('did', '=', did).execute()
+        await trx.deleteFrom('account').where('did', '=', did).execute()
+      })
     },
 
     async createKey(did, opts): Promise<CreatedKey> {

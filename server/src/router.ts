@@ -167,14 +167,20 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     },
   })
 
-  // account.delete — hard delete: revoke OAuth session, delete session row, delete api_key rows + account row, clear cookie.
+  // account.delete — hard delete: revoke OAuth session, delete api_key rows + account row, delete session row, clear cookie.
+  // Ordering rationale: deleteConsumer (account + api_key) goes BEFORE the oauth_session cleanup so
+  // that any partial failure leaves a safe state — once the account row is gone whoami returns 401,
+  // making the user effectively deleted even if the orphaned oauth_session cleanup fails later.
+  // A single cross-store transaction is intentionally NOT used: under the Kong-future adapter the
+  // consumer (account+keys) and oauth_session live in different stores, making a cross-store
+  // transaction impossible without breaking the ApiKeyProvider port abstraction.
   router.add(internal.bps.account.delete.main, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const did = credentials.did
       await client.revoke(did).catch((err) => logger.warn({ err }, 'revoke during delete failed'))
-      await db.deleteFrom('oauth_session').where('did', '=', did).execute()
-      await apiKeys.deleteConsumer(did) // deletes api_key rows + the account row
+      await apiKeys.deleteConsumer(did) // atomic: deletes api_key rows + the account row together
+      await db.deleteFrom('oauth_session').where('did', '=', did).execute() // cleanup; if this fails, account is already gone so whoami still 401s
       return new Response(JSON.stringify({ ok: true }), {
         status: 200,
         headers: { 'content-type': 'application/json', 'set-cookie': clearCookieHeader(config) },
