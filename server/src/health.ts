@@ -7,7 +7,7 @@ export async function checkHealth(db: DB): Promise<{ status: 'ok'; db: boolean }
     await sql`select 1`.execute(db)
     dbUp = true
   } catch {
-    dbUp = false
+    // swallow: db is unreachable
   }
   return { status: 'ok', db: dbUp }
 }

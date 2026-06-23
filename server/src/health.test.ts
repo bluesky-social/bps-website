@@ -1,29 +1,44 @@
 // server/src/health.test.ts
-import { test } from 'node:test'
+import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { createDb, type DB } from './db/index.ts'
 import { checkHealth } from './health.ts'
 
-function fakeDbWhereSqlExecute(behavior: 'ok' | 'throw') {
-  // kysely's sql`...`.execute(db) uses db.getExecutor() internally.
-  // The executor needs transformQuery, compileQuery, and executeQuery.
-  return {
-    getExecutor: () => ({
-      transformQuery: (q: unknown) => q,
-      compileQuery: (_q: unknown) => ({ sql: 'select 1', parameters: [] }),
-      executeQuery: async () => {
-        if (behavior === 'throw') throw new Error('connection refused')
-        return { rows: [{ '?column?': 1 }] }
-      },
-    }),
-  } as any
-}
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 
-test('checkHealth reports db:true when the query succeeds', async () => {
-  const result = await checkHealth(fakeDbWhereSqlExecute('ok'))
+// Port 1 is never open; pg refuses the connection immediately (~5 ms).
+const unreachableUrl = 'postgres://bps:bps@127.0.0.1:1/bps_account'
+
+// --- db:true path ---
+
+let db: DB
+
+before(() => {
+  db = createDb(url)
+})
+after(async () => {
+  await db.destroy()
+})
+
+test('checkHealth returns db:true when Postgres is reachable', async () => {
+  const result = await checkHealth(db)
   assert.deepEqual(result, { status: 'ok', db: true })
 })
 
-test('checkHealth reports db:false when the query throws', async () => {
-  const result = await checkHealth(fakeDbWhereSqlExecute('throw'))
+// --- db:false path (unreachable host) ---
+
+let deadDb: DB
+
+before(() => {
+  deadDb = createDb(unreachableUrl)
+})
+after(async () => {
+  await deadDb.destroy()
+})
+
+test('checkHealth returns db:false when Postgres is unreachable', async () => {
+  const result = await checkHealth(deadDb)
   assert.deepEqual(result, { status: 'ok', db: false })
 })
