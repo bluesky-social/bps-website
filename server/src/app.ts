@@ -6,11 +6,16 @@ import type { AppConfig } from './config.ts'
 import type { ApiKeyProvider } from './apikeys/provider.ts'
 import { buildRouter } from './router.ts'
 import { mountOAuthRoutes } from './oauth/routes.ts'
+import { corsMiddleware } from './cors.ts'
 
 export type AppDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
 
 export function buildApp(deps: AppDeps): express.Express {
   const app = express()
+
+  // Credentialed CORS for the static site origin must be the first middleware
+  // so preflight and headers apply to every route including /healthz and XRPC.
+  app.use(corsMiddleware(deps.config))
 
   // Plain liveness route (no XRPC envelope) for infra probes.
   app.get('/healthz', (_req, res) => {
