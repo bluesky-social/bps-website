@@ -43,6 +43,16 @@ The Bluesky agent you created in the [Get Started](/docs/get-started) section ha
     ```
 
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="FeedGetTimeline"
+    // params: algorithm, cursor, limit
+    data, _ := appbsky.FeedGetTimeline(ctx, client, "reverse-chronological", "...", 30)
+
+    postsArray := data.Feed
+    nextPage := data.Cursor
+    ```
+
+  </TabItem>
 </Tabs>
 
 ## Feed generators
@@ -95,6 +105,16 @@ custom feed](https://bsky.app/profile/bsky.app/feed/whats-hot).
     next_page = data.cursor
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="FeedGetFeed"
+    // params: cursor, feed, limit
+    data, _ := appbsky.FeedGetFeed(ctx, client, "",
+      "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot", 30)
+
+    postsArray := data.Feed
+    nextPage := data.Cursor
+    ```
+  </TabItem>
 </Tabs>
 
 :::tip
@@ -134,6 +154,16 @@ parameter, `feed`, which is the URI of the feed generator to fetch.
     like_count = view.like_count
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="FeedGetFeedGenerator"
+    data, _ := appbsky.FeedGetFeedGenerator(ctx, client,
+      "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot")
+
+    view := data.View
+    creator := view.Creator
+    displayName := view.DisplayName
+    ```
+  </TabItem>
 </Tabs>
 
 ## Author feeds
@@ -170,6 +200,16 @@ Author feeds return posts by a single user.
 
     feed = data.feed
     next_page = data.cursor
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="FeedGetAuthorFeed"
+    // params: actor, cursor, filter, includePins, limit
+    data, _ := appbsky.FeedGetAuthorFeed(ctx, client,
+      "did:plc:z72i7hdynmk6r22z27h6tvur", "", "posts_and_author_threads", false, 30)
+
+    postsArray := data.Feed
+    nextPage := data.Cursor
     ```
   </TabItem>
 </Tabs>

@@ -35,14 +35,6 @@
     "message": "Community-run Discord",
     "description": "The label of footer link with label=Community-run Discord linking to https://discord.gg/3srmDsHSZJ"
   },
-  "link.item.label.Mailing List": {
-    "message": "Mailing List",
-    "description": "The label of footer link with label=Mailing List linking to /docs/support/mailing-list"
-  },
-  "link.item.label.Blog": {
-    "message": "Blog",
-    "description": "The label of footer link with label=Blog linking to /blog"
-  },
   "link.item.label.GitHub Discussions": {
     "message": "GitHub Discussions",
     "description": "The label of footer link with label=GitHub Discussions linking to https://github.com/bluesky-social/atproto/discussions"

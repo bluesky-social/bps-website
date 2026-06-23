@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 # Liking and reposting
 
-Liking and reposting posts are a core feature of Bluesky. The [official atproto SDK](https://www.npmjs.com/package/@atproto/api) has dedicated methods for these actions.
+Liking and reposting posts are core Bluesky actions. A like or repost is itself a record in the user's repository — many SDKs provide dedicated helpers for creating and removing them.
 
 ## Liking a post
 
@@ -24,6 +24,21 @@ The URI indicates the repository DID, collection, and record key. The CID is the
   <TabItem value="python" label="Python">
     ```python title="client.like"
       uri = client.like(uri=uri, cid=cid).uri
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    The Go SDK has no dedicated helper; create an `app.bsky.feed.like` record pointing at the post:
+
+    ```go
+    like := &appbsky.FeedLike{
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Subject:   &comatproto.RepoStrongRef{Uri: uri, Cid: cid},
+    }
+    resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.feed.like",
+      Record:     &lexutil.LexiconTypeDecoder{Val: like},
+    })
     ```
   </TabItem>
 </Tabs>
@@ -49,6 +64,20 @@ In the case of a Like, unliking the post means deleting the Like record.
       client.delete_like(uri)
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    Delete the like record. Its rkey is the last segment of the URI returned when you created it:
+
+    ```go
+    import "strings"
+
+    rkey := uri[strings.LastIndex(uri, "/")+1:]
+    comatproto.RepoDeleteRecord(ctx, client, &comatproto.RepoDeleteRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.feed.like",
+      Rkey:       rkey,
+    })
+    ```
+  </TabItem>
 </Tabs>
 
 | Parameter | Type     | Description                    | Required |
@@ -69,6 +98,21 @@ unliking.
   <TabItem value="python" label="Python">
     ```python title="client.repost"
       uri = client.repost(uri=uri, cid=cid).uri
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Same pattern as a like, with the `app.bsky.feed.repost` collection:
+
+    ```go
+    repost := &appbsky.FeedRepost{
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Subject:   &comatproto.RepoStrongRef{Uri: uri, Cid: cid},
+    }
+    resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.feed.repost",
+      Record:     &lexutil.LexiconTypeDecoder{Val: repost},
+    })
     ```
   </TabItem>
 </Tabs>
@@ -92,6 +136,18 @@ we want to delete.
   <TabItem value="python" label="Python">
     ```python title="client.delete_repost"
       client.delete_repost(uri)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Delete the repost record by its rkey, as with unliking:
+
+    ```go
+    rkey := uri[strings.LastIndex(uri, "/")+1:]
+    comatproto.RepoDeleteRecord(ctx, client, &comatproto.RepoDeleteRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.feed.repost",
+      Rkey:       rkey,
+    })
     ```
   </TabItem>
 </Tabs>
