@@ -2,6 +2,8 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createDb, type DB } from './db/index.ts'
+import { loadConfig } from './config.ts'
+import { createOAuthClient } from './oauth/client.ts'
 import { buildRouter } from './router.ts'
 
 const url =
@@ -10,7 +12,7 @@ const url =
 
 let db: DB
 
-before(() => {
+before(async () => {
   db = createDb(url)
 })
 after(async () => {
@@ -18,7 +20,18 @@ after(async () => {
 })
 
 test('internal.bps.health responds via router.fetch', async () => {
-  const router = buildRouter(db)
+  const cfg = loadConfig({
+    BPS_PORT: '8080',
+    BPS_DATABASE_URL: url,
+    BPS_SITE_ORIGIN: 'http://localhost:3000',
+    BPS_API_ORIGIN: 'http://127.0.0.1:8080',
+    BPS_COOKIE_DOMAIN: 'localhost',
+    BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32),
+    BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
+    NODE_ENV: 'development',
+  })
+  const client = await createOAuthClient(db, cfg)
+  const router = buildRouter({ db, config: cfg, client })
   const res = await router.fetch(
     new Request('http://local/xrpc/internal.bps.health'),
   )

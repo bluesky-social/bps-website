@@ -3,6 +3,7 @@ import { logger } from './logger.ts'
 import { startOtel } from './otel.ts'
 import { createDb } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
+import { createOAuthClient } from './oauth/client.ts'
 import { buildApp } from './app.ts'
 
 async function main() {
@@ -12,7 +13,8 @@ async function main() {
 
   await runMigrations(db)
 
-  const app = buildApp(db)
+  const client = await createOAuthClient(db, cfg)
+  const app = buildApp({ db, config: cfg, client })
   const server = app.listen(cfg.port, () => {
     logger.info(`account server listening on :${cfg.port}`)
   })

@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import type { AddressInfo } from 'node:net'
 import type { Server } from 'node:http'
 import { createDb, type DB } from './db/index.ts'
+import { loadConfig } from './config.ts'
+import { createOAuthClient } from './oauth/client.ts'
 import { buildApp } from './app.ts'
 
 const url =
@@ -15,7 +17,18 @@ let base: string
 
 before(async () => {
   db = createDb(url)
-  const app = buildApp(db)
+  const cfg = loadConfig({
+    BPS_PORT: '8080',
+    BPS_DATABASE_URL: url,
+    BPS_SITE_ORIGIN: 'http://localhost:3000',
+    BPS_API_ORIGIN: 'http://127.0.0.1:8080',
+    BPS_COOKIE_DOMAIN: 'localhost',
+    BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32),
+    BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
+    NODE_ENV: 'development',
+  })
+  const client = await createOAuthClient(db, cfg)
+  const app = buildApp({ db, config: cfg, client })
   await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
       const { port } = server.address() as AddressInfo

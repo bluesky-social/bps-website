@@ -1,3 +1,4 @@
+import { serialize } from 'cookie'
 import { getIronSession, sealData, unsealData } from 'iron-session'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { DidString } from '@atproto/syntax'
@@ -69,6 +70,19 @@ export async function unsealDidFromCookieHeader(
   } catch {
     return null
   }
+}
+
+// Build a Set-Cookie header value that immediately expires the session cookie.
+// Used by lex-server handlers that return a raw Web Response (not Express res).
+export function clearCookieHeader(config: AppConfig): string {
+  return serialize(SESSION_COOKIE_NAME, '', {
+    httpOnly: true,
+    secure: config.cookieSecure,
+    sameSite: config.cookieSameSite,
+    domain: config.devMode ? undefined : config.cookieDomain,
+    path: '/',
+    maxAge: 0,
+  })
 }
 
 // Re-export for tests/usage symmetry.

@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "node --watch --env-file=.env src/server.ts",
     "start": "node --env-file=.env src/server.ts",
@@ -13,10 +15,10 @@
     "lex:build": "lex build --lexicons ../lexicons --out ./src/lexicons --clear --import-ext .ts"
   },
   "dependencies": {
+    "@atproto/jwk-jose": "^0.1.6",
     "@atproto/lex": "^0.1.4",
     "@atproto/lex-server": "^0.1.2",
     "@atproto/oauth-client-node": "^0.4.2",
-    "@atproto/jwk-jose": "^0.1.6",
     "@atproto/syntax": "^0.4.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/auto-instrumentations-node": "^0.52.0",
@@ -29,6 +31,7 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
+    "@types/cookie": "^0.6.0",
     "@types/express": "^5.0.0",
     "@types/node": "^24.0.0",
     "@types/pg": "^8.11.0",
