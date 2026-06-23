@@ -70,6 +70,6 @@ test('create → list → delete round-trip', async () => {
     method: 'POST', headers: { 'content-type': 'application/json', cookie: c }, body: JSON.stringify({ id: cj.id }),
   })
   assert.equal(del.status, 200)
-  const after = await fetch(`${base}/xrpc/internal.bps.apiKey.list`, { headers: { cookie: c } })
-  assert.equal(((await after.json()) as { keys: unknown[] }).keys.length, 0)
+  const listAfterDel = await fetch(`${base}/xrpc/internal.bps.apiKey.list`, { headers: { cookie: c } })
+  assert.equal(((await listAfterDel.json()) as { keys: unknown[] }).keys.length, 0)
 })
