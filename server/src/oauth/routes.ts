@@ -35,7 +35,14 @@ export function mountOAuthRoutes(app: Express, deps: Deps): void {
       await setDid(req, res, config, did)
       res.redirect(302, `${config.siteOrigin}/account`)
     } catch (err) {
-      logger.error({ err }, 'oauth callback failed')
+      // Generic redirect for the user; log request context so abuse/probing of
+      // the callback (vs. a user who simply took too long) is spottable. The
+      // atproto client validates state/PKCE/DPoP internally, so a forged
+      // callback fails closed here.
+      logger.error(
+        { err, ip: req.ip, userAgent: req.get('user-agent') },
+        'oauth callback failed',
+      )
       res.redirect(302, `${config.siteOrigin}/account?error=oauth`)
     }
   })

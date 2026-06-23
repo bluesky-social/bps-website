@@ -33,25 +33,6 @@ export async function setDid(
   await session.save()
 }
 
-export async function readDid(
-  req: IncomingMessage,
-  res: ServerResponse,
-  config: AppConfig,
-): Promise<DidString | null> {
-  const session = await getIronSession<SessionData>(req, res, ironOptions(config))
-  return session.did ?? null
-}
-
-export async function clearDid(
-  req: IncomingMessage,
-  res: ServerResponse,
-  config: AppConfig,
-): Promise<void> {
-  const session = await getIronSession<SessionData>(req, res, ironOptions(config))
-  session.destroy()
-  await session.save()
-}
-
 // For contexts with only a Web Request (lex-server auth fn): parse + unseal directly.
 export async function unsealDidFromCookieHeader(
   cookieHeader: string | null,
