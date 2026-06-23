@@ -6,11 +6,6 @@ import type { ApiKeyTable } from '../db/types.ts'
 import type { ApiKeyProvider, ApiKeyMeta, CreatedKey, Consumer } from './provider.ts'
 import { generateApiKey } from './key.ts'
 
-// Selectable<ApiKeyTable> unwraps one ColumnType level, but created_at is
-// Generated<Timestamp> = ColumnType<Timestamp,...> where Timestamp itself is
-// ColumnType<Date,...>. A single Selectable pass leaves created_at typed as
-// Timestamp (nested ColumnType). The cast below is safe: the Postgres dialect
-// materialises timestamps as JS Date objects at runtime.
 type ApiKeyRow = Pick<Selectable<ApiKeyTable>, 'id' | 'label' | 'key_preview' | 'created_at' | 'expires_at'>
 
 function toMeta(row: ApiKeyRow): ApiKeyMeta {
@@ -18,7 +13,7 @@ function toMeta(row: ApiKeyRow): ApiKeyMeta {
     id: row.id,
     label: row.label,
     preview: row.key_preview,
-    createdAt: row.created_at as unknown as Date,
+    createdAt: row.created_at,
     expiresAt: row.expires_at,
   }
 }
@@ -43,7 +38,6 @@ export function createPostgresApiKeyProvider(db: DB): ApiKeyProvider {
     async createKey(did, opts): Promise<CreatedKey> {
       const { full, hash, preview } = generateApiKey()
       const id = ulid()
-      const expiresAt = opts.expiresAt
       const inserted = await db
         .insertInto('api_key')
         .values({
@@ -52,7 +46,7 @@ export function createPostgresApiKeyProvider(db: DB): ApiKeyProvider {
           label: opts.label,
           key_hash: hash,
           key_preview: preview,
-          expires_at: expiresAt,
+          expires_at: opts.expiresAt,
           last_used_at: null,
         })
         .returning(['id', 'label', 'key_preview', 'created_at', 'expires_at'])
