@@ -1,0 +1,310 @@
+/*
+ * BpsAccount — navbar account item.
+ *
+ * Design intent: a fixed-width "slot" in the nav-mini cluster that transitions
+ * cleanly between three states (resolving / anon / authed) with zero layout
+ * shift. Uses the same bpsNav token palette as the mono links (Atkinson
+ * Hyperlegible Mono, soft ink, blue on hover/active).
+ *
+ * Desktop: sits between the trailing divider and the theme toggle — an
+ * inline-flex pill matching the row height of .bpsNav--link.
+ *
+ * Mobile: renders as a standard drawer menu__link row (like NavCustomLink).
+ */
+
+/* ── Desktop wrapper ─────────────────────────────────────────────────────── */
+
+.slot {
+  /* Fixed width holds the slot stable across all three states so the divider
+   * never shifts. Wide enough for a ~12-char handle + avatar (or "SIGN IN"). */
+  display: inline-flex;
+  align-items: center;
+  width: 120px;
+  height: 36px;
+  position: relative;
+}
+
+/* ── Shared pill link / button base ─────────────────────────────────────── */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bps-nav-ink-soft);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.pill:hover {
+  color: var(--bps-nav-hover);
+  text-decoration: none;
+}
+
+/* ── Resolving placeholder ───────────────────────────────────────────────── */
+
+.resolvingGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+}
+
+.ghostAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  flex-shrink: 0;
+  /* Subtle pulse to signal loading without being distracting */
+  animation: bpsAccountPulse 1.6s ease-in-out infinite;
+}
+
+.ghostText {
+  height: 8px;
+  flex: 1;
+  border-radius: 3px;
+  background: var(--bps-nav-surface);
+  animation: bpsAccountPulse 1.6s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+@keyframes bpsAccountPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.9; }
+}
+
+/* ── Authed state — avatar + handle ─────────────────────────────────────── */
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--bps-nav-rule);
+  background: var(--bps-nav-surface);
+}
+
+.avatarFallback {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  color: var(--bps-nav-muted);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.handleText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+/* ── Anon state — "Sign in" ──────────────────────────────────────────────── */
+
+.signInIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+/* ── Sign-in popover ─────────────────────────────────────────────────────── */
+
+.popoverAnchor {
+  position: relative;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 500;
+  min-width: 240px;
+  background: var(--bps-nav-bg);
+  border: 1px solid var(--bps-nav-rule);
+  border-radius: 8px;
+  padding: 14px 14px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  /* Tiny upward caret */
+  animation: bpsPopoverIn 0.14s ease-out;
+}
+
+.popover::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 14px;
+  width: 9px;
+  height: 9px;
+  background: var(--bps-nav-bg);
+  border-top: 1px solid var(--bps-nav-rule);
+  border-left: 1px solid var(--bps-nav-rule);
+  transform: rotate(45deg);
+}
+
+@keyframes bpsPopoverIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.popoverLabel {
+  display: block;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bps-nav-muted);
+  margin-bottom: 8px;
+}
+
+.popoverRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.handleInput {
+  flex: 1;
+  height: 32px;
+  padding: 0 9px;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  border-radius: 5px;
+  color: var(--bps-nav-ink);
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.12s ease;
+}
+
+.handleInput::placeholder {
+  color: var(--bps-nav-muted);
+  font-weight: 400;
+}
+
+.handleInput:focus {
+  border-color: var(--bps-nav-hover);
+  background: var(--bps-nav-surface-hover);
+}
+
+.goBtn {
+  height: 32px;
+  padding: 0 10px;
+  background: var(--bps-nav-hover);
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: opacity 0.12s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.goBtn:hover { opacity: 0.85; }
+.goBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.popoverError {
+  margin-top: 7px;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  color: #e05050;
+  letter-spacing: 0.02em;
+}
+
+/* Light-mode popover surface adjustments */
+html[data-theme='light'] .popover {
+  box-shadow: 0 8px 24px rgba(13, 17, 23, 0.14);
+}
+
+/* ── Mobile drawer variant ───────────────────────────────────────────────── */
+
+/* The slot element is invisible on mobile; instead we inject the mobile row. */
+@media (max-width: 996px) {
+  .slot {
+    display: none;
+  }
+}
+
+/* Mobile menu item */
+.mobileItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.mobileAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--bps-nav-rule);
+  background: var(--bps-nav-surface);
+}
+
+.mobileAvatarFallback {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  color: var(--bps-nav-muted);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Mobile sign-in input area */
+.mobileSignInRow {
+  width: 100%;
+  padding: 4px 0;
+}
+
+.mobileSignInRow .handleInput {
+  width: 100%;
+  margin-bottom: 6px;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  color: var(--bps-nav-ink);
+}
+
+.mobileSignInRow .goBtn {
+  width: 100%;
+}

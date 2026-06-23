@@ -209,6 +209,17 @@ const config = {
             external: true,
           },
           {
+            // Middot separator before the account item.
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // Account item — resolving / anon / authed states from useAuth().
+            type: "custom-bpsAccount",
+            position: "right",
+          },
+          {
             // Trailing vertical divider before the auto-appended theme toggle
             // (prototype's version-stamp border-left).
             type: "custom-navSep",
