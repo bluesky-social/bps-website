@@ -1,5 +1,6 @@
-import { LexRouter, LexServerError } from '@atproto/lex-server'
+import { LexRouter, LexServerError, LexServerAuthError } from '@atproto/lex-server'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
+import { sql } from 'kysely'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from './db/index.ts'
@@ -55,7 +56,13 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         .select(['did', 'email'])
         .where('did', '=', credentials.did)
         .executeTakeFirst()
-      return { body: { did: credentials.did, hasEmail: !!row?.email } }
+      if (!row) {
+        // Valid cookie but the account no longer exists (e.g. deleted) → not logged in.
+        throw new LexServerAuthError('AuthenticationRequired', 'Account not found', {
+          Bearer: { realm: 'account' },
+        })
+      }
+      return { body: { did: credentials.did, hasEmail: !!row.email } }
     },
   })
 
@@ -134,6 +141,38 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     handler: async ({ credentials, input }) => {
       await apiKeys.deleteKey(credentials.did, input.body.id)
       return { body: { ok: true } }
+    },
+  })
+
+  // setEmail — store-only, unverified. Minimal shape check.
+  router.add(internal.bps.account.setEmail.main, {
+    auth: requireSession,
+    handler: async ({ credentials, input }) => {
+      const email = input.body.email.trim()
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        throw new LexServerError(400, { error: 'InvalidEmail', message: 'Enter a valid email address.' })
+      }
+      await db
+        .updateTable('account')
+        .set({ email, updated_at: sql`now()` })
+        .where('did', '=', credentials.did)
+        .execute()
+      return { body: { ok: true } }
+    },
+  })
+
+  // account.delete — hard delete: revoke OAuth session, delete session row, delete api_key rows + account row, clear cookie.
+  router.add(internal.bps.account.delete.main, {
+    auth: requireSession,
+    handler: async ({ credentials }) => {
+      const did = credentials.did
+      await client.revoke(did).catch((err) => logger.warn({ err }, 'revoke during delete failed'))
+      await db.deleteFrom('oauth_session').where('did', '=', did).execute()
+      await apiKeys.deleteConsumer(did) // deletes api_key rows + the account row
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json', 'set-cookie': clearCookieHeader(config) },
+      })
     },
   })
 

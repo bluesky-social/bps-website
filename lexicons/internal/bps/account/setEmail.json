@@ -1,0 +1,22 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.account.setEmail",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Set or update the caller's stored contact email (unverified).",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["email"],
+          "properties": { "email": { "type": "string", "maxLength": 320, "minLength": 3 } }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": { "type": "object", "required": ["ok"], "properties": { "ok": { "type": "boolean" } } }
+      }
+    }
+  }
+}
