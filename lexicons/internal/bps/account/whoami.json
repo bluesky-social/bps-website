@@ -1,0 +1,21 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.account.whoami",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Return the logged-in account's DID and whether an email is stored.",
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["did", "hasEmail"],
+          "properties": {
+            "did": { "type": "string", "format": "did" },
+            "hasEmail": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  }
+}

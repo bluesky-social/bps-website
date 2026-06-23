@@ -1,0 +1,42 @@
+import type { Express, Request, Response } from 'express'
+import type { NodeOAuthClient } from '@atproto/oauth-client-node'
+import type { DidString } from '@atproto/syntax'
+import type { DB } from '../db/index.ts'
+import type { AppConfig } from '../config.ts'
+import { setDid } from '../session/cookie.ts'
+import { logger } from '../logger.ts'
+
+type Deps = { client: NodeOAuthClient; config: AppConfig; db: DB }
+
+export function mountOAuthRoutes(app: Express, deps: Deps): void {
+  const { client, config, db } = deps
+
+  app.get('/oauth-client-metadata.json', (_req: Request, res: Response) => {
+    res.json(client.clientMetadata)
+  })
+
+  app.get('/jwks.json', (_req: Request, res: Response) => {
+    res.json(client.jwks)
+  })
+
+  app.get('/oauth-callback', async (req: Request, res: Response) => {
+    try {
+      const params = new URLSearchParams(req.url.split('?')[1] ?? '')
+      const { session } = await client.callback(params)
+      const did = session.did as DidString
+
+      // Upsert the account row (first login creates it; email captured later in Phase 3 UI).
+      await db
+        .insertInto('account')
+        .values({ did, email: null })
+        .onConflict((oc) => oc.column('did').doNothing())
+        .execute()
+
+      await setDid(req, res, config, did)
+      res.redirect(302, `${config.siteOrigin}/account`)
+    } catch (err) {
+      logger.error({ err }, 'oauth callback failed')
+      res.redirect(302, `${config.siteOrigin}/account?error=oauth`)
+    }
+  })
+}

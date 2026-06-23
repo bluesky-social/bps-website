@@ -1,0 +1,14 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.oauth.logout",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Clear the session cookie and revoke the stored atproto OAuth session.",
+      "output": {
+        "encoding": "application/json",
+        "schema": { "type": "object", "required": ["ok"], "properties": { "ok": { "type": "boolean" } } }
+      }
+    }
+  }
+}
