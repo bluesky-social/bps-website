@@ -82,3 +82,24 @@ live atproto auth server + a real account). To exercise it manually:
      -c "select did, length(session) from oauth_session;"
    ```
    A row in **both** tables for your DID = pass.
+
+## Account ops + API keys (Phase 3)
+
+All authed via the `bps_session` cookie.
+
+- XRPC `internal.bps.account.profile` — live bsky profile `{ did, handle, displayName?, avatar? }` (fetched via the user's OAuth session; not cached).
+- XRPC `internal.bps.account.setEmail` (POST `{email}`) — store-only, unverified; 400 `InvalidEmail` on malformed.
+- XRPC `internal.bps.account.delete` (POST) — hard-deletes the account + keys + OAuth session, revokes atproto access, clears the cookie.
+- XRPC `internal.bps.apiKey.create` (POST `{label, expiresAt?}`) — returns the full `jsk_…` secret **once**.
+- XRPC `internal.bps.apiKey.list` — metadata only (`{id,label,preview,createdAt,expiresAt?}`); never the secret.
+- XRPC `internal.bps.apiKey.delete` (POST `{id}`) — delete = instant revoke.
+
+API keys are opaque (`jsk_<random>`), scoped to Jetstream (`jetstream:read`), stored
+as a SHA-256 hash + a masked preview — the plaintext is shown once and is not
+retrievable. Keys go through the `ApiKeyProvider` port (`src/apikeys/provider.ts`);
+the Postgres adapter is `src/apikeys/postgres-provider.ts` (a Kong adapter can
+replace it without changing callers).
+
+Note: `whoami` returns 401 if the cookie is valid but the account row no longer
+exists (e.g. after `account.delete`). Expected client errors (4xx) are logged at
+`warn`; only unexpected failures log at `error`.
