@@ -124,6 +124,7 @@ const config = {
   // unset, the homepage "API Reference" card is hidden.
   customFields: {
     endpointsUrl: process.env.ENDPOINTS_URL || null,
+    apiOrigin: process.env.BPS_PUBLIC_API_ORIGIN || 'http://127.0.0.1:8080',
   },
   presets: [
     [
