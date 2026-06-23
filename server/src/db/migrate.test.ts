@@ -9,6 +9,11 @@ const url =
 
 let db: DB
 
+// NOTE: this suite's before() drops every table on the shared dev database to
+// test migrations from a clean slate. That is destructive to any other
+// DB-integration test running against the same database, so the test runner is
+// pinned to `--test-concurrency=1` (see package.json "test" script). If this
+// test is ever given its own database/schema, that pin can be relaxed.
 before(async () => {
   db = createDb(url)
   // Clean slate: drop tables + the migration bookkeeping if present.
