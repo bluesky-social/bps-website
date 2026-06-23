@@ -155,6 +155,8 @@ html[data-theme='dark'] {
   --bps-nav-rule-hover: #38424f;
   --bps-nav-key-bg: #0d1117;       /* ⌘K key caps */
   --bps-nav-muted: #9ca3af;        /* search icon + placeholder + keys */
+  --bps-nav-error: #ff7b72;        /* inline error text (account sign-in), dark */
+  --bps-nav-on-accent: #fff;       /* fg on the accent/hover fill (buttons) */
 
   --ifm-navbar-background-color: var(--bps-nav-bg);
   --ifm-navbar-link-color: var(--bps-nav-ink-soft);
@@ -186,6 +188,8 @@ html[data-theme='light'] .navbar {
   --bps-nav-rule-hover: #c7ccd3;
   --bps-nav-key-bg: #f4f6f9;
   --bps-nav-muted: #6b7480;
+  --bps-nav-error: #c0392b;        /* inline error text, light (darker for contrast on light surface) */
+  /* --bps-nav-on-accent stays #fff — light accent (#0057a8) carries white text */
 }
 /* Faint topo-line graphic bleeding behind the masthead (prototype .topo-bg):
  * sits left of center, masked to fade at all edges so it doesn't terminate

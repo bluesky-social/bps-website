@@ -156,7 +156,7 @@ function DesktopAccount() {
     if (profile?.handle) {
       // Optimistic: returning user — show their last-known state so no flash
       return (
-        <div className={styles.slot} aria-label="Loading account…">
+        <div className={styles.slot} aria-label="Loading account…" aria-busy="true">
           <span className={styles.pill} style={{ opacity: 0.55 }}>
             <Avatar
               src={profile.avatar}
