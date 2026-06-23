@@ -23,7 +23,7 @@ test('internal.bps.health responds via router.fetch', async () => {
     new Request('http://local/xrpc/internal.bps.health'),
   )
   assert.equal(res.status, 200)
-  const json = await res.json()
+  const json = (await res.json()) as { status: string; db: unknown }
   assert.equal(json.status, 'ok')
   assert.equal(typeof json.db, 'boolean')
 })

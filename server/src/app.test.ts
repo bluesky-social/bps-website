@@ -33,14 +33,14 @@ after(async () => {
 test('GET /healthz returns 200 ok', async () => {
   const res = await fetch(`${base}/healthz`)
   assert.equal(res.status, 200)
-  const json = await res.json()
+  const json = (await res.json()) as { status: string }
   assert.equal(json.status, 'ok')
 })
 
 test('GET /xrpc/internal.bps.health returns 200 through Express mount', async () => {
   const res = await fetch(`${base}/xrpc/internal.bps.health`)
   assert.equal(res.status, 200)
-  const json = await res.json()
+  const json = (await res.json()) as { status: string; db: unknown }
   assert.equal(json.status, 'ok')
   assert.equal(typeof json.db, 'boolean')
 })
