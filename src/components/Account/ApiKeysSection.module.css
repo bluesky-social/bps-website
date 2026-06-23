@@ -32,14 +32,12 @@ html[data-theme='dark'] .sectionHeading {
   gap: 0.75rem;
   padding: 1rem 1.125rem;
   background: var(--ifm-background-surface-color, #fff);
-  border: 1px solid var(--ifm-color-emphasis-200);
+  border: 1px solid #dfe3e8;
   border-radius: 8px;
   margin-bottom: 1.25rem;
 }
 
 html[data-theme='light'] .createForm {
-  background: #ffffff;
-  border-color: #dfe3e8;
   box-shadow: 0 1px 3px rgba(13, 17, 23, 0.05);
 }
 
@@ -320,12 +318,10 @@ html[data-theme='dark'] .secretWarning strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* vertically center the text in the box */
-  display: flex;
-  align-items: center;
   letter-spacing: 0.01em;
   user-select: all;
   cursor: text;
+  outline: none;
 }
 
 html[data-theme='light'] .secretValue {

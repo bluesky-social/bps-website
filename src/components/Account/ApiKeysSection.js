@@ -86,7 +86,14 @@ function SecretReveal({ secret, onDone }) {
       </p>
 
       <div className={styles.secretRow}>
-        <code className={styles.secretValue} aria-label="API key secret">{secret}</code>
+        <input
+          type="text"
+          readOnly
+          value={secret}
+          onFocus={(e) => e.target.select()}
+          className={styles.secretValue}
+          aria-label="Your new API key"
+        />
         <button
           type="button"
           className={`${styles.copyBtn}${copied ? ` ${styles.copyBtnDone}` : ''}`}
@@ -157,7 +164,7 @@ function CreateForm({ onCreated }) {
       try {
         const result = await client.apiKeyCreate({
           label: trimmedLabel,
-          ...(expiresAt ? { expiresAt } : {}),
+          ...(expiresAt !== undefined ? { expiresAt } : {}),
         })
         // Reset form
         setLabel('')
@@ -420,7 +427,7 @@ export default function ApiKeysSection() {
 
       {/* Copy-once secret reveal — rendered only when a new key was just created */}
       {newSecret !== null && (
-        <SecretReveal secret={newSecret} onDone={handleSecretDone} />
+        <SecretReveal key={newSecret} secret={newSecret} onDone={handleSecretDone} />
       )}
 
       {/* Create form — always visible */}
