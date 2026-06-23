@@ -1,6 +1,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import type { AddressInfo } from 'node:net'
+import type { DidString } from '@atproto/syntax'
 import { sealData } from 'iron-session'
 import { createDb, type DB } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
@@ -16,7 +17,7 @@ const cfg = loadConfig({
   BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32), BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
   NODE_ENV: 'development',
 })
-const did = 'did:plc:flowtest' as any
+const did = 'did:plc:flowtest' as DidString
 let db: DB, server: any, base: string
 
 before(async () => {
@@ -58,4 +59,6 @@ test('logout returns ok and an expiring Set-Cookie', async () => {
   const setCookie = res.headers.get('set-cookie') ?? ''
   assert.match(setCookie, new RegExp(`${SESSION_COOKIE_NAME}=`))
   assert.match(setCookie, /Max-Age=0|Expires=/i)
+  const body = (await res.json()) as { ok: boolean }
+  assert.deepEqual(body, { ok: true })
 })
