@@ -6,6 +6,12 @@ export type AppConfig = {
   cookieDomain: string
   ironSessionPassword: string
   nodeEnv: string
+  oauthHandleResolver: string
+  oauthKeyId: string
+  oauthPrivateKey: string | null
+  cookieSecure: boolean
+  cookieSameSite: 'lax' | 'none'
+  devMode: boolean
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -36,6 +42,22 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     errors.push(`BPS_PORT must be a positive integer (got "${portRaw}")`)
   }
 
+  // --- OAuth + cookie settings (Phase 2) ---
+  const oauthHandleResolver = str('BPS_OAUTH_HANDLE_RESOLVER')
+  const oauthKeyId = env.BPS_OAUTH_KEY_ID?.trim() || 'bps1'
+  const oauthPrivateKey = env.BPS_OAUTH_PRIVATE_KEY?.trim() || null
+
+  const nodeEnvResolved = env.NODE_ENV ?? 'development'
+  const isProd = nodeEnvResolved === 'production'
+  const apiIsHttp = (env.BPS_API_ORIGIN ?? '').startsWith('http://')
+
+  if (isProd && !oauthPrivateKey) {
+    errors.push('BPS_OAUTH_PRIVATE_KEY is required in production')
+  }
+
+  const cookieSecure = isProd || !apiIsHttp
+  const cookieSameSite: 'lax' | 'none' = isProd ? 'none' : 'lax'
+
   if (errors.length > 0) {
     throw new Error(`Invalid configuration:\n  - ${errors.join('\n  - ')}`)
   }
@@ -48,5 +70,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     cookieDomain,
     ironSessionPassword: password,
     nodeEnv: env.NODE_ENV ?? 'development',
+    oauthHandleResolver,
+    oauthKeyId,
+    oauthPrivateKey,
+    cookieSecure,
+    cookieSameSite,
+    devMode: !isProd,
   }
 }

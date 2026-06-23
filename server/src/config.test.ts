@@ -11,6 +11,7 @@ const valid = {
   BPS_COOKIE_DOMAIN: 'localhost',
   BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32),
   NODE_ENV: 'test',
+  BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
 }
 
 test('loadConfig parses a valid env', () => {
@@ -35,4 +36,39 @@ test('loadConfig rejects a too-short session password', () => {
 
 test('loadConfig rejects a non-numeric port', () => {
   assert.throws(() => loadConfig({ ...valid, BPS_PORT: 'abc' }), /BPS_PORT/)
+})
+
+test('loadConfig parses oauth + cookie settings with dev defaults', () => {
+  const cfg = loadConfig({ ...valid, NODE_ENV: 'development', BPS_API_ORIGIN: 'http://127.0.0.1:8080' })
+  assert.equal(cfg.oauthHandleResolver, 'https://bsky.social')
+  assert.equal(cfg.oauthKeyId, 'bps1')          // default
+  assert.equal(cfg.oauthPrivateKey, null)        // unset → null (ephemeral in dev)
+  assert.equal(cfg.cookieSecure, false)          // http + non-prod
+  assert.equal(cfg.cookieSameSite, 'lax')
+  assert.equal(cfg.devMode, true)
+})
+
+test('loadConfig requires BPS_OAUTH_HANDLE_RESOLVER', () => {
+  const { BPS_OAUTH_HANDLE_RESOLVER, ...rest } = { ...valid }
+  assert.throws(() => loadConfig(rest), /BPS_OAUTH_HANDLE_RESOLVER/)
+})
+
+test('loadConfig forces secure cookie + sameSite none in production', () => {
+  const cfg = loadConfig({
+    ...valid,
+    NODE_ENV: 'production',
+    BPS_API_ORIGIN: 'https://api.example.com',
+    BPS_OAUTH_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nMIG...\n-----END PRIVATE KEY-----',
+  })
+  assert.equal(cfg.cookieSecure, true)
+  assert.equal(cfg.cookieSameSite, 'none')
+  assert.equal(cfg.devMode, false)
+  assert.ok(cfg.oauthPrivateKey?.includes('BEGIN PRIVATE KEY'))
+})
+
+test('loadConfig requires a private key in production', () => {
+  assert.throws(
+    () => loadConfig({ ...valid, NODE_ENV: 'production', BPS_API_ORIGIN: 'https://api.example.com' }),
+    /BPS_OAUTH_PRIVATE_KEY/,
+  )
 })
