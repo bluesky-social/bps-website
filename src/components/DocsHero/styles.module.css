@@ -1,0 +1,51 @@
+/* Light-native tinted hero for docs index pages. The tint band bleeds to the
+ * top/left/right edges of the doc area (clearing Docusaurus's content padding
+ * via a wide negative inset) and fades to transparent before the page content;
+ * topo lines ghost in from the corner. Inner padding keeps the text aligned to
+ * the prose column rather than flush against the bleed edge. */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 10px 0;
+  /* Break out of the content column's padding: pull up over the top padding
+   * and out to the left edge, and extend further right past the column's
+   * right padding into the gutter toward the TOC. Inner padding re-aligns the
+   * text to the prose column. */
+  margin-top: calc(-1 * var(--ifm-spacing-vertical, 1rem));
+  margin-left: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
+  /* clear the column's own right padding so the box reaches the content-area
+   * edge, but stop short of the TOC gutter (don't run under the TOC text). */
+  margin-right: calc(-1 * var(--ifm-spacing-horizontal, 1rem));
+  margin-bottom: 2rem;
+  padding: 2.25rem var(--ifm-spacing-horizontal, 1rem) 1.75rem;
+  /* Simple gradient confined to the box (no separate full-bleed element). */
+  background: linear-gradient(135deg, #e7f0fb 0%, #eef4fa 42%, #f4f6f9 100%);
+}
+:global([data-theme='dark']) .hero {
+  background: linear-gradient(135deg, #14253b 0%, #101a28 48%, #0d1117 100%);
+}
+.topo {
+  position: absolute; right: 0; top: 0;
+  width: 52%; height: 100%; z-index: 0; pointer-events: none;
+}
+.topo path { fill: none; stroke: #bcd5ef; stroke-width: 1.1; }
+:global([data-theme='dark']) .topo path { stroke: #27425f; }
+
+.hero > :not(.topo) { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ifm-color-primary);
+  margin-bottom: 0.6rem;
+}
+.title {
+  font-size: 2rem; font-weight: 740; letter-spacing: -0.024em;
+  line-height: 1.1; margin: 0 0 0.6rem;
+}
+.lede {
+  font-size: 1rem; line-height: 1.55;
+  color: var(--ifm-color-emphasis-700);
+  max-width: 34em; margin: 0;
+}

@@ -46,6 +46,8 @@ function Pulse() {
       aria-hidden="true"
     >
       <defs>
+        {/* Dark-bar variant: light sky-blue core fading to brand blue at the
+            edge (reads bright against #0d1117). */}
         <radialGradient
           id="bsky-grad"
           cx="284"
@@ -55,6 +57,19 @@ function Pulse() {
         >
           <stop offset="0" stopColor="#7DD3FC" />
           <stop offset="1" stopColor="#0085FF" />
+        </radialGradient>
+        {/* Light-bar variant: deep brand blue core fading OUT to a lighter
+            sky-blue at the edge — inverted from the dark variant so the dots
+            stay legible against the pale #f4f6f9 bar. Switched in via CSS. */}
+        <radialGradient
+          id="bsky-grad-light"
+          cx="284"
+          cy="298"
+          r="320"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="#0052CC" />
+          <stop offset="1" stopColor="#4DA6FF" />
         </radialGradient>
       </defs>
       {DOTS.map(([cx, cy, r], i) => (
@@ -80,7 +95,6 @@ export default function BpsBrand({ mobile, to, href }) {
           <span className="bpsBrand__w1">Bluesky</span>
           <span className="bpsBrand__w2">Protocol Services</span>
         </span>
-        <span className="bpsBrand__short">bps</span>
       </span>
     </>
   )

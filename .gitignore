@@ -22,3 +22,6 @@ yarn-error.log*
 # Don't ignore this file itself, or some hidden files
 !.gitignore
 !.node-version
+
+# Visual brainstorming companion
+.superpowers/
