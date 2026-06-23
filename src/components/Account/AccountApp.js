@@ -14,6 +14,7 @@ import React, { useState } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
 import ProfileHeader from './ProfileHeader'
 import EmailSection from './EmailSection'
+import ApiKeysSection from './ApiKeysSection'
 import styles from './AccountApp.module.css'
 
 // ── Skeleton ────────────────────────────────────────────────────────────────
@@ -156,7 +157,10 @@ function AuthedView() {
 
         <EmailSection />
 
-        {/* TODO: Task 6 — ApiKeysSection */}
+        <div className={styles.divider} />
+
+        <ApiKeysSection />
+
         {/* TODO: Task 7 — DangerZone */}
       </div>
     </div>
