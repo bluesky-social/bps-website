@@ -1,4 +1,4 @@
-import { LexRouter } from '@atproto/lex-server'
+import { LexRouter, LexServerError } from '@atproto/lex-server'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
@@ -27,9 +27,20 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     return { body: await checkHealth(db) }
   })
 
-  // Begin OAuth: returns the authorize URL for the browser to follow.
+  // Begin OAuth: returns the authorize URL for the browser to follow. A bad or
+  // unresolvable handle makes client.authorize() throw; that's a client error,
+  // so surface it as a 400 rather than letting it bubble up as a 500.
   router.add(internal.bps.oauth.start.main, async ({ params }) => {
-    const url = await client.authorize(params.handle)
+    let url: URL
+    try {
+      url = await client.authorize(params.handle)
+    } catch (err) {
+      logger.info({ err, handle: params.handle }, 'oauth start failed to resolve handle')
+      throw new LexServerError(400, {
+        error: 'InvalidHandle',
+        message: 'Could not start login for that handle. Check it and try again.',
+      })
+    }
     return { body: { authorizeUrl: url.toString() } }
   })
 
