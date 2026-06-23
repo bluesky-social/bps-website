@@ -6,10 +6,15 @@ import { buildClient } from '@site/src/api/client'
 const AuthContext = createContext(null)
 const HINT_KEY = 'bps_auth_hint'
 
+// Browser-only: guarded so they're safe even if ever called outside an effect
+// (during SSR there is no localStorage). Callers today only invoke these from
+// effects/callbacks, but the guard makes the SSR-safety explicit.
 function readHint() {
+  if (typeof localStorage === 'undefined') return null
   try { return JSON.parse(localStorage.getItem(HINT_KEY) || 'null') } catch { return null }
 }
 function writeHint(hint) {
+  if (typeof localStorage === 'undefined') return
   try { hint ? localStorage.setItem(HINT_KEY, JSON.stringify(hint)) : localStorage.removeItem(HINT_KEY) } catch {}
 }
 
