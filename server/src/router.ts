@@ -10,6 +10,7 @@ import { logger } from './logger.ts'
 import { makeRequireSession } from './session/auth.ts'
 import { clearCookieHeader } from './session/cookie.ts'
 import * as internal from './lexicons/internal.ts'
+import { fetchProfile } from './account/profile.ts'
 
 export type RouterDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
 
@@ -72,6 +73,17 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         status: 200,
         headers: { 'content-type': 'application/json', 'set-cookie': expired },
       })
+    },
+  })
+
+  // account.profile — fetches the caller's bsky profile live via their OAuth session.
+  // If client.restore(did) throws (session gone / logged out elsewhere) → 500. Acceptable
+  // for v1; a future hardening could catch that and return 401 instead.
+  router.add(internal.bps.account.profile.main, {
+    auth: requireSession,
+    handler: async ({ credentials }) => {
+      const profile = await fetchProfile(client, credentials.did)
+      return { body: profile }
     },
   })
 
