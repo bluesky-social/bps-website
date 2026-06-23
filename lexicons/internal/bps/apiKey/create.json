@@ -1,0 +1,36 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.apiKey.create",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Create a Jetstream API key. The full secret is returned ONCE.",
+      "input": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["label"],
+          "properties": {
+            "label": { "type": "string", "maxLength": 200, "minLength": 1 },
+            "expiresAt": { "type": "string", "format": "datetime", "description": "Optional expiry; omit for a non-expiring key." }
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["id", "label", "preview", "createdAt", "key"],
+          "properties": {
+            "id": { "type": "string" },
+            "label": { "type": "string" },
+            "preview": { "type": "string" },
+            "createdAt": { "type": "string", "format": "datetime" },
+            "expiresAt": { "type": "string", "format": "datetime" },
+            "key": { "type": "string", "description": "The full secret. Shown once; not retrievable later." }
+          }
+        }
+      }
+    }
+  }
+}

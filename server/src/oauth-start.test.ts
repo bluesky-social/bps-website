@@ -20,7 +20,7 @@ const db = {} as any
 
 function routerWithAuthorize(authorize: NodeOAuthClient['authorize']) {
   const client = { authorize } as unknown as NodeOAuthClient
-  return buildRouter({ db, config: cfg, client })
+  return buildRouter({ db, config: cfg, client, apiKeys: {} as any })
 }
 
 test('oauth.start returns 200 + authorizeUrl on success', async () => {

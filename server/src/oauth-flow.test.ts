@@ -7,6 +7,7 @@ import { createDb, type DB } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
 import { loadConfig } from './config.ts'
 import { createOAuthClient } from './oauth/client.ts'
+import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildApp } from './app.ts'
 import { SESSION_COOKIE_NAME } from './session/cookie.ts'
 
@@ -26,7 +27,8 @@ before(async () => {
   await db.deleteFrom('account').where('did', '=', did).execute()
   await db.insertInto('account').values({ did, email: null }).execute()
   const client = await createOAuthClient(db, cfg)
-  const app = buildApp({ db, config: cfg, client })
+  const apiKeys = createPostgresApiKeyProvider(db)
+  const app = buildApp({ db, config: cfg, client, apiKeys })
   await new Promise<void>((r) => { server = app.listen(0, () => { base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`; r() }) })
 })
 after(async () => {

@@ -4,16 +4,17 @@ import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from './db/index.ts'
 import type { AppConfig } from './config.ts'
+import type { ApiKeyProvider } from './apikeys/provider.ts'
 import { checkHealth } from './health.ts'
 import { logger } from './logger.ts'
 import { makeRequireSession } from './session/auth.ts'
 import { clearCookieHeader } from './session/cookie.ts'
 import * as internal from './lexicons/internal.ts'
 
-export type RouterDeps = { db: DB; config: AppConfig; client: NodeOAuthClient }
+export type RouterDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
 
 export function buildRouter(deps: RouterDeps): LexRouter {
-  const { db, config, client } = deps
+  const { db, config, client, apiKeys } = deps
   const requireSession = makeRequireSession(config)
 
   const router = new LexRouter({
@@ -71,6 +72,56 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         status: 200,
         headers: { 'content-type': 'application/json', 'set-cookie': expired },
       })
+    },
+  })
+
+  // apiKey.create — returns the full secret ONCE.
+  router.add(internal.bps.apiKey.create.main, {
+    auth: requireSession,
+    handler: async ({ credentials, input }) => {
+      const { label, expiresAt } = input.body
+      const created = await apiKeys.createKey(credentials.did, {
+        label,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+      })
+      return {
+        body: {
+          id: created.id,
+          label: created.label,
+          preview: created.preview,
+          createdAt: created.createdAt.toISOString(),
+          ...(created.expiresAt ? { expiresAt: created.expiresAt.toISOString() } : {}),
+          key: created.full,
+        },
+      }
+    },
+  })
+
+  // apiKey.list — metadata only.
+  router.add(internal.bps.apiKey.list.main, {
+    auth: requireSession,
+    handler: async ({ credentials }) => {
+      const keys = await apiKeys.listKeys(credentials.did)
+      return {
+        body: {
+          keys: keys.map((k) => ({
+            id: k.id,
+            label: k.label,
+            preview: k.preview,
+            createdAt: k.createdAt.toISOString(),
+            ...(k.expiresAt ? { expiresAt: k.expiresAt.toISOString() } : {}),
+          })),
+        },
+      }
+    },
+  })
+
+  // apiKey.delete — revoke by id (scoped to the caller).
+  router.add(internal.bps.apiKey.delete.main, {
+    auth: requireSession,
+    handler: async ({ credentials, input }) => {
+      await apiKeys.deleteKey(credentials.did, input.body.id)
+      return { body: { ok: true } }
     },
   })
 

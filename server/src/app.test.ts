@@ -5,6 +5,7 @@ import type { Server } from 'node:http'
 import { createDb, type DB } from './db/index.ts'
 import { loadConfig } from './config.ts'
 import { createOAuthClient } from './oauth/client.ts'
+import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildApp } from './app.ts'
 
 const url =
@@ -28,7 +29,8 @@ before(async () => {
     NODE_ENV: 'development',
   })
   const client = await createOAuthClient(db, cfg)
-  const app = buildApp({ db, config: cfg, client })
+  const apiKeys = createPostgresApiKeyProvider(db)
+  const app = buildApp({ db, config: cfg, client, apiKeys })
   await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
       const { port } = server.address() as AddressInfo

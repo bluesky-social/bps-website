@@ -4,6 +4,7 @@ import { startOtel } from './otel.ts'
 import { createDb } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
 import { createOAuthClient } from './oauth/client.ts'
+import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildApp } from './app.ts'
 
 async function main() {
@@ -14,7 +15,8 @@ async function main() {
   await runMigrations(db)
 
   const client = await createOAuthClient(db, cfg)
-  const app = buildApp({ db, config: cfg, client })
+  const apiKeys = createPostgresApiKeyProvider(db)
+  const app = buildApp({ db, config: cfg, client, apiKeys })
   const server = app.listen(cfg.port, () => {
     logger.info(`account server listening on :${cfg.port}`)
   })

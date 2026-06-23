@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { createDb, type DB } from './db/index.ts'
 import { loadConfig } from './config.ts'
 import { createOAuthClient } from './oauth/client.ts'
+import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildRouter } from './router.ts'
 
 const url =
@@ -31,7 +32,8 @@ test('internal.bps.health responds via router.fetch', async () => {
     NODE_ENV: 'development',
   })
   const client = await createOAuthClient(db, cfg)
-  const router = buildRouter({ db, config: cfg, client })
+  const apiKeys = createPostgresApiKeyProvider(db)
+  const router = buildRouter({ db, config: cfg, client, apiKeys })
   const res = await router.fetch(
     new Request('http://local/xrpc/internal.bps.health'),
   )
