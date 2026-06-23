@@ -1,0 +1,320 @@
+/*
+ * EmailSection.module.css
+ *
+ * Email management section on the /account page.
+ * Design: Inter body, Atkinson mono labels, the site's paper surfaces and
+ * primary blue accent. Light+dark via CSS custom properties.
+ */
+
+/* ── Section heading ────────────────────────────────────────────────────── */
+
+.sectionHeading {
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0 0 1rem;
+  padding: 0;
+}
+
+html[data-theme='dark'] .sectionHeading {
+  color: #8893a2;
+}
+
+/* ── First-time prompt banner ───────────────────────────────────────────── */
+
+.promptBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: color-mix(in srgb, var(--ifm-color-primary) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ifm-color-primary) 22%, transparent);
+  border-radius: 7px;
+  margin-bottom: 1.25rem;
+}
+
+html[data-theme='dark'] .promptBanner {
+  background: color-mix(in srgb, #3994ff 8%, transparent);
+  border-color: color-mix(in srgb, #3994ff 20%, transparent);
+}
+
+.promptIcon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--ifm-color-primary);
+  margin-top: 1px;
+}
+
+html[data-theme='dark'] .promptIcon {
+  color: #3994ff;
+}
+
+.promptText {
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-800);
+  margin: 0;
+  line-height: 1.55;
+}
+
+html[data-theme='dark'] .promptText {
+  color: #c4ccd8;
+}
+
+/* ── Form ───────────────────────────────────────────────────────────────── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+  display: block;
+}
+
+html[data-theme='dark'] .fieldLabel {
+  color: #8893a2;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.emailInput {
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 11px;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 6px;
+  color: var(--ifm-color-emphasis-900);
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+html[data-theme='dark'] .emailInput {
+  background: #0d1117;
+  border-color: #2a3340;
+  color: #e6edf3;
+}
+
+.emailInput::placeholder {
+  color: var(--ifm-color-emphasis-500);
+  font-weight: 400;
+}
+
+html[data-theme='dark'] .emailInput::placeholder {
+  color: #5a6473;
+}
+
+.emailInput:focus {
+  border-color: var(--ifm-color-primary);
+  background: var(--ifm-background-surface-color, #fff);
+}
+
+html[data-theme='dark'] .emailInput:focus {
+  border-color: #3994ff;
+  background: #161c26;
+}
+
+.emailInput:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.emailInputError {
+  border-color: #d0454c !important;
+}
+
+html[data-theme='dark'] .emailInputError {
+  border-color: #ff7b72 !important;
+}
+
+.saveBtn {
+  height: 38px;
+  padding: 0 16px;
+  background: var(--ifm-color-primary);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+}
+
+.saveBtn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+.saveBtn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.saveBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Error message ──────────────────────────────────────────────────────── */
+
+.errorMsg {
+  padding: 7px 10px;
+  background: color-mix(in srgb, #d0454c 10%, transparent);
+  border: 1px solid color-mix(in srgb, #d0454c 25%, transparent);
+  border-radius: 5px;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #c0392b;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+
+html[data-theme='dark'] .errorMsg {
+  color: #ff7b72;
+  background: color-mix(in srgb, #ff7b72 8%, transparent);
+  border-color: color-mix(in srgb, #ff7b72 20%, transparent);
+}
+
+/* ── Cancel link button ─────────────────────────────────────────────────── */
+
+.cancelLink {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.82rem;
+  color: var(--ifm-color-emphasis-600);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.12s ease;
+}
+
+.cancelLink:hover:not(:disabled) {
+  color: var(--ifm-color-primary);
+}
+
+.cancelLink:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+html[data-theme='dark'] .cancelLink {
+  color: #8893a2;
+}
+
+html[data-theme='dark'] .cancelLink:hover:not(:disabled) {
+  color: #3994ff;
+}
+
+/* ── "Email on file" indicator row ──────────────────────────────────────── */
+
+.emailOnFile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.emailStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.checkIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #2e9e57;
+}
+
+html[data-theme='dark'] .checkIcon {
+  color: #3fb950;
+}
+
+.emailStatusText {
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ifm-color-emphasis-800);
+}
+
+html[data-theme='dark'] .emailStatusText {
+  color: #c4ccd8;
+}
+
+.changeLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.82rem;
+  color: var(--ifm-color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.12s ease;
+}
+
+.changeLink:hover {
+  color: var(--ifm-color-primary-dark);
+}
+
+html[data-theme='dark'] .changeLink {
+  color: #7dd3fc;
+}
+
+html[data-theme='dark'] .changeLink:hover {
+  color: #9eddfd;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .inputRow {
+    flex-direction: column;
+  }
+
+  .saveBtn {
+    height: 40px;
+    width: 100%;
+  }
+
+  .emailOnFile {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}

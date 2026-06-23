@@ -1,0 +1,119 @@
+/*
+ * ProfileHeader.module.css
+ *
+ * Avatar + identity block at the top of the account page.
+ * Design: large avatar circle (56px), Inter display name (tight tracking),
+ * Atkinson mono handle label. Light+dark via CSS custom properties.
+ */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 1.125rem;
+  padding: 0.25rem 0 0.5rem;
+}
+
+/* ── Avatar ─────────────────────────────────────────────────────────────── */
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
+
+.avatarImg {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+  display: block;
+}
+
+html[data-theme='dark'] .avatarImg {
+  border-color: #2a3340;
+  background: #1c2532;
+}
+
+.avatarFallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+  user-select: none;
+}
+
+html[data-theme='dark'] .avatarFallback {
+  border-color: #2a3340;
+  background: #1c2532;
+  color: #3994ff;
+}
+
+/* ── Identity text ──────────────────────────────────────────────────────── */
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.displayName {
+  font-family: var(--ifm-font-family-base);
+  font-size: 1.15rem;
+  font-weight: 660;
+  letter-spacing: -0.018em;
+  color: var(--ifm-color-emphasis-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+html[data-theme='dark'] .displayName {
+  color: #f0f6fc;
+}
+
+.handle {
+  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--ifm-color-emphasis-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-theme='dark'] .handle {
+  color: #8893a2;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .avatarImg,
+  .avatarFallback,
+  .avatarWrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .avatarFallback {
+    font-size: 1.1rem;
+  }
+
+  .displayName {
+    font-size: 1rem;
+  }
+}

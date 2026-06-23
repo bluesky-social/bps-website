@@ -1,0 +1,52 @@
+/*
+ * account.module.css — BrowserOnly loading fallback shell only.
+ * The actual account page layout lives in AccountApp.module.css.
+ */
+
+.fallbackWrap {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+.fallbackInner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 480px;
+  width: 100%;
+}
+
+/* Skeleton avatar circle */
+.skeletonAvatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ifm-color-emphasis-200);
+  flex-shrink: 0;
+  animation: accountFallbackPulse 1.6s ease-in-out infinite;
+}
+
+/* Skeleton text lines */
+.skeletonLines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeletonLine {
+  height: 10px;
+  border-radius: 4px;
+  background: var(--ifm-color-emphasis-200);
+  animation: accountFallbackPulse 1.6s ease-in-out infinite;
+}
+
+.skeletonLine:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+@keyframes accountFallbackPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.85; }
+}
