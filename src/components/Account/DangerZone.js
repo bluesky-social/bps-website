@@ -95,6 +95,9 @@ export default function DangerZone() {
   const [deleteError, setDeleteError] = useState(null)
 
   const inputRef = useRef(null)
+  // Synchronous in-flight lock — prevents double-submit in the render-timing
+  // window before the isDeleting state update propagates.
+  const inFlightRef = useRef(false)
 
   const typedNormalized = normalizeHandle(typed)
   const confirmed = normalizedExpected.length > 0 && typedNormalized === normalizedExpected
@@ -116,6 +119,10 @@ export default function DangerZone() {
 
   const handleDelete = useCallback(async () => {
     if (!confirmed || isDeleting) return
+    // Synchronous guard — catches double-submit before React re-renders with
+    // the new isDeleting state.
+    if (inFlightRef.current) return
+    inFlightRef.current = true
     setDeleteStatus('deleting')
     setDeleteError(null)
     try {
@@ -133,6 +140,8 @@ export default function DangerZone() {
     } catch (err) {
       setDeleteStatus('error')
       setDeleteError(err?.message || 'Could not delete account. Please try again.')
+    } finally {
+      inFlightRef.current = false
     }
   }, [confirmed, isDeleting, client, resetToAnon, logout])
 
