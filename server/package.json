@@ -9,7 +9,7 @@
     "start": "node --env-file=.env src/server.ts",
     "test": "node --test --experimental-test-module-mocks 'src/**/*.test.ts'",
     "migrate": "node --env-file=.env src/db/migrate.ts",
-    "lex:build": "lex build --lexicons ../lexicons --out ./src/lexicons --clear"
+    "lex:build": "lex build --lexicons ../lexicons --out ./src/lexicons --clear --import-ext .ts"
   },
   "dependencies": {
     "@atproto/lex": "^0.1.4",
