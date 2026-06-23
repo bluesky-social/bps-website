@@ -22,7 +22,7 @@ The easiest way to upload a video is to upload it as you would an image - use `u
       fs.readFileSync(videoPath),
     );
 
-    await agent.post({
+    await userAgent.post({
       text: "This post should have a video attached",
       langs: ["en"],
       embed: {

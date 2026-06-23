@@ -27,9 +27,9 @@ Each post requires these fields: `text` and `createdAt` (a timestamp).
     This script below will create a simple post with just a text field and a timestamp.
 
     ```ts
-    import { BskyAgent } from '@atproto/api'
+    import { AtpAgent } from '@atproto/api'
 
-    const agent = new BskyAgent({
+    const agent = new AtpAgent({
       service: 'https://bsky.social'
     })
     await agent.login({
@@ -60,7 +60,7 @@ Each post requires these fields: `text` and `createdAt` (a timestamp).
 
     client = Client()
     client.login('handle.example.com', 'hunter2')
-    post = client.send_post('Hello world! I posted this via the Python SDK.')
+    post = client.send_post('Hello world! I posted this via the API.')
     ```
 
     It will return a response with the `at://` URI of the post and a content-hash of the post (the `cid`).
@@ -69,6 +69,31 @@ Each post requires these fields: `text` and `createdAt` (a timestamp).
     post.uri  # at://did:plc:abc123..../app.bsky.feed.post/xyz...
     post.cid  # abc...
     ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    After logging in (see [Get Started](/docs/get-started#create-a-session) for the `client`), build a `FeedPost` record and submit it with `RepoCreateRecord`.
+
+    ```go
+    import (
+      "time"
+      appbsky "github.com/bluesky-social/indigo/api/bsky"
+      comatproto "github.com/bluesky-social/indigo/api/atproto"
+      lexutil "github.com/bluesky-social/indigo/lex/util"
+    )
+
+    post := &appbsky.FeedPost{
+      Text:      "Hello world! I posted this via the API.",
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+    }
+
+    resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.feed.post",
+      Record:     &lexutil.LexiconTypeDecoder{Val: post},
+    })
+    ```
+
+    `resp.Uri` holds the `at://` URI of the post and `resp.Cid` the content-hash.
   </TabItem>
 </Tabs>
 
@@ -95,6 +120,18 @@ Setting the post's language helps custom feeds or other services filter and pars
     ```python
     # an example with Thai and English (US) languages
     client.send_post('สวัสดีชาวโลก!\nHello World!', langs=['th', 'en-US'])
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    This snippet sets the `Text` and `Langs` values of a post to be Thai and English.
+
+    ```go
+    // an example with Thai and English (US) languages
+    post := &appbsky.FeedPost{
+      Text:      "สวัสดีชาวโลก!\nHello World!",
+      Langs:     []string{"th", "en-US"},
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+    }
     ```
   </TabItem>
 </Tabs>
@@ -176,6 +213,9 @@ Learn about how mentions and links work under the hood with the [Link, mentions,
     client.send_post(tb)
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    The Go SDK does not ship a high-level rich-text builder. Construct facets directly as `appbsky.RichtextFacet` values — each with a byte range (UTF-8 offsets into `post.Text`) and a feature (`RichtextFacet_Mention`, `RichtextFacet_Link`, or `RichtextFacet_Tag`) — and assign them to `post.Facets`. See [Links, mentions, and rich text](/docs/about-bluesky-content/post-richtext) for how the byte indexing works, and the [Go SDK](https://github.com/bluesky-social/indigo) for the struct definitions.
+  </TabItem>
 </Tabs>
 
 ## Replies, quote posts, and embeds
@@ -246,6 +286,20 @@ Since threads of replies can get pretty long, reply posts need to reference both
     )
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    Here's what this should look like when posting:
+
+    ```go
+    post := &appbsky.FeedPost{
+      Text:      "lol!",
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Reply: &appbsky.FeedPost_ReplyRef{
+        Root:   &comatproto.RepoStrongRef{Uri: threadRootPost.Uri, Cid: threadRootPost.Cid},
+        Parent: &comatproto.RepoStrongRef{Uri: postReplyingTo.Uri, Cid: postReplyingTo.Cid},
+      },
+    }
+    ```
+  </TabItem>
 </Tabs>
 
 ### Quote posts
@@ -310,6 +364,37 @@ Images are also embedded objects in a post.
         img_data = f.read()
 
     client.send_image(text='I love my cat', image=img_data, image_alt='My cat mittens')
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Upload the image with `RepoUploadBlob`, then reference the returned blob in an `EmbedImages` embed:
+
+    ```go
+    import (
+      "bytes"
+      "net/http"
+      "os"
+    )
+
+    imgBytes, _ := os.ReadFile("my_cat.jpg")
+    uploadResp, _ := comatproto.RepoUploadBlob(ctx, client, bytes.NewReader(imgBytes))
+
+    post := &appbsky.FeedPost{
+      Text:      "I love my cat",
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Embed: &appbsky.FeedPost_Embed{
+        EmbedImages: &appbsky.EmbedImages{
+          Images: []*appbsky.EmbedImages_Image{{
+            Alt: "My cat mittens",
+            Image: &lexutil.LexBlob{
+              Ref:      uploadResp.Blob.Ref,
+              MimeType: http.DetectContentType(imgBytes),
+              Size:     uploadResp.Blob.Size,
+            },
+          }},
+        },
+      },
+    }
     ```
   </TabItem>
 </Tabs>
@@ -427,6 +512,33 @@ A website card embed, often called a "social card," is the rendered preview of a
         )
     )
     post = client.send_post('check out this website!', embed=embed)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Upload the thumbnail with `RepoUploadBlob`, then reference it in an `EmbedExternal` embed:
+
+    ```go
+    thumbBytes, _ := os.ReadFile("bsky_thumb.png")
+    uploadResp, _ := comatproto.RepoUploadBlob(ctx, client, bytes.NewReader(thumbBytes))
+
+    post := &appbsky.FeedPost{
+      Text:      "check out this website!",
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Embed: &appbsky.FeedPost_Embed{
+        EmbedExternal: &appbsky.EmbedExternal{
+          External: &appbsky.EmbedExternal_External{
+            Uri:         "https://bsky.app",
+            Title:       "Bluesky Social",
+            Description: "See what's next.",
+            Thumb: &lexutil.LexBlob{
+              Ref:      uploadResp.Blob.Ref,
+              MimeType: http.DetectContentType(thumbBytes),
+              Size:     uploadResp.Blob.Size,
+            },
+          },
+        },
+      },
+    }
     ```
   </TabItem>
 </Tabs>

@@ -16,19 +16,15 @@ When a user creates an account on a Bluesky PDS, the call to `com.atproto.server
 
 Similarly, session management is handled by the Entryway. However, if a user attempts to refresh/delete their session by sending a request to their PDS host, their PDS will take care of forwarding that request on to the Entryway to provide a seamless experience.
 
-The Entryway signs valid access tokens for users of Bluesky PDSs, and in this sense, it plays a role similar to an OAuth Authorization Server. And, in fact, as we introduce OAuth to atproto, we expect the Entryway to take on that role.
+The Entryway signs the access tokens used by accounts on Bluesky PDSs. In other words, the Entryway is the OAuth authorization server — the identity provider — for everyone Bluesky hosts.
 
-### Virtual PDS
+### A single interface for Bluesky accounts
 
-The Entryway also provides an interface to simplify interacting with users on Bluesky PDSs. Most requests that can be sent to a PDS on behalf of a user can also be sent to the Entryway instead. The Entryway will then forward the request to the relevant PDS.
+The Entryway also acts as a single interface to the accounts Bluesky hosts. Most requests that can be sent to a PDS on behalf of a user can be sent to the Entryway instead, and it forwards them to the account's actual PDS. An application can therefore talk to `bsky.social` without first working out which underlying host an account lives on.
 
-This allows developers to think of users on Bluesky PDSs as being "on `bsky.social`". 
+A developer can always short-circuit this and go directly to a user's PDS. To make that possible, the Entryway returns the user's DID document (which contains the user's actual PDS hostname) in all session management routes (including `createAccount`).
 
-Of course, a developer can always short-circuit this behavior and go directly to a user's PDS.
-
-We recommend this behavior, and to enable it, we return the user's DID document (which contains the user's actual PDS hostname) in all session management routes (including `createAccount`). 
-
-The [Typescript API library](https://www.npmjs.com/package/@atproto/api) published by Bluesky takes care of this dynamic routing automatically. Developers may configure it to communicate with `bsky.social`. On session creation, it will reconfigure the agent to send requests to the user's actual PDS.
+The [`@atproto/api`](https://www.npmjs.com/package/@atproto/api) library handles this dynamic routing automatically: configure the agent with `bsky.social`, and on session creation it reconfigures itself to send requests to the user's actual PDS.
 
 ### Engaging with Entryway as a developer
 
@@ -38,4 +34,4 @@ Ideally, developers should not have to engage much with the concepts surrounding
 - when offering signup/login to a user, Bluesky PDSs should be communicated as `bsky.social`
 - most application requests can be sent to _either_ the Entryway _or_ the PDS
 - for non-session related routes, we encourage going directly to the PDS in order to avoid the extra hop
-- if using the Bluesky Typescript SDK, you may configure it with `bsky.social` and the library will handle the dynamic routing for you
+- if using the [`@atproto/api`](https://www.npmjs.com/package/@atproto/api) library, you may configure it with `bsky.social` and it will handle the dynamic routing for you

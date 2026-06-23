@@ -26,6 +26,11 @@ Muting a user hides their posts from your feeds. Mutes are private — like Book
       client.mute(did)
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="GraphMuteActor"
+      appbsky.GraphMuteActor(ctx, client, &appbsky.GraphMuteActor_Input{Actor: did})
+    ```
+  </TabItem>
 </Tabs>
 
 | Parameter | Type     | Description                 | Required |
@@ -47,6 +52,11 @@ Easy peasy:
       client.unmute(did)
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="GraphUnmuteActor"
+      appbsky.GraphUnmuteActor(ctx, client, &appbsky.GraphUnmuteActor_Input{Actor: did})
+    ```
+  </TabItem>
 </Tabs>
 
 | Parameter | Type     | Description                    | Required |
@@ -55,7 +65,7 @@ Easy peasy:
 
 ## Blocking
 
-Blocking a user prevents interaction and hides the user from the client experience. Blocked accounts will not be able to like, reply, mention, or follow you. Their posts, replies, and profile in search will also be hidden from you. Blocks are [public](/blog/block-implementation).
+Blocking a user prevents interaction and hides the user from the client experience. Blocked accounts will not be able to like, reply, mention, or follow you. Their posts, replies, and profile in search will also be hidden from you. Blocks are [public](https://atproto.com/blog/block-implementation).
 
 Blocking users is as simple as muting, but requires creating a record directly.
 
@@ -78,6 +88,21 @@ Blocking users is as simple as muting, but requires creating a record directly.
       created_at=client.get_current_time_iso()
     )
     uri = client.app.bsky.graph.block.create(client.me.did, block_record).uri
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Create an `app.bsky.graph.block` record whose subject is the DID to block.
+
+    ```go title="RepoCreateRecord"
+    block := &appbsky.GraphBlock{
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Subject:   blockingUserDid,
+    }
+    resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.graph.block",
+      Record:     &lexutil.LexiconTypeDecoder{Val: block},
+    })
     ```
   </TabItem>
 </Tabs>
@@ -123,6 +148,16 @@ record.
 
     rkey = AtUri.from_str(uri).rkey
     client.app.bsky.graph.block.delete(client.me.did, rkey)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="RepoDeleteRecord"
+    rkey := uri[strings.LastIndex(uri, "/")+1:]
+    comatproto.RepoDeleteRecord(ctx, client, &comatproto.RepoDeleteRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.graph.block",
+      Rkey:       rkey,
+    })
     ```
   </TabItem>
 </Tabs>

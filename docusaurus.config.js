@@ -135,14 +135,9 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
         },
-        blog: {
-          showReadingTime: true,
-          // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
-          blogSidebarCount: "ALL",
-          onInlineAuthors: "ignore",
-          onUntruncatedBlogPosts: "ignore",
-        },
+        // The blog has been removed from this site; its posts now live on
+        // atproto.com. Disabling the preset's blog plugin entirely.
+        blog: false,
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -262,19 +257,11 @@ const config = {
                 label: "Community-run Discord",
                 href: "https://discord.gg/3srmDsHSZJ",
               },
-              {
-                label: "Mailing List",
-                href: "/docs/support/mailing-list",
-              },
             ],
           },
           {
             title: "More",
             items: [
-              {
-                label: "Blog",
-                to: "/blog",
-              },
               {
                 label: "GitHub Discussions",
                 href: "https://github.com/bluesky-social/atproto/discussions",

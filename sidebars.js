@@ -61,7 +61,7 @@ const sidebars = {
     { type: 'category', label: 'API Hosts and Auth', link: { type: 'doc', id: 'api-directory' }, items: ['rate-limits', 'oauth-client']},
     {type: 'category', label: 'Resolving Identities', link: {type: 'doc', id: 'resolving-identities'}, items: ['entryway']},
     { type: 'link', label: 'HTTP Reference', href: 'https://endpoints.bsky.app' },
-    {type: 'category', label: 'Bluesky Dev Guidelines', link: {type: 'doc', id: 'developer-guidelines'}, items: ['mailing-list']},
+    'developer-guidelines',
   ],
 
   // But you can create a sidebar manually
