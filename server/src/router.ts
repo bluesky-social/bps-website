@@ -22,7 +22,13 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   const router = new LexRouter({
     upgradeWebSocket,
     onHandlerError: ({ error, method }) => {
-      logger.error({ err: error, method: method.nsid }, 'handler error')
+      // LexServerError/LexServerAuthError are expected client errors (4xx). Log them
+      // at warn; reserve error level for genuinely unexpected failures (5xx).
+      if (error instanceof LexServerError) {
+        logger.warn({ err: error, method: method.nsid }, 'handler client error')
+      } else {
+        logger.error({ err: error, method: method.nsid }, 'unexpected handler error')
+      }
     },
   })
 

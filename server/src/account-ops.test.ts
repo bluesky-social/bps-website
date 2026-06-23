@@ -70,7 +70,7 @@ test('delete removes the account + its keys and whoami then 401s', async () => {
   })
   const del = await fetch(`${base}/xrpc/internal.bps.account.delete`, { method: 'POST', headers: { cookie: c } })
   assert.equal(del.status, 200)
-  assert.match(del.headers.get('set-cookie') ?? '', /Max-Age=0|Expires=/i)
+  assert.match(del.headers.get('set-cookie') ?? '', /Max-Age=0/)
 
   const acct = await db.selectFrom('account').selectAll().where('did', '=', did).execute()
   assert.equal(acct.length, 0)
