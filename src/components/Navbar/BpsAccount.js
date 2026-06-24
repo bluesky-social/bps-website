@@ -2,15 +2,15 @@
  * BpsAccount — Navbar account item.
  *
  * Three states (from useAuth):
- *   resolving → fixed-size ghost placeholder (or optimistic handle/avatar hint)
- *   anon      → "Sign in" affordance; clicking opens an inline popover that
- *               collects a handle and calls signIn(handle)
- *   authed    → avatar + handle, linking to /account
+ *   resolving → fixed-size ghost placeholder (or optimistic avatar hint)
+ *   anon      → icon-only login button (desktop) / "My Account" link (mobile)
+ *   authed    → avatar only (desktop) / avatar + "My Account" link (mobile)
  *
- * Desktop: renders as a fixed-width slot (120px) in the bpsNav bar — no
+ * Desktop: renders as a fixed-width slot (40px) in the bpsNav bar — no
  *   layout shift between states. Uses the bpsNav token palette.
  * Mobile:  renders as a menu__link / menu__list-item row in the hamburger
- *   drawer; closes the drawer on tap.
+ *   drawer; always "My Account" → /account in all states. Sign-in happens
+ *   on the /account page itself.
  *
  * SSR: useAuth is wrapped by AuthProvider (client-side only guard is in
  * AuthContext), so this component always has a valid context. During SSR the
@@ -151,24 +151,19 @@ function DesktopAccount() {
 
   const closePopover = useCallback(() => setPopoverOpen(false), [])
 
-  // resolving — show optimistic hint if available, otherwise ghost skeleton
+  // resolving — show optimistic avatar if available, otherwise ghost circle
   if (status === 'resolving') {
     const resolvingHandle = handle ?? profile?.handle
     if (resolvingHandle) {
-      // Optimistic: returning user — show their last-known state so no flash
+      // Optimistic: returning user — show avatar so no flash
       return (
-        <div className={styles.slot} aria-label="Loading account…" aria-busy="true">
-          <span className={styles.pill} style={{ opacity: 0.55 }}>
-            <Avatar
-              src={profile?.avatar}
-              handle={resolvingHandle}
-              className={styles.avatar}
-              fallbackClassName={styles.avatarFallback}
-            />
-            <span className={styles.handleText}>
-              {resolvingHandle.startsWith('@') ? resolvingHandle.slice(1) : resolvingHandle}
-            </span>
-          </span>
+        <div className={styles.slot} aria-label="Loading account…" aria-busy="true" style={{ opacity: 0.55 }}>
+          <Avatar
+            src={profile?.avatar}
+            handle={resolvingHandle}
+            className={styles.avatar}
+            fallbackClassName={styles.avatarFallback}
+          />
         </div>
       )
     }
@@ -176,25 +171,25 @@ function DesktopAccount() {
       <div className={styles.slot} aria-label="Loading account…" aria-busy="true">
         <div className={styles.resolvingGhost}>
           <span className={styles.ghostAvatar} />
-          <span className={styles.ghostText} />
         </div>
       </div>
     )
   }
 
-  // anon — sign-in affordance
+  // anon — icon-only sign-in button; clicking opens SignInPopover
   if (status === 'anon') {
     return (
       <div className={`${styles.slot} ${styles.popoverAnchor}`}>
         <button
           type="button"
-          className={styles.pill}
+          className={styles.iconBtn}
           onClick={() => setPopoverOpen((v) => !v)}
           aria-expanded={popoverOpen}
           aria-haspopup="dialog"
+          aria-label="Sign in"
+          title="Sign in"
         >
           <SignInIcon className={styles.signInIcon} />
-          <span className={styles.handleText}>Sign in</span>
         </button>
         {popoverOpen && (
           <SignInPopover onClose={closePopover} onSubmit={handleSignIn} />
@@ -203,7 +198,7 @@ function DesktopAccount() {
     )
   }
 
-  // authed
+  // authed — avatar only, links to /account
   const rawHandle = handle ?? profile?.handle
   const displayHandle = rawHandle
     ? (rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle)
@@ -213,8 +208,9 @@ function DesktopAccount() {
     <div className={styles.slot}>
       <Link
         to="/account"
-        className={styles.pill}
+        className={styles.avatarLink}
         title={`Account: @${displayHandle}`}
+        aria-label={`Account: @${displayHandle}`}
       >
         <Avatar
           src={profile?.avatar}
@@ -222,7 +218,6 @@ function DesktopAccount() {
           className={styles.avatar}
           fallbackClassName={styles.avatarFallback}
         />
-        <span className={styles.handleText}>{displayHandle}</span>
       </Link>
     </div>
   )
@@ -231,116 +226,65 @@ function DesktopAccount() {
 // ── Mobile drawer rendering ───────────────────────────────────────────────────
 
 function MobileAccount() {
-  const { status, handle, profile, signIn } = useAuth()
+  const { status, handle, profile } = useAuth()
   const mobileSidebar = useNavbarMobileSidebar()
-  const [mobileExpanded, setMobileExpanded] = useState(false)
-  const [inputHandle, setInputHandle] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
 
   const closeSidebar = () => mobileSidebar.toggle()
 
-  async function handleMobileSubmit(e) {
-    e.preventDefault()
-    const h = inputHandle.trim()
-    if (!h) return
-    setLoading(true)
-    setError(null)
-    try {
-      await signIn(h)
-    } catch (err) {
-      setError(err?.message || 'Could not sign in.')
-      setLoading(false)
-    }
-  }
+  // All states render the same "My Account" link → /account.
+  // Sign-in happens on the /account page itself; no inline form in the drawer.
 
   if (status === 'resolving') {
     const resolvingHandle = handle ?? profile?.handle
-    if (resolvingHandle) {
-      const displayHandle = resolvingHandle.startsWith('@')
-        ? resolvingHandle.slice(1)
-        : resolvingHandle
-      return (
-        <li className="menu__list-item">
-          <span className="menu__link" style={{ opacity: 0.55 }}>
-            <span className={styles.mobileItem}>
+    return (
+      <li className="menu__list-item">
+        <Link
+          className="menu__link"
+          to="/account"
+          onClick={closeSidebar}
+          style={resolvingHandle ? { opacity: 0.65 } : undefined}
+        >
+          <span className={styles.mobileItem}>
+            {resolvingHandle ? (
               <Avatar
                 src={profile?.avatar}
                 handle={resolvingHandle}
                 className={styles.mobileAvatar}
                 fallbackClassName={styles.mobileAvatarFallback}
               />
-              <span>@{displayHandle}</span>
-            </span>
+            ) : (
+              <span className={styles.mobileAvatarFallback} aria-hidden="true">
+                <PersonIcon />
+              </span>
+            )}
+            <span>My Account</span>
           </span>
-        </li>
-      )
-    }
-    // Loading ghost in drawer
-    return (
-      <li className="menu__list-item">
-        <span className="menu__link" aria-busy="true">
-          <span className={styles.mobileItem} style={{ opacity: 0.45 }}>
-            <span className={styles.mobileAvatarFallback}>?</span>
-            <span>Loading…</span>
-          </span>
-        </span>
+        </Link>
       </li>
     )
   }
 
   if (status === 'anon') {
-    if (mobileExpanded) {
-      return (
-        <li className="menu__list-item">
-          <div style={{ padding: '4px 16px 12px' }}>
-            <form onSubmit={handleMobileSubmit} className={styles.mobileSignInRow}>
-              <input
-                className={styles.handleInput}
-                type="text"
-                placeholder="you.bsky.social"
-                value={inputHandle}
-                onChange={(e) => setInputHandle(e.target.value)}
-                aria-label="Handle"
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                disabled={loading}
-              />
-              <button
-                type="submit"
-                className={styles.goBtn}
-                disabled={loading || !inputHandle.trim()}
-              >
-                {loading ? 'Signing in…' : 'Sign in →'}
-              </button>
-              {error && <div className={styles.popoverError}>{error}</div>}
-            </form>
-          </div>
-        </li>
-      )
-    }
     return (
       <li className="menu__list-item">
-        <button
-          type="button"
+        <Link
           className="menu__link"
-          onClick={() => setMobileExpanded(true)}
+          to="/account"
+          onClick={closeSidebar}
         >
           <span className={styles.mobileItem}>
-            <SignInIcon className={styles.signInIcon} />
-            <span>Sign in</span>
+            <span className={styles.mobileAvatarFallback} aria-hidden="true">
+              <PersonIcon />
+            </span>
+            <span>My Account</span>
           </span>
-        </button>
+        </Link>
       </li>
     )
   }
 
   // authed
   const rawHandle = handle ?? profile?.handle
-  const displayHandle = rawHandle
-    ? (rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle)
-    : '…'
 
   return (
     <li className="menu__list-item">
@@ -356,14 +300,14 @@ function MobileAccount() {
             className={styles.mobileAvatar}
             fallbackClassName={styles.mobileAvatarFallback}
           />
-          <span>@{displayHandle}</span>
+          <span>My Account</span>
         </span>
       </Link>
     </li>
   )
 }
 
-// ── Icon ──────────────────────────────────────────────────────────────────────
+// ── Icons ─────────────────────────────────────────────────────────────────────
 
 function SignInIcon({ className }) {
   return (
@@ -381,6 +325,25 @@ function SignInIcon({ className }) {
       <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
       <polyline points="10 17 15 12 10 7" />
       <line x1="15" y1="12" x2="3" y2="12" />
+    </svg>
+  )
+}
+
+/** Generic person silhouette — used for the anon/resolving mobile row avatar slot. */
+function PersonIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      style={{ width: '12px', height: '12px' }}
+    >
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
     </svg>
   )
 }

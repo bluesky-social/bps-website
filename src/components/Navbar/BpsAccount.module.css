@@ -7,50 +7,63 @@
  * Hyperlegible Mono, soft ink, blue on hover/active).
  *
  * Desktop: sits between the trailing divider and the theme toggle — an
- * inline-flex pill matching the row height of .bpsNav--link.
+ * avatar-sized fixed slot. Authed: avatar only. Anon: icon-only sign-in button.
  *
- * Mobile: renders as a standard drawer menu__link row (like NavCustomLink).
+ * Mobile: renders as a standard drawer menu__link row (like NavCustomLink),
+ * always "My Account" → /account. Sign-in happens on the account page.
  */
 
 /* ── Desktop wrapper ─────────────────────────────────────────────────────── */
 
 .slot {
   /* Fixed width holds the slot stable across all three states so the divider
-   * never shifts. Wide enough for a ~12-char handle + avatar (or "SIGN IN"). */
+   * never shifts. Sized for an avatar (22px) plus breathing room. */
   display: inline-flex;
   align-items: center;
-  width: 120px;
+  justify-content: center;
+  width: 40px;
   height: 36px;
   position: relative;
 }
 
-/* ── Shared pill link / button base ─────────────────────────────────────── */
+/* ── Avatar link (authed) ────────────────────────────────────────────────── */
 
-.pill {
+.avatarLink {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   width: 100%;
   height: 100%;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--bps-nav-ink-soft);
   text-decoration: none;
-  white-space: nowrap;
-  overflow: hidden;
+  border-radius: 50%;
+  transition: opacity 0.15s ease;
+}
+
+.avatarLink:hover {
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+/* ── Icon-only sign-in button (anon) ─────────────────────────────────────── */
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   border: none;
   background: none;
   padding: 0;
   cursor: pointer;
-  transition: color 0.15s ease;
+  color: var(--bps-nav-ink-soft);
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.pill:hover {
+.iconBtn:hover {
   color: var(--bps-nav-hover);
-  text-decoration: none;
+  background: color-mix(in srgb, var(--bps-nav-hover) 10%, transparent);
 }
 
 /* ── Resolving placeholder ───────────────────────────────────────────────── */
@@ -58,7 +71,7 @@
 .resolvingGhost {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
   width: 100%;
   height: 100%;
 }
@@ -74,21 +87,12 @@
   animation: bpsAccountPulse 1.6s ease-in-out infinite;
 }
 
-.ghostText {
-  height: 8px;
-  flex: 1;
-  border-radius: 3px;
-  background: var(--bps-nav-surface);
-  animation: bpsAccountPulse 1.6s ease-in-out infinite;
-  animation-delay: 0.2s;
-}
-
 @keyframes bpsAccountPulse {
   0%, 100% { opacity: 0.45; }
   50% { opacity: 0.9; }
 }
 
-/* ── Authed state — avatar + handle ─────────────────────────────────────── */
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
 
 .avatar {
   width: 22px;
@@ -116,20 +120,12 @@
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-.handleText {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-}
-
-/* ── Anon state — "Sign in" ──────────────────────────────────────────────── */
+/* ── Anon state — sign-in icon ───────────────────────────────────────────── */
 
 .signInIcon {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-  opacity: 0.75;
 }
 
 /* ── Sign-in popover ─────────────────────────────────────────────────────── */
@@ -289,22 +285,4 @@ html[data-theme='light'] .popover {
   font-size: 10px;
   font-weight: 700;
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-}
-
-/* Mobile sign-in input area */
-.mobileSignInRow {
-  width: 100%;
-  padding: 4px 0;
-}
-
-.mobileSignInRow .handleInput {
-  width: 100%;
-  margin-bottom: 6px;
-  background: var(--bps-nav-surface);
-  border: 1px solid var(--bps-nav-rule);
-  color: var(--bps-nav-ink);
-}
-
-.mobileSignInRow .goBtn {
-  width: 100%;
 }
