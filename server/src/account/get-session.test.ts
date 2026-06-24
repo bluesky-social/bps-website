@@ -17,18 +17,19 @@ function stubSession(behavior: string) {
   }
 }
 
-test('safeGetSession returns handle + email on success', async () => {
+test('safeGetSession returns ok + handle + email on success', async () => {
   const r = await safeGetSession(stubSession('ok'))
+  assert.equal(r.ok, true)
   assert.equal(r.handle, 'alice.test')
   assert.equal(r.email, 'a@b.co')
 })
 
-test('safeGetSession returns {} when the call throws', async () => {
-  assert.deepEqual(await safeGetSession(stubSession('throw')), {})
+test('safeGetSession returns { ok: false } when the call throws', async () => {
+  assert.deepEqual(await safeGetSession(stubSession('throw')), { ok: false })
 })
 
-test('safeGetSession returns {} on a non-ok response', async () => {
-  assert.deepEqual(await safeGetSession(stubSession('notok')), {})
+test('safeGetSession returns { ok: false } on a non-ok response', async () => {
+  assert.deepEqual(await safeGetSession(stubSession('notok')), { ok: false })
 })
 
 test('safeGetSession omits email when absent', async () => {
@@ -39,6 +40,7 @@ test('safeGetSession omits email when absent', async () => {
       }),
   }
   const r = await safeGetSession(session)
+  assert.equal(r.ok, true)
   assert.equal(r.handle, 'bob.test')
   assert.equal(r.email, undefined)
 })

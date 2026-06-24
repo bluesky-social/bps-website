@@ -42,7 +42,7 @@ export async function refreshEmailIfStale(
   const stale = Date.now() - row.updated_at.getTime() >= EMAIL_REFRESH_TTL_MS
   if (!stale) return row.email
 
-  let observed: { handle?: string; email?: string }
+  let observed: { ok: boolean; handle?: string; email?: string }
   try {
     const session = await restoreSession()
     observed = await safeGetSession(session)
@@ -54,11 +54,10 @@ export async function refreshEmailIfStale(
   }
 
   // safeGetSession never throws; it signals a failed call (restore-ok but getSession non-ok or
-  // threw) by returning {}. getSession ALWAYS includes `handle` on success (it's required by the
-  // lexicon), so a present handle is our "observation succeeded" signal. A successful observation
-  // with no email means the PDS shared none (keep last-known); a missing handle means the call
-  // failed → NON-observation, touch nothing, retry next request.
-  if (!observed.handle) {
+  // threw) via an explicit `ok: false`. So `observed.ok` is our "observation succeeded" signal.
+  // A successful observation with no email means the PDS shared none (keep last-known); a failed
+  // call (ok: false) is a NON-observation → touch nothing, retry next request.
+  if (!observed.ok) {
     return row.email
   }
   const email = observed.email

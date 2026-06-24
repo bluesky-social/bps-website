@@ -77,7 +77,7 @@ function EmailLine({ hasEmail, email }) {
         <rect x="2" y="5" width="16" height="11" rx="2" />
         <polyline points="2 7 10 12 18 7" />
       </svg>
-      <span className={styles.emailAddress}>{email || 'Email on file'}</span>
+      <span className={styles.emailAddress}>{email}</span>
     </span>
   )
 }
