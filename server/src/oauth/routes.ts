@@ -3,8 +3,10 @@ import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from '../db/index.ts'
 import type { AppConfig } from '../config.ts'
+import { sql } from 'kysely'
 import { setDid } from '../session/cookie.ts'
 import { logger } from '../logger.ts'
+import { safeGetSession } from '../account/get-session.ts'
 
 type Deps = { client: NodeOAuthClient; config: AppConfig; db: DB }
 
@@ -25,11 +27,21 @@ export function mountOAuthRoutes(app: Express, deps: Deps): void {
       const { session } = await client.callback(params)
       const did = session.did as DidString
 
-      // Upsert the account row (first login creates it; email captured later in Phase 3 UI).
+      // Capture handle + email from the user's PDS (getSession). Never throws.
+      const { handle, email } = await safeGetSession(session)
+
+      // Upsert: refresh the handle on every login; prefill email ONLY when we
+      // don't already have one (the user owns their email after first capture).
       await db
         .insertInto('account')
-        .values({ did, email: null })
-        .onConflict((oc) => oc.column('did').doNothing())
+        .values({ did, handle: handle ?? null, email: email ?? null })
+        .onConflict((oc) =>
+          oc.column('did').doUpdateSet({
+            handle: sql`coalesce(excluded.handle, account.handle)`,
+            email: sql`coalesce(account.email, excluded.email)`,
+            updated_at: sql`now()`,
+          }),
+        )
         .execute()
 
       await setDid(req, res, config, did)
