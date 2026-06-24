@@ -43,8 +43,6 @@ export function buildClient(apiOrigin) {
       }),
     apiKeyDelete: (id) =>
       call(apiOrigin, internal.bps.apiKey.delete.main, { body: { id } }),
-    accountSetEmail: (email) =>
-      call(apiOrigin, internal.bps.account.setEmail.main, { body: { email } }),
     accountDelete: () =>
       call(apiOrigin, internal.bps.account.delete.main),
   }
