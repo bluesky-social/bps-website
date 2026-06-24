@@ -930,6 +930,15 @@ html[data-theme='dark'] .keyDeleteError {
 @media (max-width: 480px) {
   .createFields {
     flex-direction: column;
+    /* Override the base `align-items: flex-end` — when stacked, fields must
+     * fill the width and align left, not hug the right edge (which left the
+     * whole left half empty). */
+    align-items: stretch;
+  }
+
+  /* Every stacked field (incl. the KEY NAME field) spans the full width. */
+  .formField {
+    width: 100%;
   }
 
   .select {

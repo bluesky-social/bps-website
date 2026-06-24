@@ -83,6 +83,9 @@ html[data-theme='dark'] .avatarFallback {
   flex-direction: column;
   gap: 4px;
   min-width: 0;
+  /* Take the slack so margin-left:auto on the sign-out button pushes it to the
+   * far right of the row on a single line (avatar | name … | Sign out). */
+  flex: 1;
 }
 
 .displayName {
@@ -467,21 +470,9 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
  * small/medium phones (481–600px) rather than crowding the name or getting
  * pushed into an awkward spot. */
 @media (max-width: 600px) {
-  /* Allow the identity row to wrap so signOutBtn falls to a new line cleanly
-   * when there isn't comfortable horizontal room for all three items. */
-  .identity {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
-  .signOutBtn {
-    margin-left: 0;
-    /* After wrap, sit left-aligned below the names on medium-small screens;
-     * indent by avatar width + gap to align with the text column. */
-    order: 3;
-    flex-basis: 100%;
-    padding-left: calc(56px + 1.125rem); /* avatar width + gap */
-  }
+  /* sign-out stays inline on the right (avatar | name… | Sign out) — .names has
+   * flex:1 and the name truncates, so all three fit even on a 375px phone. No
+   * wrap/stacking needed (that earlier made the button look detached). */
 
   .emailInputRow {
     flex-direction: column;
@@ -507,11 +498,6 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
 
   .displayName {
     font-size: 1rem;
-  }
-
-  /* Sign-out indent: avatar shrinks to 46px at ≤480px, update padding to match */
-  .signOutBtn {
-    padding-left: calc(46px + 1.125rem); /* 46px avatar + gap */
   }
 
   .emailRow {

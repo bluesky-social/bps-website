@@ -241,6 +241,15 @@ html[data-theme='light'] .navbar::before {
   color: var(--bps-nav-ink-soft);
 }
 
+/* Color-mode toggle hover: match the account login icon's blue-hued treatment
+ * (background tint + blue glyph) so the two right-nav icon controls feel like
+ * one family. Mirrors .iconLink:hover in BpsAccount.module.css. */
+.navbar__items--right [class*='colorModeToggle'] .clean-btn:hover,
+.navbar__items--right [class*='colorModeToggle'] button:hover {
+  background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  color: var(--bps-nav-hover);
+}
+
 /* ── Right-nav item ordering (desktop) ──────────────────────────────────────
  * Docusaurus renders right config items first, then appends
  * <NavbarColorModeToggle> after them in the DOM. We want the account icon at

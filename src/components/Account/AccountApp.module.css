@@ -295,6 +295,13 @@ html[data-theme='dark'] .anonNote {
 
   .inputRow {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* Explicit full-width so the handle input fills the stacked column (it was
+   * rendering short on mobile). */
+  .handleInput {
+    width: 100%;
   }
 
   .signInBtn {
