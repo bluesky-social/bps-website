@@ -247,10 +247,14 @@ html[data-theme='light'] .navbar::before {
 }
 
 /* Color-mode toggle hover: match the account login icon's blue-hued treatment
- * (background tint + blue glyph) so the two right-nav icon controls feel like
- * one family. Mirrors .iconLink:hover in BpsAccount.module.css. */
-.navbar__items--right [class*='colorModeToggle'] .clean-btn:hover,
-.navbar__items--right [class*='colorModeToggle'] button:hover {
+ * (background tint + blue glyph) so the icon controls feel like one family.
+ * Mirrors .iconLink:hover in BpsAccount.module.css. Applies in BOTH the desktop
+ * bar AND the mobile hamburger drawer (.navbar-sidebar) so the toggle hover is
+ * consistent across the two navs. */
+[class*='colorModeToggle'] .clean-btn:hover,
+[class*='colorModeToggle'] button:hover,
+.navbar-sidebar [class*='colorModeToggle'] .clean-btn:hover,
+.navbar-sidebar [class*='colorModeToggle'] button:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
 }
@@ -496,7 +500,7 @@ html[data-theme='dark']:root {
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
   .navbar .navbarSearchContainer_Bca1,
   .navbar [class*='navbarSearchContainer'] {
-    width: 38px;
+    width: 2rem;
     /* Docusaurus's default pins the search container `position: absolute; right`
      * on mobile (assuming it's the only right-side control). With the account
      * icon now also in the bar, the absolute search overlapped it. Put search
@@ -505,7 +509,7 @@ html[data-theme='dark']:root {
   }
   .navbar .DocSearch-Button {
     min-width: 0;
-    width: 38px; height: 38px;
+    width: 2rem; height: 2rem;
     padding: 0;
     border-radius: 50%;            /* circular icon button */
     display: flex;

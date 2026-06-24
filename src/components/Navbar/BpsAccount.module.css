@@ -17,12 +17,12 @@
 
 .slot {
   /* Fixed size holds the slot stable across all three states so the divider
-   * never shifts. Sized for the 36px avatar / 38px icon-buttons. */
+   * never shifts. Sized for the 2rem (32px) icon-buttons / 30px avatar. */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 2rem;
+  height: 2rem;
   position: relative;
 }
 
@@ -50,9 +50,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* 38px circular hit area — matches the mobile search icon-button. */
-  width: 38px;
-  height: 38px;
+  /* 2rem (32px) circular hit area — matches the color-mode toggle + search icon
+   * button so the three nav icon-controls are identical side by side. */
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: none;
   padding: 0;
@@ -98,8 +99,8 @@
 /* ── Avatar ──────────────────────────────────────────────────────────────── */
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -108,8 +109,8 @@
 }
 
 .avatarFallback {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   flex-shrink: 0;
   display: inline-flex;
@@ -118,7 +119,7 @@
   background: var(--bps-nav-surface);
   border: 1px solid var(--bps-nav-rule);
   color: var(--bps-nav-muted);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
@@ -126,8 +127,9 @@
 /* ── Anon state — sign-in icon ───────────────────────────────────────────── */
 
 .signInIcon {
-  width: 16px;
-  height: 16px;
+  /* Optically matched to the color-mode toggle's sun/moon glyph (~1.25rem). */
+  width: 19px;
+  height: 19px;
   flex-shrink: 0;
 }
 
