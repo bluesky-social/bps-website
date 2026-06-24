@@ -501,7 +501,7 @@ html[data-theme='dark']:root {
      * on mobile (assuming it's the only right-side control). With the account
      * icon now also in the bar, the absolute search overlapped it. Put search
      * back in normal flow so it sits beside the account slot via the flex gap. */
-    position: static;
+    position: initial;
   }
   .navbar .DocSearch-Button {
     min-width: 0;
@@ -511,12 +511,31 @@ html[data-theme='dark']:root {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Match the account login icon-button: no border/fill, soft-ink glyph,
+     * blue tint + blue glyph on hover, blue tap highlight. */
+    background: none;
+    border: none;
+    color: var(--bps-nav-ink-soft);
+    transition: background var(--ifm-transition-fast), color 0.15s ease;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+  .navbar .DocSearch-Button:hover {
+    background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+  .navbar .DocSearch-Button:hover .DocSearch-Search-Icon,
+  .navbar .DocSearch-Button:focus-visible .DocSearch-Search-Icon {
+    color: var(--bps-nav-hover);
   }
   .navbar .DocSearch-Button-Placeholder,
   .navbar .DocSearch-Button-Keys { display: none; }
   /* the icon sits in a Container span; zero its margins and center it */
   .navbar .DocSearch-Button .DocSearch-Button-Container { margin: 0; }
-  .navbar .DocSearch-Button .DocSearch-Search-Icon { margin: 0; display: block; }
+  /* Glyph inherits the soft-ink color (set on the button) → matches login icon. */
+  .navbar .DocSearch-Button .DocSearch-Search-Icon {
+    margin: 0;
+    display: block;
+    color: var(--bps-nav-ink-soft);
+  }
 
   /* When the drawer is open, hide the bar's right group (the search icon) so it
    * can't peek through in the strip beside the drawer. */
