@@ -137,10 +137,10 @@ html[data-theme='dark'] .textInput.textInputError {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
   color: var(--ifm-color-emphasis-900);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  /* Item 1: Inter instead of Atkinson mono; normal-case (no uppercase) */
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
+  font-weight: 400;
   outline: none;
   cursor: pointer;
   /* Custom arrow via background-image so we control light/dark color */
@@ -669,7 +669,9 @@ html[data-theme='dark'] .keyPreview {
 
 .keyMetaItem {
   display: inline-flex;
-  align-items: center;
+  /* Item 2: baseline alignment so the label (0.62rem) and value (0.72rem) share
+     a text baseline rather than being force-centered at their different sizes. */
+  align-items: baseline;
   gap: 0.3rem;
 }
 

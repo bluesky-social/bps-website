@@ -1,23 +1,23 @@
 /**
- * ProfileCard — consolidated identity + email block.
+ * ProfileCard — consolidated identity block.
  *
- * Combines avatar, display name, handle, and email management into one
- * compact block. Email lives below identity as a quiet secondary row, not a
- * separate section. No divider between identity and email — they read as one
- * unit of "who you are and how to reach you."
+ * Structure (post-restructure):
+ *   identity row [avatar | names(displayName, @handle, email-line) | signOut]
  *
- * Email behaviors (identity + email consolidated here; no separate EmailSection):
- *   - hasEmail → compact row: address + "Change email" link → inline form
- *   - no email  → prompt note + "Add email" inline form
- *   - validation mirrors backend: /^[^@\s]+@[^@\s]+\.[^@\s]+$/
- *   - 400 InvalidEmail  → "That doesn't look like a valid email address."
- *   - other errors      → backend message or generic fallback
- *   - calls client.accountSetEmail + refresh() on save
+ * Email line shows: address + pencil-edit icon (has email) OR quiet "Add email"
+ * affordance (no email). Clicking the icon/link opens an EmailModal overlay.
+ *
+ * EmailModal:
+ *   - fixed overlay with dim backdrop; centered panel on design-system surface
+ *   - role="dialog" aria-modal="true"; focus trapped within; Escape closes
+ *   - clicking backdrop closes; focus returns to trigger on close
+ *   - prefilled with current email; validates + calls client.accountSetEmail + refresh()
+ *   - 400 InvalidEmail → inline error; generic fallback
  *
  * Consumes useAuth(): { handle, did, profile, hasEmail, email, client, refresh }
  */
 
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
 import styles from './ProfileCard.module.css'
 
@@ -62,13 +62,61 @@ function isValidEmail(email) {
   return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
 }
 
-// ── Email form ────────────────────────────────────────────────────────────────
+// ── Email modal ───────────────────────────────────────────────────────────────
 
-function EmailForm({ onSuccess, onCancel, submitLabel = 'Save email', initialEmail = '' }) {
+function EmailModal({ initialEmail, onClose }) {
   const { client, refresh } = useAuth()
-  const [email, setEmail] = useState(initialEmail)
-  const [status, setStatus] = useState('idle') // idle | submitting | success | error
+  const [email, setEmail] = useState(initialEmail || '')
+  const [status, setStatus] = useState('idle') // idle | submitting | error
   const [errorMsg, setErrorMsg] = useState(null)
+
+  const inputRef = useRef(null)
+  const triggerRef = useRef(null)
+  const panelRef = useRef(null)
+
+  // Focus the input on mount
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [])
+
+  // Escape key closes the modal
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+      // Focus trap: Tab and Shift+Tab cycle within the modal panel
+      if (e.key === 'Tab' && panelRef.current) {
+        const focusable = panelRef.current.querySelectorAll(
+          'input, button, [tabindex]:not([tabindex="-1"])'
+        )
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault()
+            last.focus()
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault()
+            first.focus()
+          }
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
+  const handleBackdropClick = useCallback(
+    (e) => {
+      if (e.target === e.currentTarget) {
+        onClose()
+      }
+    },
+    [onClose],
+  )
 
   const handleSubmit = useCallback(
     async (e) => {
@@ -88,8 +136,7 @@ function EmailForm({ onSuccess, onCancel, submitLabel = 'Save email', initialEma
         await client.accountSetEmail(trimmed)
         await refresh()
         setStatus('success')
-        setEmail('')
-        onSuccess?.()
+        onClose()
       } catch (err) {
         setStatus('error')
         if (err?.status === 400 && err?.error === 'InvalidEmail') {
@@ -101,146 +148,129 @@ function EmailForm({ onSuccess, onCancel, submitLabel = 'Save email', initialEma
         }
       }
     },
-    [email, client, refresh, onSuccess],
+    [email, client, refresh, onClose],
   )
 
   const isSubmitting = status === 'submitting'
+  const hasEmail = !!initialEmail
 
   return (
-    <form
-      className={styles.emailForm}
-      onSubmit={handleSubmit}
-      aria-label="Email address form"
+    <div
+      className={styles.modalOverlay}
+      role="presentation"
+      onClick={handleBackdropClick}
     >
-      <div className={styles.emailFormField}>
-        <label className={styles.emailFieldLabel} htmlFor="acct-email">
-          Email address
-        </label>
-        <div className={styles.emailInputRow}>
-          <input
-            id="acct-email"
-            className={`${styles.emailInput}${status === 'error' ? ` ${styles.emailInputError}` : ''}`}
-            type="email"
-            inputMode="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value)
-              if (status === 'error') setStatus('idle')
-            }}
-            autoComplete="email"
-            autoCapitalize="none"
-            spellCheck={false}
-            disabled={isSubmitting}
-            aria-describedby={status === 'error' ? 'email-error' : undefined}
-            aria-invalid={status === 'error' ? 'true' : undefined}
-          />
-          <button
-            type="submit"
-            className={styles.emailSaveBtn}
-            disabled={isSubmitting || !email.trim()}
-          >
-            {isSubmitting ? 'Saving…' : submitLabel}
-          </button>
-        </div>
+      <div
+        ref={panelRef}
+        className={styles.modalPanel}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="email-modal-heading"
+      >
+        <h2 id="email-modal-heading" className={styles.modalHeading}>
+          {hasEmail ? 'Change email' : 'Add email'}
+        </h2>
 
-        {status === 'error' && errorMsg && (
-          <div id="email-error" className={styles.emailErrorMsg} role="alert">
-            {errorMsg}
-          </div>
-        )}
-      </div>
-
-      {onCancel && (
-        <button
-          type="button"
-          className={styles.emailCancelLink}
-          onClick={onCancel}
-          disabled={isSubmitting}
+        <form
+          className={styles.modalForm}
+          onSubmit={handleSubmit}
+          aria-label="Email address form"
         >
-          Cancel
-        </button>
-      )}
-    </form>
-  )
-}
+          <div className={styles.modalField}>
+            <label className={styles.modalFieldLabel} htmlFor="modal-email">
+              Email address
+            </label>
+            <input
+              ref={inputRef}
+              id="modal-email"
+              className={`${styles.modalInput}${status === 'error' ? ` ${styles.modalInputError}` : ''}`}
+              type="email"
+              inputMode="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                if (status === 'error') setStatus('idle')
+              }}
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              disabled={isSubmitting}
+              aria-describedby={status === 'error' ? 'modal-email-error' : undefined}
+              aria-invalid={status === 'error' ? 'true' : undefined}
+            />
+            {status === 'error' && errorMsg && (
+              <div id="modal-email-error" className={styles.modalErrorMsg} role="alert">
+                {errorMsg}
+              </div>
+            )}
+          </div>
 
-// ── Email row — has email ──────────────────────────────────────────────────────
-
-function HasEmailRow({ email }) {
-  const [expanded, setExpanded] = useState(false)
-
-  return expanded ? (
-    <EmailForm
-      submitLabel="Update email"
-      initialEmail={email || ''}
-      onSuccess={() => setExpanded(false)}
-      onCancel={() => setExpanded(false)}
-    />
-  ) : (
-    <div className={styles.emailRow}>
-      {/* Envelope icon */}
-      <svg
-        className={styles.emailIcon}
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="2" y="5" width="16" height="11" rx="2" />
-        <polyline points="2 7 10 12 18 7" />
-      </svg>
-      <span className={styles.emailAddress}>{email || 'Email on file'}</span>
-      <button
-        type="button"
-        className={styles.emailChangeLink}
-        onClick={() => setExpanded(true)}
-      >
-        Change
-      </button>
+          <div className={styles.modalActions}>
+            <button
+              type="submit"
+              className={styles.modalSaveBtn}
+              disabled={isSubmitting || !email.trim()}
+            >
+              {isSubmitting ? 'Saving…' : hasEmail ? 'Update email' : 'Add email'}
+            </button>
+            <button
+              type="button"
+              className={styles.modalCancelBtn}
+              onClick={onClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }
 
-// ── Email row — no email ──────────────────────────────────────────────────────
+// ── Email line (inline inside .names column) ──────────────────────────────────
 
-function NoEmailRow() {
-  const [expanded, setExpanded] = useState(false)
+function EmailLine({ hasEmail, email, onEdit }) {
+  if (hasEmail) {
+    return (
+      <span className={styles.emailLine}>
+        <span className={styles.emailAddress}>{email || 'Email on file'}</span>
+        <button
+          type="button"
+          className={styles.emailEditBtn}
+          onClick={onEdit}
+          aria-label="Edit email"
+          title="Edit email"
+        >
+          {/* Pencil icon */}
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5z" />
+          </svg>
+        </button>
+      </span>
+    )
+  }
 
-  return expanded ? (
-    <EmailForm
-      submitLabel="Add email"
-      onSuccess={() => setExpanded(false)}
-      onCancel={() => setExpanded(false)}
-    />
-  ) : (
-    <div className={styles.emailRow}>
-      {/* Envelope icon with subtle "missing" treatment */}
-      <svg
-        className={`${styles.emailIcon} ${styles.emailIconMissing}`}
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="2" y="5" width="16" height="11" rx="2" />
-        <polyline points="2 7 10 12 18 7" />
-      </svg>
-      <span className={styles.emailMissingText}>No email on file</span>
+  return (
+    <span className={styles.emailLine}>
       <button
         type="button"
         className={styles.emailAddLink}
-        onClick={() => setExpanded(true)}
+        onClick={onEdit}
+        aria-label="Add email"
       >
         Add email
       </button>
-    </div>
+    </span>
   )
 }
 
@@ -249,6 +279,8 @@ function NoEmailRow() {
 export default function ProfileCard() {
   const { handle: whoamiHandle, did, profile, hasEmail, email, logout } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
+  const editTriggerRef = useRef(null)
 
   const rawHandle = (whoamiHandle ?? profile?.handle) ?? ''
   const handle = rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle
@@ -258,14 +290,22 @@ export default function ProfileCard() {
   const handleSignOut = useCallback(async () => {
     if (signingOut) return
     setSigningOut(true)
-    // logout() resets local state to anon + clears the hint even if the network
-    // call fails; the nav/page react to the state change. No redirect needed.
     await logout()
   }, [signingOut, logout])
 
+  const openModal = useCallback(() => {
+    setModalOpen(true)
+  }, [])
+
+  const closeModal = useCallback(() => {
+    setModalOpen(false)
+    // Return focus to the trigger that opened the modal
+    editTriggerRef.current?.focus()
+  }, [])
+
   return (
     <section className={styles.card} aria-labelledby="profile-card-name">
-      {/* Identity row */}
+      {/* Identity row: avatar | names(displayName + handle + email) | signOut */}
       <div className={styles.identity}>
         <div className={styles.avatarWrap}>
           <Avatar src={avatar} handle={handle} />
@@ -277,6 +317,14 @@ export default function ProfileCard() {
           {handle && (
             <span className={styles.handle}>@{handle}</span>
           )}
+          {/* Email as 3rd line — ref the trigger so modal can return focus */}
+          <span ref={editTriggerRef} style={{ display: 'contents' }}>
+            <EmailLine
+              hasEmail={!!hasEmail}
+              email={email}
+              onEdit={openModal}
+            />
+          </span>
         </div>
         <button
           type="button"
@@ -288,11 +336,13 @@ export default function ProfileCard() {
         </button>
       </div>
 
-      {/* Intra-card divider */}
-      <div className={styles.divider} role="separator" aria-hidden="true" />
-
-      {/* Email row */}
-      {hasEmail ? <HasEmailRow email={email} /> : <NoEmailRow />}
+      {/* Email edit modal — rendered in-tree as a fixed overlay; safe inside BrowserOnly */}
+      {modalOpen && (
+        <EmailModal
+          initialEmail={email || ''}
+          onClose={closeModal}
+        />
+      )}
     </section>
   )
 }

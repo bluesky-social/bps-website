@@ -184,9 +184,11 @@ html[data-theme='dark'] .inputLabel {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
   color: var(--ifm-color-emphasis-900);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.85rem;
-  font-weight: 500;
+  /* Item 5/1: Inter for the handle input (was Atkinson mono); width:100% ensures
+     full-width when the row stacks to a column on mobile. */
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
+  font-weight: 400;
   outline: none;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
