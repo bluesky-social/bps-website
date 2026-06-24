@@ -108,7 +108,7 @@ function SignInPopover({ onClose, onSubmit }) {
 
   return (
     <div className={styles.popover} ref={popoverRef} role="dialog" aria-label="Sign in">
-      <span className={styles.popoverLabel}>Bluesky handle</span>
+      <span className={styles.popoverLabel}>Handle</span>
       <form className={styles.popoverRow} onSubmit={handleSubmit}>
         <input
           ref={inputRef}
@@ -117,7 +117,7 @@ function SignInPopover({ onClose, onSubmit }) {
           placeholder="you.bsky.social"
           value={handle}
           onChange={(e) => setHandle(e.target.value)}
-          aria-label="Bluesky handle"
+          aria-label="Handle"
           autoComplete="off"
           autoCapitalize="none"
           spellCheck={false}
@@ -301,7 +301,7 @@ function MobileAccount() {
                 placeholder="you.bsky.social"
                 value={inputHandle}
                 onChange={(e) => setInputHandle(e.target.value)}
-                aria-label="Bluesky handle"
+                aria-label="Handle"
                 autoComplete="off"
                 autoCapitalize="none"
                 spellCheck={false}
