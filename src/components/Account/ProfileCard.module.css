@@ -119,7 +119,10 @@ html[data-theme='dark'] .handle {
   color: #8893a2;
 }
 
-/* ── Sign out — quiet text button, pushed to the right of the identity row ─ */
+/* ── Sign out — quiet text button, pushed to the right of the identity row ─
+ * flex-shrink:0 prevents the button text from getting squished at narrow
+ * widths; margin-left:auto relies on .names having flex:1 to push the
+ * button to the far right of the row. */
 
 .signOutBtn {
   margin-left: auto;
@@ -458,6 +461,38 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
+/* 600px tier — stack the email input row and allow early wrapping of the
+ * email row content. Also enable identity row wrapping at this breakpoint
+ * so the sign-out button cleanly moves below the avatar+name block on
+ * small/medium phones (481–600px) rather than crowding the name or getting
+ * pushed into an awkward spot. */
+@media (max-width: 600px) {
+  /* Allow the identity row to wrap so signOutBtn falls to a new line cleanly
+   * when there isn't comfortable horizontal room for all three items. */
+  .identity {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .signOutBtn {
+    margin-left: 0;
+    /* After wrap, sit left-aligned below the names on medium-small screens;
+     * indent by avatar width + gap to align with the text column. */
+    order: 3;
+    flex-basis: 100%;
+    padding-left: calc(56px + 1.125rem); /* avatar width + gap */
+  }
+
+  .emailInputRow {
+    flex-direction: column;
+  }
+
+  .emailSaveBtn {
+    height: 40px;
+    width: 100%;
+  }
+}
+
 @media (max-width: 480px) {
   .avatarImg,
   .avatarFallback,
@@ -474,18 +509,9 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
     font-size: 1rem;
   }
 
-  /* Stack sign-out below the avatar + name group so neither gets cramped */
-  .identity {
-    flex-wrap: wrap;
-    align-items: flex-start;
-  }
-
+  /* Sign-out indent: avatar shrinks to 46px at ≤480px, update padding to match */
   .signOutBtn {
-    margin-left: 0;
-    /* Sit left-aligned below the names on very narrow screens */
-    order: 3;
-    flex-basis: 100%;
-    padding-left: calc(46px + 1.125rem); /* avatar width + gap */
+    padding-left: calc(46px + 1.125rem); /* 46px avatar + gap */
   }
 
   .emailRow {
@@ -498,16 +524,5 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
     /* allow the address to wrap on very narrow screens */
     white-space: normal;
     word-break: break-all;
-  }
-}
-
-@media (max-width: 600px) {
-  .emailInputRow {
-    flex-direction: column;
-  }
-
-  .emailSaveBtn {
-    height: 40px;
-    width: 100%;
   }
 }

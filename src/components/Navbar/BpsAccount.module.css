@@ -63,8 +63,8 @@
 }
 
 .iconLink:hover {
-  /* Identical to the ColorModeToggle's .toggleButton:hover */
-  background: var(--ifm-color-emphasis-200);
+  /* Blue-hued tint background + blue icon — both light and dark modes */
+  background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
   text-decoration: none;
 }

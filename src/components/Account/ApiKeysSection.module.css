@@ -898,20 +898,9 @@ html[data-theme='dark'] .keyDeleteError {
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
+/* 600px tier: stack the copy-once secret reveal row so the key value and
+ * copy button don't get cramped on narrow screens. */
 @media (max-width: 600px) {
-  .createFields {
-    flex-direction: column;
-  }
-
-  .select {
-    width: 100%;
-  }
-
-  .createBtn {
-    width: 100%;
-    justify-content: center;
-  }
-
   .secretRow {
     flex-direction: column;
     align-items: stretch;
@@ -931,7 +920,29 @@ html[data-theme='dark'] .keyDeleteError {
     justify-content: center;
     width: 100%;
   }
+}
 
+/* 480px tier — stack the create form fields and key rows before they become
+ * too cramped. At ~360px, the label-input + select + button row collapses
+ * to ~40px for the name field (unusable). Stacking at 480px gives each
+ * field full width down to the smallest phones. Key rows also stack so
+ * keyActions (delete/confirm) sits beneath the metadata with room to breathe. */
+@media (max-width: 480px) {
+  .createFields {
+    flex-direction: column;
+  }
+
+  .select {
+    width: 100%;
+  }
+
+  .createBtn {
+    width: 100%;
+    justify-content: center;
+    align-self: stretch;
+  }
+
+  /* Key rows stack vertically — keyActions sits below the key metadata */
   .keyRow {
     flex-direction: column;
     gap: 0.5rem;

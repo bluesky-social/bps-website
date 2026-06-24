@@ -241,6 +241,25 @@ html[data-theme='light'] .navbar::before {
   color: var(--bps-nav-ink-soft);
 }
 
+/* ── Right-nav item ordering (desktop) ──────────────────────────────────────
+ * Docusaurus renders right config items first, then appends
+ * <NavbarColorModeToggle> after them in the DOM. We want the account icon at
+ * the FAR right: [...links] → colorModeToggle → account icon.
+ * Use flex `order` to place the colorModeToggle at 1 and the account slot at 2
+ * so it renders last regardless of DOM order. All other items stay at 0.
+ * The gap:22px on .navbar__items--right gives even spacing throughout.
+ * The stable global class `bpsAccountSlot` is added by BpsAccount.js to allow
+ * targeting from global CSS without relying on the hashed CSS-module class.
+ * Desktop only — mobile hides the slot and uses the drawer instead. */
+@media (min-width: 997px) {
+  .navbar__items--right > [class*='colorModeToggle'] {
+    order: 1;
+  }
+  .navbar__items--right > .bpsAccountSlot {
+    order: 2;
+  }
+}
+
 /* ----- brand lockup — matches the prototype .masthead .lockup ----- */
 .bpsBrand {
   display: inline-flex;

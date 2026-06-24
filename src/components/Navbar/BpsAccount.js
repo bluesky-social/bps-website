@@ -64,7 +64,7 @@ function DesktopAccount() {
     if (resolvingHandle) {
       // Optimistic: returning user — show avatar so no flash
       return (
-        <div className={styles.slot} aria-label="Loading account…" aria-busy="true" style={{ opacity: 0.55 }}>
+        <div className={`${styles.slot} bpsAccountSlot`} aria-label="Loading account…" aria-busy="true" style={{ opacity: 0.55 }}>
           <Avatar
             src={profile?.avatar}
             handle={resolvingHandle}
@@ -75,7 +75,7 @@ function DesktopAccount() {
       )
     }
     return (
-      <div className={styles.slot} aria-label="Loading account…" aria-busy="true">
+      <div className={`${styles.slot} bpsAccountSlot`} aria-label="Loading account…" aria-busy="true">
         <div className={styles.resolvingGhost}>
           <span className={styles.ghostAvatar} />
         </div>
@@ -86,7 +86,7 @@ function DesktopAccount() {
   // anon — icon-only link to /account (sign-in happens on that page)
   if (status === 'anon') {
     return (
-      <div className={styles.slot}>
+      <div className={`${styles.slot} bpsAccountSlot`}>
         <Link
           to="/account"
           className={styles.iconLink}
@@ -106,7 +106,7 @@ function DesktopAccount() {
     : '…'
 
   return (
-    <div className={styles.slot}>
+    <div className={`${styles.slot} bpsAccountSlot`}>
       <Link
         to="/account"
         className={styles.avatarLink}
