@@ -30,15 +30,17 @@ export function mountOAuthRoutes(app: Express, deps: Deps): void {
       // Capture handle + email from the user's PDS (getSession). Never throws.
       const { handle, email } = await safeGetSession(session)
 
-      // Upsert: refresh the handle on every login; prefill email ONLY when we
-      // don't already have one (the user owns their email after first capture).
+      // Upsert: refresh the handle on every login; email also refreshes on every
+      // login when the PDS shares one (excluded.email is non-NULL). When the PDS
+      // does not share an email (excluded.email IS NULL / non-observation), the
+      // existing stored value is kept — "keep last-known on NULL".
       await db
         .insertInto('account')
         .values({ did, handle: handle ?? null, email: email ?? null })
         .onConflict((oc) =>
           oc.column('did').doUpdateSet({
             handle: sql`coalesce(excluded.handle, account.handle)`,
-            email: sql`coalesce(account.email, excluded.email)`,
+            email: sql`coalesce(excluded.email, account.email)`,  // PDS observation wins; keep last-known on NULL
             updated_at: sql`now()`,
           }),
         )
