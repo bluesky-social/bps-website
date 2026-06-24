@@ -489,7 +489,9 @@ html[data-theme='dark']:root {
   .navbar__items--right > .dropdown:has(> .bpsMainMenuLocale) {
     display: none;
   }
-  .navbar__items--right { gap: 0; }
+  /* Two controls now live in the mobile bar (search icon + account slot); give
+   * them breathing room so they don't overlap. */
+  .navbar__items--right { gap: 6px; }
 
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
   .navbar .navbarSearchContainer_Bca1,
