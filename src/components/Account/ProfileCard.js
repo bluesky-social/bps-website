@@ -6,10 +6,10 @@
  * separate section. No divider between identity and email — they read as one
  * unit of "who you are and how to reach you."
  *
- * Email behaviors preserved from EmailSection:
+ * Email behaviors (identity + email consolidated here; no separate EmailSection):
  *   - hasEmail → compact row: address + "Change email" link → inline form
  *   - no email  → prompt note + "Add email" inline form
- *   - validation mirrors backend: /^[^@]+@[^@]+$/
+ *   - validation mirrors backend: /^[^@\s]+@[^@\s]+\.[^@\s]+$/
  *   - 400 InvalidEmail  → "That doesn't look like a valid email address."
  *   - other errors      → backend message or generic fallback
  *   - calls client.accountSetEmail + refresh() on save
@@ -57,9 +57,9 @@ function Avatar({ src, handle }) {
 
 // ── Email helpers ─────────────────────────────────────────────────────────────
 
-/** Mirrors the backend's simple email check. */
+/** Mirrors the backend's email check exactly (server/src/router.ts setEmail handler). */
 function isValidEmail(email) {
-  return /^[^@]+@[^@]+$/.test(email.trim())
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
 }
 
 // ── Email form ────────────────────────────────────────────────────────────────

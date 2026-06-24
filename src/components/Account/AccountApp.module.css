@@ -2,8 +2,8 @@
  * AccountApp.module.css
  *
  * Provides the page-level layout shell, skeleton states, and the anon sign-in
- * prompt. Individual sections (ProfileHeader, EmailSection) carry their own
- * module CSS for section-specific styling.
+ * prompt. Individual section components (ProfileCard, ApiKeysSection, DangerZone)
+ * carry their own module CSS for section-specific styling.
  *
  * Design: Inter body, Atkinson mono for labels/caps, the docs "paper" surfaces
  * (#f4f6f9 light / #0d1117 dark), the site's blue primary for accents.
