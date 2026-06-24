@@ -12,7 +12,7 @@ const DOCS_LINKS = [
   { label: 'Relay', to: '/docs/relay' },
   { label: 'Jetstream', to: '/docs/jetstream' },
   { label: 'API Hosts and Auth', to: '/docs/api-directory' },
-  { label: 'OAuth Client', to: '/docs/oauth-client' },
+  { label: 'OAuth', to: '/docs/oauth-client' },
   { label: 'Developer Guidelines', to: '/docs/developer-guidelines' },
   { label: 'Tutorials', href: 'https://atproto.com/guides/tutorials' },
 ]

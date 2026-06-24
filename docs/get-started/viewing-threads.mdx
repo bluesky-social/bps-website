@@ -29,6 +29,13 @@ A _thread_ refers to a post, its replies (descendants), and its parents
       thread = res.thread
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="FeedGetPostThread"
+      // params: depth, parentHeight, uri
+      res, _ := appbsky.FeedGetPostThread(ctx, client, 6, 80, "at://...")
+      thread := res.Thread
+    ```
+  </TabItem>
 </Tabs>
 
 ## Data shape

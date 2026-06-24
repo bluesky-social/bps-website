@@ -136,14 +136,9 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
         },
-        blog: {
-          showReadingTime: true,
-          // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
-          blogSidebarCount: "ALL",
-          onInlineAuthors: "ignore",
-          onUntruncatedBlogPosts: "ignore",
-        },
+        // The blog has been removed from this site; its posts now live on
+        // atproto.com. Disabling the preset's blog plugin entirely.
+        blog: false,
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -209,6 +204,20 @@ const config = {
             external: true,
           },
           {
+            // Middot separator between GitHub and the AT Protocol link.
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // "AT Protocol" → the broader protocol site, outbound.
+            type: "custom-navLink",
+            position: "right",
+            label: "AT Protocol",
+            href: "https://atproto.com",
+            external: true,
+          },
+          {
             // Trailing vertical divider before the auto-appended theme toggle
             // (prototype's version-stamp border-left).
             type: "custom-navSep",
@@ -246,6 +255,10 @@ const config = {
                 to: "/docs/get-started",
               },
               {
+                label: "Jetstream",
+                to: "/docs/jetstream",
+              },
+              {
                 label: "Tutorials",
                 href: "https://atproto.com/guides/tutorials",
               },
@@ -263,16 +276,8 @@ const config = {
                 href: "https://bsky.app/profile/bsky.app",
               },
               {
-                label: "Twitter",
-                href: "https://twitter.com/bluesky",
-              },
-              {
                 label: "Community-run Discord",
                 href: "https://discord.gg/3srmDsHSZJ",
-              },
-              {
-                label: "Mailing List",
-                href: "/docs/support/mailing-list",
               },
             ],
           },
@@ -280,16 +285,16 @@ const config = {
             title: "More",
             items: [
               {
-                label: "Blog",
-                to: "/blog",
-              },
-              {
                 label: "GitHub Discussions",
                 href: "https://github.com/bluesky-social/atproto/discussions",
               },
               {
                 label: "GitHub",
                 href: "https://github.com/bluesky-social",
+              },
+              {
+                label: "Blog",
+                href: "https://atproto.com/blog",
               },
             ],
           },

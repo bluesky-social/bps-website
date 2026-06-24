@@ -21,21 +21,24 @@ relay — it crawls the PDSes for you, verifies what they send, and re-broadcast
 everything as one ordered, de-duplicated stream.
 
 ```
-   ┌────────┐   ┌────────┐   ┌────────┐         thousands of PDSes,
-   │  PDS   │   │  PDS   │   │  PDS   │  ...     each streaming its own
-   └───┬────┘   └───┬────┘   └───┬────┘          repo events
-       │            │            │
-       └────────────┼────────────┘
-                    ▼
-              ┌───────────┐               the Relay aggregates, verifies,
-              │   Relay   │               and de-duplicates them into one
-              └─────┬─────┘               ordered stream
-                    ▼
-          com.atproto.sync.subscribeRepos     ← the firehose
-                    │
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
-   feed gens     labelers      bots, search, your app
+  +---------+   +---------+   +---------+         thousands of PDSes,
+  |   PDS   |   |   PDS   |   |   PDS   | ...     each streaming its own
+  +----+----+   +----+----+   +----+----+         repo events
+       |             |             |
+       +-------------+-------------+
+                     |
+                     v
+               +-----------+                      the Relay aggregates, verifies,
+               |   Relay   |                      and de-duplicates them into one
+               +-----+-----+                      ordered stream
+                     |
+                     v
+      com.atproto.sync.subscribeRepos     <- the firehose
+                     |
+       +-------------+-------------+
+       |             |             |
+       v             v             v
+   feed gens     labelers        bots, search, your app
 ```
 
 A relay does **not** interpret the records flowing through it — it doesn't know
@@ -57,7 +60,7 @@ authentication is required; the firehose is public.
 
 | Endpoint | Notes |
 | --- | --- |
-| `wss://relay1.us-east.bsky.network` | The current [Sync 1.1](https://docs.bsky.app/blog/relay-sync-updates#staged-rollout) endpoint, and the one to use for new integrations. Emits `prevData` on each commit. |
+| `wss://relay1.us-east.bsky.network` | The current [Sync 1.1](https://atproto.com/blog/relay-updates-sync-v1-1#staged-rollout) endpoint, and the one to use for new integrations. Emits `prevData` on each commit. |
 | `wss://bsky.network` | The original firehose endpoint. Still widely used, but does **not** emit `prevData`. |
 
 :::tip Which one should I use?

@@ -24,6 +24,21 @@ import TabItem from '@theme/TabItem';
       uri = client.follow(did).uri
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    The Go SDK has no dedicated helper; create an `app.bsky.graph.follow` record whose subject is the DID you want to follow.
+
+    ```go title="RepoCreateRecord"
+      follow := &appbsky.GraphFollow{
+        CreatedAt: time.Now().UTC().Format(time.RFC3339),
+        Subject:   did,
+      }
+      resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+        Repo:       client.AccountDID.String(),
+        Collection: "app.bsky.graph.follow",
+        Record:     &lexutil.LexiconTypeDecoder{Val: follow},
+      })
+    ```
+  </TabItem>
 </Tabs>
 
 | Parameter | Type     | Description                   | Required |
@@ -45,6 +60,18 @@ post](/docs/get-started/like-repost).
   <TabItem value="python" label="Python">
     ```python title="client.delete_follow"
       client.delete_follow(uri)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="RepoDeleteRecord"
+      import "strings"
+
+      rkey := uri[strings.LastIndex(uri, "/")+1:]
+      comatproto.RepoDeleteRecord(ctx, client, &comatproto.RepoDeleteRecord_Input{
+        Repo:       client.AccountDID.String(),
+        Collection: "app.bsky.graph.follow",
+        Rkey:       rkey,
+      })
     ```
   </TabItem>
 </Tabs>

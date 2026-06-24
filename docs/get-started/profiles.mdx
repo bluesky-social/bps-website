@@ -31,10 +31,19 @@ feeds."
   <TabItem value="python" label="Python">
     To fetch a user's profile info, you can use the `get_profile` method.
 
-    ```python title="agent.get_profile"
+    ```python title="client.get_profile"
     data = client.get_profile(actor='did:plc:...')
     did = data.did
     display_name = data.display_name
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Use `ActorGetProfile` with a handle or DID.
+
+    ```go title="ActorGetProfile"
+    profile, _ := appbsky.ActorGetProfile(ctx, client, "did:plc:...")
+    did := profile.Did
+    displayName := profile.DisplayName // *string
     ```
   </TabItem>
 </Tabs>
@@ -60,6 +69,12 @@ Fetching multiple profiles is as easy as fetching a single profile:
     profiles = data.profiles
     ```
   </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="ActorGetProfiles"
+    resp, _ := appbsky.ActorGetProfiles(ctx, client, []string{"did:plc:...", "..."})
+    profiles := resp.Profiles
+    ```
+  </TabItem>
 </Tabs>
 
 | Parameter | Type     | Description                                           | Required |
@@ -75,6 +90,14 @@ Editing a profile works as an "upsert" operation. If the profile does not exist,
 such as immediately after account creation, the profile will be created. And if
 the profile already exists, you must merge in new values manually and return
 result to be updated.
+
+:::note
+The `@atproto/api` library provides a convenient `upsertProfile` helper, shown
+below. Where an SDK doesn't have an equivalent, edit your profile directly: read
+the `app.bsky.actor.profile` record at rkey `self`, change the fields you want,
+and write it back with a put-record call (in Go, build an `appbsky.ActorProfile`
+and submit it with `comatproto.RepoPutRecord`).
+:::
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="Typescript">

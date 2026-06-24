@@ -4,7 +4,7 @@ sidebar_position: 14
 
 # Posts in-depth
 
-This is an in-depth dive into how creating a post works on Bluesky. We'll use Python below, without a SDK, so you can see how it works behind the scenes.
+This is an in-depth dive into how creating a post works on Bluesky. We'll use Python below, without an SDK, so you can see how it works behind the scenes. For a real application, reach for one of the SDKs listed at [atproto.com/sdks](https://atproto.com/sdks) rather than writing the raw requests by hand.
 
 You can skip the tutorial and get the full script of examples [here](https://github.com/bluesky-social/cookbook/tree/main/python-bsky-post).
 
