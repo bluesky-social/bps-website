@@ -15,7 +15,7 @@ test('client metadata derives client_id, redirect, jwks from apiOrigin', () => {
   assert.equal(m.jwks_uri, 'https://api.example.com/jwks.json')
   assert.equal(m.token_endpoint_auth_method, 'private_key_jwt')
   assert.equal(m.dpop_bound_access_tokens, true)
-  assert.ok(m.scope?.includes('atproto'))
+  assert.equal(m.scope, 'atproto account:email')
   assert.ok(m.grant_types?.includes('authorization_code'))
   assert.ok(m.grant_types?.includes('refresh_token'))
 })

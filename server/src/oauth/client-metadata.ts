@@ -10,7 +10,7 @@ export function buildClientMetadata(config: AppConfig): OAuthClientMetadataInput
     client_uri: base,
     redirect_uris: [`${base}/oauth-callback`],
     jwks_uri: `${base}/jwks.json`,
-    scope: 'atproto transition:generic',
+    scope: 'atproto account:email',
     grant_types: ['authorization_code', 'refresh_token'],
     response_types: ['code'],
     application_type: 'web',

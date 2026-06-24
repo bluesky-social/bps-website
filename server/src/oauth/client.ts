@@ -17,7 +17,10 @@ function buildDevClientMetadata(config: AppConfig) {
   const url = new URL(config.apiOrigin)
   const port = url.port || '80'
   const redirectUri = `http://127.0.0.1:${port}/oauth-callback`
-  return buildAtprotoLoopbackClientMetadata({ redirect_uris: [redirectUri] })
+  return buildAtprotoLoopbackClientMetadata({
+    redirect_uris: [redirectUri],
+    scope: 'atproto account:email',
+  })
 }
 
 export async function createOAuthClient(db: DB, config: AppConfig): Promise<NodeOAuthClient> {
