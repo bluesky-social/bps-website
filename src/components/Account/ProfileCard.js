@@ -262,9 +262,9 @@ export default function ProfileCard() {
           <Avatar src={avatar} handle={handle} />
         </div>
         <div className={styles.names}>
-          <span id="profile-card-name" className={styles.displayName}>
+          <h1 id="profile-card-name" className={styles.displayName}>
             {displayName || 'Unknown'}
-          </span>
+          </h1>
           {handle && (
             <span className={styles.handle}>@{handle}</span>
           )}

@@ -86,6 +86,9 @@ html[data-theme='dark'] .avatarFallback {
 }
 
 .displayName {
+  /* Rendered as an <h1> (the account page's identity heading); reset the
+     browser default heading margin so the tight profile-card layout holds. */
+  margin: 0;
   font-family: var(--ifm-font-family-base);
   font-size: 1.15rem;
   font-weight: 660;
