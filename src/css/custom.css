@@ -837,6 +837,55 @@ html[data-theme='dark']
 }
 
 /* =====================================================================
+ * SIDEBAR — "Getting Started" path grouping (§4)
+ * The first three top-level items (Get Started, About Bluesky Content,
+ * Tutorials) form the onboarding path. They carry the bpsGsPath className
+ * (set in sidebars.js) so this survives reordering as long as the classes
+ * travel with the items. They're rendered as one cohesive, neutral-blue
+ * panel — desaturated so it reads as "grouped/quiet" rather than competing
+ * with the blue accent used for the active item — inset with side margins
+ * and rounded top/bottom corners. The bordered outline alone separates it
+ * from the reference docs below; a little breathing room beneath it is
+ * enough (no divider rule).
+ * ===================================================================== */
+.theme-doc-sidebar-menu {
+  --bps-gs-bg: #e9eef7;          /* soft slate-blue panel fill */
+  --bps-gs-border: #d3ddec;
+}
+html[data-theme='dark'] .theme-doc-sidebar-menu {
+  --bps-gs-bg: #141d2c;          /* raised, blue-tinted surface over #0d1117 */
+  --bps-gs-border: #243047;
+}
+/* Each path item is a top-level <li>; tint it and bracket it with side rules.
+ * Flatten the inter-item gap (Infima adds margin-top between siblings) so the
+ * three rows read as one continuous block. */
+.theme-doc-sidebar-menu > .bpsGsPath {
+  margin-top: 0;
+  margin-left: 6px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background: var(--bps-gs-bg);
+  border-left: 1px solid var(--bps-gs-border);
+  border-right: 1px solid var(--bps-gs-border);
+}
+/* First item: top cap (rounded corners + top rule + a little breathing room
+ * above the panel). */
+.theme-doc-sidebar-menu > .bpsGsPath--first {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bps-gs-border);
+  border-radius: 8px 8px 0 0;
+}
+/* Last item: bottom cap. The outline closes the panel here; just leave a gap
+ * before the reference docs below. */
+.theme-doc-sidebar-menu > .bpsGsPath--last {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--bps-gs-border);
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 1rem;
+}
+
+/* =====================================================================
  * DOCS READING SURFACE — dark-mode brand surfaces + syntax
  * Align code blocks, admonitions, and tables with the homepage's BPS dark
  * palette (paper #0d1117 / paper-2 #161c26, rules #1f2733/#2a3340), and map

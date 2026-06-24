@@ -25,6 +25,9 @@ const sidebars = {
       // new Get Started pages here.
       type: 'category',
       label: 'Get Started',
+      // bpsGsPath: marks the three-item "getting started" onboarding path so
+      // custom.css can tint it as a grouped panel (see §4 sidebar styles).
+      className: 'bpsGsPath bpsGsPath--first',
       link: {type: 'doc', id: 'get-started/index'},
       collapsed: true,
       items: [
@@ -42,6 +45,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'About Bluesky Content',
+      className: 'bpsGsPath',
       link: {type: 'doc', id: 'about-bluesky-content/index'},
       items: [
         'about-bluesky-content/video',
@@ -53,7 +57,7 @@ const sidebars = {
         'intent-links',
       ],
     },
-    {type: 'link', label: 'Tutorials', href: 'https://atproto.com/guides/tutorials'},
+    {type: 'link', label: 'Tutorials', href: 'https://atproto.com/guides/tutorials', className: 'bpsGsPath bpsGsPath--last'},
     {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-backfill', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop'] },
     {type: 'category', label: 'Relay', link: {type: 'doc', id: 'relay'}, items: ['consuming-the-firehose']},
     // A few related docs are nested under a parent doc to keep the top level
