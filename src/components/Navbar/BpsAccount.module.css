@@ -44,26 +44,29 @@
   text-decoration: none;
 }
 
-/* ── Icon-only sign-in button (anon) ─────────────────────────────────────── */
+/* ── Icon-only sign-in link (anon) ───────────────────────────────────────── */
 
-.iconBtn {
+.iconLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: none;
+  /* 2rem × 2rem circular hit area — matches the color-mode toggle's geometry */
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
   background: none;
   padding: 0;
-  cursor: pointer;
   color: var(--bps-nav-ink-soft);
-  transition: color 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+  /* Match the color-mode toggle's transition */
+  transition: background var(--ifm-transition-fast), color 0.15s ease;
 }
 
-.iconBtn:hover {
+.iconLink:hover {
+  /* Identical to the ColorModeToggle's .toggleButton:hover */
+  background: var(--ifm-color-emphasis-200);
   color: var(--bps-nav-hover);
-  background: color-mix(in srgb, var(--bps-nav-hover) 10%, transparent);
+  text-decoration: none;
 }
 
 /* ── Resolving placeholder ───────────────────────────────────────────────── */
@@ -126,122 +129,6 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-}
-
-/* ── Sign-in popover ─────────────────────────────────────────────────────── */
-
-.popoverAnchor {
-  position: relative;
-}
-
-.popover {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  z-index: 500;
-  min-width: 240px;
-  background: var(--bps-nav-bg);
-  border: 1px solid var(--bps-nav-rule);
-  border-radius: 8px;
-  padding: 14px 14px 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  /* Tiny upward caret */
-  animation: bpsPopoverIn 0.14s ease-out;
-}
-
-.popover::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  right: 14px;
-  width: 9px;
-  height: 9px;
-  background: var(--bps-nav-bg);
-  border-top: 1px solid var(--bps-nav-rule);
-  border-left: 1px solid var(--bps-nav-rule);
-  transform: rotate(45deg);
-}
-
-@keyframes bpsPopoverIn {
-  from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.popoverLabel {
-  display: block;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--bps-nav-muted);
-  margin-bottom: 8px;
-}
-
-.popoverRow {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.handleInput {
-  flex: 1;
-  height: 32px;
-  padding: 0 9px;
-  background: var(--bps-nav-surface);
-  border: 1px solid var(--bps-nav-rule);
-  border-radius: 5px;
-  color: var(--bps-nav-ink);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-  font-weight: 500;
-  outline: none;
-  transition: border-color 0.12s ease;
-}
-
-.handleInput::placeholder {
-  color: var(--bps-nav-muted);
-  font-weight: 400;
-}
-
-.handleInput:focus {
-  border-color: var(--bps-nav-hover);
-  background: var(--bps-nav-surface-hover);
-}
-
-.goBtn {
-  height: 32px;
-  padding: 0 10px;
-  background: var(--bps-nav-hover);
-  border: none;
-  border-radius: 5px;
-  color: var(--bps-nav-on-accent, #fff);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: opacity 0.12s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.goBtn:hover { opacity: 0.85; }
-.goBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.popoverError {
-  margin-top: 7px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--bps-nav-error, #c0392b);
-  letter-spacing: 0.02em;
-}
-
-/* Light-mode popover surface adjustments */
-html[data-theme='light'] .popover {
-  box-shadow: 0 8px 24px rgba(13, 17, 23, 0.14);
 }
 
 /* ── Mobile drawer variant ───────────────────────────────────────────────── */

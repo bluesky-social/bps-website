@@ -349,12 +349,12 @@ html[data-theme='dark'] .emailInput::placeholder {
 }
 
 .emailInput:focus {
-  border-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary-darkest);
   background: var(--ifm-background-surface-color, #fff);
 }
 
 html[data-theme='dark'] .emailInput:focus {
-  border-color: #3994ff;
+  border-color: #1cabf8;
   background: #161c26;
 }
 
@@ -374,7 +374,7 @@ html[data-theme='dark'] .emailInput.emailInputError {
 .emailSaveBtn {
   height: 38px;
   padding: 0 16px;
-  background: var(--ifm-color-primary);
+  background: var(--ifm-color-primary-darkest);
   border: none;
   border-radius: 6px;
   color: #fff;

@@ -17,7 +17,7 @@
  * status is 'resolving' — the ghost placeholder renders, which is stable.
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState } from 'react'
 import Link from '@docusaurus/Link'
 import { useNavbarMobileSidebar } from '@docusaurus/theme-common/internal'
 import { useAuth } from '@site/src/auth/AuthContext'
@@ -53,103 +53,10 @@ function Avatar({ src, handle, className, fallbackClassName }) {
   )
 }
 
-// ── Sign-in popover (desktop) ─────────────────────────────────────────────────
-
-function SignInPopover({ onClose, onSubmit }) {
-  const [handle, setHandle] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-  const inputRef = useRef(null)
-  const popoverRef = useRef(null)
-
-  // Auto-focus the input when the popover opens
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
-
-  // Close on outside click
-  useEffect(() => {
-    function handleClick(e) {
-      if (popoverRef.current && !popoverRef.current.contains(e.target)) {
-        onClose()
-      }
-    }
-    // Delay so the open-click doesn't immediately close
-    const id = setTimeout(() => document.addEventListener('mousedown', handleClick), 0)
-    return () => {
-      clearTimeout(id)
-      document.removeEventListener('mousedown', handleClick)
-    }
-  }, [onClose])
-
-  // Close on Escape
-  useEffect(() => {
-    function handleKey(e) {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
-
-  async function handleSubmit(e) {
-    e.preventDefault()
-    const h = handle.trim()
-    if (!h) return
-    setLoading(true)
-    setError(null)
-    try {
-      await onSubmit(h)
-      // signIn redirects; if it returns, treat as success (nothing to do)
-    } catch (err) {
-      setError(err?.message || 'Could not sign in. Check your handle and try again.')
-      setLoading(false)
-    }
-  }
-
-  return (
-    <div className={styles.popover} ref={popoverRef} role="dialog" aria-label="Sign in">
-      <span className={styles.popoverLabel}>Handle</span>
-      <form className={styles.popoverRow} onSubmit={handleSubmit}>
-        <input
-          ref={inputRef}
-          className={styles.handleInput}
-          type="text"
-          placeholder="you.bsky.social"
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          aria-label="Handle"
-          autoComplete="off"
-          autoCapitalize="none"
-          spellCheck={false}
-          disabled={loading}
-        />
-        <button
-          type="submit"
-          className={styles.goBtn}
-          disabled={loading || !handle.trim()}
-        >
-          {loading ? '…' : 'Go →'}
-        </button>
-      </form>
-      {error && <div className={styles.popoverError}>{error}</div>}
-    </div>
-  )
-}
-
 // ── Desktop bar rendering ─────────────────────────────────────────────────────
 
 function DesktopAccount() {
-  const { status, handle, profile, signIn } = useAuth()
-  const [popoverOpen, setPopoverOpen] = useState(false)
-
-  const handleSignIn = useCallback(
-    async (handle) => {
-      await signIn(handle)
-    },
-    [signIn],
-  )
-
-  const closePopover = useCallback(() => setPopoverOpen(false), [])
+  const { status, handle, profile } = useAuth()
 
   // resolving — show optimistic avatar if available, otherwise ghost circle
   if (status === 'resolving') {
@@ -176,24 +83,18 @@ function DesktopAccount() {
     )
   }
 
-  // anon — icon-only sign-in button; clicking opens SignInPopover
+  // anon — icon-only link to /account (sign-in happens on that page)
   if (status === 'anon') {
     return (
-      <div className={`${styles.slot} ${styles.popoverAnchor}`}>
-        <button
-          type="button"
-          className={styles.iconBtn}
-          onClick={() => setPopoverOpen((v) => !v)}
-          aria-expanded={popoverOpen}
-          aria-haspopup="dialog"
+      <div className={styles.slot}>
+        <Link
+          to="/account"
+          className={styles.iconLink}
           aria-label="Sign in"
           title="Sign in"
         >
           <SignInIcon className={styles.signInIcon} />
-        </button>
-        {popoverOpen && (
-          <SignInPopover onClose={closePopover} onSubmit={handleSignIn} />
-        )}
+        </Link>
       </div>
     )
   }

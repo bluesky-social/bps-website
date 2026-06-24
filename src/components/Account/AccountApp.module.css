@@ -123,19 +123,6 @@ html[data-theme='dark'] .anonContainer {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
-.anonIcon {
-  width: 44px;
-  height: 44px;
-  margin-bottom: 1.25rem;
-  color: var(--ifm-color-primary);
-  opacity: 0.7;
-}
-
-.anonIcon svg {
-  width: 100%;
-  height: 100%;
-}
-
 .anonTitle {
   font-family: var(--ifm-font-family-base);
   font-size: 1.25rem;
@@ -220,12 +207,12 @@ html[data-theme='dark'] .handleInput::placeholder {
 }
 
 .handleInput:focus {
-  border-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary-darkest);
   background: var(--ifm-background-surface-color, #fff);
 }
 
 html[data-theme='dark'] .handleInput:focus {
-  border-color: #3994ff;
+  border-color: #1cabf8;
   background: #161c26;
 }
 
@@ -237,7 +224,7 @@ html[data-theme='dark'] .handleInput:focus {
 .signInBtn {
   height: 38px;
   padding: 0 16px;
-  background: var(--ifm-color-primary);
+  background: var(--ifm-color-primary-darkest);
   border: none;
   border-radius: 6px;
   color: #fff;

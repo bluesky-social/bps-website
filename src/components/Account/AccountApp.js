@@ -85,20 +85,6 @@ function SignInPrompt() {
   return (
     <div className={styles.wrap}>
       <div className={styles.anonContainer}>
-        <div className={styles.anonIcon} aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-        </div>
-
         <h1 className={styles.anonTitle}>Sign in to manage your account</h1>
         <p className={styles.anonLede}>
           Continue using your Atmosphere account.
@@ -116,6 +102,7 @@ function SignInPrompt() {
               placeholder="you.bsky.social"
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
+              autoFocus
               autoComplete="username"
               autoCapitalize="none"
               spellCheck={false}

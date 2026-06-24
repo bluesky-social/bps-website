@@ -108,12 +108,12 @@ html[data-theme='dark'] .textInput::placeholder {
 }
 
 .textInput:focus {
-  border-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary-darkest);
   background: var(--ifm-background-surface-color, #fff);
 }
 
 html[data-theme='dark'] .textInput:focus {
-  border-color: #3994ff;
+  border-color: #1cabf8;
   background: #161c26;
 }
 
@@ -160,11 +160,11 @@ html[data-theme='dark'] .select {
 }
 
 .select:focus {
-  border-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary-darkest);
 }
 
 html[data-theme='dark'] .select:focus {
-  border-color: #3994ff;
+  border-color: #1cabf8;
 }
 
 .select:disabled {
@@ -176,7 +176,7 @@ html[data-theme='dark'] .select:focus {
   align-self: flex-start;
   height: 36px;
   padding: 0 18px;
-  background: var(--ifm-color-primary);
+  background: var(--ifm-color-primary-darkest);
   border: none;
   border-radius: 6px;
   color: #fff;
@@ -344,7 +344,7 @@ html[data-theme='dark'] .secretValue {
   flex-shrink: 0;
   height: 40px;
   padding: 0 14px;
-  background: var(--ifm-color-primary);
+  background: var(--ifm-color-primary-darkest);
   border: none;
   border-radius: 6px;
   color: #fff;
