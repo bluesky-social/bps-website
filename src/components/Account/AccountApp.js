@@ -4,7 +4,7 @@
  * Consumes useAuth() and switches on status:
  *   resolving → skeleton screen
  *   anon      → sign-in prompt (reuses the same handle-entry pattern as BpsAccount)
- *   authed    → ProfileHeader + EmailSection (+ TODO: ApiKeysSection, DangerZone)
+ *   authed    → ProfileCard (identity + email) + ApiKeysSection + DangerZone
  *
  * This component is ONLY ever rendered inside a <BrowserOnly> subtree (via
  * account.js), so it's safe to call useAuth() here without SSR guards.
@@ -12,8 +12,7 @@
 
 import React, { useState } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
-import ProfileHeader from './ProfileHeader'
-import EmailSection from './EmailSection'
+import ProfileCard from './ProfileCard'
 import ApiKeysSection from './ApiKeysSection'
 import DangerZone from './DangerZone'
 import styles from './AccountApp.module.css'
@@ -152,11 +151,7 @@ function AuthedView() {
   return (
     <div className={styles.wrap}>
       <div className={styles.container}>
-        <ProfileHeader />
-
-        <div className={styles.divider} />
-
-        <EmailSection />
+        <ProfileCard />
 
         <div className={styles.divider} />
 
