@@ -21,21 +21,24 @@ relay — it crawls the PDSes for you, verifies what they send, and re-broadcast
 everything as one ordered, de-duplicated stream.
 
 ```
-   ┌────────┐   ┌────────┐   ┌────────┐         thousands of PDSes,
-   │  PDS   │   │  PDS   │   │  PDS   │  ...     each streaming its own
-   └───┬────┘   └───┬────┘   └───┬────┘          repo events
-       │            │            │
-       └────────────┼────────────┘
-                    ▼
-              ┌───────────┐               the Relay aggregates, verifies,
-              │   Relay   │               and de-duplicates them into one
-              └─────┬─────┘               ordered stream
-                    ▼
-          com.atproto.sync.subscribeRepos     ← the firehose
-                    │
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
-   feed gens     labelers      bots, search, your app
+  +---------+   +---------+   +---------+         thousands of PDSes,
+  |   PDS   |   |   PDS   |   |   PDS   | ...     each streaming its own
+  +----+----+   +----+----+   +----+----+         repo events
+       |             |             |
+       +-------------+-------------+
+                     |
+                     v
+               +-----------+                      the Relay aggregates, verifies,
+               |   Relay   |                      and de-duplicates them into one
+               +-----+-----+                      ordered stream
+                     |
+                     v
+      com.atproto.sync.subscribeRepos     <- the firehose
+                     |
+       +-------------+-------------+
+       |             |             |
+       v             v             v
+   feed gens     labelers        bots, search, your app
 ```
 
 A relay does **not** interpret the records flowing through it — it doesn't know

@@ -203,6 +203,20 @@ const config = {
             external: true,
           },
           {
+            // Middot separator between GitHub and the AT Protocol link.
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // "AT Protocol" → the broader protocol site, outbound.
+            type: "custom-navLink",
+            position: "right",
+            label: "AT Protocol",
+            href: "https://atproto.com",
+            external: true,
+          },
+          {
             // Trailing vertical divider before the auto-appended theme toggle
             // (prototype's version-stamp border-left).
             type: "custom-navSep",
@@ -269,6 +283,10 @@ const config = {
               {
                 label: "GitHub",
                 href: "https://github.com/bluesky-social",
+              },
+              {
+                label: "Blog",
+                href: "https://atproto.com/blog",
               },
             ],
           },
