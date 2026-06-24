@@ -43,25 +43,6 @@ async function cookie(): Promise<string> {
   return `${SESSION_COOKIE_NAME}=${await sealData({ did }, { password: cfg.ironSessionPassword })}`
 }
 
-test('setEmail rejects a malformed address', async () => {
-  const res = await fetch(`${base}/xrpc/internal.bps.account.setEmail`, {
-    method: 'POST', headers: { 'content-type': 'application/json', cookie: await cookie() }, body: JSON.stringify({ email: 'nope' }),
-  })
-  assert.equal(res.status, 400)
-})
-
-test('setEmail stores the email and whoami reflects hasEmail', async () => {
-  const c = await cookie()
-  const set = await fetch(`${base}/xrpc/internal.bps.account.setEmail`, {
-    method: 'POST', headers: { 'content-type': 'application/json', cookie: c }, body: JSON.stringify({ email: 'a@b.co' }),
-  })
-  assert.equal(set.status, 200)
-  const who = await fetch(`${base}/xrpc/internal.bps.account.whoami`, { headers: { cookie: c } })
-  assert.equal(((await who.json()) as { hasEmail: boolean }).hasEmail, true)
-  const row = await db.selectFrom('account').select('email').where('did', '=', did).executeTakeFirstOrThrow()
-  assert.equal(row.email, 'a@b.co')
-})
-
 test('delete removes the account + its keys and whoami then 401s', async () => {
   const c = await cookie()
   // seed a key so cascade is exercised

@@ -1,6 +1,5 @@
 import { LexRouter, LexServerError, LexServerAuthError } from '@atproto/lex-server'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
-import { sql } from 'kysely'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from './db/index.ts'
@@ -157,23 +156,6 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     auth: requireSession,
     handler: async ({ credentials, input }) => {
       await apiKeys.deleteKey(credentials.did, input.body.id)
-      return { body: { ok: true } }
-    },
-  })
-
-  // setEmail — store-only, unverified. Minimal shape check.
-  router.add(internal.bps.account.setEmail.main, {
-    auth: requireSession,
-    handler: async ({ credentials, input }) => {
-      const email = input.body.email.trim()
-      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        throw new LexServerError(400, { error: 'InvalidEmail', message: 'Enter a valid email address.' })
-      }
-      await db
-        .updateTable('account')
-        .set({ email, updated_at: sql`now()` })
-        .where('did', '=', credentials.did)
-        .execute()
       return { body: { ok: true } }
     },
   })
