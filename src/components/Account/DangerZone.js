@@ -65,7 +65,7 @@ function ConsequenceList() {
             <path d="M5.5 8l2 2 3.5-3.5" />
           </svg>
         </span>
-        Your Bluesky OAuth access token will be revoked
+        Your atproto OAuth session will be revoked
       </li>
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">

@@ -119,6 +119,38 @@ html[data-theme='dark'] .handle {
   color: #8893a2;
 }
 
+/* ── Sign out — quiet text button, pushed to the right of the identity row ─ */
+
+.signOutBtn {
+  margin-left: auto;
+  align-self: flex-start;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.78rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-600);
+  transition: color 0.12s ease;
+}
+.signOutBtn:hover {
+  color: var(--ifm-color-primary);
+}
+.signOutBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+html[data-theme='dark'] .signOutBtn {
+  color: #5a6473;
+}
+html[data-theme='dark'] .signOutBtn:hover {
+  color: #7dd3fc;
+}
+
 /* ── Inner rule — quieter than the page divider ─────────────────────────── */
 
 /*

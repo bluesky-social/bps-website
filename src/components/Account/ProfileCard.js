@@ -247,12 +247,21 @@ function NoEmailRow() {
 // ── ProfileCard ───────────────────────────────────────────────────────────────
 
 export default function ProfileCard() {
-  const { handle: whoamiHandle, did, profile, hasEmail, email } = useAuth()
+  const { handle: whoamiHandle, did, profile, hasEmail, email, logout } = useAuth()
+  const [signingOut, setSigningOut] = useState(false)
 
   const rawHandle = (whoamiHandle ?? profile?.handle) ?? ''
   const handle = rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle
   const displayName = profile?.displayName || handle || did || null
   const avatar = profile?.avatar || null
+
+  const handleSignOut = useCallback(async () => {
+    if (signingOut) return
+    setSigningOut(true)
+    // logout() resets local state to anon + clears the hint even if the network
+    // call fails; the nav/page react to the state change. No redirect needed.
+    await logout()
+  }, [signingOut, logout])
 
   return (
     <section className={styles.card} aria-labelledby="profile-card-name">
@@ -269,6 +278,14 @@ export default function ProfileCard() {
             <span className={styles.handle}>@{handle}</span>
           )}
         </div>
+        <button
+          type="button"
+          className={styles.signOutBtn}
+          onClick={handleSignOut}
+          disabled={signingOut}
+        >
+          {signingOut ? 'Signing out…' : 'Sign out'}
+        </button>
       </div>
 
       {/* Intra-card rule — quieter than the page divider */}
