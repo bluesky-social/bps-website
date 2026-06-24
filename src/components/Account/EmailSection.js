@@ -50,9 +50,9 @@ function SectionHeading({ id, children }) {
  *   onCancel    — optional; shows a cancel link when provided
  *   submitLabel — text for the submit button (default: "Save email")
  */
-function EmailForm({ onSuccess, onCancel, submitLabel = 'Save email' }) {
+function EmailForm({ onSuccess, onCancel, submitLabel = 'Save email', initialEmail = '' }) {
   const { client, refresh } = useAuth()
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(initialEmail)
   const [status, setStatus] = useState('idle') // idle | submitting | success | error
   const [errorMsg, setErrorMsg] = useState(null)
 
@@ -187,7 +187,7 @@ function NoEmailView() {
 
 // ── Has-email state ──────────────────────────────────────────────────────────
 
-function HasEmailView() {
+function HasEmailView({ email }) {
   const [expanded, setExpanded] = useState(false)
 
   function handleSuccess() {
@@ -214,7 +214,9 @@ function HasEmailView() {
               <circle cx="10" cy="10" r="8" />
               <polyline points="6.5 10.5 9 13 13.5 8" />
             </svg>
-            <span className={styles.emailStatusText}>Email on file</span>
+            {/* Show the actual address when we have it; fall back to a generic
+                label if whoami didn't carry the value for some reason. */}
+            <span className={styles.emailStatusText}>{email || 'Email on file'}</span>
           </div>
 
           <button
@@ -228,6 +230,7 @@ function HasEmailView() {
       ) : (
         <EmailForm
           submitLabel="Update email"
+          initialEmail={email || ''}
           onSuccess={handleSuccess}
           onCancel={() => setExpanded(false)}
         />
@@ -239,6 +242,6 @@ function HasEmailView() {
 // ── Exported component ───────────────────────────────────────────────────────
 
 export default function EmailSection() {
-  const { hasEmail } = useAuth()
-  return hasEmail ? <HasEmailView /> : <NoEmailView />
+  const { hasEmail, email } = useAuth()
+  return hasEmail ? <HasEmailView email={email} /> : <NoEmailView />
 }

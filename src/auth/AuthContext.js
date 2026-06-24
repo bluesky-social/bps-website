@@ -25,7 +25,10 @@ export function AuthProvider({ children }) {
   const client = React.useMemo(() => buildClient(apiOrigin), [apiOrigin])
 
   // Optimistic: start from the last-known hint so returning users don't flash.
-  const [state, setState] = useState({ status: 'resolving', did: null, handle: null, profile: null, hasEmail: false })
+  // NOTE: `email` is the user's own stored email (PII). It lives in in-memory
+  // state from the session-authed whoami response, but is NOT written to the
+  // localStorage hint — the hint stays did/handle/avatar only.
+  const [state, setState] = useState({ status: 'resolving', did: null, handle: null, email: null, profile: null, hasEmail: false })
 
   const refresh = useCallback(async () => {
     try {
@@ -33,10 +36,10 @@ export function AuthProvider({ children }) {
       let profile = null
       try { profile = await client.profile() } catch { /* profile optional; handle still comes from whoami */ }
       const handle = who.handle ?? profile?.handle ?? null
-      setState({ status: 'authed', did: who.did, handle, hasEmail: who.hasEmail, profile })
+      setState({ status: 'authed', did: who.did, handle, email: who.email ?? null, hasEmail: who.hasEmail, profile })
       writeHint({ did: who.did, handle, avatar: profile?.avatar })
     } catch (err) {
-      setState({ status: 'anon', did: null, handle: null, profile: null, hasEmail: false })
+      setState({ status: 'anon', did: null, handle: null, email: null, profile: null, hasEmail: false })
       writeHint(null)
     }
   }, [client])
@@ -47,7 +50,7 @@ export function AuthProvider({ children }) {
     const hint = readHint()
     if (hint?.did) {
       setState((s) => s.status === 'resolving'
-        ? { status: 'resolving', did: hint.did, handle: hint.handle ?? null, profile: { handle: hint.handle, avatar: hint.avatar }, hasEmail: false }
+        ? { status: 'resolving', did: hint.did, handle: hint.handle ?? null, email: null, profile: { handle: hint.handle, avatar: hint.avatar }, hasEmail: false }
         : s)
     }
     refresh()
@@ -60,7 +63,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try { await client.logout() } finally {
-      setState({ status: 'anon', did: null, handle: null, profile: null, hasEmail: false })
+      setState({ status: 'anon', did: null, handle: null, email: null, profile: null, hasEmail: false })
       writeHint(null)
     }
   }, [client])
@@ -70,7 +73,7 @@ export function AuthProvider({ children }) {
   // the backend has already destroyed the session, so a server logout would
   // 401; we just need the client-side state + hint cleared.
   const resetToAnon = useCallback(() => {
-    setState({ status: 'anon', did: null, handle: null, profile: null, hasEmail: false })
+    setState({ status: 'anon', did: null, handle: null, email: null, profile: null, hasEmail: false })
     writeHint(null)
   }, [])
 

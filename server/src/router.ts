@@ -68,7 +68,14 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           Bearer: { realm: 'account' },
         })
       }
-      return { body: { did: credentials.did, ...(row.handle ? { handle: row.handle } : {}), hasEmail: !!row.email } }
+      return {
+        body: {
+          did: credentials.did,
+          ...(row.handle ? { handle: row.handle } : {}),
+          ...(row.email ? { email: row.email } : {}),
+          hasEmail: !!row.email,
+        },
+      }
     },
   })
 

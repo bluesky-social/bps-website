@@ -4,7 +4,7 @@
   "defs": {
     "main": {
       "type": "query",
-      "description": "Return the logged-in account's DID and whether an email is stored.",
+      "description": "Return the logged-in account's DID, handle, stored email, and whether an email is set.",
       "output": {
         "encoding": "application/json",
         "schema": {
@@ -13,6 +13,7 @@
           "properties": {
             "did": { "type": "string", "format": "did" },
             "handle": { "type": "string" },
+            "email": { "type": "string" },
             "hasEmail": { "type": "boolean" }
           }
         }
