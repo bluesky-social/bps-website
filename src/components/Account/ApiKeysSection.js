@@ -293,6 +293,14 @@ function KeyRow({ apiKey, onDelete }) {
     <li className={styles.keyRow}>
       <div className={styles.keyMain}>
         <div className={styles.keyIdentity}>
+          {/* Status dot — green when active, muted red when expired. Replaces
+              the old [ACTIVE]/[EXPIRED] badge box; accessible name carries the
+              status for screen readers. */}
+          <span
+            className={`${styles.statusDot} ${expired ? styles.statusDotExpired : styles.statusDotActive}`}
+            role="img"
+            aria-label={expired ? 'Expired' : 'Active'}
+          />
           <span className={styles.keyLabel}>{apiKey.label}</span>
           <code className={styles.keyPreview}>{apiKey.preview}</code>
         </div>
@@ -308,12 +316,6 @@ function KeyRow({ apiKey, onDelete }) {
             <span className={styles.keyMetaValue}>
               {apiKey.expiresAt ? formatDate(apiKey.expiresAt) : 'Never'}
             </span>
-          </span>
-          <span className={styles.keyMetaSep} aria-hidden="true" />
-          <span
-            className={`${styles.keyStatus} ${expired ? styles.keyStatusExpired : styles.keyStatusActive}`}
-          >
-            {expired ? 'Expired' : 'Active'}
           </span>
         </div>
       </div>

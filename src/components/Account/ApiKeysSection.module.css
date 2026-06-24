@@ -711,38 +711,32 @@ html[data-theme='dark'] .keyMetaSep {
   background: #5a6473;
 }
 
-.keyStatus {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.64rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  padding: 1px 6px;
-  border-radius: 3px;
+/* Status dot — leads the key label. Green = active, red = expired. Replaces
+ * the old text badge box; the status name is on the element's aria-label. */
+.statusDot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  /* nudge to sit on the label's optical center within the baseline row */
+  align-self: center;
 }
 
-.keyStatusActive {
-  background: color-mix(in srgb, #2e9e57 12%, transparent);
-  color: #2e7d46;
-  border: 1px solid color-mix(in srgb, #2e9e57 25%, transparent);
+.statusDotActive {
+  background: #2e9e57;
 }
 
-html[data-theme='dark'] .keyStatusActive {
-  color: #3fb950;
-  background: color-mix(in srgb, #3fb950 10%, transparent);
-  border-color: color-mix(in srgb, #3fb950 22%, transparent);
+html[data-theme='dark'] .statusDotActive {
+  background: #3fb950;
 }
 
-.keyStatusExpired {
-  background: color-mix(in srgb, #d0454c 10%, transparent);
-  color: #b53c43;
-  border: 1px solid color-mix(in srgb, #d0454c 22%, transparent);
+.statusDotExpired {
+  background: #d0454c;
 }
 
-html[data-theme='dark'] .keyStatusExpired {
-  color: #ff7b72;
-  background: color-mix(in srgb, #ff7b72 8%, transparent);
-  border-color: color-mix(in srgb, #ff7b72 18%, transparent);
+html[data-theme='dark'] .statusDotExpired {
+  background: #ff7b72;
 }
 
 /* ── Key row actions ────────────────────────────────────────────────────── */
