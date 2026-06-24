@@ -139,7 +139,7 @@ function SignInPopover({ onClose, onSubmit }) {
 // ── Desktop bar rendering ─────────────────────────────────────────────────────
 
 function DesktopAccount() {
-  const { status, profile, signIn } = useAuth()
+  const { status, handle, profile, signIn } = useAuth()
   const [popoverOpen, setPopoverOpen] = useState(false)
 
   const handleSignIn = useCallback(
@@ -153,19 +153,20 @@ function DesktopAccount() {
 
   // resolving — show optimistic hint if available, otherwise ghost skeleton
   if (status === 'resolving') {
-    if (profile?.handle) {
+    const resolvingHandle = handle ?? profile?.handle
+    if (resolvingHandle) {
       // Optimistic: returning user — show their last-known state so no flash
       return (
         <div className={styles.slot} aria-label="Loading account…" aria-busy="true">
           <span className={styles.pill} style={{ opacity: 0.55 }}>
             <Avatar
-              src={profile.avatar}
-              handle={profile.handle}
+              src={profile?.avatar}
+              handle={resolvingHandle}
               className={styles.avatar}
               fallbackClassName={styles.avatarFallback}
             />
             <span className={styles.handleText}>
-              {profile.handle.startsWith('@') ? profile.handle.slice(1) : profile.handle}
+              {resolvingHandle.startsWith('@') ? resolvingHandle.slice(1) : resolvingHandle}
             </span>
           </span>
         </div>
@@ -203,8 +204,9 @@ function DesktopAccount() {
   }
 
   // authed
-  const displayHandle = profile?.handle
-    ? (profile.handle.startsWith('@') ? profile.handle.slice(1) : profile.handle)
+  const rawHandle = handle ?? profile?.handle
+  const displayHandle = rawHandle
+    ? (rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle)
     : '…'
 
   return (
@@ -216,7 +218,7 @@ function DesktopAccount() {
       >
         <Avatar
           src={profile?.avatar}
-          handle={profile?.handle}
+          handle={rawHandle}
           className={styles.avatar}
           fallbackClassName={styles.avatarFallback}
         />
@@ -229,10 +231,10 @@ function DesktopAccount() {
 // ── Mobile drawer rendering ───────────────────────────────────────────────────
 
 function MobileAccount() {
-  const { status, profile, signIn } = useAuth()
+  const { status, handle, profile, signIn } = useAuth()
   const mobileSidebar = useNavbarMobileSidebar()
   const [mobileExpanded, setMobileExpanded] = useState(false)
-  const [handle, setHandle] = useState('')
+  const [inputHandle, setInputHandle] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -240,7 +242,7 @@ function MobileAccount() {
 
   async function handleMobileSubmit(e) {
     e.preventDefault()
-    const h = handle.trim()
+    const h = inputHandle.trim()
     if (!h) return
     setLoading(true)
     setError(null)
@@ -253,17 +255,18 @@ function MobileAccount() {
   }
 
   if (status === 'resolving') {
-    if (profile?.handle) {
-      const displayHandle = profile.handle.startsWith('@')
-        ? profile.handle.slice(1)
-        : profile.handle
+    const resolvingHandle = handle ?? profile?.handle
+    if (resolvingHandle) {
+      const displayHandle = resolvingHandle.startsWith('@')
+        ? resolvingHandle.slice(1)
+        : resolvingHandle
       return (
         <li className="menu__list-item">
           <span className="menu__link" style={{ opacity: 0.55 }}>
             <span className={styles.mobileItem}>
               <Avatar
-                src={profile.avatar}
-                handle={profile.handle}
+                src={profile?.avatar}
+                handle={resolvingHandle}
                 className={styles.mobileAvatar}
                 fallbackClassName={styles.mobileAvatarFallback}
               />
@@ -296,8 +299,8 @@ function MobileAccount() {
                 className={styles.handleInput}
                 type="text"
                 placeholder="you.bsky.social"
-                value={handle}
-                onChange={(e) => setHandle(e.target.value)}
+                value={inputHandle}
+                onChange={(e) => setInputHandle(e.target.value)}
                 aria-label="Bluesky handle"
                 autoComplete="off"
                 autoCapitalize="none"
@@ -307,7 +310,7 @@ function MobileAccount() {
               <button
                 type="submit"
                 className={styles.goBtn}
-                disabled={loading || !handle.trim()}
+                disabled={loading || !inputHandle.trim()}
               >
                 {loading ? 'Signing in…' : 'Sign in →'}
               </button>
@@ -334,8 +337,9 @@ function MobileAccount() {
   }
 
   // authed
-  const displayHandle = profile?.handle
-    ? (profile.handle.startsWith('@') ? profile.handle.slice(1) : profile.handle)
+  const rawHandle = handle ?? profile?.handle
+  const displayHandle = rawHandle
+    ? (rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle)
     : '…'
 
   return (
@@ -348,7 +352,7 @@ function MobileAccount() {
         <span className={styles.mobileItem}>
           <Avatar
             src={profile?.avatar}
-            handle={profile?.handle}
+            handle={rawHandle}
             className={styles.mobileAvatar}
             fallbackClassName={styles.mobileAvatarFallback}
           />

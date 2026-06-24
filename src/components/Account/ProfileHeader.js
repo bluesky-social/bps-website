@@ -46,11 +46,11 @@ function Avatar({ src, handle }) {
 }
 
 export default function ProfileHeader() {
-  const { profile } = useAuth()
+  const { handle: whoamiHandle, did, profile } = useAuth()
 
-  const rawHandle = profile?.handle ?? ''
+  const rawHandle = (whoamiHandle ?? profile?.handle) ?? ''
   const handle = rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle
-  const displayName = profile?.displayName || null
+  const displayName = profile?.displayName || handle || did || null
   const avatar = profile?.avatar || null
 
   return (
@@ -61,9 +61,9 @@ export default function ProfileHeader() {
 
       <div className={styles.identity}>
         <span className={styles.displayName}>
-          {displayName || (handle ? `@${handle}` : 'Unknown')}
+          {displayName || 'Unknown'}
         </span>
-        {displayName && handle && (
+        {handle && (
           <span className={styles.handle}>@{handle}</span>
         )}
       </div>
