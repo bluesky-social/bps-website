@@ -12,6 +12,7 @@ import { makeRequireSession } from './session/auth.ts'
 import { clearCookieHeader } from './session/cookie.ts'
 import * as internal from './lexicons/internal.ts'
 import { fetchProfile } from './account/profile.ts'
+import { refreshEmailIfStale } from './account/refresh-email.ts'
 
 export type RouterDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
 
@@ -59,7 +60,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     handler: async ({ credentials }) => {
       const row = await db
         .selectFrom('account')
-        .select(['did', 'handle', 'email'])
+        .select(['did', 'handle', 'email', 'updated_at'])
         .where('did', '=', credentials.did)
         .executeTakeFirst()
       if (!row) {
@@ -68,12 +69,16 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           Bearer: { realm: 'account' },
         })
       }
+      // account.email mirrors the PDS email. If the row is older than the TTL, opportunistically
+      // re-observe + update it. Best-effort and off the critical path: never throws, whoami
+      // always serves a value (the refreshed one if it changed, else the stored one).
+      const email = await refreshEmailIfStale(db, credentials.did, row, () => client.restore(credentials.did))
       return {
         body: {
           did: credentials.did,
           ...(row.handle ? { handle: row.handle } : {}),
-          ...(row.email ? { email: row.email } : {}),
-          hasEmail: !!row.email,
+          ...(email ? { email } : {}),
+          hasEmail: !!email,
         },
       }
     },
