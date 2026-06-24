@@ -12,6 +12,7 @@ export type AppConfig = {
   cookieSecure: boolean
   cookieSameSite: 'lax' | 'none'
   devMode: boolean
+  appViewUrl: string
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -58,6 +59,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const cookieSecure = isProd || !apiIsHttp
   const cookieSameSite: 'lax' | 'none' = isProd ? 'none' : 'lax'
 
+  const appViewUrl = (env.BPS_APPVIEW_URL?.trim() || 'https://public.api.bsky.app').replace(/\/$/, '')
+
   if (errors.length > 0) {
     throw new Error(`Invalid configuration:\n  - ${errors.join('\n  - ')}`)
   }
@@ -76,5 +79,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     cookieSecure,
     cookieSameSite,
     devMode: !isProd,
+    appViewUrl,
   }
 }

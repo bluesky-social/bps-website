@@ -8,6 +8,7 @@ type Timestamp = ColumnType<Date, Date | string | undefined, Date | string>
 
 export interface AccountTable {
   did: DidString
+  handle: string | null
   email: string | null
   created_at: Timestamp
   updated_at: Timestamp

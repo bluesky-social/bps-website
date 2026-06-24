@@ -72,3 +72,13 @@ test('loadConfig requires a private key in production', () => {
     /BPS_OAUTH_PRIVATE_KEY/,
   )
 })
+
+test('loadConfig defaults appViewUrl to the public AppView', () => {
+  const cfg = loadConfig(valid)
+  assert.equal(cfg.appViewUrl, 'https://public.api.bsky.app')
+})
+
+test('loadConfig honors BPS_APPVIEW_URL override', () => {
+  const cfg = loadConfig({ ...valid, BPS_APPVIEW_URL: 'https://appview.example' })
+  assert.equal(cfg.appViewUrl, 'https://appview.example')
+})
