@@ -59,7 +59,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     handler: async ({ credentials }) => {
       const row = await db
         .selectFrom('account')
-        .select(['did', 'email'])
+        .select(['did', 'handle', 'email'])
         .where('did', '=', credentials.did)
         .executeTakeFirst()
       if (!row) {
@@ -68,7 +68,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           Bearer: { realm: 'account' },
         })
       }
-      return { body: { did: credentials.did, hasEmail: !!row.email } }
+      return { body: { did: credentials.did, ...(row.handle ? { handle: row.handle } : {}), hasEmail: !!row.email } }
     },
   })
 

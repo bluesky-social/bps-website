@@ -12,6 +12,7 @@
           "required": ["did", "hasEmail"],
           "properties": {
             "did": { "type": "string", "format": "did" },
+            "handle": { "type": "string" },
             "hasEmail": { "type": "boolean" }
           }
         }
