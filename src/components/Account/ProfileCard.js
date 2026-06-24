@@ -235,6 +235,20 @@ function EmailLine({ hasEmail, email, onEdit }) {
   if (hasEmail) {
     return (
       <span className={styles.emailLine}>
+        {/* Envelope icon preceding the address */}
+        <svg
+          className={styles.emailIcon}
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="2" y="5" width="16" height="11" rx="2" />
+          <polyline points="2 7 10 12 18 7" />
+        </svg>
         <span className={styles.emailAddress}>{email || 'Email on file'}</span>
         <button
           type="button"

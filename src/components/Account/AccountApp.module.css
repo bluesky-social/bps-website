@@ -26,13 +26,9 @@
 
 .divider {
   height: 1px;
-  background: var(--ifm-color-emphasis-200);
+  background: var(--bps-account-divider);
   margin-top: 1.25rem;
   margin-bottom: 2rem;
-}
-
-html[data-theme='dark'] .divider {
-  background: #2a3340;
 }
 
 /* ── Skeleton — shared pulse animation ──────────────────────────────────── */
@@ -139,7 +135,8 @@ html[data-theme='dark'] .anonTitle {
 
 .anonLede {
   font-size: 0.9rem;
-  color: var(--ifm-color-emphasis-700);
+  /* Item 7: darker for light-mode contrast (was emphasis-700). */
+  color: var(--ifm-color-emphasis-800);
   margin: 0 0 1.75rem;
   line-height: 1.6;
 }
@@ -275,7 +272,8 @@ html[data-theme='dark'] .anonError {
 
 .anonNote {
   font-size: 0.78rem;
-  color: var(--ifm-color-emphasis-500);
+  /* Item 7: darker for light-mode contrast (was emphasis-500). */
+  color: var(--ifm-color-emphasis-600);
   margin: 1rem 0 0;
   line-height: 1.5;
 }
@@ -300,9 +298,12 @@ html[data-theme='dark'] .anonNote {
     align-items: stretch;
   }
 
-  /* Explicit full-width so the handle input fills the stacked column (it was
-   * rendering short on mobile). */
+  /* Explicit full-width so the handle input fills the stacked column. Reset
+   * flex:1 → none: in a COLUMN flex, `flex:1` (flex-basis:0%) governs the main
+   * (vertical) axis and overrode height:38px, collapsing the input to near-zero
+   * height ("short input"). flex:none lets the explicit height apply. */
   .handleInput {
+    flex: none;
     width: 100%;
   }
 

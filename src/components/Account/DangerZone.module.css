@@ -43,6 +43,9 @@ html[data-theme='light'] .section {
 }
 
 html[data-theme='light'] .section {
+  /* Item 6: white body surface so the danger zone reads as a clean card on the
+   * page paper (#f4f6f9), not a dim block. The header re-tints over this. */
+  background: #ffffff;
   border-color: color-mix(in srgb, var(--dz-danger) 28%, #dfe3e8);
   box-shadow: 0 1px 4px rgba(208, 69, 76, 0.08), 0 0 0 0 transparent;
 }

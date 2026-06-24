@@ -101,13 +101,14 @@ html[data-theme='dark'] .displayName {
   color: #f0f6fc;
 }
 
-/* Item 1: handle → Inter (was Atkinson mono) */
+/* Item 1: handle → Inter (was Atkinson mono). Weight 600. */
 .handle {
   font-family: var(--ifm-font-family-base);
   font-size: 0.8rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0;
-  color: var(--ifm-color-emphasis-600);
+  /* Item 7: darker for light-mode contrast (was emphasis-600). */
+  color: var(--ifm-color-emphasis-700);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -127,13 +128,26 @@ html[data-theme='dark'] .handle {
   min-width: 0;
 }
 
+/* Envelope icon preceding the email address */
+.emailIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--ifm-color-emphasis-500);
+}
+
+html[data-theme='dark'] .emailIcon {
+  color: #5a6473;
+}
+
 /* Item 1: email address → Inter (was Atkinson mono) */
 .emailAddress {
   font-family: var(--ifm-font-family-base);
   font-size: 0.8rem;
   font-weight: 400;
   letter-spacing: 0;
-  color: var(--ifm-color-emphasis-600);
+  /* Item 7: darker for light-mode contrast (was emphasis-600). */
+  color: var(--ifm-color-emphasis-700);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

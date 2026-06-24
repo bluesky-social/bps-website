@@ -575,6 +575,9 @@ html[data-theme='dark'] .emptySubtext {
 }
 
 html[data-theme='light'] .keyList {
+  /* Item 6: lift the key list onto a clean white surface so rows don't read as
+   * the dim page paper (#f4f6f9) — matches the white create-form card above. */
+  background: #ffffff;
   border-color: #dfe3e8;
 }
 
@@ -692,7 +695,8 @@ html[data-theme='dark'] .keyMetaLabel {
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 500;
-  color: var(--ifm-color-emphasis-700);
+  /* Item 7: darker for light-mode contrast (was emphasis-700). */
+  color: var(--ifm-color-emphasis-800);
   letter-spacing: 0.01em;
 }
 
@@ -799,9 +803,10 @@ html[data-theme='dark'] .deleteBtn:hover:not(:disabled) {
 }
 
 .confirmLabel {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
+  /* Item: "Delete this key?" in Inter (was Atkinson mono). */
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--ifm-color-emphasis-700);
   white-space: nowrap;
 }
