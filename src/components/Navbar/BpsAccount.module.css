@@ -133,43 +133,8 @@
 
 /* ── Mobile drawer variant ───────────────────────────────────────────────── */
 
-/* The slot element is invisible on mobile; instead we inject the mobile row. */
-@media (max-width: 996px) {
-  .slot {
-    display: none;
-  }
-}
-
-/* Mobile menu item */
-.mobileItem {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.mobileAvatar {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-  border: 1px solid var(--bps-nav-rule);
-  background: var(--bps-nav-surface);
-}
-
-.mobileAvatarFallback {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bps-nav-surface);
-  border: 1px solid var(--bps-nav-rule);
-  color: var(--bps-nav-muted);
-  font-size: 10px;
-  font-weight: 700;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-}
+/* The account control stays in the TOP BAR on mobile too (unlike the other
+ * right-nav items, which move to the hamburger drawer). The `.slot` is NOT
+ * hidden at mobile widths — see custom.css, where it's exempted from the
+ * right-cluster hide rule and kept visible alongside the search icon. The old
+ * mobile drawer row (.mobileItem/.mobileAvatar*) has been removed. */
