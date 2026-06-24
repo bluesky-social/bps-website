@@ -89,13 +89,12 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     },
   })
 
-  // account.profile — fetches the caller's bsky profile live via their OAuth session.
-  // If client.restore(did) throws (session gone / logged out elsewhere) → 500. Acceptable
-  // for v1; a future hardening could catch that and return 401 instead.
+  // account.profile — public bsky profile (handle/displayName/avatar) fetched
+  // unauthenticated from the public AppView. Independent of the user's PDS/scope.
   router.add(internal.bps.account.profile.main, {
     auth: requireSession,
     handler: async ({ credentials }) => {
-      const profile = await fetchProfile(client, credentials.did)
+      const profile = await fetchProfile(config.appViewUrl, credentials.did)
       return { body: profile }
     },
   })

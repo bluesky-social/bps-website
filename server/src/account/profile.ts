@@ -1,15 +1,13 @@
-import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 
 export type Profile = { did: DidString; handle: string; displayName?: string; avatar?: string }
 
-// Fetches the caller's bsky profile live via their restored OAuth session.
-// fetchHandler() makes a DPoP-authed call to the user's PDS, which proxies
-// app.bsky.* reads to the AppView. No caching (v1).
-export async function fetchProfile(client: NodeOAuthClient, did: DidString): Promise<Profile> {
-  const session = await client.restore(did)
-  const res = await session.fetchHandler(
-    `/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`,
+// Profile (handle/displayName/avatar) is PUBLIC data: fetched unauthenticated
+// from the public AppView. No OAuth session, no PDS proxy, no scope — works for
+// any DID and never 403s the way the PDS-proxied path did.
+export async function fetchProfile(appViewUrl: string, did: DidString): Promise<Profile> {
+  const res = await fetch(
+    `${appViewUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`,
   )
   if (!res.ok) {
     throw new Error(`getProfile failed: ${res.status}`)
