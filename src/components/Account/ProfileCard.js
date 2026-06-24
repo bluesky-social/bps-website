@@ -288,8 +288,8 @@ export default function ProfileCard() {
         </button>
       </div>
 
-      {/* Intra-card rule — quieter than the page divider */}
-      <div className={styles.innerRule} role="separator" aria-hidden="true" />
+      {/* Intra-card divider */}
+      <div className={styles.divider} role="separator" aria-hidden="true" />
 
       {/* Email row */}
       {hasEmail ? <HasEmailRow email={email} /> : <NoEmailRow />}

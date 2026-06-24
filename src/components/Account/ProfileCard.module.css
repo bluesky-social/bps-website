@@ -5,7 +5,7 @@
  *
  * Structure:
  *   avatar + displayName + handle
- *   ── inner rule (lighter than page divider) ──
+ *   ── divider (same color as page divider) ──
  *   [envelope]  email-address  Change / Add email
  *
  * Design language: Inter body, Atkinson Hyperlegible Mono for labels/code,
@@ -151,24 +151,16 @@ html[data-theme='dark'] .signOutBtn:hover {
   color: #7dd3fc;
 }
 
-/* ── Inner rule — quieter than the page divider ─────────────────────────── */
+/* ── Intra-card divider — matches the page divider color exactly ─────────── */
 
-/*
- * The aesthetic risk: using a fine inner rule at ~35% of the page divider
- * opacity. It whispers "these two rows are kin" rather than shouting "new
- * section." The email row sits close to identity without being part of it.
- */
-
-.innerRule {
+.divider {
   height: 1px;
   background: var(--ifm-color-emphasis-200);
-  opacity: 0.5;
   margin: 0.75rem 0;
 }
 
-html[data-theme='dark'] .innerRule {
+html[data-theme='dark'] .divider {
   background: #2a3340;
-  opacity: 0.6;
 }
 
 /* ── Email row — shared layout ──────────────────────────────────────────── */
@@ -390,6 +382,7 @@ html[data-theme='dark'] .emailInput.emailInputError {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;
@@ -479,6 +472,20 @@ html[data-theme='dark'] .emailCancelLink:hover:not(:disabled) {
 
   .displayName {
     font-size: 1rem;
+  }
+
+  /* Stack sign-out below the avatar + name group so neither gets cramped */
+  .identity {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .signOutBtn {
+    margin-left: 0;
+    /* Sit left-aligned below the names on very narrow screens */
+    order: 3;
+    flex-basis: 100%;
+    padding-left: calc(46px + 1.125rem); /* avatar width + gap */
   }
 
   .emailRow {

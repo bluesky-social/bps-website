@@ -27,7 +27,8 @@
 .divider {
   height: 1px;
   background: var(--ifm-color-emphasis-200);
-  margin: 2rem 0;
+  margin-top: 1.25rem;
+  margin-bottom: 2rem;
 }
 
 html[data-theme='dark'] .divider {
@@ -244,6 +245,7 @@ html[data-theme='dark'] .handleInput:focus {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;

@@ -11,17 +11,17 @@
 
 .sectionHeading {
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.72rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ifm-color-emphasis-600);
+  color: var(--ifm-color-emphasis-700);
   margin: 0 0 1.25rem;
   padding: 0;
 }
 
 html[data-theme='dark'] .sectionHeading {
-  color: #8893a2;
+  color: #a0aab6;
 }
 
 /* ── Create form ────────────────────────────────────────────────────────── */
@@ -140,6 +140,7 @@ html[data-theme='dark'] .textInput.textInputError {
   font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.8rem;
   font-weight: 600;
+  text-transform: uppercase;
   outline: none;
   cursor: pointer;
   /* Custom arrow via background-image so we control light/dark color */
@@ -183,6 +184,7 @@ html[data-theme='dark'] .select:focus {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
   transition: opacity 0.15s ease, transform 0.1s ease;
@@ -350,6 +352,7 @@ html[data-theme='dark'] .secretValue {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: opacity 0.15s ease, background 0.15s ease, transform 0.1s ease;
   white-space: nowrap;
@@ -402,6 +405,7 @@ html[data-theme='dark'] .copyErrNote {
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   text-align: center;
@@ -536,12 +540,12 @@ html[data-theme='dark'] .emptyIcon {
 }
 
 .emptyText {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.82rem;
+  font-family: var(--ifm-font-family-base);
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--ifm-color-emphasis-700);
   margin: 0;
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
 }
 
 html[data-theme='dark'] .emptyText {
@@ -763,6 +767,7 @@ html[data-theme='dark'] .keyStatusExpired {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   white-space: nowrap;
@@ -820,6 +825,7 @@ html[data-theme='dark'] .confirmLabel {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
   transition: opacity 0.15s ease, transform 0.1s ease;
@@ -853,6 +859,7 @@ html[data-theme='dark'] .confirmYesBtn {
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
   transition: border-color 0.15s ease, color 0.15s ease;

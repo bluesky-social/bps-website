@@ -101,8 +101,7 @@ function SignInPrompt() {
 
         <h1 className={styles.anonTitle}>Sign in to manage your account</h1>
         <p className={styles.anonLede}>
-          Enter your atmosphere account handle to continue with Bluesky Protocol
-          Services.
+          Continue using your Atmosphere account.
         </p>
 
         <form className={styles.anonForm} onSubmit={handleSubmit}>
@@ -138,7 +137,7 @@ function SignInPrompt() {
         </form>
 
         <p className={styles.anonNote}>
-          You'll be redirected to your atmosphere provider to authorize access.
+          You'll be redirected to your identity provider to authorize access.
         </p>
       </div>
     </div>
