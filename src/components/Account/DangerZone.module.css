@@ -24,13 +24,13 @@
 /* ── Danger palette — dark as base, light override (repo pattern) ──────── */
 
 .section {
-  --dz-danger: #da3633;
-  --dz-danger-text: #ff7b72;
+  --dz-danger: var(--bps-danger-dark);
+  --dz-danger-text: var(--bps-danger-text-dark);
 }
 
 html[data-theme='light'] .section {
-  --dz-danger: #d0454c;
-  --dz-danger-text: #c0392b;
+  --dz-danger: var(--bps-danger);
+  --dz-danger-text: var(--bps-danger-text);
 }
 
 /* ── Section wrapper ────────────────────────────────────────────────────── */
@@ -38,7 +38,7 @@ html[data-theme='light'] .section {
 .section {
   border: 1px solid
     color-mix(in srgb, var(--dz-danger) 30%, var(--ifm-color-emphasis-200));
-  border-radius: 10px;
+  border-radius: var(--bps-radius-xl);
   overflow: hidden;
   /* Subtle red ambient shadow in light mode for visual separation */
 }
@@ -46,15 +46,15 @@ html[data-theme='light'] .section {
 html[data-theme='light'] .section {
   /* Item 6: white body surface so the danger zone reads as a clean card on the
    * page paper (#f4f6f9), not a dim block. The header re-tints over this. */
-  background: #ffffff;
-  border-color: color-mix(in srgb, var(--dz-danger) 28%, #dfe3e8);
+  background: var(--bps-white);
+  border-color: color-mix(in srgb, var(--dz-danger) 28%, var(--bps-rule-light));
   box-shadow:
     0 1px 4px rgba(208, 69, 76, 0.08),
     0 0 0 0 transparent;
 }
 
 html[data-theme='dark'] .section {
-  border-color: color-mix(in srgb, var(--dz-danger) 32%, #2a3340);
+  border-color: color-mix(in srgb, var(--dz-danger) 32%, var(--bps-rule-2));
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
@@ -63,25 +63,33 @@ html[data-theme='dark'] .section {
 .header {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: var(--bps-space-xs);
   padding: 0.85rem 1.125rem 0.65rem;
   border-bottom: 1px solid
     color-mix(in srgb, var(--dz-danger) 20%, var(--ifm-color-emphasis-200));
   background: color-mix(
     in srgb,
     var(--dz-danger) 5%,
-    var(--ifm-background-surface-color, #fff)
+    var(--ifm-background-surface-color, var(--bps-white))
   );
 }
 
 html[data-theme='light'] .header {
-  background: color-mix(in srgb, var(--dz-danger) 5%, #f4f6f9);
-  border-bottom-color: color-mix(in srgb, var(--dz-danger) 18%, #dfe3e8);
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-paper-light));
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--dz-danger) 18%,
+    var(--bps-rule-light)
+  );
 }
 
 html[data-theme='dark'] .header {
-  background: color-mix(in srgb, var(--dz-danger) 7%, #161c26);
-  border-bottom-color: color-mix(in srgb, var(--dz-danger) 22%, #2a3340);
+  background: color-mix(in srgb, var(--dz-danger) 7%, var(--bps-paper-2));
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--dz-danger) 22%,
+    var(--bps-rule-2)
+  );
 }
 
 .headerIcon {
@@ -100,9 +108,8 @@ html[data-theme='dark'] .header {
 }
 
 .heading {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.72rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -121,38 +128,38 @@ html[data-theme='dark'] .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--bps-space-xl);
   flex-wrap: wrap;
 }
 
 .deleteRowText {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--bps-space-2xs);
   flex: 1;
   min-width: 0;
 }
 
 .deleteRowTitle {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   font-weight: 600;
   color: var(--ifm-color-emphasis-900);
   letter-spacing: -0.01em;
 }
 
 html[data-theme='dark'] .deleteRowTitle {
-  color: #f0f6fc;
+  color: var(--bps-ink);
 }
 
 .deleteRowDesc {
-  font-size: 0.82rem;
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-600);
   line-height: 1.5;
 }
 
 html[data-theme='dark'] .deleteRowDesc {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 /* Expand button — danger-red outlined style */
@@ -162,11 +169,10 @@ html[data-theme='dark'] .deleteRowDesc {
   padding: 0 14px;
   background: none;
   border: 1px solid color-mix(in srgb, var(--dz-danger) 55%, transparent);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--dz-danger-text);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.75rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -197,7 +203,7 @@ html[data-theme='dark'] .expandBtn {
 html[data-theme='dark'] .expandBtn:hover {
   background: color-mix(in srgb, var(--dz-danger-text) 8%, transparent);
   border-color: var(--dz-danger-text);
-  color: #ff9a94;
+  color: var(--bps-danger-text-bright);
 }
 
 /* ── Confirmation panel ─────────────────────────────────────────────────── */
@@ -206,20 +212,20 @@ html[data-theme='dark'] .expandBtn:hover {
   padding: 1.25rem 1.125rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--bps-space-2xl);
   background: color-mix(
     in srgb,
     var(--dz-danger) 4%,
-    var(--ifm-background-surface-color, #fff)
+    var(--ifm-background-surface-color, var(--bps-white))
   );
 }
 
 html[data-theme='light'] .confirmPanel {
-  background: color-mix(in srgb, var(--dz-danger) 4%, #f4f6f9);
+  background: color-mix(in srgb, var(--dz-danger) 4%, var(--bps-paper-light));
 }
 
 html[data-theme='dark'] .confirmPanel {
-  background: color-mix(in srgb, var(--dz-danger) 5%, #161c26);
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-paper-2));
 }
 
 /* ── Consequence block ──────────────────────────────────────────────────── */
@@ -227,11 +233,11 @@ html[data-theme='dark'] .confirmPanel {
 .consequenceBlock {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
 }
 
 .consequenceIntro {
-  font-size: 0.85rem;
+  font-size: var(--bps-text-base);
   color: var(--ifm-color-emphasis-800);
   margin: 0;
   font-weight: 500;
@@ -239,7 +245,7 @@ html[data-theme='dark'] .confirmPanel {
 }
 
 html[data-theme='dark'] .consequenceIntro {
-  color: #c4ccd8;
+  color: var(--bps-ink-soft);
 }
 
 .consequenceList {
@@ -249,45 +255,45 @@ html[data-theme='dark'] .consequenceIntro {
   background: color-mix(
     in srgb,
     var(--dz-danger) 6%,
-    var(--ifm-background-surface-color, #fff)
+    var(--ifm-background-surface-color, var(--bps-white))
   );
   border: 1px solid color-mix(in srgb, var(--dz-danger) 22%, transparent);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
 }
 
 html[data-theme='light'] .consequenceList {
-  background: color-mix(in srgb, var(--dz-danger) 5%, #fff);
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-white));
   border-color: color-mix(in srgb, var(--dz-danger) 20%, #e8d0d1);
 }
 
 html[data-theme='dark'] .consequenceList {
-  background: color-mix(in srgb, var(--dz-danger) 8%, #0d1117);
-  border-color: color-mix(in srgb, var(--dz-danger) 25%, #2a3340);
+  background: color-mix(in srgb, var(--dz-danger) 8%, var(--bps-paper));
+  border-color: color-mix(in srgb, var(--dz-danger) 25%, var(--bps-rule-2));
 }
 
 .consequenceItem {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
-  font-size: 0.83rem;
+  gap: var(--bps-space-md);
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-800);
   line-height: 1.45;
 }
 
 html[data-theme='dark'] .consequenceItem {
-  color: #c4ccd8;
+  color: var(--bps-ink-soft);
 }
 
 .consequenceItem:last-child {
   font-weight: 600;
-  color: #b53c43;
+  color: var(--bps-danger-hover);
 }
 
 html[data-theme='dark'] .consequenceItem:last-child {
-  color: #ff9a94;
+  color: var(--bps-danger-text-bright);
 }
 
 .consequenceIcon {
@@ -317,13 +323,12 @@ html[data-theme='dark'] .consequenceIcon {
 .confirmGate {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--bps-space-xs);
 }
 
 .confirmLabel {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.7rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -332,24 +337,23 @@ html[data-theme='dark'] .consequenceIcon {
 }
 
 html[data-theme='dark'] .confirmLabel {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 .handleHint {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.82em;
   font-weight: 700;
   color: var(--dz-danger-text);
   background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
   padding: 1px 5px;
-  border-radius: 3px;
+  border-radius: var(--bps-radius-sm);
   letter-spacing: 0.02em;
   border: none;
 }
 
 html[data-theme='dark'] .handleHint {
-  color: #ff9a94;
+  color: var(--bps-danger-text-bright);
   background: color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
 }
 
@@ -357,14 +361,13 @@ html[data-theme='dark'] .handleHint {
   width: 100%;
   height: 40px;
   padding: 0 12px;
-  background: var(--ifm-background-surface-color, #fff);
+  background: var(--ifm-background-surface-color, var(--bps-white));
   border: 1.5px solid
     color-mix(in srgb, var(--dz-danger) 35%, var(--ifm-color-emphasis-300));
-  border-radius: 7px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.9rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-base);
   font-weight: 500;
   letter-spacing: 0.02em;
   outline: none;
@@ -375,14 +378,18 @@ html[data-theme='dark'] .handleHint {
 }
 
 html[data-theme='light'] .confirmInput {
-  background: #fff;
-  border-color: color-mix(in srgb, var(--dz-danger) 30%, #c9d1d9);
+  background: var(--bps-white);
+  border-color: color-mix(
+    in srgb,
+    var(--dz-danger) 30%,
+    var(--bps-rule-light-2)
+  );
 }
 
 html[data-theme='dark'] .confirmInput {
-  background: #0d1117;
-  border-color: color-mix(in srgb, var(--dz-danger) 38%, #2a3340);
-  color: #e6edf3;
+  background: var(--bps-paper);
+  border-color: color-mix(in srgb, var(--dz-danger) 38%, var(--bps-rule-2));
+  color: var(--bps-ink-2);
 }
 
 .confirmInput::placeholder {
@@ -391,35 +398,36 @@ html[data-theme='dark'] .confirmInput {
 }
 
 html[data-theme='dark'] .confirmInput::placeholder {
-  color: #3d4e60;
+  color: var(--bps-rule-3);
 }
 
 .confirmInput:focus {
   border-color: var(--dz-danger);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--dz-danger) 12%, transparent);
-  background: var(--ifm-background-surface-color, #fff);
+  background: var(--ifm-background-surface-color, var(--bps-white));
 }
 
 html[data-theme='light'] .confirmInput:focus {
-  background: #fff;
+  background: var(--bps-white);
 }
 
 html[data-theme='dark'] .confirmInput:focus {
   border-color: var(--dz-danger-text);
   box-shadow: 0 0 0 3px
     color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
-  background: #161c26;
+  background: var(--bps-paper-2);
 }
 
 /* Valid (confirmed) state — subtle green signal */
 .confirmInputValid {
-  border-color: #2e9e57 !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, #2e9e57 12%, transparent) !important;
+  border-color: var(--bps-success) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bps-success) 12%, transparent) !important;
 }
 
 html[data-theme='dark'] .confirmInputValid {
-  border-color: #3fb950 !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, #3fb950 12%, transparent) !important;
+  border-color: var(--bps-success-dark) !important;
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--bps-success-dark) 12%, transparent) !important;
 }
 
 .confirmInput:disabled {
@@ -428,9 +436,8 @@ html[data-theme='dark'] .confirmInputValid {
 }
 
 .confirmHint {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.68rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-2xs);
   color: var(--ifm-color-emphasis-500);
   margin: 0;
   line-height: 1.5;
@@ -438,7 +445,7 @@ html[data-theme='dark'] .confirmInputValid {
 }
 
 html[data-theme='dark'] .confirmHint {
-  color: #5a6473;
+  color: var(--bps-ink-faint);
 }
 
 /* ── Error message ──────────────────────────────────────────────────────── */
@@ -446,14 +453,13 @@ html[data-theme='dark'] .confirmHint {
 .errorMsg {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--bps-space-sm);
   padding: 8px 12px;
   background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
-  border-radius: 6px;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.75rem;
+  border-radius: var(--bps-radius-md);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 500;
   color: var(--dz-danger-text);
   line-height: 1.5;
@@ -479,7 +485,7 @@ html[data-theme='dark'] .errorMsg {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
   flex-wrap: wrap;
 }
 
@@ -489,11 +495,10 @@ html[data-theme='dark'] .errorMsg {
   padding: 0 16px;
   background: none;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -517,14 +522,14 @@ html[data-theme='dark'] .errorMsg {
 }
 
 html[data-theme='dark'] .cancelBtn {
-  border-color: #2a3340;
-  color: #8893a2;
+  border-color: var(--bps-rule-2);
+  color: var(--bps-ink-muted);
 }
 
 html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
-  border-color: #3d4e60;
-  color: #c4ccd8;
-  background: #1c2532;
+  border-color: var(--bps-rule-3);
+  color: var(--bps-ink-soft);
+  background: var(--bps-surface-3);
 }
 
 /* Delete — solid danger red; disabled when not confirmed */
@@ -536,11 +541,10 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
   padding: 0 16px;
   background: var(--dz-danger);
   border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem;
+  border-radius: var(--bps-radius-md);
+  color: var(--bps-white);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -553,7 +557,7 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
 }
 
 .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
-  background: #b53c43;
+  background: var(--bps-danger-hover);
 }
 
 .deleteBtn:active:not(:disabled):not([aria-disabled='true']) {
@@ -575,12 +579,12 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
 
 html[data-theme='dark']
   .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
-  background: #c22f2c;
+  background: var(--bps-danger-hover-dark);
 }
 
 html[data-theme='dark'] .deleteBtn:disabled,
 html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
-  background: color-mix(in srgb, var(--dz-danger) 35%, #2a3340);
+  background: color-mix(in srgb, var(--dz-danger) 35%, var(--bps-rule-2));
 }
 
 .deleteBtnIcon {
@@ -602,7 +606,7 @@ html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
   width: 13px;
   height: 13px;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: var(--bps-white);
   border-radius: 50%;
   animation: dzSpinnerSpin 0.65s linear infinite;
   flex-shrink: 0;
@@ -614,7 +618,7 @@ html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
   .deleteRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: var(--bps-space-lg);
   }
 
   .expandBtn {

@@ -17,7 +17,6 @@
   --ifm-color-primary-lightest: #4d89dc;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
-  --site-color-svg-icon-favorite: #D00C61;
   /* Account-section divider — a blue-tinted rule (light mode). Bluer + a touch
    * more present than the flat grey #dfe3e8 so dividers actually read. */
   --bps-account-divider: #d3dae8;
@@ -36,6 +35,97 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
   /* Account-section divider — a dark blue (dark mode), bluer than #2a3340. */
   --bps-account-divider: #2d3b54;
+}
+
+/* =====================================================================
+ * BPS BRAND PALETTE — site-wide named constants
+ * The single source of truth for the brand's raw color swatches, so custom
+ * styles reference a name instead of repeating the hex. These are theme-
+ * INDEPENDENT constants (a swatch list), not theme-flipping tokens: light/dark
+ * selection still happens at the use site (light rules lean on Infima's
+ * --ifm-color-emphasis-* ramp; dark `html[data-theme='dark']` blocks pull the
+ * dark surface/ink/rule swatches below). Names match landing.css so the two
+ * sheets share one vocabulary. custom.css is the only site-wide stylesheet, so
+ * defining them here makes them available everywhere (landing.css, loaded only
+ * on the homepage, re-states the overlapping few — same values). */
+:root {
+  /* surfaces — dark */
+  --bps-paper: #0d1117; /* base page paper */
+  --bps-paper-2: #161c26; /* raised panel (cards, code body) */
+  --bps-surface-3: #1c2532; /* hover / inset fills above paper-2 */
+  /* surfaces — light */
+  --bps-white: #ffffff;
+  --bps-surface-light-2: #fafbfc; /* faint off-white input fill */
+
+  /* rules — dark */
+  --bps-rule: #1f2733;
+  --bps-rule-2: #2a3340;
+  --bps-rule-3: #3d4e60; /* stronger dark rule (focus-adjacent borders) */
+  /* rules — light */
+  --bps-rule-light: #dfe3e8;
+  --bps-rule-light-2: #c9d1d9;
+
+  /* ink — dark surfaces (brightest → faintest) */
+  --bps-ink: #f0f6fc;
+  --bps-ink-2: #e6edf3; /* input text */
+  --bps-ink-soft: #c4ccd8;
+  --bps-ink-muted: #8893a2;
+  --bps-ink-faint: #5a6473;
+
+  /* accent — brand blue on dark surfaces */
+  --bps-blue-dark: #3994ff;
+
+  /* danger — destructive actions / errors */
+  --bps-danger: #d0454c; /* light base */
+  --bps-danger-dark: #da3633; /* dark base */
+  --bps-danger-hover: #b53c43; /* light hover */
+  --bps-danger-hover-dark: #c22f2c; /* dark hover */
+  --bps-danger-text: #c0392b; /* error text, light */
+  --bps-danger-text-dark: #ff7b72; /* error text, dark */
+  --bps-danger-text-bright: #ff9a94; /* emphasized danger text, dark */
+
+  /* success — confirmations / active status */
+  --bps-success: #2e9e57; /* light */
+  --bps-success-dark: #3fb950; /* dark */
+
+  /* Corner radius scale — one source of truth for the four corner sizes used
+   * across BPS surfaces. Earlier the codebase used 3/4/5/6/7/8/9/10/12px almost
+   * as a continuum; these four steps collapse that to perceptible tiers. Fully
+   * round shapes (50% avatars/icon-buttons, 999px pills) stay literal — they're
+   * a different intent than the corner scale, and self-documenting. */
+  --bps-radius-sm: 4px; /* inline tags, small chips, carets */
+  --bps-radius-md: 6px; /* controls: inputs, buttons, small boxes */
+  --bps-radius-lg: 8px; /* cards, code blocks, key list */
+  --bps-radius-xl: 10px; /* large containers, hero corner */
+
+  /* UI type scale — the chrome/label/body band. Earlier this range held ~15
+   * near-duplicate sizes (0.62–0.9rem, steps as small as 0.01rem ≈ 0.16px);
+   * these five steps collapse it to perceptible tiers. Display/title sizes
+   * (the .markdown heading ramp, and the ~1.0–1.3rem one-offs) and em-relative
+   * sizes are deliberately NOT in the scale — they're single-use or
+   * context-relative. The bespoke px masthead/homepage keep their own sizes. */
+  --bps-text-2xs: 0.66rem; /* micro mono labels, eyebrows, admonition headings */
+  --bps-text-xs: 0.72rem; /* captions, mono metadata, small mono buttons */
+  --bps-text-sm: 0.78rem; /* secondary buttons, notes */
+  --bps-text-md: 0.82rem; /* descriptive body text */
+  --bps-text-base: 0.875rem; /* inputs, primary body, sidebar/footer links */
+
+  /* Spacing scale — for SINGLE-AXIS spacing (gap, and single-value margin /
+   * padding). Steps follow a ~4px grid; the low end keeps the 6px/10px stops
+   * the UI actually leans on. Near-duplicates that differed by <1px (0.2/0.3 vs
+   * 0.25; 0.35/0.4 vs 0.375; 0.6/0.65 vs 0.625) are unified here.
+   * Scope note: multi-value padding/margin SHORTHANDS (e.g. card boxes with
+   * intentionally asymmetric top/bottom) are left as literals — they're
+   * per-component box compositions, not scale steps — as are large one-off
+   * section paddings (2.25/2.5/3/4rem). */
+  --bps-space-2xs: 0.25rem; /* 4px  — tight inline gaps */
+  --bps-space-xs: 0.375rem; /* 6px  — icon/label gaps */
+  --bps-space-sm: 0.5rem; /* 8px  — control gaps */
+  --bps-space-md: 0.625rem; /* 10px — row gaps */
+  --bps-space-lg: 0.75rem; /* 12px — group gaps */
+  --bps-space-xl: 1rem; /* 16px — block gaps */
+  --bps-space-2xl: 1.25rem; /* 20px — section inner gaps */
+  --bps-space-3xl: 1.5rem; /* 24px — section gaps */
 }
 
 /* =====================================================================
@@ -222,13 +312,13 @@ html[data-theme='light'] .navbar::before {
  * bar AND the mobile hamburger drawer (.navbar-sidebar) so the toggle hover is
  * consistent across the two navs. */
 /* Target the toggle BUTTON directly (its hashed class is `toggleButton_*`) so
- * the rule wins over Infima's `.toggleButton:hover { background: emphasis-200 }`
- * grey in BOTH the desktop bar and the mobile drawer (which renders the same
- * toggle markup when opened). The class*=colorModeToggle wrapper selectors are
- * kept as belt-and-suspenders. */
-[class*='toggleButton']:hover,
-[class*='colorModeToggle'] .clean-btn:hover,
-[class*='colorModeToggle'] button:hover,
+ * the rule matches in BOTH the desktop bar and the mobile drawer (which renders
+ * the same toggle markup when opened). Both selectors are scoped under an
+ * ancestor (.navbar / .navbar-sidebar) so they reach specificity (0,3,0) and
+ * win over Infima's own `.toggleButton:hover { background: emphasis-200 }`
+ * (0,2,0) regardless of stylesheet source order — Infima's copy is concatenated
+ * after custom.css, so a bare (0,2,0) selector here would lose the tie. */
+.navbar [class*='toggleButton']:hover,
 .navbar-sidebar [class*='toggleButton']:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
@@ -308,7 +398,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-nav-ink-soft);
@@ -343,7 +433,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
 .navbar .DocSearch-Button {
   background: var(--bps-nav-surface);
   border: 1px solid var(--bps-nav-rule);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   height: 36px;
   /* balanced internal spacing: icon · placeholder ······ keys */
   padding: 0 8px 0 12px;
@@ -384,10 +474,10 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   margin: 0;
   background: var(--bps-nav-key-bg);
   border: 1px solid var(--bps-nav-rule);
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   box-shadow: none;
   color: var(--bps-nav-muted);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 11px;
   line-height: 1;
 }
@@ -431,9 +521,9 @@ html[data-theme='dark']:root {
   --docsearch-footer-shadow: 0 -1px 0 #1f2733;
 }
 /* Inter for the modal UI; the search input + hit titles align with the docs. */
-.DocSearch-Modal { font-family: var(--ifm-font-family-base); border-radius: 12px; }
-.DocSearch-Form { border-radius: 8px; }
-.DocSearch-Hit a { border-radius: 8px; }
+.DocSearch-Modal { font-family: var(--ifm-font-family-base); border-radius: var(--bps-radius-xl); }
+.DocSearch-Form { border-radius: var(--bps-radius-lg); }
+.DocSearch-Hit a { border-radius: var(--bps-radius-lg); }
 /* hint key caps use the same Atkinson mono treatment as the nav ⌘K caps */
 .DocSearch-Commands-Key,
 .DocSearch-Hit-action .DocSearch-Hit-Select-Icon { font-family: var(--bps-docs-mono); }
@@ -473,7 +563,6 @@ html[data-theme='dark']:root {
   .navbar__items--right { gap: 10px; }
 
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
-  .navbar .navbarSearchContainer_Bca1,
   .navbar [class*='navbarSearchContainer'] {
     width: 2rem;
     /* Docusaurus's default pins the search container `position: absolute; right`
@@ -542,13 +631,13 @@ html[data-theme='dark']:root {
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__link,
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__list-item-collapsible > .menu__link {
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem; font-weight: 700;
+  font-size: var(--bps-text-xs); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
 }
 /* nested (submenu) items stay Inter, normal case */
 .navbar-sidebar__items .menu__list .menu__list .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.9rem; font-weight: 400;
+  font-size: var(--bps-text-base); font-weight: 400;
   letter-spacing: normal; text-transform: none;
 }
 
@@ -650,9 +739,9 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
  * leading Home item carrying an icon. */
 .breadcrumbs { font-family: var(--bps-docs-mono); }
 .breadcrumbs__link {
-  font-size: 0.72rem; letter-spacing: 0.02em;
+  font-size: var(--bps-text-xs); letter-spacing: 0.02em;
   background: transparent; padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
 }
 /* Hide the Home item (icon link), but keep a leading slash before the first
  * real crumb so the path still reads "/ get started / ...". */
@@ -686,12 +775,12 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * margin-top own the gap (otherwise they stack to ~3.5rem). */
 .markdown > .bpsDocHero:has(+ .theme-doc-toc-mobile) { margin-bottom: 0; }
 .markdown > .theme-doc-toc-mobile {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: var(--bps-space-3xl);
+  margin-bottom: var(--bps-space-3xl);
 }
 
 /* Right-hand TOC: quiet it. */
-.table-of-contents { font-size: 0.8rem; }
+.table-of-contents { font-size: var(--bps-text-md); }
 .table-of-contents__left-border { border-left-color: var(--ifm-toc-border-color); }
 .table-of-contents__link { color: var(--ifm-color-emphasis-700); line-height: 1.5; }
 .table-of-contents__link--active,
@@ -722,7 +811,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 .markdown :not(pre) > code {
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.86em;
-  padding: 1px 5px; border-radius: 4px;
+  padding: 1px 5px; border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   border: 0;
 }
@@ -747,7 +836,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 .theme-admonition {
   position: relative;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   background: var(--ifm-color-emphasis-100);
   /* per-type accent, defaulting to the primary; overridden per variant below */
   --bps-admon-accent: var(--ifm-color-primary);
@@ -761,13 +850,13 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
   top: -1px; left: -1px; bottom: -1px;
   width: 5px;
   background-color: var(--bps-admon-accent);
-  border-radius: 5px 0 0 5px;
+  border-radius: var(--bps-radius-md) 0 0 var(--bps-radius-md);
 }
 /* The heading class is hashed by Docusaurus (admonitionHeading_xxxx), so match
  * it by substring rather than literal class. */
 .theme-admonition [class*='admonitionHeading_'] {
   font-family: var(--bps-docs-mono);
-  font-size: 0.66rem; font-weight: 700;
+  font-size: var(--bps-text-2xs); font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
 }
 /* Hide the default Docusaurus admonition icon — the design uses a mono "//"
@@ -820,30 +909,30 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * ===================================================================== */
 .theme-code-block {
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   box-shadow: none;
 }
 /* the title bar (shown when a code block has a title="...") — code chrome, so
  * it uses the code font (JetBrains), matching the code it labels. */
 div[class*='codeBlockTitle_'] {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 0.72rem; letter-spacing: 0.02em;
+  font-size: var(--bps-text-xs); letter-spacing: 0.02em;
   background: var(--ifm-color-emphasis-100);
   border-bottom: 1px solid var(--ifm-color-emphasis-300);
 }
 /* copy button → quieter */
 .theme-code-block button[class*='copyButton_'] {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
 }
 /* code body uses the mono stack already via --ifm-font-family-monospace */
-.theme-code-block pre code { font-size: 0.85rem; line-height: 1.6; }
+.theme-code-block pre code { font-size: var(--bps-text-base); line-height: 1.6; }
 
 /* =====================================================================
  * DOCS READING SURFACE — left sidebar (§4)
  * Scoped to .theme-doc-sidebar-menu so it never touches the navbar drawer.
  * ===================================================================== */
-.theme-doc-sidebar-menu { font-size: 0.9rem; }
+.theme-doc-sidebar-menu { font-size: var(--bps-text-base); }
 
 /* Top-level labels → mono, uppercase, tracked. Covers both collapsible
  * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
@@ -852,7 +941,7 @@ div[class*='codeBlockTitle_'] {
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
   font-family: var(--bps-docs-mono);
-  font-size: 0.75rem; font-weight: 700;
+  font-size: var(--bps-text-sm); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
@@ -868,7 +957,7 @@ html[data-theme='dark']
 
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
-  line-height: 1.5; border-radius: 4px;
+  line-height: 1.5; border-radius: var(--bps-radius-sm);
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
@@ -879,7 +968,7 @@ html[data-theme='dark']
  * scoped to .theme-doc-sidebar-menu, the former not). */
 .theme-doc-sidebar-menu .menu__caret,
 .navbar-sidebar .menu__caret {
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 var(--bps-radius-sm) var(--bps-radius-sm) 0;
 }
 .theme-doc-sidebar-menu .menu__caret::before,
 .navbar-sidebar .menu__caret::before {
@@ -907,7 +996,7 @@ html[data-theme='dark']
   top: 0; left: 0; bottom: 0;
   width: 4px;
   background-color: var(--ifm-color-primary);
-  border-radius: 4px 0 0 4px;
+  border-radius: var(--bps-radius-sm) 0 0 var(--bps-radius-sm);
 }
 
 /* =====================================================================
@@ -1000,22 +1089,22 @@ html[data-theme='dark'] .footer {
 .footer__title {
   color: var(--bps-footer-title);
   font-family: var(--bps-docs-mono);
-  font-size: 0.82rem; font-weight: 700;
+  font-size: var(--bps-text-md); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
 }
 /* Link items → quieter, Inter, normal weight. */
 .footer__link-item {
   color: var(--bps-footer-link);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
 }
 .footer__link-item:hover { color: var(--bps-footer-link-hover); }
 
 /* Copyright line — Atkinson mono, uppercase, de-emphasized, with extra breathing
  * room above it. */
-.footer__bottom { margin-top: 1.5rem; }
+.footer__bottom { margin-top: var(--bps-space-3xl); }
 .footer__copyright,
 .bpsFooterCopy {
   color: var(--bps-footer-copy);
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: var(--bps-text-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
 }

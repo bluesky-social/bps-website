@@ -27,7 +27,7 @@
 .divider {
   height: 1px;
   background: var(--bps-account-divider);
-  margin-top: 1.25rem;
+  margin-top: var(--bps-space-2xl);
   margin-bottom: 2rem;
 }
 
@@ -46,7 +46,7 @@
 .skeletonHeader {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--bps-space-xl);
   padding: 0.25rem 0 0.5rem;
 }
 
@@ -60,7 +60,7 @@
 }
 
 html[data-theme='dark'] .skeletonAvatar {
-  background: #1c2532;
+  background: var(--bps-surface-3);
 }
 
 .skeletonHeaderLines {
@@ -74,31 +74,31 @@ html[data-theme='dark'] .skeletonAvatar {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 0.5rem;
+  padding-top: var(--bps-space-sm);
 }
 
 .skeletonHeading {
   height: 14px;
   width: 30%;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   margin-bottom: 4px;
   animation: accountSkeletonPulse 1.6s ease-in-out infinite;
 }
 
 html[data-theme='dark'] .skeletonHeading {
-  background: #1c2532;
+  background: var(--bps-surface-3);
 }
 
 .skeletonLine {
   height: 10px;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   animation: accountSkeletonPulse 1.6s ease-in-out infinite;
 }
 
 html[data-theme='dark'] .skeletonLine {
-  background: #1c2532;
+  background: var(--bps-surface-3);
 }
 
 /* ── Anon / sign-in prompt ──────────────────────────────────────────────── */
@@ -107,19 +107,19 @@ html[data-theme='dark'] .skeletonLine {
   max-width: 480px;
   margin: 1rem auto 0;
   padding: 2.5rem 2rem 2rem;
-  background: var(--ifm-background-surface-color, #fff);
+  background: var(--ifm-background-surface-color, var(--bps-white));
   /* Border matches the account-page divider (token adapts per theme). */
   border: 1px solid var(--bps-account-divider);
-  border-radius: 10px;
+  border-radius: var(--bps-radius-xl);
 }
 
 html[data-theme='light'] .anonContainer {
-  background: #ffffff;
+  background: var(--bps-white);
   box-shadow: 0 1px 4px rgba(13, 17, 23, 0.06);
 }
 
 html[data-theme='dark'] .anonContainer {
-  background: #161c26;
+  background: var(--bps-paper-2);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -134,11 +134,11 @@ html[data-theme='dark'] .anonContainer {
 }
 
 html[data-theme='dark'] .anonTitle {
-  color: #f0f6fc;
+  color: var(--bps-ink);
 }
 
 .anonLede {
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   /* Item 7: darker for light-mode contrast (was emphasis-700). */
   color: var(--ifm-color-emphasis-800);
   margin: 0 0 1.75rem;
@@ -146,19 +146,18 @@ html[data-theme='dark'] .anonTitle {
 }
 
 html[data-theme='dark'] .anonLede {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 .anonForm {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--bps-space-sm);
 }
 
 .inputLabel {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.68rem;
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-2xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -168,7 +167,7 @@ html[data-theme='dark'] .anonLede {
 }
 
 html[data-theme='dark'] .inputLabel {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 .inputRow {
@@ -184,12 +183,12 @@ html[data-theme='dark'] .inputLabel {
   padding: 0 11px;
   background: var(--ifm-color-emphasis-100);
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   /* Item 5/1: Inter for the handle input (was Atkinson mono); width:100% ensures
      full-width when the row stacks to a column on mobile. */
   font-family: var(--ifm-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--bps-text-base);
   font-weight: 400;
   outline: none;
   transition:
@@ -198,9 +197,9 @@ html[data-theme='dark'] .inputLabel {
 }
 
 html[data-theme='dark'] .handleInput {
-  background: #0d1117;
-  border-color: #2a3340;
-  color: #e6edf3;
+  background: var(--bps-paper);
+  border-color: var(--bps-rule-2);
+  color: var(--bps-ink-2);
 }
 
 .handleInput::placeholder {
@@ -209,17 +208,17 @@ html[data-theme='dark'] .handleInput {
 }
 
 html[data-theme='dark'] .handleInput::placeholder {
-  color: #5a6473;
+  color: var(--bps-ink-faint);
 }
 
 .handleInput:focus {
   border-color: var(--ifm-color-primary-darkest);
-  background: var(--ifm-background-surface-color, #fff);
+  background: var(--ifm-background-surface-color, var(--bps-white));
 }
 
 html[data-theme='dark'] .handleInput:focus {
-  border-color: #1cabf8;
-  background: #161c26;
+  border-color: var(--ifm-color-primary-darkest);
+  background: var(--bps-paper-2);
 }
 
 .handleInput:disabled {
@@ -232,11 +231,10 @@ html[data-theme='dark'] .handleInput:focus {
   padding: 0 16px;
   background: var(--ifm-color-primary-darkest);
   border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.78rem;
+  border-radius: var(--bps-radius-md);
+  color: var(--bps-white);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -264,25 +262,28 @@ html[data-theme='dark'] .handleInput:focus {
 .anonError {
   margin-top: 4px;
   padding: 8px 10px;
-  background: color-mix(in srgb, #d0454c 10%, transparent);
-  border: 1px solid color-mix(in srgb, #d0454c 25%, transparent);
-  border-radius: 5px;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--bps-danger) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
+  border-radius: var(--bps-radius-md);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
   font-weight: 500;
-  color: #c0392b;
+  color: var(--bps-danger-text);
   letter-spacing: 0.01em;
 }
 
 html[data-theme='dark'] .anonError {
-  color: #ff7b72;
-  background: color-mix(in srgb, #ff7b72 8%, transparent);
-  border-color: color-mix(in srgb, #ff7b72 20%, transparent);
+  color: var(--bps-danger-text-dark);
+  background: color-mix(in srgb, var(--bps-danger-text-dark) 8%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--bps-danger-text-dark) 20%,
+    transparent
+  );
 }
 
 .anonNote {
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   /* Item 7: darker for light-mode contrast (was emphasis-500). */
   color: var(--ifm-color-emphasis-600);
   margin: 1rem 0 0;
@@ -290,7 +291,7 @@ html[data-theme='dark'] .anonError {
 }
 
 html[data-theme='dark'] .anonNote {
-  color: #5a6473;
+  color: var(--bps-ink-faint);
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
