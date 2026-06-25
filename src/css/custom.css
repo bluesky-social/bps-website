@@ -307,7 +307,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-nav-ink-soft);
@@ -386,7 +386,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   border-radius: 4px;
   box-shadow: none;
   color: var(--bps-nav-muted);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 11px;
   line-height: 1;
 }

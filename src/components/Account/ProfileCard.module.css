@@ -60,8 +60,7 @@ html[data-theme='dark'] .avatarImg {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 1.3rem;
   font-weight: 700;
   color: var(--ifm-color-primary);

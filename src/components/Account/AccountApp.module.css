@@ -156,8 +156,7 @@ html[data-theme='dark'] .anonLede {
 }
 
 .inputLabel {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -234,8 +233,7 @@ html[data-theme='dark'] .handleInput:focus {
   border: none;
   border-radius: 6px;
   color: #fff;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -267,8 +265,7 @@ html[data-theme='dark'] .handleInput:focus {
   background: color-mix(in srgb, #d0454c 10%, transparent);
   border: 1px solid color-mix(in srgb, #d0454c 25%, transparent);
   border-radius: 5px;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.75rem;
   font-weight: 500;
   color: #c0392b;

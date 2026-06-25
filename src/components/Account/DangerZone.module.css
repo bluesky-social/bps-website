@@ -100,8 +100,7 @@ html[data-theme='dark'] .header {
 }
 
 .heading {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -164,8 +163,7 @@ html[data-theme='dark'] .deleteRowDesc {
   border: 1px solid color-mix(in srgb, var(--dz-danger) 55%, transparent);
   border-radius: 6px;
   color: var(--dz-danger-text);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -321,8 +319,7 @@ html[data-theme='dark'] .consequenceIcon {
 }
 
 .confirmLabel {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -336,8 +333,7 @@ html[data-theme='dark'] .confirmLabel {
 }
 
 .handleHint {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.82em;
   font-weight: 700;
   color: var(--dz-danger-text);
@@ -362,8 +358,7 @@ html[data-theme='dark'] .handleHint {
     color-mix(in srgb, var(--dz-danger) 35%, var(--ifm-color-emphasis-300));
   border-radius: 7px;
   color: var(--ifm-color-emphasis-900);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -428,8 +423,7 @@ html[data-theme='dark'] .confirmInputValid {
 }
 
 .confirmHint {
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.68rem;
   color: var(--ifm-color-emphasis-500);
   margin: 0;
@@ -451,8 +445,7 @@ html[data-theme='dark'] .confirmHint {
   background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
   border-radius: 6px;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--dz-danger-text);
@@ -491,8 +484,7 @@ html[data-theme='dark'] .errorMsg {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
   color: var(--ifm-color-emphasis-600);
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -538,8 +530,7 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
   border: none;
   border-radius: 6px;
   color: #fff;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;

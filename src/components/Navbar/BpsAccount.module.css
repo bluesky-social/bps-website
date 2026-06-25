@@ -128,8 +128,7 @@
   color: var(--bps-nav-muted);
   font-size: 13px;
   font-weight: 700;
-  font-family:
-    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--bps-docs-mono);
 }
 
 /* ── Anon state — sign-in icon ───────────────────────────────────────────── */
