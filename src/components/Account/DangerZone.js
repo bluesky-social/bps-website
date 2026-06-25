@@ -27,6 +27,14 @@
 
 import React, { useState, useCallback, useRef } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
+import {
+  TrashIcon,
+  LockKeyholeIcon,
+  CircleCheckIcon,
+  DropIcon,
+  WarningTriangleIcon,
+  AlertCircleIcon,
+} from './icons'
 import styles from './DangerZone.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -42,36 +50,25 @@ function ConsequenceList() {
     <ul className={styles.consequenceList} aria-label="What account deletion removes">
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M2 4h12M5 4V2.5A1.5 1.5 0 0 1 6.5 1h3A1.5 1.5 0 0 1 11 2.5V4M6 7v5M10 7v5M3 4l.75 9A1.5 1.5 0 0 0 5.25 14.5h5.5A1.5 1.5 0 0 0 12.25 13L13 4" />
-          </svg>
+          <TrashIcon />
         </span>
         Your account and profile data will be permanently removed
       </li>
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="2" y="6" width="12" height="9" rx="1.5" />
-            <path d="M4 6V4.5a4 4 0 0 1 8 0V6" />
-            <circle cx="8" cy="10.5" r="1" fill="currentColor" stroke="none" />
-          </svg>
+          <LockKeyholeIcon />
         </span>
         All API keys will be revoked and deleted immediately
       </li>
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="8" cy="8" r="6" />
-            <path d="M5.5 8l2 2 3.5-3.5" />
-          </svg>
+          <CircleCheckIcon />
         </span>
         Your atproto OAuth session will be revoked
       </li>
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 1v8M3 6.5C1.5 7.5 1 9 1 10a5 5 0 0 0 10 0c0-1-.5-2.5-2-3.5" />
-          </svg>
+          <DropIcon />
         </span>
         This action is permanent and cannot be undone
       </li>
@@ -150,11 +147,7 @@ export default function DangerZone() {
       {/* Section header — always visible */}
       <div className={styles.header}>
         <span className={styles.headerIcon} aria-hidden="true">
-          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M10 2L2 17h16L10 2z" />
-            <line x1="10" y1="9" x2="10" y2="12.5" />
-            <circle cx="10" cy="15" r="0.75" fill="currentColor" stroke="none" />
-          </svg>
+          <WarningTriangleIcon />
         </span>
         <h2 id="danger-zone-heading" className={styles.heading}>
           Danger Zone
@@ -242,11 +235,7 @@ export default function DangerZone() {
           {/* Error display */}
           {deleteStatus === 'error' && deleteError && (
             <div id="delete-error-msg" className={styles.errorMsg} role="alert">
-              <svg className={styles.errorIcon} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="8" cy="8" r="6.5" />
-                <line x1="8" y1="5" x2="8" y2="8.5" />
-                <circle cx="8" cy="11" r="0.7" fill="currentColor" stroke="none" />
-              </svg>
+              <AlertCircleIcon className={styles.errorIcon} />
               {deleteError}
             </div>
           )}
@@ -275,9 +264,7 @@ export default function DangerZone() {
                 </>
               ) : (
                 <>
-                  <svg className={styles.deleteBtnIcon} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="M2 4h12M5 4V2.5A1.5 1.5 0 0 1 6.5 1h3A1.5 1.5 0 0 1 11 2.5V4M6 7v5M10 7v5M3 4l.75 9A1.5 1.5 0 0 0 5.25 14.5h5.5A1.5 1.5 0 0 0 12.25 13L13 4" />
-                  </svg>
+                  <TrashIcon className={styles.deleteBtnIcon} strokeWidth="1.8" aria-hidden="true" />
                   Yes, permanently delete
                 </>
               )}

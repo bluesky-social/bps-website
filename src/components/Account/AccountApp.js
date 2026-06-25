@@ -138,13 +138,9 @@ function AuthedView() {
     <div className={styles.wrap}>
       <div className={styles.container}>
         <ProfileCard />
-
         <div className={styles.divider} />
-
         <ApiKeysSection />
-
         <div className={styles.divider} />
-
         <DangerZone />
       </div>
     </div>

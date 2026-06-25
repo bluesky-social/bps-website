@@ -19,6 +19,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
+import { LockIcon, CheckIcon, CopyIcon, EmptyKeysIcon } from './icons'
 import styles from './ApiKeysSection.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -72,10 +73,7 @@ function SecretReveal({ secret, onDone }) {
     <div className={styles.secretReveal} role="alert" aria-live="assertive">
       <div className={styles.secretHeader}>
         <span className={styles.secretBadge} aria-hidden="true">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="3" y="7" width="10" height="8" rx="1.5" />
-            <path d="M5 7V5a3 3 0 0 1 6 0v2" />
-          </svg>
+          <LockIcon />
         </span>
         <span className={styles.secretTitle}>Your new API key</span>
       </div>
@@ -102,17 +100,12 @@ function SecretReveal({ secret, onDone }) {
         >
           {copied ? (
             <>
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="2.5 8.5 6.5 12 13.5 4.5" />
-              </svg>
+              <CheckIcon />
               Copied
             </>
           ) : (
             <>
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="5" y="4" width="9" height="10" rx="1.5" />
-                <path d="M4 12H3a1.5 1.5 0 0 1-1.5-1.5v-8A1.5 1.5 0 0 1 3 1h8a1.5 1.5 0 0 1 1.5 1.5v1" />
-              </svg>
+              <CopyIcon />
               Copy
             </>
           )}
@@ -254,11 +247,7 @@ function EmptyState() {
   return (
     <div className={styles.emptyState}>
       <div className={styles.emptyIcon} aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="4" y="11" width="16" height="11" rx="2" />
-          <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-          <circle cx="12" cy="16" r="1.2" fill="currentColor" stroke="none" />
-        </svg>
+        <EmptyKeysIcon />
       </div>
       <p className={styles.emptyText}>No API keys yet.</p>
       <p className={styles.emptySubtext}>Create a key above to authenticate your applications.</p>

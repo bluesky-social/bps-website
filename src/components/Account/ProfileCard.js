@@ -14,6 +14,7 @@
 
 import React, { useState, useCallback } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
+import { EnvelopeIcon } from './icons'
 import styles from './ProfileCard.module.css'
 
 // ── Avatar ────────────────────────────────────────────────────────────────────
@@ -64,19 +65,7 @@ function EmailLine({ email }) {
   return (
     <span className={styles.emailLine}>
       {/* Envelope icon preceding the address */}
-      <svg
-        className={styles.emailIcon}
-        viewBox="0 0 20 20"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <rect x="2" y="5" width="16" height="11" rx="2" />
-        <polyline points="2 7 10 12 18 7" />
-      </svg>
+      <EnvelopeIcon className={styles.emailIcon} />
       <span className={styles.emailAddress}>{email}</span>
     </span>
   )

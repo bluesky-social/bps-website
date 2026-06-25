@@ -12,7 +12,7 @@ export type Profile = { did: DidString; handle: string; displayName?: string; av
 // the agent service, so the response is drained + schema-validated for us
 // (no hand-rolled fetch / res.json()). xrpc throws on a non-ok response.
 export async function fetchProfile(appViewUrl: string, did: DidString): Promise<Profile> {
-  const { body } = await xrpc({ service: appViewUrl }, app.bsky.actor.getProfile.main, {
+  const { body } = await xrpc({ service: appViewUrl }, app.bsky.actor.getProfile, {
     params: { actor: did },
   })
   const profile: Profile = { did, handle: body.handle }

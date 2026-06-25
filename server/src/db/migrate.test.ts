@@ -1,7 +1,8 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { Migrator, NO_MIGRATIONS } from 'kysely/migration'
 import { createDb, type DB } from './index.ts'
-import { runMigrations } from './migrate.ts'
+import { runMigrations, StaticProvider } from './migrate.ts'
 
 const url =
   process.env.BPS_TEST_DATABASE_URL ??
@@ -61,4 +62,24 @@ test('api_key.did cascades on account delete', async () => {
 
   const keys = await db.selectFrom('api_key').selectAll().execute()
   assert.equal(keys.length, 0, 'api_key rows should cascade-delete')
+})
+
+test('every migration rolls back down to a clean slate', async () => {
+  // Runs last (sequential suite): migrate fully up, then fully down, asserting
+  // each down() completes and leaves none of our tables behind. This exercises
+  // the down migrations, which migrateToLatest never touches.
+  await runMigrations(db)
+  const migrator = new Migrator({ db, provider: new StaticProvider() })
+
+  const { error, results } = await migrator.migrateTo(NO_MIGRATIONS)
+  assert.ifError(error)
+  // Every applied migration should report a successful rollback.
+  for (const r of results ?? []) {
+    assert.equal(r.status, 'Success', `down failed for ${r.migrationName}`)
+  }
+
+  const names = (await db.introspection.getTables()).map((t) => t.name)
+  for (const dropped of ['account', 'api_key', 'oauth_session', 'oauth_state']) {
+    assert.ok(!names.includes(dropped), `table ${dropped} should be gone after down`)
+  }
 })

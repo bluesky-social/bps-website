@@ -1,4 +1,4 @@
-import { serialize } from 'cookie'
+import { parse, serialize } from 'cookie'
 import { getIronSession, sealData, unsealData } from 'iron-session'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { DidString } from '@atproto/syntax'
@@ -39,12 +39,8 @@ export async function unsealDidFromCookieHeader(
   config: AppConfig,
 ): Promise<DidString | null> {
   if (!cookieHeader) return null
-  const match = cookieHeader
-    .split(';')
-    .map((c) => c.trim())
-    .find((c) => c.startsWith(`${SESSION_COOKIE_NAME}=`))
-  if (!match) return null
-  const sealed = match.slice(SESSION_COOKIE_NAME.length + 1)
+  const sealed = parse(cookieHeader)[SESSION_COOKIE_NAME]
+  if (!sealed) return null
   try {
     const data = await unsealData<SessionData>(sealed, { password: config.ironSessionPassword })
     return data.did ?? null

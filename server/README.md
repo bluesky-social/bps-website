@@ -33,12 +33,11 @@ curl localhost:8080/_health                          # {"status":"ok"}
 
 ## Conventions
 - App env vars are `BPS_`-prefixed; OTel/`OTEL_*` and `NODE_ENV` are not.
-- DIDs are typed `DidString` (`@atproto/syntax`), never raw `string`.
 - Erasable-only TS (no enum/namespace/parameter-properties).
 - Lexicons are authored under repo-root `lexicons/` and committed; generated TS
   in `server/src/lexicons/` is git-ignored.
 
-## OAuth (Phase 2)
+## OAuth
 
 Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 - **App login cookie** (`bps_session`, iron-session): holds only `{ did }`.

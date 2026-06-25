@@ -34,7 +34,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   // Begin OAuth: returns the authorize URL for the browser to follow. A bad or
   // unresolvable handle makes client.authorize() throw; that's a client error,
   // so surface it as a 400 rather than letting it bubble up as a 500.
-  router.add(internal.bps.oauth.start.main, async ({ params }) => {
+  router.add(internal.bps.oauth.start, async ({ params }) => {
     let url: URL
     try {
       url = await client.authorize(params.handle)
@@ -49,7 +49,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   })
 
   // whoami: authenticated via the session cookie.
-  router.add(internal.bps.account.whoami.main, {
+  router.add(internal.bps.account.whoami, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const row = await db
@@ -80,26 +80,24 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     },
   })
 
-  // logout: revoke the atproto session + clear the cookie. Cookie clearing needs
-  // Express res, which lex-server handlers don't have — so logout returns a
-  // Set-Cookie via a raw Response.
-  router.add(internal.bps.oauth.logout.main, {
+  // logout: revoke the atproto session + clear the cookie. Returns a structured
+  // output (not a raw Response) so the `body` is type-checked against the
+  // method's Output<>; the expiring cookie rides along in `headers`.
+  router.add(internal.bps.oauth.logout, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       await client.revoke(credentials.did).catch((err) => logger.warn({ err }, 'revoke failed'))
       await db.deleteFrom('oauth_session').where('did', '=', credentials.did as DidString).execute()
-      // Clear the cookie by returning an expired Set-Cookie on a raw Response.
-      const expired = clearCookieHeader(config)
-      return new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-        headers: { 'content-type': 'application/json', 'set-cookie': expired },
-      })
+      return {
+        headers: { 'set-cookie': clearCookieHeader(config) },
+        body: { ok: true },
+      }
     },
   })
 
   // account.profile — public bsky profile (handle/displayName/avatar) fetched
   // unauthenticated from the public AppView. Independent of the user's PDS/scope.
-  router.add(internal.bps.account.profile.main, {
+  router.add(internal.bps.account.profile, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const profile = await fetchProfile(config.appViewUrl, credentials.did)
@@ -108,7 +106,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   })
 
   // apiKey.create — returns the full secret ONCE.
-  router.add(internal.bps.apiKey.create.main, {
+  router.add(internal.bps.apiKey.create, {
     auth: requireSession,
     handler: async ({ credentials, input }) => {
       const { label, expiresAt } = input.body
@@ -130,7 +128,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   })
 
   // apiKey.list — metadata only.
-  router.add(internal.bps.apiKey.list.main, {
+  router.add(internal.bps.apiKey.list, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const keys = await apiKeys.listKeys(credentials.did)
@@ -149,7 +147,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   })
 
   // apiKey.delete — revoke by id (scoped to the caller).
-  router.add(internal.bps.apiKey.delete.main, {
+  router.add(internal.bps.apiKey.delete, {
     auth: requireSession,
     handler: async ({ credentials, input }) => {
       await apiKeys.deleteKey(credentials.did, input.body.id)
@@ -164,17 +162,19 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   // A single cross-store transaction is intentionally NOT used: under the Kong-future adapter the
   // consumer (account+keys) and oauth_session live in different stores, making a cross-store
   // transaction impossible without breaking the ApiKeyProvider port abstraction.
-  router.add(internal.bps.account.delete.main, {
+  router.add(internal.bps.account.delete, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const did = credentials.did
       await client.revoke(did).catch((err) => logger.warn({ err }, 'revoke during delete failed'))
       await apiKeys.deleteConsumer(did) // atomic: deletes api_key rows + the account row together
       await db.deleteFrom('oauth_session').where('did', '=', did).execute() // cleanup; if this fails, account is already gone so whoami still 401s
-      return new Response(JSON.stringify({ ok: true }), {
-        status: 200,
-        headers: { 'content-type': 'application/json', 'set-cookie': clearCookieHeader(config) },
-      })
+      // Structured output (not a raw Response): `body` is type-checked against
+      // the method's Output<>; the expiring login cookie rides in `headers`.
+      return {
+        headers: { 'set-cookie': clearCookieHeader(config) },
+        body: { ok: true },
+      }
     },
   })
 

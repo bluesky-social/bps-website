@@ -25,7 +25,7 @@ export async function safeGetSession(
     // origin/auth added internally), so it can be passed as the agent directly.
     const { body } = await xrpc(
       { fetchHandler: oauthSession.fetchHandler.bind(oauthSession) },
-      com.atproto.server.getSession.main,
+      com.atproto.server.getSession,
     )
     const out: { ok: boolean; handle?: string; email?: string } = { ok: true }
     if (body.handle) out.handle = body.handle

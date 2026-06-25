@@ -16,7 +16,7 @@ const migrations: Record<string, Migration> = {
   '004_oauth_session': m004,
 }
 
-class StaticProvider implements MigrationProvider {
+export class StaticProvider implements MigrationProvider {
   async getMigrations(): Promise<Record<string, Migration>> {
     return migrations
   }
