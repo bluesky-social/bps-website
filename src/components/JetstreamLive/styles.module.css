@@ -210,6 +210,38 @@
   color: #a5d6ff;
 }
 
+/* ---- click-through CTA (optional footer bar) ---- */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bps-space-sm);
+  padding: 12px 14px;
+  border-top: 1px solid var(--bps-rule);
+  background: rgba(57, 148, 255, 0.08);
+  color: var(--bps-blue-dark);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--bps-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cta:hover {
+  background: rgba(57, 148, 255, 0.16);
+  color: #6cb0ff;
+  text-decoration: none;
+}
+.cta svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+.cta:hover svg {
+  transform: translateX(3px);
+}
+
 @media (max-width: 600px) {
   .endpoint {
     font-size: var(--bps-text-2xs);

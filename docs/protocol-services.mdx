@@ -1,0 +1,66 @@
+---
+slug: /protocol-services
+title: Protocol Services
+sidebar_label: Protocol Services
+hide_title: true
+description: Bluesky runs the public infrastructure of the AT Protocol — Jetstream, the Relay, and the app API — as open services you can build on today, no permission required. Start with Jetstream.
+---
+
+import DocsHero from '@site/src/components/DocsHero';
+import DocsCardGrid from '@site/src/components/DocsCardGrid';
+import JetstreamLive from '@site/src/components/JetstreamLive';
+import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
+
+<DocsHero eyebrow="Protocol Services" title="Explore the network">
+  Bluesky operates the public infrastructure of the AT Protocol as open services anyone can build on — no API keys, no sign-up, no permission required.
+</DocsHero>
+
+<DocItemTOCMobile />
+
+<br/>
+
+Bluesky runs on a "big world" public social network of user repositories: the [AT Protocol](https://atproto.com).
+
+Many AT Protocol services and infrastructure are provided by Bluesky. They sit at different
+layers, from a jetstream of everything happening right now, down to the
+cryptographically verifiable raw firehose — but they all share the same open data
+and the same open access. These docs describe the public protocol services and show how to build on them.
+
+**Jetstream** is the fastest way to stream and query real network data.
+
+## Start with Jetstream
+
+Jetstream hands you just the slice of the network you want — posts, likes,
+follows, a single account — as plain JSON over one WebSocket. No API keys, no
+infrastructure to run, no binary formats to decode. The stream below is the live
+network, right now:
+
+<JetstreamLive ctaHref="/docs/jetstream" ctaLabel="Get started with Jetstream" />
+
+That's the same connection you'll write in the [Jetstream
+docs](/docs/jetstream): a few lines, and you're consuming the network live or
+replaying it from history.
+
+## The protocol services
+
+<DocsCardGrid
+  items={[
+    { title: 'Jetstream →', body: 'Filtered, decoded JSON over one WebSocket. Live, historical, or both. The place to start.', to: '/docs/jetstream' },
+    { title: 'The Relay', body: 'The full firehose in its raw, cryptographically verifiable form — every record, binary-encoded.', to: '/docs/relay' },
+    { title: 'HTTP Reference', body: 'Bluesky app endpoints: profiles, posts, threads, feeds, and interactions over HTTP.', to: 'https://endpoints.bsky.app' },
+    { title: 'Identities', body: 'Handles and account hosting.', to: '/docs/resolving-identities' },
+  ]}
+/>
+
+Reach for the **Relay** when you need every record with no filtering, or the
+proofs to verify repository state yourself. Reach for the **app API** when you're
+building against the Bluesky app's data model directly — see [API hosts and
+auth](/docs/api-directory) for endpoints and authentication, or browse the [full
+HTTP reference](https://endpoints.bsky.app).
+
+## Building on the Bluesky app
+
+If you're looking to develop against the Bluesky app — making your first post,
+reading feeds, working with profiles and interactions — the [Bluesky
+API](/docs/get-started) guides walk through the API step by step. You can
+always come back here when you're ready to consume the network at scale.

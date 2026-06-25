@@ -328,11 +328,11 @@ export default function Home() {
               What will <em className="you">you</em> build on the <em className="atmo">Atmosphere</em>?
             </p>
             <div className="cta-row">
-              <Link className="btn ghost" to="/docs/jetstream">
+              {/* Single, deliberate funnel into the protocol-services landing
+                  page (which leads with the live Jetstream demo). The legacy
+                  "Learn Bluesky" route still lives in the sidebar/footer. */}
+              <Link className="btn primary" to="/docs/protocol-services">
                 Explore the network
-              </Link>
-              <Link className="btn primary" to="/docs/get-started">
-                Learn Bluesky
               </Link>
             </div>
             <p className="signoff">

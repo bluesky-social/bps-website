@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import Link from '@docusaurus/Link'
 import styles from './styles.module.css'
 
 // Live Jetstream demo, ported from atproto.com's homepage firehose widget
@@ -76,7 +77,7 @@ function lineFor(event) {
   }
 }
 
-export default function JetstreamLive() {
+export default function JetstreamLive({ ctaHref, ctaLabel }) {
   const [active, setActive] = useState(false)
   const [hasRun, setHasRun] = useState(false)
   const [lines, setLines] = useState([])
@@ -226,6 +227,16 @@ export default function JetstreamLive() {
           </div>
         ))}
       </div>
+
+      {ctaHref && (
+        <Link className={styles.cta} to={ctaHref}>
+          <span>{ctaLabel || 'Learn more'}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" />
+          </svg>
+        </Link>
+      )}
     </div>
   )
 }

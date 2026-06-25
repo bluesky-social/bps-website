@@ -182,24 +182,10 @@ const config = {
             variant: "divider",
           },
           {
-            // "Learn" — the prototype's "Docs" link, renamed. Points at the
-            // Bluesky intro route (slug stays /docs/get-started); kept short in
-            // the masthead (the sidebar/footer spell it "Learn Bluesky"). The
-            // "Get Started" label is now reserved for the homepage grid CTAs.
-            // Mono masthead style.
-            type: "custom-navLink",
-            position: "right",
-            label: "Learn",
-            to: "/docs/get-started",
-          },
-          {
-            // Middot separator between the two mono links (prototype ".sep").
-            type: "custom-navSep",
-            position: "right",
-            variant: "sep",
-          },
-          {
-            // "AT Protocol" → the broader protocol site, outbound.
+            // "AT Protocol" → the broader protocol site, outbound. This is now
+            // the only link in the masthead cluster: the docs funnel lives in
+            // the page body (hero "Explore the network" → Protocol Services) and
+            // the sidebar, deliberately keeping the chrome out of the way.
             type: "custom-navLink",
             position: "right",
             label: "AT Protocol",

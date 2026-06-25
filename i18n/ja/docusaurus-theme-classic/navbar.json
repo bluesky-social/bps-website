@@ -1,8 +1,4 @@
 {
-  "item.label.Learn": {
-    "message": "Learn",
-    "description": "Navbar item with label Learn"
-  },
   "item.label.AT Protocol": {
     "message": "AT Protocol",
     "description": "Navbar item with label AT Protocol"

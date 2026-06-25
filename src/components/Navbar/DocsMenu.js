@@ -7,10 +7,11 @@ import NavbarItem from '@theme/NavbarItem'
 
 // Top-level docs sections, mirroring the sidebar (kept in sync by hand).
 const DOCS_LINKS = [
-  { label: 'Learn Bluesky', to: '/docs/get-started' },
-  { label: 'About Bluesky Content', to: '/docs/about-bluesky-content' },
-  { label: 'Relay', to: '/docs/relay' },
+  { label: 'Protocol Services', to: '/docs/protocol-services' },
   { label: 'Jetstream', to: '/docs/jetstream' },
+  { label: 'Relay', to: '/docs/relay' },
+  { label: 'Learn the Bluesky API', to: '/docs/get-started' },
+  { label: 'About Bluesky Content', to: '/docs/about-bluesky-content' },
   { label: 'API Hosts and Auth', to: '/docs/api-directory' },
   { label: 'OAuth', to: '/docs/oauth-client' },
   { label: 'Developer Guidelines', to: '/docs/developer-guidelines' },
