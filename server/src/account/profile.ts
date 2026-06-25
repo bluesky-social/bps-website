@@ -1,20 +1,22 @@
+import { xrpc } from '@atproto/lex'
 import type { DidString } from '@atproto/syntax'
+import * as app from '../lexicons/app.ts'
 
 export type Profile = { did: DidString; handle: string; displayName?: string; avatar?: string }
 
 // Profile (handle/displayName/avatar) is PUBLIC data: fetched unauthenticated
 // from the public AppView. No OAuth session, no PDS proxy, no scope — works for
 // any DID and never 403s the way the PDS-proxied path did.
+//
+// Uses the lex client (`xrpc(app.bsky.actor.getProfile)`) with the AppView as
+// the agent service, so the response is drained + schema-validated for us
+// (no hand-rolled fetch / res.json()). xrpc throws on a non-ok response.
 export async function fetchProfile(appViewUrl: string, did: DidString): Promise<Profile> {
-  const res = await fetch(
-    `${appViewUrl}/xrpc/app.bsky.actor.getProfile?actor=${encodeURIComponent(did)}`,
-  )
-  if (!res.ok) {
-    throw new Error(`getProfile failed: ${res.status}`)
-  }
-  const data = (await res.json()) as { handle: string; displayName?: string; avatar?: string }
-  const profile: Profile = { did, handle: data.handle }
-  if (data.displayName) profile.displayName = data.displayName
-  if (data.avatar) profile.avatar = data.avatar
+  const { body } = await xrpc({ service: appViewUrl }, app.bsky.actor.getProfile.main, {
+    params: { actor: did },
+  })
+  const profile: Profile = { did, handle: body.handle }
+  if (body.displayName) profile.displayName = body.displayName
+  if (body.avatar) profile.avatar = body.avatar
   return profile
 }
