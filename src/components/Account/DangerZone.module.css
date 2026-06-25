@@ -1,0 +1,642 @@
+/*
+ * DangerZone.module.css
+ *
+ * Visually distinct destructive section on the /account page.
+ *
+ * Design intent:
+ *   - Danger is communicated through a muted red tint on the container border,
+ *     a warning icon in the section heading, and explicit danger colors on the
+ *     delete action button — consistent with the design system's
+ *     --bps-admon-accent danger red.
+ *   - NOT a jarring full-bleed red screen: the section lives in the same paper
+ *     surface as siblings (Inter body, Atkinson mono labels) but is visually
+ *     separated by a red-tinted border and a top spacer that keeps it "below
+ *     the fold" of normal account management.
+ *   - Confirmation panel uses a slightly deeper tinted surface to reinforce
+ *     the gravity of the action without screaming.
+ *   - Light + dark: html[data-theme] overrides follow the repo pattern exactly.
+ *
+ * Danger palette tokens (defined once, overridden per theme):
+ *   --dz-danger      mix-base red  (light: #d0454c  / dark: #da3633)
+ *   --dz-danger-text text/accent   (light: #c0392b  / dark: #ff7b72)
+ */
+
+/* ── Danger palette — dark as base, light override (repo pattern) ──────── */
+
+.section {
+  --dz-danger: var(--bps-danger-dark);
+  --dz-danger-text: var(--bps-danger-text-dark);
+}
+
+html[data-theme='light'] .section {
+  --dz-danger: var(--bps-danger);
+  --dz-danger-text: var(--bps-danger-text);
+}
+
+/* ── Section wrapper ────────────────────────────────────────────────────── */
+
+.section {
+  border: 1px solid
+    color-mix(in srgb, var(--dz-danger) 30%, var(--ifm-color-emphasis-200));
+  border-radius: var(--bps-radius-xl);
+  overflow: hidden;
+  /* Subtle red ambient shadow in light mode for visual separation */
+}
+
+html[data-theme='light'] .section {
+  /* Item 6: white body surface so the danger zone reads as a clean card on the
+   * page paper (#f4f6f9), not a dim block. The header re-tints over this. */
+  background: var(--bps-white);
+  border-color: color-mix(in srgb, var(--dz-danger) 28%, var(--bps-rule-light));
+  box-shadow:
+    0 1px 4px rgba(208, 69, 76, 0.08),
+    0 0 0 0 transparent;
+}
+
+html[data-theme='dark'] .section {
+  border-color: color-mix(in srgb, var(--dz-danger) 32%, var(--bps-rule-2));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Section header ─────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--bps-space-xs);
+  padding: 0.85rem 1.125rem 0.65rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--dz-danger) 20%, var(--ifm-color-emphasis-200));
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 5%,
+    var(--ifm-background-surface-color, var(--bps-white))
+  );
+}
+
+html[data-theme='light'] .header {
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-paper-light));
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--dz-danger) 18%,
+    var(--bps-rule-light)
+  );
+}
+
+html[data-theme='dark'] .header {
+  background: color-mix(in srgb, var(--dz-danger) 7%, var(--bps-paper-2));
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--dz-danger) 22%,
+    var(--bps-rule-2)
+  );
+}
+
+.headerIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--dz-danger-text);
+}
+
+.headerIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.heading {
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dz-danger-text);
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Collapsed body (delete row) ────────────────────────────────────────── */
+
+.collapsedBody {
+  padding: 0.875rem 1.125rem;
+}
+
+.deleteRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--bps-space-xl);
+  flex-wrap: wrap;
+}
+
+.deleteRowText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bps-space-2xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.deleteRowTitle {
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-base);
+  font-weight: 600;
+  color: var(--ifm-color-emphasis-900);
+  letter-spacing: -0.01em;
+}
+
+html[data-theme='dark'] .deleteRowTitle {
+  color: var(--bps-ink);
+}
+
+.deleteRowDesc {
+  font-size: var(--bps-text-md);
+  color: var(--ifm-color-emphasis-600);
+  line-height: 1.5;
+}
+
+html[data-theme='dark'] .deleteRowDesc {
+  color: var(--bps-ink-muted);
+}
+
+/* Expand button — danger-red outlined style */
+.expandBtn {
+  flex-shrink: 0;
+  height: 34px;
+  padding: 0 14px;
+  background: none;
+  border: 1px solid color-mix(in srgb, var(--dz-danger) 55%, transparent);
+  border-radius: var(--bps-radius-md);
+  color: var(--dz-danger-text);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
+}
+
+html[data-theme='light'] .expandBtn:hover {
+  background: color-mix(in srgb, var(--dz-danger) 8%, transparent);
+  border-color: var(--dz-danger);
+  color: var(--dz-danger);
+}
+
+.expandBtn:active {
+  transform: translateY(1px);
+}
+
+html[data-theme='dark'] .expandBtn {
+  border-color: color-mix(in srgb, var(--dz-danger-text) 40%, transparent);
+  color: var(--dz-danger-text);
+}
+
+html[data-theme='dark'] .expandBtn:hover {
+  background: color-mix(in srgb, var(--dz-danger-text) 8%, transparent);
+  border-color: var(--dz-danger-text);
+  color: var(--bps-danger-text-bright);
+}
+
+/* ── Confirmation panel ─────────────────────────────────────────────────── */
+
+.confirmPanel {
+  padding: 1.25rem 1.125rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--bps-space-2xl);
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 4%,
+    var(--ifm-background-surface-color, var(--bps-white))
+  );
+}
+
+html[data-theme='light'] .confirmPanel {
+  background: color-mix(in srgb, var(--dz-danger) 4%, var(--bps-paper-light));
+}
+
+html[data-theme='dark'] .confirmPanel {
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-paper-2));
+}
+
+/* ── Consequence block ──────────────────────────────────────────────────── */
+
+.consequenceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bps-space-md);
+}
+
+.consequenceIntro {
+  font-size: var(--bps-text-base);
+  color: var(--ifm-color-emphasis-800);
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+html[data-theme='dark'] .consequenceIntro {
+  color: var(--bps-ink-soft);
+}
+
+.consequenceList {
+  list-style: none;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 6%,
+    var(--ifm-background-surface-color, var(--bps-white))
+  );
+  border: 1px solid color-mix(in srgb, var(--dz-danger) 22%, transparent);
+  border-radius: var(--bps-radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--bps-space-md);
+}
+
+html[data-theme='light'] .consequenceList {
+  background: color-mix(in srgb, var(--dz-danger) 5%, var(--bps-white));
+  border-color: color-mix(in srgb, var(--dz-danger) 20%, #e8d0d1);
+}
+
+html[data-theme='dark'] .consequenceList {
+  background: color-mix(in srgb, var(--dz-danger) 8%, var(--bps-paper));
+  border-color: color-mix(in srgb, var(--dz-danger) 25%, var(--bps-rule-2));
+}
+
+.consequenceItem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bps-space-md);
+  font-size: var(--bps-text-md);
+  color: var(--ifm-color-emphasis-800);
+  line-height: 1.45;
+}
+
+html[data-theme='dark'] .consequenceItem {
+  color: var(--bps-ink-soft);
+}
+
+.consequenceItem:last-child {
+  font-weight: 600;
+  color: var(--bps-danger-hover);
+}
+
+html[data-theme='dark'] .consequenceItem:last-child {
+  color: var(--bps-danger-text-bright);
+}
+
+.consequenceIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--dz-danger-text);
+  opacity: 0.75;
+}
+
+html[data-theme='dark'] .consequenceIcon {
+  color: var(--dz-danger-text);
+  opacity: 0.8;
+}
+
+.consequenceIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Confirmation gate ──────────────────────────────────────────────────── */
+
+.confirmGate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--bps-space-xs);
+}
+
+.confirmLabel {
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-700);
+  display: block;
+}
+
+html[data-theme='dark'] .confirmLabel {
+  color: var(--bps-ink-muted);
+}
+
+.handleHint {
+  font-family: var(--bps-docs-mono);
+  font-size: 0.82em;
+  font-weight: 700;
+  color: var(--dz-danger-text);
+  background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
+  padding: 1px 5px;
+  border-radius: var(--bps-radius-sm);
+  letter-spacing: 0.02em;
+  border: none;
+}
+
+html[data-theme='dark'] .handleHint {
+  color: var(--bps-danger-text-bright);
+  background: color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
+}
+
+.confirmInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  background: var(--ifm-background-surface-color, var(--bps-white));
+  border: 1.5px solid
+    color-mix(in srgb, var(--dz-danger) 35%, var(--ifm-color-emphasis-300));
+  border-radius: var(--bps-radius-md);
+  color: var(--ifm-color-emphasis-900);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-base);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+html[data-theme='light'] .confirmInput {
+  background: var(--bps-white);
+  border-color: color-mix(
+    in srgb,
+    var(--dz-danger) 30%,
+    var(--bps-rule-light-2)
+  );
+}
+
+html[data-theme='dark'] .confirmInput {
+  background: var(--bps-paper);
+  border-color: color-mix(in srgb, var(--dz-danger) 38%, var(--bps-rule-2));
+  color: var(--bps-ink-2);
+}
+
+.confirmInput::placeholder {
+  color: var(--ifm-color-emphasis-400);
+  font-weight: 400;
+}
+
+html[data-theme='dark'] .confirmInput::placeholder {
+  color: var(--bps-rule-3);
+}
+
+.confirmInput:focus {
+  border-color: var(--dz-danger);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dz-danger) 12%, transparent);
+  background: var(--ifm-background-surface-color, var(--bps-white));
+}
+
+html[data-theme='light'] .confirmInput:focus {
+  background: var(--bps-white);
+}
+
+html[data-theme='dark'] .confirmInput:focus {
+  border-color: var(--dz-danger-text);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
+  background: var(--bps-paper-2);
+}
+
+/* Valid (confirmed) state — subtle green signal */
+.confirmInputValid {
+  border-color: var(--bps-success) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bps-success) 12%, transparent) !important;
+}
+
+html[data-theme='dark'] .confirmInputValid {
+  border-color: var(--bps-success-dark) !important;
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--bps-success-dark) 12%, transparent) !important;
+}
+
+.confirmInput:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmHint {
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-2xs);
+  color: var(--ifm-color-emphasis-500);
+  margin: 0;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+html[data-theme='dark'] .confirmHint {
+  color: var(--bps-ink-faint);
+}
+
+/* ── Error message ──────────────────────────────────────────────────────── */
+
+.errorMsg {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--bps-space-sm);
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
+  border-radius: var(--bps-radius-md);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
+  font-weight: 500;
+  color: var(--dz-danger-text);
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+html[data-theme='dark'] .errorMsg {
+  color: var(--dz-danger-text);
+  background: color-mix(in srgb, var(--dz-danger-text) 8%, transparent);
+  border-color: color-mix(in srgb, var(--dz-danger-text) 22%, transparent);
+}
+
+.errorIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Action row ─────────────────────────────────────────────────────────── */
+
+.actionRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--bps-space-md);
+  flex-wrap: wrap;
+}
+
+/* Cancel — neutral ghost */
+.cancelBtn {
+  height: 36px;
+  padding: 0 16px;
+  background: none;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--bps-radius-md);
+  color: var(--ifm-color-emphasis-600);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.cancelBtn:hover:not(:disabled) {
+  border-color: var(--ifm-color-emphasis-500);
+  color: var(--ifm-color-emphasis-800);
+  background: var(--ifm-color-emphasis-100);
+}
+
+.cancelBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+html[data-theme='dark'] .cancelBtn {
+  border-color: var(--bps-rule-2);
+  color: var(--bps-ink-muted);
+}
+
+html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
+  border-color: var(--bps-rule-3);
+  color: var(--bps-ink-soft);
+  background: var(--bps-surface-3);
+}
+
+/* Delete — solid danger red; disabled when not confirmed */
+.deleteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  background: var(--dz-danger);
+  border: none;
+  border-radius: var(--bps-radius-md);
+  color: var(--bps-white);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.1s ease;
+}
+
+.deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--bps-danger-hover);
+}
+
+.deleteBtn:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(1px);
+}
+
+/* Disabled — visually muted, click-blocked; also covers aria-disabled state */
+.deleteBtn:disabled,
+.deleteBtn[aria-disabled='true'] {
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 40%,
+    var(--ifm-color-emphasis-300)
+  );
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+html[data-theme='dark']
+  .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--bps-danger-hover-dark);
+}
+
+html[data-theme='dark'] .deleteBtn:disabled,
+html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
+  background: color-mix(in srgb, var(--dz-danger) 35%, var(--bps-rule-2));
+}
+
+.deleteBtnIcon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+/* ── Deleting spinner ───────────────────────────────────────────────────── */
+
+@keyframes dzSpinnerSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.deletingSpinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: var(--bps-white);
+  border-radius: 50%;
+  animation: dzSpinnerSpin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 560px) {
+  .deleteRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--bps-space-lg);
+  }
+
+  .expandBtn {
+    width: 100%;
+    height: 38px;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .actionRow {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .cancelBtn,
+  .deleteBtn {
+    width: 100%;
+    height: 40px;
+    justify-content: center;
+  }
+}

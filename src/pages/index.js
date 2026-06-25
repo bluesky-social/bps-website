@@ -38,13 +38,15 @@ const HERO_TOPO_HTML = `
     <circle class="pin warm" cx="980" cy="280" r="5.5"/>
   </g>
   <text x="998" y="278" class="label warm">RELAY · APPVIEW · JETSTREAM</text>
+  <!-- PDS pin cluster + label, placed in the upper-right quadrant clear of the
+       left-aligned hero copy (it originally sat center-left and clashed). -->
   <g style="color: var(--c-relay)">
-    <circle class="pin cool" cx="600" cy="160" r="3.2"/>
-    <circle class="pin cool" cx="640" cy="200" r="3.2"/>
-    <circle class="pin cool" cx="580" cy="240" r="3.2"/>
-    <circle class="pin cool" cx="660" cy="270" r="3.2"/>
+    <circle class="pin cool" cx="1060" cy="120" r="3.2"/>
+    <circle class="pin cool" cx="1100" cy="150" r="3.2"/>
+    <circle class="pin cool" cx="1050" cy="180" r="3.2"/>
+    <circle class="pin cool" cx="1110" cy="200" r="3.2"/>
   </g>
-  <text x="690" y="172" class="label cool">PDS · ×1,206</text>
+  <text x="1140" y="138" class="label cool" style="text-anchor:end">PDS · ×1,206</text>
   <g style="color: var(--c-api)">
     <circle class="pin-ring" cx="1110" cy="430" r="14"/>
     <circle class="pin mag" cx="1110" cy="430" r="3.8"/>

@@ -6,7 +6,7 @@
 .hero {
   position: relative;
   overflow: hidden;
-  border-radius: 0 0 10px 0;
+  border-radius: 0 0 var(--bps-radius-xl) 0;
   /* Break out of the content column's padding: pull up over the top padding
    * and out to the left edge, and extend further right past the column's
    * right padding into the gutter toward the TOC. Inner padding re-aligns the
@@ -35,10 +35,10 @@
 
 .eyebrow {
   font-family: var(--bps-docs-mono);
-  font-size: 0.66rem; font-weight: 700;
+  font-size: var(--bps-text-2xs); font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ifm-color-primary);
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--bps-space-md);
 }
 .title {
   font-size: 2rem; font-weight: 740; letter-spacing: -0.024em;

@@ -25,3 +25,9 @@ yarn-error.log*
 
 # Visual brainstorming companion
 .superpowers/
+# Backend service
+/server/node_modules
+/server/src/lexicons
+
+# Generated site-side lexicon client types
+/src/lexicons

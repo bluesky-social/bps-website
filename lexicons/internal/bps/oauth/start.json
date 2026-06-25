@@ -1,0 +1,29 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.oauth.start",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Begin the atproto OAuth flow; returns the authorization URL to redirect the browser to.",
+      "parameters": {
+        "type": "params",
+        "required": ["handle"],
+        "properties": {
+          "handle": {
+            "type": "string",
+            "format": "at-identifier",
+            "description": "Handle or DID to authenticate."
+          }
+        }
+      },
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["authorizeUrl"],
+          "properties": { "authorizeUrl": { "type": "string" } }
+        }
+      }
+    }
+  }
+}

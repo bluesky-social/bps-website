@@ -1,0 +1,220 @@
+/*
+ * ProfileCard.module.css
+ *
+ * Identity card: avatar + displayName + @handle + email line (3rd names row).
+ * Email is display-only (read-only mirror of the user's Atmosphere account) —
+ * no edit affordance, no modal.
+ *
+ * Design language: Inter body throughout (Atkinson Mono removed from handle,
+ * email, and inputs here). BPS paper surfaces, BPS blue primary,
+ * light+dark via CSS vars and html[data-theme='dark'].
+ */
+
+/* ── Card shell ─────────────────────────────────────────────────────────── */
+
+.card {
+  /* No outer border — reads as a transparent block; the page container carries
+     the page structure. */
+  padding: 0.25rem 0 0;
+}
+
+/* ── Identity row ───────────────────────────────────────────────────────── */
+
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.125rem;
+  padding-bottom: var(--bps-space-sm);
+}
+
+/* ── Avatar ─────────────────────────────────────────────────────────────── */
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+}
+
+.avatarImg {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+  display: block;
+}
+
+html[data-theme='dark'] .avatarImg {
+  border-color: var(--bps-rule-2);
+  background: var(--bps-surface-3);
+}
+
+.avatarFallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--ifm-color-emphasis-200);
+  background: var(--ifm-color-emphasis-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--bps-docs-mono);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--ifm-color-primary);
+  user-select: none;
+}
+
+html[data-theme='dark'] .avatarFallback {
+  border-color: var(--bps-rule-2);
+  background: var(--bps-surface-3);
+  color: var(--bps-blue-dark);
+}
+
+/* ── Identity text ──────────────────────────────────────────────────────── */
+
+.names {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+  /* Push the names column to the top so it aligns with the avatar top edge */
+  align-self: flex-start;
+}
+
+.displayName {
+  margin: 0;
+  font-family: var(--ifm-font-family-base);
+  font-size: 1.15rem;
+  font-weight: 660;
+  letter-spacing: -0.018em;
+  color: var(--ifm-color-emphasis-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+html[data-theme='dark'] .displayName {
+  color: var(--bps-ink);
+}
+
+/* Item 1: handle → Inter (was Atkinson mono). Weight 600. */
+.handle {
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-md);
+  font-weight: 600;
+  letter-spacing: 0;
+  /* Item 7: darker for light-mode contrast (was emphasis-600). */
+  color: var(--ifm-color-emphasis-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+html[data-theme='dark'] .handle {
+  color: var(--bps-ink-muted);
+}
+
+/* ── Email line (3rd names row) ─────────────────────────────────────────── */
+
+/* Container spans full names-column width with the edit trigger inline */
+.emailLine {
+  display: flex;
+  align-items: center;
+  gap: var(--bps-space-xs);
+  min-width: 0;
+}
+
+/* Envelope icon preceding the email address */
+.emailIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--ifm-color-emphasis-500);
+}
+
+html[data-theme='dark'] .emailIcon {
+  color: var(--bps-ink-faint);
+}
+
+/* Item 1: email address → Inter (was Atkinson mono) */
+.emailAddress {
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-md);
+  font-weight: 400;
+  letter-spacing: 0;
+  /* Item 7: darker for light-mode contrast (was emphasis-600). */
+  color: var(--ifm-color-emphasis-700);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+html[data-theme='dark'] .emailAddress {
+  color: var(--bps-ink-muted);
+}
+
+/* ── Sign out — quiet text button, top-right of the identity row ──────────
+ * align-self: flex-start pins it to the top edge when .names has 3 lines. */
+
+.signOutBtn {
+  margin-left: auto;
+  align-self: flex-start;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-sm);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-600);
+  transition: color 0.12s ease;
+  /* Add a small top offset to optically align with the first text line */
+  margin-top: 2px;
+}
+.signOutBtn:hover {
+  color: var(--ifm-color-primary);
+}
+.signOutBtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+html[data-theme='dark'] .signOutBtn {
+  color: var(--bps-ink-faint);
+}
+html[data-theme='dark'] .signOutBtn:hover {
+  color: var(--ifm-color-primary);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .avatarImg,
+  .avatarFallback,
+  .avatarWrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .avatarFallback {
+    font-size: 1.1rem;
+  }
+
+  .displayName {
+    font-size: 1rem;
+  }
+
+  .emailAddress {
+    /* allow the address to wrap on very narrow screens */
+    white-space: normal;
+    word-break: break-all;
+  }
+}
