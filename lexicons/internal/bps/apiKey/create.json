@@ -12,7 +12,11 @@
           "required": ["label"],
           "properties": {
             "label": { "type": "string", "maxLength": 200, "minLength": 1 },
-            "expiresAt": { "type": "string", "format": "datetime", "description": "Optional expiry; omit for a non-expiring key." }
+            "expiresAt": {
+              "type": "string",
+              "format": "datetime",
+              "description": "Optional expiry; omit for a non-expiring key."
+            }
           }
         }
       },
@@ -27,7 +31,10 @@
             "preview": { "type": "string" },
             "createdAt": { "type": "string", "format": "datetime" },
             "expiresAt": { "type": "string", "format": "datetime" },
-            "key": { "type": "string", "description": "The full secret. Shown once; not retrievable later." }
+            "key": {
+              "type": "string",
+              "description": "The full secret. Shown once; not retrievable later."
+            }
           }
         }
       }

@@ -7,7 +7,11 @@
       "description": "Hard-delete the caller's account: keys, OAuth session, and account row; clears the login cookie.",
       "output": {
         "encoding": "application/json",
-        "schema": { "type": "object", "required": ["ok"], "properties": { "ok": { "type": "boolean" } } }
+        "schema": {
+          "type": "object",
+          "required": ["ok"],
+          "properties": { "ok": { "type": "boolean" } }
+        }
       }
     }
   }

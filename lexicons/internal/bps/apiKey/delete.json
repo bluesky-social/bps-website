@@ -15,7 +15,11 @@
       },
       "output": {
         "encoding": "application/json",
-        "schema": { "type": "object", "required": ["ok"], "properties": { "ok": { "type": "boolean" } } }
+        "schema": {
+          "type": "object",
+          "required": ["ok"],
+          "properties": { "ok": { "type": "boolean" } }
+        }
       }
     }
   }
