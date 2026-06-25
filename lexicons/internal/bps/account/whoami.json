@@ -1,0 +1,22 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.account.whoami",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "Return the logged-in account's DID, handle, and stored email (when set).",
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["did"],
+          "properties": {
+            "did": { "type": "string", "format": "did" },
+            "handle": { "type": "string", "format": "handle" },
+            "email": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

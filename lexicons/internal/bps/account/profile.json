@@ -1,0 +1,23 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.account.profile",
+  "defs": {
+    "main": {
+      "type": "query",
+      "description": "The caller's bsky profile (handle, display name, avatar), fetched live.",
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["did", "handle"],
+          "properties": {
+            "did": { "type": "string", "format": "did" },
+            "handle": { "type": "string" },
+            "displayName": { "type": "string" },
+            "avatar": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}

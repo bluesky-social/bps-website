@@ -124,6 +124,7 @@ const config = {
   // unset, the homepage "API Reference" card is hidden.
   customFields: {
     endpointsUrl: process.env.ENDPOINTS_URL || null,
+    apiOrigin: process.env.BPS_PUBLIC_API_ORIGIN || 'http://127.0.0.1:8080',
   },
   presets: [
     [
@@ -232,6 +233,13 @@ const config = {
             type: "localeDropdown",
             position: "right",
             className: "bpsMainMenuLocale",
+          },
+          {
+            // Account item — resolving / anon / authed states from useAuth().
+            // Sits at the very end of the nav, after the locale dropdown and
+            // just before the auto-appended color-mode toggle.
+            type: "custom-bpsAccount",
+            position: "right",
           },
         ],
       },

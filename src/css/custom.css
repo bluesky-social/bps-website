@@ -18,6 +18,9 @@
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
   --site-color-svg-icon-favorite: #D00C61;
+  /* Account-section divider — a blue-tinted rule (light mode). Bluer + a touch
+   * more present than the flat grey #dfe3e8 so dividers actually read. */
+  --bps-account-divider: #d3dae8;
 }
 
 /* Dark-mode primary = #7DD3FC — the light stop of the butterfly logo gradient
@@ -31,6 +34,8 @@
   --ifm-color-primary-lighter: #ade3fd;
   --ifm-color-primary-lightest: #dbf3fe;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+  /* Account-section divider — a dark blue (dark mode), bluer than #2a3340. */
+  --bps-account-divider: #2d3b54;
 }
 
 /* =====================================================================
@@ -125,6 +130,8 @@ html[data-theme='dark'] {
   --bps-nav-rule-hover: #38424f;
   --bps-nav-key-bg: #0d1117;       /* ⌘K key caps */
   --bps-nav-muted: #9ca3af;        /* search icon + placeholder + keys */
+  --bps-nav-error: #ff7b72;        /* inline error text (account sign-in), dark */
+  --bps-nav-on-accent: #fff;       /* fg on the accent/hover fill (buttons) */
 
   --ifm-navbar-background-color: var(--bps-nav-bg);
   --ifm-navbar-link-color: var(--bps-nav-ink-soft);
@@ -156,6 +163,8 @@ html[data-theme='light'] .navbar {
   --bps-nav-rule-hover: #c7ccd3;
   --bps-nav-key-bg: #f4f6f9;
   --bps-nav-muted: #6b7480;
+  --bps-nav-error: #c0392b;        /* inline error text, light (darker for contrast on light surface) */
+  /* --bps-nav-on-accent stays #fff — light accent (#0057a8) carries white text */
 }
 /* Faint topo-line graphic bleeding behind the masthead (prototype .topo-bg):
  * sits left of center, masked to fade at all edges so it doesn't terminate
@@ -205,6 +214,43 @@ html[data-theme='light'] .navbar::before {
 .navbar .clean-btn,
 .navbar__toggle {
   color: var(--bps-nav-ink-soft);
+}
+
+/* Color-mode toggle hover: match the account login icon's blue-hued treatment
+ * (background tint + blue glyph) so the icon controls feel like one family.
+ * Mirrors .iconLink:hover in BpsAccount.module.css. Applies in BOTH the desktop
+ * bar AND the mobile hamburger drawer (.navbar-sidebar) so the toggle hover is
+ * consistent across the two navs. */
+/* Target the toggle BUTTON directly (its hashed class is `toggleButton_*`) so
+ * the rule wins over Infima's `.toggleButton:hover { background: emphasis-200 }`
+ * grey in BOTH the desktop bar and the mobile drawer (which renders the same
+ * toggle markup when opened). The class*=colorModeToggle wrapper selectors are
+ * kept as belt-and-suspenders. */
+[class*='toggleButton']:hover,
+[class*='colorModeToggle'] .clean-btn:hover,
+[class*='colorModeToggle'] button:hover,
+.navbar-sidebar [class*='toggleButton']:hover {
+  background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  color: var(--bps-nav-hover);
+}
+
+/* ── Right-nav item ordering (desktop) ──────────────────────────────────────
+ * Docusaurus renders right config items first, then appends
+ * <NavbarColorModeToggle> after them in the DOM. We want the account icon at
+ * the FAR right: [...links] → colorModeToggle → account icon.
+ * Use flex `order` to place the colorModeToggle at 1 and the account slot at 2
+ * so it renders last regardless of DOM order. All other items stay at 0.
+ * The gap:22px on .navbar__items--right gives even spacing throughout.
+ * The stable global class `bpsAccountSlot` is added by BpsAccount.js to allow
+ * targeting from global CSS without relying on the hashed CSS-module class.
+ * Desktop only — mobile hides the slot and uses the drawer instead. */
+@media (min-width: 997px) {
+  .navbar__items--right > [class*='colorModeToggle'] {
+    order: 1;
+  }
+  .navbar__items--right > .bpsAccountSlot {
+    order: 2;
+  }
 }
 
 /* ----- brand lockup — matches the prototype .masthead .lockup ----- */
@@ -422,25 +468,53 @@ html[data-theme='dark']:root {
   .navbar__items--right > .dropdown:has(> .bpsMainMenuLocale) {
     display: none;
   }
-  .navbar__items--right { gap: 0; }
+  /* Two controls now live in the mobile bar (search icon + account slot); give
+   * them breathing room so they don't overlap. */
+  .navbar__items--right { gap: 10px; }
 
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
   .navbar .navbarSearchContainer_Bca1,
-  .navbar [class*='navbarSearchContainer'] { width: 38px; }
+  .navbar [class*='navbarSearchContainer'] {
+    width: 2rem;
+    /* Docusaurus's default pins the search container `position: absolute; right`
+     * on mobile (assuming it's the only right-side control). With the account
+     * icon now also in the bar, the absolute search overlapped it. Put search
+     * back in normal flow so it sits beside the account slot via the flex gap. */
+    position: initial;
+  }
   .navbar .DocSearch-Button {
     min-width: 0;
-    width: 38px; height: 38px;
+    width: 2rem; height: 2rem;
     padding: 0;
     border-radius: 50%;            /* circular icon button */
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Match the account login icon-button: no border/fill, soft-ink glyph,
+     * blue tint + blue glyph on hover, blue tap highlight. */
+    background: none;
+    border: none;
+    color: var(--bps-nav-ink-soft);
+    transition: background var(--ifm-transition-fast), color 0.15s ease;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+  .navbar .DocSearch-Button:hover {
+    background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+  .navbar .DocSearch-Button:hover .DocSearch-Search-Icon,
+  .navbar .DocSearch-Button:focus-visible .DocSearch-Search-Icon {
+    color: var(--bps-nav-hover);
   }
   .navbar .DocSearch-Button-Placeholder,
   .navbar .DocSearch-Button-Keys { display: none; }
   /* the icon sits in a Container span; zero its margins and center it */
   .navbar .DocSearch-Button .DocSearch-Button-Container { margin: 0; }
-  .navbar .DocSearch-Button .DocSearch-Search-Icon { margin: 0; display: block; }
+  /* Glyph inherits the soft-ink color (set on the button) → matches login icon. */
+  .navbar .DocSearch-Button .DocSearch-Search-Icon {
+    margin: 0;
+    display: block;
+    color: var(--bps-nav-ink-soft);
+  }
 
   /* When the drawer is open, hide the bar's right group (the search icon) so it
    * can't peek through in the strip beside the drawer. */

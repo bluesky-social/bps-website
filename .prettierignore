@@ -4,3 +4,11 @@
 .cache-loader
 package-lock.json
 docusaurus.config.js
+
+# Vendored lexicons + manifest are fetched/written by the `lex` CLI
+# (lex install). Their on-disk form is tool-managed and tracked by content CID
+# in lexicons.json — formatting them just churns against the next install/update.
+/lexicons/app
+/lexicons/com
+/lexicons/tools
+/lexicons.json

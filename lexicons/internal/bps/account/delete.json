@@ -1,0 +1,18 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.account.delete",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Hard-delete the caller's account: keys, OAuth session, and account row; clears the login cookie.",
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["ok"],
+          "properties": { "ok": { "type": "boolean" } }
+        }
+      }
+    }
+  }
+}

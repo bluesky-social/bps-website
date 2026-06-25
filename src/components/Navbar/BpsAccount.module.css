@@ -1,0 +1,150 @@
+/*
+ * BpsAccount — navbar account item.
+ *
+ * Design intent: a fixed-width "slot" in the nav-mini cluster that transitions
+ * cleanly between three states (resolving / anon / authed) with zero layout
+ * shift. Uses the same bpsNav token palette as the mono links (Atkinson
+ * Hyperlegible Mono, soft ink, blue on hover/active).
+ *
+ * Desktop: sits between the trailing divider and the theme toggle — an
+ * avatar-sized fixed slot. Authed: avatar only. Anon: icon-only sign-in button.
+ *
+ * Mobile: renders as a standard drawer menu__link row (like NavCustomLink),
+ * always "My Account" → /account. Sign-in happens on the account page.
+ */
+
+/* ── Desktop wrapper ─────────────────────────────────────────────────────── */
+
+.slot {
+  /* Fixed size holds the slot stable across all three states so the divider
+   * never shifts. Sized for the 2rem (32px) icon-buttons / 30px avatar. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  position: relative;
+}
+
+/* ── Avatar link (authed) ────────────────────────────────────────────────── */
+
+.avatarLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  border-radius: 50%;
+  transition: opacity 0.15s ease;
+}
+
+.avatarLink:hover {
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+/* ── Icon-only sign-in link (anon) ───────────────────────────────────────── */
+
+.iconLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 2rem (32px) circular hit area — matches the color-mode toggle + search icon
+   * button so the three nav icon-controls are identical side by side. */
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: none;
+  padding: 0;
+  color: var(--bps-nav-ink-soft);
+  text-decoration: none;
+  /* Match the color-mode toggle's transition */
+  transition:
+    background var(--ifm-transition-fast),
+    color 0.15s ease;
+}
+
+.iconLink:hover {
+  /* Blue-hued tint background + blue icon — both light and dark modes */
+  background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  color: var(--bps-nav-hover);
+  text-decoration: none;
+}
+
+/* ── Resolving placeholder ───────────────────────────────────────────────── */
+
+.resolvingGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.ghostAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  flex-shrink: 0;
+  /* Subtle pulse to signal loading without being distracting */
+  animation: bpsAccountPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes bpsAccountPulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* ── Avatar ──────────────────────────────────────────────────────────────── */
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--bps-nav-rule);
+  background: var(--bps-nav-surface);
+}
+
+.avatarFallback {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bps-nav-surface);
+  border: 1px solid var(--bps-nav-rule);
+  color: var(--bps-nav-muted);
+  font-size: 13px;
+  font-weight: 700;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── Anon state — sign-in icon ───────────────────────────────────────────── */
+
+.signInIcon {
+  /* Optically matched to the color-mode toggle's sun/moon glyph (~1.25rem). */
+  width: 19px;
+  height: 19px;
+  flex-shrink: 0;
+}
+
+/* ── Mobile drawer variant ───────────────────────────────────────────────── */
+
+/* The account control stays in the TOP BAR on mobile too (unlike the other
+ * right-nav items, which move to the hamburger drawer). The `.slot` is NOT
+ * hidden at mobile widths — see custom.css, where it's exempted from the
+ * right-cluster hide rule and kept visible alongside the search icon. The old
+ * mobile drawer row (.mobileItem/.mobileAvatar*) has been removed. */

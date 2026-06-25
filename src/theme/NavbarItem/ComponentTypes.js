@@ -5,6 +5,7 @@ import BpsBrand from '@site/src/components/Navbar/BpsBrand'
 import NavCustomLink from '@site/src/components/Navbar/NavCustomLink'
 import NavSep from '@site/src/components/Navbar/NavSep'
 import DocsMenu from '@site/src/components/Navbar/DocsMenu'
+import BpsAccount from '@site/src/components/Navbar/BpsAccount'
 
 export default {
   ...ComponentTypes,
@@ -12,4 +13,5 @@ export default {
   'custom-navLink': NavCustomLink,
   'custom-navSep': NavSep,
   'custom-docsMenu': DocsMenu,
+  'custom-bpsAccount': BpsAccount,
 }
