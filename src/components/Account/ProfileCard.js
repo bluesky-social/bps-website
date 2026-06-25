@@ -9,7 +9,7 @@
  * no in-app editing. When the account has an email, the line shows an envelope
  * icon + address; when it has none, the line is omitted entirely.
  *
- * Consumes useAuth(): { handle, did, profile, hasEmail, email }
+ * Consumes useAuth(): { handle, did, profile, email }
  */
 
 import React, { useState, useCallback } from 'react'
@@ -58,8 +58,8 @@ function Avatar({ src, handle }) {
  * sourced from the user's Atmosphere account, so an empty value isn't
  * actionable and shouldn't draw attention).
  */
-function EmailLine({ hasEmail, email }) {
-  if (!hasEmail) return null
+function EmailLine({ email }) {
+  if (!email) return null
 
   return (
     <span className={styles.emailLine}>
@@ -85,7 +85,7 @@ function EmailLine({ hasEmail, email }) {
 // ── ProfileCard ───────────────────────────────────────────────────────────────
 
 export default function ProfileCard() {
-  const { handle: whoamiHandle, did, profile, hasEmail, email, logout } = useAuth()
+  const { handle: whoamiHandle, did, profile, email, logout } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
 
   const rawHandle = (whoamiHandle ?? profile?.handle) ?? ''
@@ -114,7 +114,7 @@ export default function ProfileCard() {
             <span className={styles.handle}>@{handle}</span>
           )}
           {/* Email as 3rd line — display-only, omitted when no email on file */}
-          <EmailLine hasEmail={!!hasEmail} email={email} />
+          <EmailLine email={email} />
         </div>
         <button
           type="button"

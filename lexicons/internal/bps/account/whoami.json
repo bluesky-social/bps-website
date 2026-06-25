@@ -4,17 +4,16 @@
   "defs": {
     "main": {
       "type": "query",
-      "description": "Return the logged-in account's DID, handle, stored email, and whether an email is set.",
+      "description": "Return the logged-in account's DID, handle, and stored email (when set).",
       "output": {
         "encoding": "application/json",
         "schema": {
           "type": "object",
-          "required": ["did", "hasEmail"],
+          "required": ["did"],
           "properties": {
             "did": { "type": "string", "format": "did" },
-            "handle": { "type": "string" },
-            "email": { "type": "string" },
-            "hasEmail": { "type": "boolean" }
+            "handle": { "type": "string", "format": "handle" },
+            "email": { "type": "string" }
           }
         }
       }

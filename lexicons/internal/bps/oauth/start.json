@@ -8,7 +8,7 @@
       "parameters": {
         "type": "params",
         "required": ["handle"],
-        "properties": { "handle": { "type": "string", "description": "Handle or DID to authenticate." } }
+        "properties": { "handle": { "type": "string", "format": "at-identifier", "description": "Handle or DID to authenticate." } }
       },
       "output": {
         "encoding": "application/json",

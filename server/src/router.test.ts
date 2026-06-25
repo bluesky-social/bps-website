@@ -20,7 +20,7 @@ after(async () => {
   await db.destroy()
 })
 
-test('internal.bps.health responds via router.fetch', async () => {
+test('router.fetch serves XRPC methods (whoami rejects without a cookie)', async () => {
   const cfg = loadConfig({
     BPS_PORT: '8080',
     BPS_DATABASE_URL: url,
@@ -34,11 +34,10 @@ test('internal.bps.health responds via router.fetch', async () => {
   const client = await createOAuthClient(db, cfg)
   const apiKeys = createPostgresApiKeyProvider(db)
   const router = buildRouter({ db, config: cfg, client, apiKeys })
+  // No session cookie → the auth gate rejects. This proves router.fetch routes
+  // and runs the auth middleware (liveness is covered by GET /healthz in app.test.ts).
   const res = await router.fetch(
-    new Request('http://local/xrpc/internal.bps.health'),
+    new Request('http://local/xrpc/internal.bps.account.whoami'),
   )
-  assert.equal(res.status, 200)
-  const json = (await res.json()) as { status: string; db: unknown }
-  assert.equal(json.status, 'ok')
-  assert.equal(typeof json.db, 'boolean')
+  assert.equal(res.status, 401)
 })

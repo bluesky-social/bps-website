@@ -5,7 +5,6 @@ import type { DidString } from '@atproto/syntax'
 import type { DB } from './db/index.ts'
 import type { AppConfig } from './config.ts'
 import type { ApiKeyProvider } from './apikeys/provider.ts'
-import { checkHealth } from './health.ts'
 import { logger } from './logger.ts'
 import { makeRequireSession } from './session/auth.ts'
 import { clearCookieHeader } from './session/cookie.ts'
@@ -30,10 +29,6 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         logger.error({ err: error, method: method.nsid }, 'unexpected handler error')
       }
     },
-  })
-
-  router.add(internal.bps.health.main, async () => {
-    return { body: await checkHealth(db) }
   })
 
   // Begin OAuth: returns the authorize URL for the browser to follow. A bad or
@@ -75,9 +70,11 @@ export function buildRouter(deps: RouterDeps): LexRouter {
       return {
         body: {
           did: credentials.did,
-          ...(row.handle ? { handle: row.handle } : {}),
+          // The lexicon types `handle` with the `handle` format (branded
+          // `${string}.${string}`); the DB column is unconstrained text holding
+          // the PDS-reported handle, so cast at the boundary.
+          ...(row.handle ? { handle: row.handle as `${string}.${string}` } : {}),
           ...(email ? { email } : {}),
-          hasEmail: !!email,
         },
       }
     },

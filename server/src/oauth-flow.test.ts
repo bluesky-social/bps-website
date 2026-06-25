@@ -47,12 +47,13 @@ test('whoami returns 401-ish without a cookie', async () => {
   assert.notEqual(res.status, 200)
 })
 
-test('whoami returns the did + hasEmail with a valid cookie', async () => {
+test('whoami returns the did (no email when none is set) with a valid cookie', async () => {
   const res = await fetch(`${base}/xrpc/internal.bps.account.whoami`, { headers: { cookie: await cookie() } })
   assert.equal(res.status, 200)
-  const json = (await res.json()) as { did: string; hasEmail: boolean }
+  const json = (await res.json()) as { did: string; email?: string }
   assert.equal(json.did, did)
-  assert.equal(json.hasEmail, false)
+  // Email presence is conveyed by the field's presence — this fixture has none.
+  assert.equal(json.email, undefined)
 })
 
 test('logout returns ok and an expiring Set-Cookie', async () => {
