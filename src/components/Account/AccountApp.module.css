@@ -138,7 +138,7 @@ html[data-theme='dark'] .anonTitle {
 }
 
 .anonLede {
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   /* Item 7: darker for light-mode contrast (was emphasis-700). */
   color: var(--ifm-color-emphasis-800);
   margin: 0 0 1.75rem;
@@ -157,7 +157,7 @@ html[data-theme='dark'] .anonLede {
 
 .inputLabel {
   font-family: var(--bps-docs-mono);
-  font-size: 0.68rem;
+  font-size: var(--bps-text-2xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -188,7 +188,7 @@ html[data-theme='dark'] .inputLabel {
   /* Item 5/1: Inter for the handle input (was Atkinson mono); width:100% ensures
      full-width when the row stacks to a column on mobile. */
   font-family: var(--ifm-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--bps-text-base);
   font-weight: 400;
   outline: none;
   transition:
@@ -234,7 +234,7 @@ html[data-theme='dark'] .handleInput:focus {
   border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -266,7 +266,7 @@ html[data-theme='dark'] .handleInput:focus {
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
   border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
-  font-size: 0.75rem;
+  font-size: var(--bps-text-sm);
   font-weight: 500;
   color: var(--bps-danger-text);
   letter-spacing: 0.01em;
@@ -283,7 +283,7 @@ html[data-theme='dark'] .anonError {
 }
 
 .anonNote {
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   /* Item 7: darker for light-mode contrast (was emphasis-500). */
   color: var(--ifm-color-emphasis-600);
   margin: 1rem 0 0;

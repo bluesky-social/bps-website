@@ -35,7 +35,7 @@
 
 .eyebrow {
   font-family: var(--bps-docs-mono);
-  font-size: 0.66rem; font-weight: 700;
+  font-size: var(--bps-text-2xs); font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ifm-color-primary);
   margin-bottom: 0.6rem;

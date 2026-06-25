@@ -97,6 +97,18 @@
   --bps-radius-md: 6px; /* controls: inputs, buttons, small boxes */
   --bps-radius-lg: 8px; /* cards, code blocks, key list */
   --bps-radius-xl: 10px; /* large containers, hero corner */
+
+  /* UI type scale — the chrome/label/body band. Earlier this range held ~15
+   * near-duplicate sizes (0.62–0.9rem, steps as small as 0.01rem ≈ 0.16px);
+   * these five steps collapse it to perceptible tiers. Display/title sizes
+   * (the .markdown heading ramp, and the ~1.0–1.3rem one-offs) and em-relative
+   * sizes are deliberately NOT in the scale — they're single-use or
+   * context-relative. The bespoke px masthead/homepage keep their own sizes. */
+  --bps-text-2xs: 0.66rem; /* micro mono labels, eyebrows, admonition headings */
+  --bps-text-xs: 0.72rem; /* captions, mono metadata, small mono buttons */
+  --bps-text-sm: 0.78rem; /* secondary buttons, notes */
+  --bps-text-md: 0.82rem; /* descriptive body text */
+  --bps-text-base: 0.875rem; /* inputs, primary body, sidebar/footer links */
 }
 
 /* =====================================================================
@@ -599,13 +611,13 @@ html[data-theme='dark']:root {
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__link,
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__list-item-collapsible > .menu__link {
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem; font-weight: 700;
+  font-size: var(--bps-text-xs); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
 }
 /* nested (submenu) items stay Inter, normal case */
 .navbar-sidebar__items .menu__list .menu__list .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.9rem; font-weight: 400;
+  font-size: var(--bps-text-base); font-weight: 400;
   letter-spacing: normal; text-transform: none;
 }
 
@@ -707,7 +719,7 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
  * leading Home item carrying an icon. */
 .breadcrumbs { font-family: var(--bps-docs-mono); }
 .breadcrumbs__link {
-  font-size: 0.72rem; letter-spacing: 0.02em;
+  font-size: var(--bps-text-xs); letter-spacing: 0.02em;
   background: transparent; padding: 2px 4px;
   border-radius: var(--bps-radius-sm);
 }
@@ -748,7 +760,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 }
 
 /* Right-hand TOC: quiet it. */
-.table-of-contents { font-size: 0.8rem; }
+.table-of-contents { font-size: var(--bps-text-md); }
 .table-of-contents__left-border { border-left-color: var(--ifm-toc-border-color); }
 .table-of-contents__link { color: var(--ifm-color-emphasis-700); line-height: 1.5; }
 .table-of-contents__link--active,
@@ -824,7 +836,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * it by substring rather than literal class. */
 .theme-admonition [class*='admonitionHeading_'] {
   font-family: var(--bps-docs-mono);
-  font-size: 0.66rem; font-weight: 700;
+  font-size: var(--bps-text-2xs); font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
 }
 /* Hide the default Docusaurus admonition icon — the design uses a mono "//"
@@ -884,23 +896,23 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * it uses the code font (JetBrains), matching the code it labels. */
 div[class*='codeBlockTitle_'] {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 0.72rem; letter-spacing: 0.02em;
+  font-size: var(--bps-text-xs); letter-spacing: 0.02em;
   background: var(--ifm-color-emphasis-100);
   border-bottom: 1px solid var(--ifm-color-emphasis-300);
 }
 /* copy button → quieter */
 .theme-code-block button[class*='copyButton_'] {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
 }
 /* code body uses the mono stack already via --ifm-font-family-monospace */
-.theme-code-block pre code { font-size: 0.85rem; line-height: 1.6; }
+.theme-code-block pre code { font-size: var(--bps-text-base); line-height: 1.6; }
 
 /* =====================================================================
  * DOCS READING SURFACE — left sidebar (§4)
  * Scoped to .theme-doc-sidebar-menu so it never touches the navbar drawer.
  * ===================================================================== */
-.theme-doc-sidebar-menu { font-size: 0.9rem; }
+.theme-doc-sidebar-menu { font-size: var(--bps-text-base); }
 
 /* Top-level labels → mono, uppercase, tracked. Covers both collapsible
  * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
@@ -909,7 +921,7 @@ div[class*='codeBlockTitle_'] {
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
   font-family: var(--bps-docs-mono);
-  font-size: 0.75rem; font-weight: 700;
+  font-size: var(--bps-text-sm); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
@@ -1057,13 +1069,13 @@ html[data-theme='dark'] .footer {
 .footer__title {
   color: var(--bps-footer-title);
   font-family: var(--bps-docs-mono);
-  font-size: 0.82rem; font-weight: 700;
+  font-size: var(--bps-text-md); font-weight: 700;
   letter-spacing: 0.09em; text-transform: uppercase;
 }
 /* Link items → quieter, Inter, normal weight. */
 .footer__link-item {
   color: var(--bps-footer-link);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
 }
 .footer__link-item:hover { color: var(--bps-footer-link-hover); }
 
@@ -1074,5 +1086,5 @@ html[data-theme='dark'] .footer {
 .bpsFooterCopy {
   color: var(--bps-footer-copy);
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  font-size: var(--bps-text-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
 }

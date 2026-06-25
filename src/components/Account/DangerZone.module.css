@@ -109,7 +109,7 @@ html[data-theme='dark'] .header {
 
 .heading {
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -142,7 +142,7 @@ html[data-theme='dark'] .header {
 
 .deleteRowTitle {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   font-weight: 600;
   color: var(--ifm-color-emphasis-900);
   letter-spacing: -0.01em;
@@ -153,7 +153,7 @@ html[data-theme='dark'] .deleteRowTitle {
 }
 
 .deleteRowDesc {
-  font-size: 0.82rem;
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-600);
   line-height: 1.5;
 }
@@ -172,7 +172,7 @@ html[data-theme='dark'] .deleteRowDesc {
   border-radius: var(--bps-radius-md);
   color: var(--dz-danger-text);
   font-family: var(--bps-docs-mono);
-  font-size: 0.75rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -237,7 +237,7 @@ html[data-theme='dark'] .confirmPanel {
 }
 
 .consequenceIntro {
-  font-size: 0.85rem;
+  font-size: var(--bps-text-base);
   color: var(--ifm-color-emphasis-800);
   margin: 0;
   font-weight: 500;
@@ -278,7 +278,7 @@ html[data-theme='dark'] .consequenceList {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  font-size: 0.83rem;
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-800);
   line-height: 1.45;
 }
@@ -328,7 +328,7 @@ html[data-theme='dark'] .consequenceIcon {
 
 .confirmLabel {
   font-family: var(--bps-docs-mono);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -367,7 +367,7 @@ html[data-theme='dark'] .handleHint {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   font-family: var(--bps-docs-mono);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   font-weight: 500;
   letter-spacing: 0.02em;
   outline: none;
@@ -437,7 +437,7 @@ html[data-theme='dark'] .confirmInputValid {
 
 .confirmHint {
   font-family: var(--bps-docs-mono);
-  font-size: 0.68rem;
+  font-size: var(--bps-text-2xs);
   color: var(--ifm-color-emphasis-500);
   margin: 0;
   line-height: 1.5;
@@ -459,7 +459,7 @@ html[data-theme='dark'] .confirmHint {
   border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
   border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
-  font-size: 0.75rem;
+  font-size: var(--bps-text-sm);
   font-weight: 500;
   color: var(--dz-danger-text);
   line-height: 1.5;
@@ -498,7 +498,7 @@ html[data-theme='dark'] .errorMsg {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
   font-family: var(--bps-docs-mono);
-  font-size: 0.76rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -544,7 +544,7 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
   border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
-  font-size: 0.76rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;

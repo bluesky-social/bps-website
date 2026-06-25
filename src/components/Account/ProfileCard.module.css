@@ -105,7 +105,7 @@ html[data-theme='dark'] .displayName {
 /* Item 1: handle → Inter (was Atkinson mono). Weight 600. */
 .handle {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.8rem;
+  font-size: var(--bps-text-md);
   font-weight: 600;
   letter-spacing: 0;
   /* Item 7: darker for light-mode contrast (was emphasis-600). */
@@ -144,7 +144,7 @@ html[data-theme='dark'] .emailIcon {
 /* Item 1: email address → Inter (was Atkinson mono) */
 .emailAddress {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.8rem;
+  font-size: var(--bps-text-md);
   font-weight: 400;
   letter-spacing: 0;
   /* Item 7: darker for light-mode contrast (was emphasis-600). */
@@ -170,7 +170,7 @@ html[data-theme='dark'] .emailAddress {
   border: none;
   padding: 0;
   font-family: var(--ifm-font-family-base);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;

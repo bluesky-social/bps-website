@@ -11,7 +11,7 @@
 
 .sectionHeading {
   font-family: var(--bps-docs-mono);
-  font-size: 0.9rem;
+  font-size: var(--bps-text-base);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -66,7 +66,7 @@ html[data-theme='dark'] .createForm {
 
 .fieldLabel {
   font-family: var(--bps-docs-mono);
-  font-size: 0.68rem;
+  font-size: var(--bps-text-2xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -87,7 +87,7 @@ html[data-theme='dark'] .fieldLabel {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   font-family: var(--ifm-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--bps-text-base);
   font-weight: 400;
   outline: none;
   transition:
@@ -141,7 +141,7 @@ html[data-theme='dark'] .textInput.textInputError {
   color: var(--ifm-color-emphasis-900);
   /* Item 1: Inter instead of Atkinson mono; normal-case (no uppercase) */
   font-family: var(--ifm-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--bps-text-base);
   font-weight: 400;
   outline: none;
   cursor: pointer;
@@ -183,7 +183,7 @@ html[data-theme='dark'] .select:focus {
   border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -215,7 +215,7 @@ html[data-theme='dark'] .select:focus {
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
   border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 500;
   color: var(--bps-danger-text);
   letter-spacing: 0.01em;
@@ -276,7 +276,7 @@ html[data-theme='dark'] .secretBadge {
 
 .secretTitle {
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -288,7 +288,7 @@ html[data-theme='dark'] .secretTitle {
 }
 
 .secretWarning {
-  font-size: 0.83rem;
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-800);
   margin: 0 0 0.75rem;
   line-height: 1.55;
@@ -323,7 +323,7 @@ html[data-theme='dark'] .secretWarning strong {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   font-weight: 500;
   color: var(--ifm-color-emphasis-900);
   overflow: hidden;
@@ -358,7 +358,7 @@ html[data-theme='dark'] .secretValue {
   border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -395,7 +395,7 @@ html[data-theme='dark'] .copyBtnDone {
 
 .copyErrNote {
   font-family: var(--bps-docs-mono);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
   color: var(--bps-danger-text);
   margin: -0.3rem 0 0.5rem;
   line-height: 1.4;
@@ -414,7 +414,7 @@ html[data-theme='dark'] .copyErrNote {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-700);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -456,7 +456,7 @@ html[data-theme='dark'] .secretDoneBtn:hover {
   padding: 1.25rem 0;
   color: var(--ifm-color-emphasis-500);
   font-family: var(--bps-docs-mono);
-  font-size: 0.78rem;
+  font-size: var(--bps-text-sm);
 }
 
 html[data-theme='dark'] .listLoading {
@@ -500,7 +500,7 @@ html[data-theme='dark'] .listLoadingSpinner {
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
   border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 500;
   color: var(--bps-danger-text);
 }
@@ -520,7 +520,7 @@ html[data-theme='dark'] .listError {
   border: none;
   padding: 0;
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   color: var(--bps-danger-text);
   cursor: pointer;
@@ -562,7 +562,7 @@ html[data-theme='dark'] .emptyIcon {
 
 .emptyText {
   font-family: var(--ifm-font-family-base);
-  font-size: 0.875rem;
+  font-size: var(--bps-text-base);
   font-weight: 600;
   color: var(--ifm-color-emphasis-700);
   margin: 0;
@@ -574,7 +574,7 @@ html[data-theme='dark'] .emptyText {
 }
 
 .emptySubtext {
-  font-size: 0.8rem;
+  font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-500);
   margin: 0;
   line-height: 1.5;
@@ -655,7 +655,7 @@ html[data-theme='dark'] .keyRow:hover {
 }
 
 .keyLabel {
-  font-size: 0.88rem;
+  font-size: var(--bps-text-base);
   font-weight: 600;
   color: var(--ifm-color-emphasis-900);
   font-family: var(--ifm-font-family-base);
@@ -668,7 +668,7 @@ html[data-theme='dark'] .keyLabel {
 
 .keyPreview {
   font-family: var(--bps-docs-mono);
-  font-size: 0.73rem;
+  font-size: var(--bps-text-xs);
   font-weight: 500;
   color: var(--ifm-color-emphasis-600);
   background: var(--ifm-color-emphasis-200);
@@ -701,7 +701,7 @@ html[data-theme='dark'] .keyPreview {
 
 .keyMetaLabel {
   font-family: var(--bps-docs-mono);
-  font-size: 0.62rem;
+  font-size: var(--bps-text-2xs);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -714,7 +714,7 @@ html[data-theme='dark'] .keyMetaLabel {
 
 .keyMetaValue {
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 500;
   /* Item 7: darker for light-mode contrast (was emphasis-700). */
   color: var(--ifm-color-emphasis-800);
@@ -785,7 +785,7 @@ html[data-theme='dark'] .statusDotExpired {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
   font-family: var(--bps-docs-mono);
-  font-size: 0.72rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -829,7 +829,7 @@ html[data-theme='dark'] .deleteBtn:hover:not(:disabled) {
 .confirmLabel {
   /* Item: "Delete this key?" in Inter (was Atkinson mono). */
   font-family: var(--ifm-font-family-base);
-  font-size: 0.8rem;
+  font-size: var(--bps-text-md);
   font-weight: 500;
   color: var(--ifm-color-emphasis-700);
   white-space: nowrap;
@@ -847,7 +847,7 @@ html[data-theme='dark'] .confirmLabel {
   border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -883,7 +883,7 @@ html[data-theme='dark'] .confirmYesBtn {
   border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
   font-family: var(--bps-docs-mono);
-  font-size: 0.7rem;
+  font-size: var(--bps-text-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -916,7 +916,7 @@ html[data-theme='dark'] .confirmNoBtn:hover:not(:disabled) {
 
 .keyDeleteError {
   font-family: var(--bps-docs-mono);
-  font-size: 0.68rem;
+  font-size: var(--bps-text-2xs);
   font-weight: 500;
   color: var(--bps-danger);
 }

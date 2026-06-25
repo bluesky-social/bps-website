@@ -26,7 +26,7 @@
   color: var(--ifm-heading-color);
 }
 .body {
-  font-size: 0.82rem; line-height: 1.45;
+  font-size: var(--bps-text-md); line-height: 1.45;
   color: var(--ifm-color-emphasis-700);
   margin: 0;
 }
