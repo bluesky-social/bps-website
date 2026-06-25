@@ -196,20 +196,6 @@ const config = {
             variant: "sep",
           },
           {
-            // "GitHub" with an outbound-arrow icon.
-            type: "custom-navLink",
-            position: "right",
-            label: "GitHub",
-            href: "https://github.com/bluesky-social",
-            external: true,
-          },
-          {
-            // Middot separator between GitHub and the AT Protocol link.
-            type: "custom-navSep",
-            position: "right",
-            variant: "sep",
-          },
-          {
             // "AT Protocol" → the broader protocol site, outbound.
             type: "custom-navLink",
             position: "right",
