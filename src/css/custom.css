@@ -239,7 +239,11 @@ html[data-theme='dark'] {
    * is clipped by its own radial mask + the row height instead. */
 }
 /* ----- light-mode navbar palette ----- */
-html[data-theme='light'] .navbar {
+/* `:not(:has(.bps-home))` keeps this OFF the homepage: that page is an
+ * always-dark design, so the masthead must stay on the dark .navbar defaults
+ * above even when the user's mode is light. Everywhere else, light mode re-tints
+ * the bar. (Paired with the same exclusion on the topo ::before below.) */
+html[data-theme='light']:not(:has(.bps-home)) .navbar {
   --bps-nav-bg: #f4f6f9;           /* matches the docs paper-light surface */
   --bps-nav-border: #dfe3e8;
   --bps-nav-ink: #0d1117;
@@ -287,8 +291,9 @@ html[data-theme='light'] .navbar {
   padding: 0 32px 0 40px;
 }
 /* Light-mode topo: re-tint the lines to a faint blue-gray that reads on the
- * light bar (the dark default uses near-white lines at low opacity). */
-html[data-theme='light'] .navbar::before {
+ * light bar (the dark default uses near-white lines at low opacity).
+ * Excluded on the homepage (always-dark masthead) — see the palette block. */
+html[data-theme='light']:not(:has(.bps-home)) .navbar::before {
   opacity: 0.7;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 76' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%2398a9c0' stroke-opacity='0.5'%3E%3Cpath d='M 0,-10 C 80,4 180,12 280,16 C 380,20 480,18 600,8 C 660,2 700,-4 720,-10'/%3E%3Cpath d='M 0,18 C 100,28 200,38 320,44 C 440,50 560,42 660,32 C 690,28 710,24 720,22'/%3E%3Cpath stroke-opacity='0.7' stroke-width='1.4' d='M 0,38 C 120,52 220,64 360,70 C 500,74 620,66 720,54'/%3E%3Cpath d='M 0,62 C 100,78 220,86 380,86 C 540,86 640,78 720,68'/%3E%3Cpath d='M 0,86 C 140,90 260,96 400,98 C 540,100 660,96 720,90'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='360' cy='40' r='2.5' fill='%237088a6'/%3E%3Ccircle cx='360' cy='40' r='7' fill='none' stroke='%237088a6' stroke-opacity='0.5' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -322,6 +327,19 @@ html[data-theme='light'] .navbar::before {
 .navbar-sidebar [class*='toggleButton']:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
+}
+
+/* The homepage is an always-dark design (the .bps-home body and the masthead
+ * are dark in both color modes). Rather than force the global color mode to
+ * dark there — which mutates shared, persisted state and is brittle across SPA
+ * navigation — we keep the page on whatever mode the user has and just pin the
+ * one remaining mode-following element (the footer) dark via CSS, and hide the
+ * now-pointless toggle. Scoped via `html:has(.bps-home)` so it's homepage-only
+ * (other custom pages like /account share the plugin-pages html class, so that
+ * can't be the hook). The footer dark-pin lives in the footer section below. */
+html:has(.bps-home) .navbar [class*='colorModeToggle'],
+html:has(.bps-home) .navbar-sidebar [class*='colorModeToggle'] {
+  display: none;
 }
 
 /* ── Right-nav item ordering (desktop) ──────────────────────────────────────
@@ -371,9 +389,11 @@ html[data-theme='light'] .navbar::before {
   display: block;
 }
 /* Light mode: swap the butterfly fill to the inverted (dark-core) gradient so
- * the halftone dots stay legible against the pale bar. */
-html[data-theme='light'] .bpsBrand__pulse { fill: url(#bsky-grad-light); }
-html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); }
+ * the halftone dots stay legible against the pale bar. Excluded on the homepage
+ * (always-dark masthead) so the logo keeps its dark-bar gradient there — same
+ * `:not(:has(.bps-home))` exclusion as the navbar palette above. */
+html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse { fill: url(#bsky-grad-light); }
+html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: url(#bsky-grad-light); }
 .bpsBrand,
 .bpsBrand:hover { text-decoration: none; }
 .bpsBrand__word {
@@ -404,7 +424,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   color: var(--bps-nav-ink-soft);
   text-decoration: none;
 }
-.bpsNav--link:hover { color: var(--bps-nav-hover); }
+.bpsNav--link:hover { color: var(--bps-nav-hover); text-decoration: none; }
 /* middot separator between the mono links (prototype .nav-mini .sep) — a real
  * flex child so the right group's even gaps sit on both sides. */
 .bpsNav__sep {
@@ -626,18 +646,18 @@ html[data-theme='dark']:root {
 }
 /* Mirror the desktop sidebar's type split:
  *  - MAIN menu (level-1 category labels + top-level links, incl. our custom
- *    NavCustomLink items) → Atkinson mono, uppercase, tracked
- *  - SUBMENU (level-2 children) → Inter (inherits base) */
+ *    NavCustomLink items) → sans, larger, semi-bold
+ *  - SUBMENU (level-2 children) → sans, slightly smaller, medium weight */
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__link,
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__list-item-collapsible > .menu__link {
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-xs); font-weight: 700;
-  letter-spacing: 0.09em; text-transform: uppercase;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-base); font-weight: 600;
+  letter-spacing: -0.005em; text-transform: none;
 }
-/* nested (submenu) items stay Inter, normal case */
+/* nested (submenu) items → slightly smaller + medium weight */
 .navbar-sidebar__items .menu__list .menu__list .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: var(--bps-text-base); font-weight: 400;
+  font-size: var(--bps-text-sm); font-weight: 500;
   letter-spacing: normal; text-transform: none;
 }
 
@@ -881,6 +901,36 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
   color: var(--ifm-color-primary);
 }
 
+/* Horizontal rule → a quiet hairline divider. Infima defaults the rule to
+ * emphasis-500 (a fairly strong mid-grey); match it to the in-docs surface
+ * borders (tables, code blocks, admonitions) so the divider reads as the same
+ * hairline: emphasis-300 in light mode, and --bps-d-rule in dark (where those
+ * surfaces switch their borders to the brand dark rule, not the emphasis ramp).
+ * The only <hr> in the docs is above the "Looking for more?" note. */
+.markdown hr {
+  background-color: var(--ifm-color-emphasis-300);
+  height: 1px;
+  border: 0;
+  margin: 2rem 0;
+}
+html[data-theme='dark'] .markdown hr {
+  background-color: var(--bps-d-rule);
+}
+
+/* Footer note ("Looking for more? …") — authored as a <span class=
+ * "docsFooterNote"> in the docs source (see docs/**), so it's targeted by class
+ * rather than by `hr + p` adjacency (which would catch any future divider).
+ * A quiet secondary caption: body size, but de-emphasized via secondary ink.
+ * Light mode uses the emphasis ramp (the codebase's light-surface
+ * secondary-text convention); dark mode uses --bps-ink-soft, the brand's
+ * secondary ink for dark surfaces. */
+.markdown .docsFooterNote {
+  color: var(--ifm-color-emphasis-700);
+}
+html[data-theme='dark'] .markdown .docsFooterNote {
+  color: var(--bps-ink-soft);
+}
+
 /* Tables: light row borders, subtle header, comfy padding, scroll on overflow. */
 .markdown table {
   display: block; width: max-content; max-width: 100%;
@@ -934,15 +984,15 @@ div[class*='codeBlockTitle_'] {
  * ===================================================================== */
 .theme-doc-sidebar-menu { font-size: var(--bps-text-base); }
 
-/* Top-level labels → mono, uppercase, tracked. Covers both collapsible
+/* Top-level labels → sans, larger + semi-bold. Covers both collapsible
  * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
  * which are theme-doc-sidebar-item-link-level-1, not categories) so all
  * first-level siblings share the same heading style. */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-sm); font-weight: 700;
-  letter-spacing: 0.09em; text-transform: uppercase;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-base); font-weight: 500;
+  letter-spacing: -0.005em;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
   color: var(--ifm-color-emphasis-800);
@@ -958,6 +1008,15 @@ html[data-theme='dark']
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
   line-height: 1.5; border-radius: var(--bps-radius-sm);
+}
+/* Second-level (child) items → smaller than the top-level labels but the same
+ * semi-bold weight (600), so the hierarchy reads through size, not weight:
+ * larger parents, compact children. Targeted via the explicit level-2 item
+ * class — NOT `.menu__list .menu__list`, which never matched: the
+ * .theme-doc-sidebar-menu root IS the first .menu__list, so children sit one
+ * .menu__list deep, not two. */
+.theme-doc-sidebar-menu .theme-doc-sidebar-item-link-level-2 > .menu__link {
+  font-size: var(--bps-text-sm); font-weight: 600;
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
@@ -983,20 +1042,65 @@ html[data-theme='dark']
 
 /* Active item: soft blue tint + left accent bar. The bar is a ::before
  * pseudo-element (not an inset box-shadow) so it sits flush inside the item's
- * border-radius rather than being clipped square at the corner. */
-.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+ * border-radius rather than being clipped square at the corner.
+ *
+ * Two distinct DOM shapes get the treatment on DIFFERENT elements:
+ *   1. A LEAF link (no children) — the active <a> itself
+ *      (.menu__link--active:not(--sublist)).
+ *   2. A top-level CATEGORY on its own page — the COLLAPSIBLE WRAPPER
+ *      (.menu__list-item-collapsible--active), not the inner <a>. The wrapper
+ *      is the flex row holding both the label <a> AND the caret <button>, so
+ *      tinting it makes the whole row read as one component; tinting the inner
+ *      <a> instead (as an earlier attempt did) left the caret on its own grey
+ *      background and rounded the <a> mid-row. The --active wrapper class is
+ *      present only on the category's own page (not when a child is open), so
+ *      it's the right "you are here" signal without a separate aria guard. */
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist),
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active {
   position: relative;
   background: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
+  border-radius: var(--bps-radius-sm);
+}
+/* Tint Infima's hover/active background off (it ships its own greys on these),
+ * and color the label text + caret blue. */
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active,
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
+}
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist),
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active > .menu__link {
   color: var(--ifm-color-primary);
   font-weight: 600;
 }
-.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before {
+/* The category's inner <a> must stay transparent — its tint lives on the
+ * wrapper above. (The leaf active <a>, by contrast, carries its own tint, so it
+ * is deliberately NOT zeroed here.) */
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active > .menu__link {
+  background: none;
+}
+/* Top-level CATEGORY label gets the primary color when selected. This needs to
+ * out-specify the level-1 label color rule above (which sets emphasis-800 /
+ * emphasis-600 in dark at specificity 0,4,0), so mirror that selector's depth
+ * and add the --active wrapper. Both themes. */
+html .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible--active
+  > .menu__link,
+html[data-theme='dark'] .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible--active
+  > .menu__link {
+  color: var(--ifm-color-primary);
+}
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before,
+.theme-doc-sidebar-menu .menu__list-item-collapsible--active::before {
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0;
   width: 4px;
   background-color: var(--ifm-color-primary);
   border-radius: var(--bps-radius-sm) 0 0 var(--bps-radius-sm);
+  z-index: 1;
 }
 
 /* =====================================================================
@@ -1082,6 +1186,22 @@ html[data-theme='dark'] .footer {
    * for dark mode — no per-theme override needed. */
   --bps-footer-link: #c4ccd8;      /* normal text color */
   --bps-footer-copy: #6b7686;      /* de-emphasized */
+}
+/* Homepage footer is always dark (the page is an always-dark design — see the
+ * color-mode note in the navbar section). Pin the dark footer tokens regardless
+ * of the active color mode. Unlike the [data-theme='dark'] block, we must also
+ * set --bps-footer-title / -link-hover explicitly: those default to
+ * var(--ifm-color-primary), which is only remapped to the light-on-dark blue
+ * under [data-theme='dark'] — in light mode it's the darker #0052cc, which is
+ * low-contrast on this dark footer. Use the dark-mode primary (#7dd3fc) so the
+ * column headers match the real dark-mode footer exactly. */
+html:has(.bps-home) .footer {
+  --bps-footer-bg: #0b0e13;
+  --bps-footer-border: #1f2733;
+  --bps-footer-link: #c4ccd8;
+  --bps-footer-copy: #6b7686;
+  --bps-footer-title: #7dd3fc;
+  --bps-footer-link-hover: #7dd3fc;
 }
 
 /* Column titles → strong color + the mono UI accent, echoing the sidebar/nav

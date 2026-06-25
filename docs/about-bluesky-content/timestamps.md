@@ -66,4 +66,4 @@ We recommend against using or relying on the timestamps included in firehose eve
 
 ---
 
-_Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials)._
+<span class="docsFooterNote">Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials).</span>

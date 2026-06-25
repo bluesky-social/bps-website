@@ -536,4 +536,4 @@ We expect most folks will use SDKs or libraries for their programming language o
 
 ---
 
-_Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials)._
+<span class="docsFooterNote">Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials).</span>
