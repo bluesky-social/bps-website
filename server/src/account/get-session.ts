@@ -21,12 +21,10 @@ export async function safeGetSession(
   oauthSession: Pick<OAuthSession, 'fetchHandler'>,
 ): Promise<{ ok: boolean; handle?: string; email?: string }> {
   try {
-    // The session's fetchHandler IS a lex Agent's fetchHandler (path → Response,
-    // origin/auth added internally), so it can be passed as the agent directly.
-    const { body } = await xrpc(
-      { fetchHandler: oauthSession.fetchHandler.bind(oauthSession) },
-      com.atproto.server.getSession,
-    )
+    // The OAuth session structurally satisfies a lex Agent (it has a
+    // `fetchHandler(path, init)` that adds the PDS origin + DPoP/auth), so it is
+    // passed as the agent directly — no wrapper object or rebinding needed.
+    const { body } = await xrpc(oauthSession, com.atproto.server.getSession)
     const out: { ok: boolean; handle?: string; email?: string } = { ok: true }
     if (body.handle) out.handle = body.handle
     if (body.email) out.email = body.email
