@@ -275,11 +275,8 @@ html[data-theme='light'] .navbar::before {
 /* Target the toggle BUTTON directly (its hashed class is `toggleButton_*`) so
  * the rule wins over Infima's `.toggleButton:hover { background: emphasis-200 }`
  * grey in BOTH the desktop bar and the mobile drawer (which renders the same
- * toggle markup when opened). The class*=colorModeToggle wrapper selectors are
- * kept as belt-and-suspenders. */
+ * toggle markup when opened). */
 [class*='toggleButton']:hover,
-[class*='colorModeToggle'] .clean-btn:hover,
-[class*='colorModeToggle'] button:hover,
 .navbar-sidebar [class*='toggleButton']:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
@@ -524,7 +521,6 @@ html[data-theme='dark']:root {
   .navbar__items--right { gap: 10px; }
 
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
-  .navbar .navbarSearchContainer_Bca1,
   .navbar [class*='navbarSearchContainer'] {
     width: 2rem;
     /* Docusaurus's default pins the search container `position: absolute; right`
