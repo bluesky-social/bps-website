@@ -5,6 +5,7 @@ description: Jetstream hands you just the slice of the network you want, as JSON
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import JetstreamLive from '@site/src/components/JetstreamLive';
 
 # Jetstream
 
@@ -12,6 +13,8 @@ import TabItem from '@theme/TabItem';
 You tell it which records you care about — posts, likes, follows, or a single
 account — and it streams them back as plain JSON over one WebSocket, the moment
 they happen.
+
+<JetstreamLive />
 
 Setup is minimal. There are no API keys, no infrastructure to run, and no binary
 formats to decode. You describe the slice of the network you want, and Jetstream

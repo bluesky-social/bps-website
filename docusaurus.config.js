@@ -62,7 +62,7 @@ const config = {
     },
   ],
   title: "Bluesky",
-  tagline: "Get started with the Bluesky API.",
+  tagline: "High scale open social, unlocked for every builder.",
   favicon: "img/favicon.png",
 
   // Set the production url of your site here
@@ -152,7 +152,7 @@ const config = {
       navbar: {
         // Masthead modeled on the landing-bsky prototype's nav. The brand
         // lockup is the custom `custom-bpsBrand` item; the right group is the
-        // prototype's "nav-mini": [search] · Get Started · GitHub↗ · [theme
+        // prototype's "nav-mini": [search] · Learn · GitHub↗ · [theme
         // toggle]. The color-mode toggle auto-renders last on the right.
         items: [
           {
@@ -182,11 +182,14 @@ const config = {
             variant: "divider",
           },
           {
-            // "Get Started" — the prototype's "Docs" link, renamed. Mono
-            // masthead style.
+            // "Learn" — the prototype's "Docs" link, renamed. Points at the
+            // Bluesky intro route (slug stays /docs/get-started); kept short in
+            // the masthead (the sidebar/footer spell it "Learn Bluesky"). The
+            // "Get Started" label is now reserved for the homepage grid CTAs.
+            // Mono masthead style.
             type: "custom-navLink",
             position: "right",
-            label: "Get Started",
+            label: "Learn",
             to: "/docs/get-started",
           },
           {
@@ -237,7 +240,7 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "Get Started",
+                label: "Learn Bluesky",
                 to: "/docs/get-started",
               },
               {

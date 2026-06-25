@@ -1,7 +1,7 @@
 {
-  "item.label.Get Started": {
-    "message": "Get Started",
-    "description": "Navbar item with label Get Started"
+  "item.label.Learn": {
+    "message": "Learn",
+    "description": "Navbar item with label Learn"
   },
   "item.label.AT Protocol": {
     "message": "AT Protocol",

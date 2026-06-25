@@ -7,7 +7,7 @@ import NavbarItem from '@theme/NavbarItem'
 
 // Top-level docs sections, mirroring the sidebar (kept in sync by hand).
 const DOCS_LINKS = [
-  { label: 'Get Started', to: '/docs/get-started' },
+  { label: 'Learn Bluesky', to: '/docs/get-started' },
   { label: 'About Bluesky Content', to: '/docs/about-bluesky-content' },
   { label: 'Relay', to: '/docs/relay' },
   { label: 'Jetstream', to: '/docs/jetstream' },

@@ -3,7 +3,7 @@ import Link from '@docusaurus/Link'
 import {useNavbarMobileSidebar} from '@docusaurus/theme-common/internal'
 
 // Mono masthead nav link, modeled on the landing-bsky prototype's "nav-mini"
-// entries (uppercase JetBrains mono). Used for "Get Started" (internal `to`)
+// entries (uppercase JetBrains mono). Used for "Learn" (internal `to`)
 // and "GitHub" (external `href`). External links get a trailing outbound-arrow
 // icon.
 //
@@ -32,7 +32,7 @@ export default function NavCustomLink({ mobile, label, to, href, external }) {
   // auto-close for these custom items the way it does for its own menu links).
   const mobileSidebar = useNavbarMobileSidebar()
   // In the mobile drawer, render as a plain Docusaurus menu link so the main
-  // menu is populated (Get Started, GitHub). Desktop uses the mono bar style.
+  // menu is populated (Learn, GitHub). Desktop uses the mono bar style.
   const cls = mobile ? 'menu__link' : 'bpsNav bpsNav--link'
   const onClick = mobile ? () => mobileSidebar.toggle() : undefined
   const content = (
