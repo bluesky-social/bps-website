@@ -901,6 +901,36 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
   color: var(--ifm-color-primary);
 }
 
+/* Horizontal rule → a quiet hairline divider. Infima defaults the rule to
+ * emphasis-500 (a fairly strong mid-grey); match it to the in-docs surface
+ * borders (tables, code blocks, admonitions) so the divider reads as the same
+ * hairline: emphasis-300 in light mode, and --bps-d-rule in dark (where those
+ * surfaces switch their borders to the brand dark rule, not the emphasis ramp).
+ * The only <hr> in the docs is above the "Looking for more?" note. */
+.markdown hr {
+  background-color: var(--ifm-color-emphasis-300);
+  height: 1px;
+  border: 0;
+  margin: 2rem 0;
+}
+html[data-theme='dark'] .markdown hr {
+  background-color: var(--bps-d-rule);
+}
+
+/* Footer note ("Looking for more? …") — authored as a <span class=
+ * "docsFooterNote"> in the docs source (see docs/**), so it's targeted by class
+ * rather than by `hr + p` adjacency (which would catch any future divider).
+ * A quiet secondary caption: body size, but de-emphasized via secondary ink.
+ * Light mode uses the emphasis ramp (the codebase's light-surface
+ * secondary-text convention); dark mode uses --bps-ink-soft, the brand's
+ * secondary ink for dark surfaces. */
+.markdown .docsFooterNote {
+  color: var(--ifm-color-emphasis-700);
+}
+html[data-theme='dark'] .markdown .docsFooterNote {
+  color: var(--bps-ink-soft);
+}
+
 /* Tables: light row borders, subtle header, comfy padding, scroll on overflow. */
 .markdown table {
   display: block; width: max-content; max-width: 100%;

@@ -312,4 +312,4 @@ def parse_facets(text: str) -> List[Dict]:
 
 ---
 
-_Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials)._
+<span class="docsFooterNote">Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials).</span>
