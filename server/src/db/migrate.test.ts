@@ -35,7 +35,12 @@ test('runMigrations creates all four tables', async () => {
 
   const tables = await db.introspection.getTables()
   const names = tables.map((t) => t.name).sort()
-  for (const expected of ['account', 'api_key', 'oauth_session', 'oauth_state']) {
+  for (const expected of [
+    'account',
+    'api_key',
+    'oauth_session',
+    'oauth_state',
+  ]) {
     assert.ok(names.includes(expected), `missing table ${expected}`)
   }
 })
@@ -58,7 +63,10 @@ test('api_key.did cascades on account delete', async () => {
     })
     .execute()
 
-  await db.deleteFrom('account').where('did', '=', 'did:plc:test123' as never).execute()
+  await db
+    .deleteFrom('account')
+    .where('did', '=', 'did:plc:test123' as never)
+    .execute()
 
   const keys = await db.selectFrom('api_key').selectAll().execute()
   assert.equal(keys.length, 0, 'api_key rows should cascade-delete')
@@ -79,7 +87,15 @@ test('every migration rolls back down to a clean slate', async () => {
   }
 
   const names = (await db.introspection.getTables()).map((t) => t.name)
-  for (const dropped of ['account', 'api_key', 'oauth_session', 'oauth_state']) {
-    assert.ok(!names.includes(dropped), `table ${dropped} should be gone after down`)
+  for (const dropped of [
+    'account',
+    'api_key',
+    'oauth_session',
+    'oauth_state',
+  ]) {
+    assert.ok(
+      !names.includes(dropped),
+      `table ${dropped} should be gone after down`,
+    )
   }
 })

@@ -5,10 +5,12 @@ TypeScript via built-in type-stripping (no build step), Express v5 +
 `@atproto/lex-server`, Kysely + Postgres.
 
 ## Prerequisites
+
 - Node ≥ 24 (`node -v`)
 - Docker (for local Postgres)
 
 ## Setup
+
 ```bash
 cd server
 npm install
@@ -20,11 +22,13 @@ npm run dev                 # http://localhost:8080
 ```
 
 ## Verify
+
 ```bash
 curl localhost:8080/_health                          # {"status":"ok"}
 ```
 
 ## Scripts
+
 - `npm run dev` — watch-mode server
 - `npm start` — run once
 - `npm test` — `node --test` suite (needs Postgres up)
@@ -32,6 +36,7 @@ curl localhost:8080/_health                          # {"status":"ok"}
 - `npm run lex:build` — regenerate lexicon TS from `../lexicons`
 
 ## Conventions
+
 - App env vars are `BPS_`-prefixed; OTel/`OTEL_*` and `NODE_ENV` are not.
 - Erasable-only TS (no enum/namespace/parameter-properties).
 - Lexicons are authored under repo-root `lexicons/` and committed; generated TS
@@ -40,11 +45,13 @@ curl localhost:8080/_health                          # {"status":"ok"}
 ## OAuth
 
 Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
+
 - **App login cookie** (`bps_session`, iron-session): holds only `{ did }`.
 - **atproto OAuth tokens**: stored server-side in Postgres (`oauth_session`),
   used to call the user's PDS/AppView.
 
 ### Endpoints
+
 - `GET /oauth-client-metadata.json` — OAuth client metadata; this URL is the
   `client_id` (production / hosted-metadata mode).
 - `GET /jwks.json` — public signing keys (ES256, `private_key_jwt`). Empty in
@@ -58,6 +65,7 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 - XRPC `internal.bps.account.whoami` (authed) — `{ did, hasEmail }`.
 
 ### Dev vs production client
+
 - **Dev** (`NODE_ENV` ≠ `production` with an `http://` `BPS_API_ORIGIN`): uses the
   atproto **loopback** client — `client_id = http://localhost?redirect_uri=…`,
   no hosted metadata, no signing key. Leave `BPS_OAUTH_PRIVATE_KEY` empty.
@@ -65,8 +73,10 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
   (PKCS8 PEM or JWK JSON) and `BPS_OAUTH_KEY_ID`.
 
 ### Manual e2e smoke test (verified 2026-06-23)
+
 The full authorization-code + PKCE + DPoP round-trip can't run in CI (needs a
 live atproto auth server + a real account). To exercise it manually:
+
 1. `npm run dev`, then
    `curl "localhost:8080/xrpc/internal.bps.oauth.start?handle=YOUR_HANDLE"`.
 2. Open the returned `authorizeUrl` in a browser and approve. You'll be

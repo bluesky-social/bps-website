@@ -8,7 +8,12 @@ import { buildRouter } from './router.ts'
 import { mountOAuthRoutes } from './oauth/routes.ts'
 import { corsMiddleware } from './cors.ts'
 
-export type AppDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
+export type AppDeps = {
+  db: DB
+  config: AppConfig
+  client: NodeOAuthClient
+  apiKeys: ApiKeyProvider
+}
 
 export function buildApp(deps: AppDeps): express.Express {
   const app = express()

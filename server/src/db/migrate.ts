@@ -1,4 +1,8 @@
-import { Migrator, type Migration, type MigrationProvider } from 'kysely/migration'
+import {
+  Migrator,
+  type Migration,
+  type MigrationProvider,
+} from 'kysely/migration'
 import type { DB } from './index.ts'
 import { createDb } from './index.ts'
 import { loadConfig } from '../config.ts'
@@ -26,8 +30,10 @@ export async function runMigrations(db: DB): Promise<void> {
   const migrator = new Migrator({ db, provider: new StaticProvider() })
   const { error, results } = await migrator.migrateToLatest()
   results?.forEach((r) => {
-    if (r.status === 'Success') logger.info(`migration ${r.migrationName} applied`)
-    else if (r.status === 'Error') logger.error(`migration ${r.migrationName} FAILED`)
+    if (r.status === 'Success')
+      logger.info(`migration ${r.migrationName} applied`)
+    else if (r.status === 'Error')
+      logger.error(`migration ${r.migrationName} FAILED`)
   })
   if (error) throw error
 }

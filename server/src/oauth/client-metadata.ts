@@ -2,7 +2,9 @@ import type { OAuthClientMetadataInput } from '@atproto/oauth-client-node'
 import type { AppConfig } from '../config.ts'
 
 // The client_id IS this document's URL. Clean root path keeps the consent screen host-only.
-export function buildClientMetadata(config: AppConfig): OAuthClientMetadataInput {
+export function buildClientMetadata(
+  config: AppConfig,
+): OAuthClientMetadataInput {
   const base = config.apiOrigin.replace(/\/$/, '')
   return {
     client_id: `${base}/oauth-client-metadata.json`,

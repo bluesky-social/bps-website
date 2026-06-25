@@ -10,7 +10,8 @@
 /* ── Section heading ────────────────────────────────────────────────────── */
 
 .sectionHeading {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -65,7 +66,8 @@ html[data-theme='dark'] .createForm {
 }
 
 .fieldLabel {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -90,7 +92,9 @@ html[data-theme='dark'] .fieldLabel {
   font-size: 0.875rem;
   font-weight: 400;
   outline: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 html[data-theme='dark'] .textInput {
@@ -180,14 +184,17 @@ html[data-theme='dark'] .select:focus {
   border: none;
   border-radius: 6px;
   color: #fff;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.1s ease;
 }
 
 .createBtn:hover:not(:disabled) {
@@ -210,7 +217,8 @@ html[data-theme='dark'] .select:focus {
   background: color-mix(in srgb, #d0454c 10%, transparent);
   border: 1px solid color-mix(in srgb, #d0454c 25%, transparent);
   border-radius: 5px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 500;
   color: #c0392b;
@@ -229,7 +237,8 @@ html[data-theme='dark'] .errorMsg {
 .secretReveal {
   padding: 1rem 1.125rem 1rem;
   background: color-mix(in srgb, var(--ifm-color-primary) 5%, transparent);
-  border: 1.5px solid color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
+  border: 1.5px solid
+    color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
   border-radius: 8px;
   margin-bottom: 1.25rem;
 }
@@ -266,7 +275,8 @@ html[data-theme='dark'] .secretBadge {
 }
 
 .secretTitle {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -313,7 +323,8 @@ html[data-theme='dark'] .secretWarning strong {
   background: var(--ifm-background-surface-color, #fff);
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--ifm-color-emphasis-900);
@@ -348,13 +359,17 @@ html[data-theme='dark'] .secretValue {
   border: none;
   border-radius: 6px;
   color: #fff;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    transform 0.1s ease;
   white-space: nowrap;
 }
 
@@ -382,7 +397,8 @@ html[data-theme='dark'] .copyBtnDone {
 }
 
 .copyErrNote {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   color: #c0392b;
   margin: -0.3rem 0 0.5rem;
@@ -401,13 +417,17 @@ html[data-theme='dark'] .copyErrNote {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
   color: var(--ifm-color-emphasis-700);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
   text-align: center;
 }
 
@@ -440,7 +460,8 @@ html[data-theme='dark'] .secretDoneBtn:hover {
   gap: 0.6rem;
   padding: 1.25rem 0;
   color: var(--ifm-color-emphasis-500);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.78rem;
 }
 
@@ -449,7 +470,9 @@ html[data-theme='dark'] .listLoading {
 }
 
 @keyframes keySpinnerSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .listLoadingSpinner {
@@ -482,7 +505,8 @@ html[data-theme='dark'] .listLoadingSpinner {
   background: color-mix(in srgb, #d0454c 10%, transparent);
   border: 1px solid color-mix(in srgb, #d0454c 25%, transparent);
   border-radius: 6px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 500;
   color: #c0392b;
@@ -498,7 +522,8 @@ html[data-theme='dark'] .listError {
   background: none;
   border: none;
   padding: 0;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 700;
   color: #c0392b;
@@ -646,7 +671,8 @@ html[data-theme='dark'] .keyLabel {
 }
 
 .keyPreview {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.73rem;
   font-weight: 500;
   color: var(--ifm-color-emphasis-600);
@@ -679,7 +705,8 @@ html[data-theme='dark'] .keyPreview {
 }
 
 .keyMetaLabel {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -692,7 +719,8 @@ html[data-theme='dark'] .keyMetaLabel {
 }
 
 .keyMetaValue {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 500;
   /* Item 7: darker for light-mode contrast (was emphasis-700). */
@@ -763,13 +791,17 @@ html[data-theme='dark'] .statusDotExpired {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 5px;
   color: var(--ifm-color-emphasis-600);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
   white-space: nowrap;
 }
 
@@ -822,14 +854,17 @@ html[data-theme='dark'] .confirmLabel {
   border: none;
   border-radius: 5px;
   color: #fff;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.1s ease;
 }
 
 .confirmYesBtn:hover:not(:disabled) {
@@ -856,14 +891,17 @@ html[data-theme='dark'] .confirmYesBtn {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 5px;
   color: var(--ifm-color-emphasis-600);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .confirmNoBtn:hover:not(:disabled) {
@@ -887,7 +925,8 @@ html[data-theme='dark'] .confirmNoBtn:hover:not(:disabled) {
 }
 
 .keyDeleteError {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.68rem;
   font-weight: 500;
   color: #d0454c;

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from 'react'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import useIsBrowser from '@docusaurus/useIsBrowser'
 import { buildClient } from '@site/src/api/client'
@@ -11,11 +17,19 @@ const HINT_KEY = 'bps_auth_hint'
 // effects/callbacks, but the guard makes the SSR-safety explicit.
 function readHint() {
   if (typeof localStorage === 'undefined') return null
-  try { return JSON.parse(localStorage.getItem(HINT_KEY) || 'null') } catch { return null }
+  try {
+    return JSON.parse(localStorage.getItem(HINT_KEY) || 'null')
+  } catch {
+    return null
+  }
 }
 function writeHint(hint) {
   if (typeof localStorage === 'undefined') return
-  try { hint ? localStorage.setItem(HINT_KEY, JSON.stringify(hint)) : localStorage.removeItem(HINT_KEY) } catch {}
+  try {
+    hint
+      ? localStorage.setItem(HINT_KEY, JSON.stringify(hint))
+      : localStorage.removeItem(HINT_KEY)
+  } catch {}
 }
 
 export function AuthProvider({ children }) {
@@ -28,18 +42,40 @@ export function AuthProvider({ children }) {
   // NOTE: `email` is the user's own stored email (PII). It lives in in-memory
   // state from the session-authed whoami response, but is NOT written to the
   // localStorage hint — the hint stays did/handle/avatar only.
-  const [state, setState] = useState({ status: 'resolving', did: null, handle: null, email: null, profile: null })
+  const [state, setState] = useState({
+    status: 'resolving',
+    did: null,
+    handle: null,
+    email: null,
+    profile: null,
+  })
 
   const refresh = useCallback(async () => {
     try {
       const who = await client.whoami()
       let profile = null
-      try { profile = await client.profile() } catch { /* profile optional; handle still comes from whoami */ }
+      try {
+        profile = await client.profile()
+      } catch {
+        /* profile optional; handle still comes from whoami */
+      }
       const handle = who.handle ?? profile?.handle ?? null
-      setState({ status: 'authed', did: who.did, handle, email: who.email ?? null, profile })
+      setState({
+        status: 'authed',
+        did: who.did,
+        handle,
+        email: who.email ?? null,
+        profile,
+      })
       writeHint({ did: who.did, handle, avatar: profile?.avatar })
     } catch (err) {
-      setState({ status: 'anon', did: null, handle: null, email: null, profile: null })
+      setState({
+        status: 'anon',
+        did: null,
+        handle: null,
+        email: null,
+        profile: null,
+      })
       writeHint(null)
     }
   }, [client])
@@ -49,21 +85,40 @@ export function AuthProvider({ children }) {
     // Seed optimistic state from the hint (still 'resolving' authority-wise).
     const hint = readHint()
     if (hint?.did) {
-      setState((s) => s.status === 'resolving'
-        ? { status: 'resolving', did: hint.did, handle: hint.handle ?? null, email: null, profile: { handle: hint.handle, avatar: hint.avatar } }
-        : s)
+      setState((s) =>
+        s.status === 'resolving'
+          ? {
+              status: 'resolving',
+              did: hint.did,
+              handle: hint.handle ?? null,
+              email: null,
+              profile: { handle: hint.handle, avatar: hint.avatar },
+            }
+          : s,
+      )
     }
     refresh()
   }, [isBrowser, refresh])
 
-  const signIn = useCallback(async (handle) => {
-    const { authorizeUrl } = await client.oauthStart(handle)
-    window.location.assign(authorizeUrl)
-  }, [client])
+  const signIn = useCallback(
+    async (handle) => {
+      const { authorizeUrl } = await client.oauthStart(handle)
+      window.location.assign(authorizeUrl)
+    },
+    [client],
+  )
 
   const logout = useCallback(async () => {
-    try { await client.logout() } finally {
-      setState({ status: 'anon', did: null, handle: null, email: null, profile: null })
+    try {
+      await client.logout()
+    } finally {
+      setState({
+        status: 'anon',
+        did: null,
+        handle: null,
+        email: null,
+        profile: null,
+      })
       writeHint(null)
     }
   }, [client])
@@ -73,12 +128,20 @@ export function AuthProvider({ children }) {
   // the backend has already destroyed the session, so a server logout would
   // 401; we just need the client-side state + hint cleared.
   const resetToAnon = useCallback(() => {
-    setState({ status: 'anon', did: null, handle: null, email: null, profile: null })
+    setState({
+      status: 'anon',
+      did: null,
+      handle: null,
+      email: null,
+      profile: null,
+    })
     writeHint(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ ...state, client, signIn, logout, resetToAnon, refresh }}>
+    <AuthContext.Provider
+      value={{ ...state, client, signIn, logout, resetToAnon, refresh }}
+    >
       {children}
     </AuthContext.Provider>
   )

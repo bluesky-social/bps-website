@@ -63,7 +63,12 @@ function DesktopAccount() {
     if (resolvingHandle) {
       // Optimistic: returning user — show avatar so no flash
       return (
-        <div className={`${styles.slot} bpsAccountSlot`} aria-label="Loading account…" aria-busy="true" style={{ opacity: 0.55 }}>
+        <div
+          className={`${styles.slot} bpsAccountSlot`}
+          aria-label="Loading account…"
+          aria-busy="true"
+          style={{ opacity: 0.55 }}
+        >
           <Avatar
             src={profile?.avatar}
             handle={resolvingHandle}
@@ -74,7 +79,11 @@ function DesktopAccount() {
       )
     }
     return (
-      <div className={`${styles.slot} bpsAccountSlot`} aria-label="Loading account…" aria-busy="true">
+      <div
+        className={`${styles.slot} bpsAccountSlot`}
+        aria-label="Loading account…"
+        aria-busy="true"
+      >
         <div className={styles.resolvingGhost}>
           <span className={styles.ghostAvatar} />
         </div>
@@ -101,7 +110,9 @@ function DesktopAccount() {
   // authed — avatar only, links to /account
   const rawHandle = handle ?? profile?.handle
   const displayHandle = rawHandle
-    ? (rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle)
+    ? rawHandle.startsWith('@')
+      ? rawHandle.slice(1)
+      : rawHandle
     : '…'
 
   return (

@@ -59,7 +59,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   const cookieSecure = isProd || !apiIsHttp
   const cookieSameSite: 'lax' | 'none' = isProd ? 'none' : 'lax'
 
-  const appViewUrl = (env.BPS_APPVIEW_URL?.trim() || 'https://public.api.bsky.app').replace(/\/$/, '')
+  const appViewUrl = (
+    env.BPS_APPVIEW_URL?.trim() || 'https://public.api.bsky.app'
+  ).replace(/\/$/, '')
 
   if (errors.length > 0) {
     throw new Error(`Invalid configuration:\n  - ${errors.join('\n  - ')}`)

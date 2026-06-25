@@ -77,7 +77,10 @@ function SignInPrompt() {
       await signIn(h)
       // signIn redirects; if it somehow returns, nothing to do
     } catch (err) {
-      setError(err?.message || 'Could not start sign-in. Check your handle and try again.')
+      setError(
+        err?.message ||
+          'Could not start sign-in. Check your handle and try again.',
+      )
       setLoading(false)
     }
   }

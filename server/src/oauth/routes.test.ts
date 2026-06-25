@@ -11,7 +11,9 @@ import { createStateStore } from './state-store.ts'
 import { createSessionStore } from './session-store.ts'
 import { mountOAuthRoutes } from './routes.ts'
 
-const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5433/bps_account'
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 
 // NOTE on jwks-in-dev: in dev mode, createOAuthClient uses the atproto loopback form
 // (client_id = 'http://localhost', token_endpoint_auth_method = 'none', no keyset).
@@ -24,8 +26,12 @@ const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5
 
 let db: DB
 
-before(async () => { db = createDb(url) })
-after(async () => { await db.destroy() })
+before(async () => {
+  db = createDb(url)
+})
+after(async () => {
+  await db.destroy()
+})
 
 // ── Prod-style client (hosted metadata + keyset) ─────────────────────────────────────────────
 describe('prod-style client (https apiOrigin + keyset)', () => {
@@ -55,11 +61,16 @@ describe('prod-style client (https apiOrigin + keyset)', () => {
     const app = express()
     mountOAuthRoutes(app, { client, config: prodCfg, db })
     await new Promise<void>((r) => {
-      server = app.listen(0, () => { base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`; r() })
+      server = app.listen(0, () => {
+        base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+        r()
+      })
     })
   })
 
-  after(async () => { await new Promise<void>((r) => server.close(() => r())) })
+  after(async () => {
+    await new Promise<void>((r) => server.close(() => r()))
+  })
 
   test('GET /oauth-client-metadata.json returns the client_id document', async () => {
     const res = await fetch(`${base}/oauth-client-metadata.json`)
@@ -72,7 +83,10 @@ describe('prod-style client (https apiOrigin + keyset)', () => {
     const res = await fetch(`${base}/jwks.json`)
     assert.equal(res.status, 200)
     const json = (await res.json()) as { keys: unknown[] }
-    assert.ok(Array.isArray(json.keys) && json.keys.length >= 1, `expected ≥1 key, got ${json.keys.length}`)
+    assert.ok(
+      Array.isArray(json.keys) && json.keys.length >= 1,
+      `expected ≥1 key, got ${json.keys.length}`,
+    )
   })
 
   test('GET /oauth-callback without valid params does not 200', async () => {
@@ -90,9 +104,13 @@ describe('dev loopback client', () => {
   let base: string
 
   const devCfg = loadConfig({
-    BPS_PORT: '8080', BPS_DATABASE_URL: url, BPS_SITE_ORIGIN: 'http://localhost:3000',
-    BPS_API_ORIGIN: 'http://127.0.0.1:8080', BPS_COOKIE_DOMAIN: 'localhost',
-    BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32), BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
+    BPS_PORT: '8080',
+    BPS_DATABASE_URL: url,
+    BPS_SITE_ORIGIN: 'http://localhost:3000',
+    BPS_API_ORIGIN: 'http://127.0.0.1:8080',
+    BPS_COOKIE_DOMAIN: 'localhost',
+    BPS_IRON_SESSION_PASSWORD: 'x'.repeat(32),
+    BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
     NODE_ENV: 'development',
   })
 
@@ -101,11 +119,16 @@ describe('dev loopback client', () => {
     const app = express()
     mountOAuthRoutes(app, { client, config: devCfg, db })
     await new Promise<void>((r) => {
-      server = app.listen(0, () => { base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`; r() })
+      server = app.listen(0, () => {
+        base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`
+        r()
+      })
     })
   })
 
-  after(async () => { await new Promise<void>((r) => server.close(() => r())) })
+  after(async () => {
+    await new Promise<void>((r) => server.close(() => r()))
+  })
 
   test('GET /oauth-client-metadata.json returns 200 with a client_id', async () => {
     const res = await fetch(`${base}/oauth-client-metadata.json`)
@@ -118,7 +141,10 @@ describe('dev loopback client', () => {
     const res = await fetch(`${base}/jwks.json`)
     assert.equal(res.status, 200)
     const json = (await res.json()) as { keys: unknown[] }
-    assert.ok(Array.isArray(json.keys), 'response body must have a "keys" array')
+    assert.ok(
+      Array.isArray(json.keys),
+      'response body must have a "keys" array',
+    )
     // In the dev loopback form, keys is [] because there is no keyset (by atproto spec).
     assert.equal(json.keys.length, 0)
   })

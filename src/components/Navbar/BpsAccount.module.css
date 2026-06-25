@@ -60,7 +60,9 @@
   color: var(--bps-nav-ink-soft);
   text-decoration: none;
   /* Match the color-mode toggle's transition */
-  transition: background var(--ifm-transition-fast), color 0.15s ease;
+  transition:
+    background var(--ifm-transition-fast),
+    color 0.15s ease;
 }
 
 .iconLink:hover {
@@ -92,8 +94,13 @@
 }
 
 @keyframes bpsAccountPulse {
-  0%, 100% { opacity: 0.45; }
-  50% { opacity: 0.9; }
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 
 /* ── Avatar ──────────────────────────────────────────────────────────────── */
@@ -121,7 +128,8 @@
   color: var(--bps-nav-muted);
   font-size: 13px;
   font-weight: 700;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 /* ── Anon state — sign-in icon ───────────────────────────────────────────── */

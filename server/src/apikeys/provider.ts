@@ -15,7 +15,10 @@ export type CreatedKey = ApiKeyMeta & { full: string } // full secret, returned 
 export interface ApiKeyProvider {
   ensureConsumer(did: DidString): Promise<Consumer>
   deleteConsumer(did: DidString): Promise<void>
-  createKey(did: DidString, opts: { label: string; expiresAt: Date | null }): Promise<CreatedKey>
+  createKey(
+    did: DidString,
+    opts: { label: string; expiresAt: Date | null },
+  ): Promise<CreatedKey>
   listKeys(did: DidString): Promise<ApiKeyMeta[]>
   deleteKey(did: DidString, keyId: string): Promise<void>
 }

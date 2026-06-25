@@ -6,7 +6,9 @@ import { createDb, type DB } from '../db/index.ts'
 import { runMigrations } from '../db/migrate.ts'
 import { refreshEmailIfStale, EMAIL_REFRESH_TTL_MS } from './refresh-email.ts'
 
-const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5433/bps_account'
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 const did = 'did:plc:refreshemail' as DidString
 let db: DB
 
@@ -69,12 +71,17 @@ test('stale row + observed NEW email → writes new email + bumps updated_at', a
     .where('did', '=', did)
     .executeTakeFirstOrThrow()
   assert.equal(row.email, 'new@b.co')
-  assert.ok(row.updated_at.getTime() > before.updated_at.getTime(), 'updated_at advanced')
+  assert.ok(
+    row.updated_at.getTime() > before.updated_at.getTime(),
+    'updated_at advanced',
+  )
 })
 
 test('stale row + observed SAME email → email unchanged but updated_at bumped', async () => {
   const before = await seed('same@b.co', EMAIL_REFRESH_TTL_MS + 60_000)
-  const result = await refreshEmailIfStale(db, did, before, async () => sessionWithEmail('same@b.co'))
+  const result = await refreshEmailIfStale(db, did, before, async () =>
+    sessionWithEmail('same@b.co'),
+  )
   assert.equal(result, 'same@b.co')
   const row = await db
     .selectFrom('account')
@@ -82,12 +89,17 @@ test('stale row + observed SAME email → email unchanged but updated_at bumped'
     .where('did', '=', did)
     .executeTakeFirstOrThrow()
   assert.equal(row.email, 'same@b.co')
-  assert.ok(row.updated_at.getTime() > before.updated_at.getTime(), 'updated_at advanced')
+  assert.ok(
+    row.updated_at.getTime() > before.updated_at.getTime(),
+    'updated_at advanced',
+  )
 })
 
 test('stale row + observed NO email → keep last-known email, still bump updated_at', async () => {
   const before = await seed('keep@b.co', EMAIL_REFRESH_TTL_MS + 60_000)
-  const result = await refreshEmailIfStale(db, did, before, async () => sessionWithEmail(undefined))
+  const result = await refreshEmailIfStale(db, did, before, async () =>
+    sessionWithEmail(undefined),
+  )
   assert.equal(result, 'keep@b.co', 'last-known email preserved')
   const row = await db
     .selectFrom('account')
@@ -95,7 +107,10 @@ test('stale row + observed NO email → keep last-known email, still bump update
     .where('did', '=', did)
     .executeTakeFirstOrThrow()
   assert.equal(row.email, 'keep@b.co')
-  assert.ok(row.updated_at.getTime() > before.updated_at.getTime(), 'updated_at advanced')
+  assert.ok(
+    row.updated_at.getTime() > before.updated_at.getTime(),
+    'updated_at advanced',
+  )
 })
 
 test('stale row + restore throws → row untouched, returns stored email, no throw', async () => {
@@ -110,7 +125,11 @@ test('stale row + restore throws → row untouched, returns stored email, no thr
     .where('did', '=', did)
     .executeTakeFirstOrThrow()
   assert.equal(row.email, 'stored@b.co')
-  assert.equal(row.updated_at.getTime(), before.updated_at.getTime(), 'updated_at NOT touched on failure')
+  assert.equal(
+    row.updated_at.getTime(),
+    before.updated_at.getTime(),
+    'updated_at NOT touched on failure',
+  )
 })
 
 test('stale row + getSession non-ok → row untouched, returns stored email', async () => {
@@ -126,7 +145,11 @@ test('stale row + getSession non-ok → row untouched, returns stored email', as
     .where('did', '=', did)
     .executeTakeFirstOrThrow()
   assert.equal(row.email, 'stored@b.co')
-  assert.equal(row.updated_at.getTime(), before.updated_at.getTime(), 'updated_at NOT touched')
+  assert.equal(
+    row.updated_at.getTime(),
+    before.updated_at.getTime(),
+    'updated_at NOT touched',
+  )
 })
 
 test('fresh row (within TTL) → restorer NOT called, returns stored email', async () => {

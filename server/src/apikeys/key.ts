@@ -14,7 +14,11 @@ export function hashApiKey(full: string): string {
   return createHash('sha256').update(full).digest('hex')
 }
 
-export function generateApiKey(): { full: string; hash: string; preview: string } {
+export function generateApiKey(): {
+  full: string
+  hash: string
+  preview: string
+} {
   const body = randomBytes(32).toString('base64url')
   const full = `${KEY_PREFIX}${body}`
   const hash = hashApiKey(full)

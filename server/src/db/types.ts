@@ -20,9 +20,17 @@ export interface ApiKeyTable {
   label: string
   key_hash: string
   key_preview: string
-  expires_at: ColumnType<Date | null, Date | string | null, Date | string | null>
+  expires_at: ColumnType<
+    Date | null,
+    Date | string | null,
+    Date | string | null
+  >
   created_at: Timestamp
-  last_used_at: ColumnType<Date | null, Date | string | null, Date | string | null>
+  last_used_at: ColumnType<
+    Date | null,
+    Date | string | null,
+    Date | string | null
+  >
 }
 
 export interface OauthStateTable {

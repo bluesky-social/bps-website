@@ -28,7 +28,11 @@ export async function setDid(
   config: AppConfig,
   did: DidString,
 ): Promise<void> {
-  const session = await getIronSession<SessionData>(req, res, ironOptions(config))
+  const session = await getIronSession<SessionData>(
+    req,
+    res,
+    ironOptions(config),
+  )
   session.did = did
   await session.save()
 }
@@ -42,7 +46,9 @@ export async function unsealDidFromCookieHeader(
   const sealed = parse(cookieHeader)[SESSION_COOKIE_NAME]
   if (!sealed) return null
   try {
-    const data = await unsealData<SessionData>(sealed, { password: config.ironSessionPassword })
+    const data = await unsealData<SessionData>(sealed, {
+      password: config.ironSessionPassword,
+    })
     return data.did ?? null
   } catch {
     return null

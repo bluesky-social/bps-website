@@ -39,7 +39,11 @@ function computeExpiresAt(days) {
 function formatDate(iso) {
   if (!iso) return '—'
   const d = new Date(iso)
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return d.toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  })
 }
 
 function isExpired(expiresAt) {
@@ -50,7 +54,11 @@ function isExpired(expiresAt) {
 // ── Section heading ──────────────────────────────────────────────────────────
 
 function SectionHeading({ id, children }) {
-  return <h2 id={id} className={styles.sectionHeading}>{children}</h2>
+  return (
+    <h2 id={id} className={styles.sectionHeading}>
+      {children}
+    </h2>
+  )
 }
 
 // ── Copy-once secret reveal ──────────────────────────────────────────────────
@@ -79,8 +87,8 @@ function SecretReveal({ secret, onDone }) {
       </div>
 
       <p className={styles.secretWarning}>
-        <strong>Copy this key now.</strong> For security, it won't be shown again
-        after you dismiss this.
+        <strong>Copy this key now.</strong> For security, it won't be shown
+        again after you dismiss this.
       </p>
 
       <div className={styles.secretRow}>
@@ -118,11 +126,7 @@ function SecretReveal({ secret, onDone }) {
         </p>
       )}
 
-      <button
-        type="button"
-        className={styles.secretDoneBtn}
-        onClick={onDone}
-      >
+      <button type="button" className={styles.secretDoneBtn} onClick={onDone}>
         Done — I've copied it
       </button>
     </div>
@@ -166,7 +170,9 @@ function CreateForm({ onCreated }) {
         onCreated(result)
       } catch (err) {
         setStatus('error')
-        setErrorMsg(err?.message || 'Could not create the key. Please try again.')
+        setErrorMsg(
+          err?.message || 'Could not create the key. Please try again.',
+        )
       }
     },
     [label, expiryIdx, client, onCreated],
@@ -197,7 +203,9 @@ function CreateForm({ onCreated }) {
             }}
             maxLength={128}
             disabled={isSubmitting}
-            aria-describedby={status === 'error' ? 'key-create-error' : undefined}
+            aria-describedby={
+              status === 'error' ? 'key-create-error' : undefined
+            }
             aria-invalid={status === 'error' ? 'true' : undefined}
             autoComplete="off"
             spellCheck={false}
@@ -250,7 +258,9 @@ function EmptyState() {
         <EmptyKeysIcon />
       </div>
       <p className={styles.emptyText}>No API keys yet.</p>
-      <p className={styles.emptySubtext}>Create a key above to authenticate your applications.</p>
+      <p className={styles.emptySubtext}>
+        Create a key above to authenticate your applications.
+      </p>
     </div>
   )
 }
@@ -297,7 +307,9 @@ function KeyRow({ apiKey, onDelete }) {
         <div className={styles.keyMeta}>
           <span className={styles.keyMetaItem}>
             <span className={styles.keyMetaLabel}>Created</span>
-            <span className={styles.keyMetaValue}>{formatDate(apiKey.createdAt)}</span>
+            <span className={styles.keyMetaValue}>
+              {formatDate(apiKey.createdAt)}
+            </span>
           </span>
           <span className={styles.keyMetaSep} aria-hidden="true" />
           <span className={styles.keyMetaItem}>
@@ -311,7 +323,9 @@ function KeyRow({ apiKey, onDelete }) {
 
       <div className={styles.keyActions}>
         {deleteError && (
-          <span className={styles.keyDeleteError} role="alert">{deleteError}</span>
+          <span className={styles.keyDeleteError} role="alert">
+            {deleteError}
+          </span>
         )}
 
         {!confirmPending ? (
@@ -326,7 +340,10 @@ function KeyRow({ apiKey, onDelete }) {
           </button>
         ) : (
           <span className={styles.confirmGroup}>
-            <span className={styles.confirmLabel} id={`confirm-label-${apiKey.id}`}>
+            <span
+              className={styles.confirmLabel}
+              id={`confirm-label-${apiKey.id}`}
+            >
               Delete this key?
             </span>
             <button
@@ -341,7 +358,10 @@ function KeyRow({ apiKey, onDelete }) {
             <button
               type="button"
               className={styles.confirmNoBtn}
-              onClick={() => { setConfirmPending(false); setDeleteError(null) }}
+              onClick={() => {
+                setConfirmPending(false)
+                setDeleteError(null)
+              }}
               disabled={deleting}
             >
               Cancel
@@ -391,12 +411,20 @@ export default function ApiKeysSection() {
     }
   }, [client])
 
-  useEffect(() => { loadKeys() }, [loadKeys])
+  useEffect(() => {
+    loadKeys()
+  }, [loadKeys])
 
   function handleCreated(result) {
     // Prepend the new key (without its secret) to the list
     setKeys((prev) => [
-      { id: result.id, label: result.label, preview: result.preview, createdAt: result.createdAt, expiresAt: result.expiresAt },
+      {
+        id: result.id,
+        label: result.label,
+        preview: result.preview,
+        createdAt: result.createdAt,
+        expiresAt: result.expiresAt,
+      },
       ...prev,
     ])
     // Show the secret exactly once — held only in React state
@@ -418,7 +446,11 @@ export default function ApiKeysSection() {
 
       {/* Copy-once secret reveal — rendered only when a new key was just created */}
       {newSecret !== null && (
-        <SecretReveal key={newSecret} secret={newSecret} onDone={handleSecretDone} />
+        <SecretReveal
+          key={newSecret}
+          secret={newSecret}
+          onDone={handleSecretDone}
+        />
       )}
 
       {/* Create form — always visible */}
@@ -436,7 +468,11 @@ export default function ApiKeysSection() {
         {loadStatus === 'error' && loadError && (
           <div className={styles.listError} role="alert">
             <span>{loadError}</span>
-            <button type="button" className={styles.retryBtn} onClick={loadKeys}>
+            <button
+              type="button"
+              className={styles.retryBtn}
+              onClick={loadKeys}
+            >
               Retry
             </button>
           </div>

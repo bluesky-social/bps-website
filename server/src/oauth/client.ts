@@ -23,7 +23,10 @@ function buildDevClientMetadata(config: AppConfig) {
   })
 }
 
-export async function createOAuthClient(db: DB, config: AppConfig): Promise<NodeOAuthClient> {
+export async function createOAuthClient(
+  db: DB,
+  config: AppConfig,
+): Promise<NodeOAuthClient> {
   if (config.devMode) {
     // Loopback/dev: no keyset needed (token_endpoint_auth_method = 'none')
     return new NodeOAuthClient({

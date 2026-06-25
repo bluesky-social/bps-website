@@ -1,4 +1,7 @@
-import type { NodeSavedSession, NodeSavedSessionStore } from '@atproto/oauth-client-node'
+import type {
+  NodeSavedSession,
+  NodeSavedSessionStore,
+} from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import { sql } from 'kysely'
 import type { DB } from '../db/index.ts'
@@ -26,7 +29,10 @@ export function createSessionStore(db: DB): NodeSavedSessionStore {
         .execute()
     },
     async del(sub) {
-      await db.deleteFrom('oauth_session').where('did', '=', sub as DidString).execute()
+      await db
+        .deleteFrom('oauth_session')
+        .where('did', '=', sub as DidString)
+        .execute()
     },
   }
 }

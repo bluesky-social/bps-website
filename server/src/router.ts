@@ -1,4 +1,8 @@
-import { LexRouter, LexServerError, LexServerAuthError } from '@atproto/lex-server'
+import {
+  LexRouter,
+  LexServerError,
+  LexServerAuthError,
+} from '@atproto/lex-server'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
@@ -12,7 +16,12 @@ import * as internal from './lexicons/internal.ts'
 import { fetchProfile } from './account/profile.ts'
 import { refreshEmailIfStale } from './account/refresh-email.ts'
 
-export type RouterDeps = { db: DB; config: AppConfig; client: NodeOAuthClient; apiKeys: ApiKeyProvider }
+export type RouterDeps = {
+  db: DB
+  config: AppConfig
+  client: NodeOAuthClient
+  apiKeys: ApiKeyProvider
+}
 
 export function buildRouter(deps: RouterDeps): LexRouter {
   const { db, config, client, apiKeys } = deps
@@ -26,7 +35,10 @@ export function buildRouter(deps: RouterDeps): LexRouter {
       if (error instanceof LexServerError) {
         logger.warn({ err: error, method: method.nsid }, 'handler client error')
       } else {
-        logger.error({ err: error, method: method.nsid }, 'unexpected handler error')
+        logger.error(
+          { err: error, method: method.nsid },
+          'unexpected handler error',
+        )
       }
     },
   })
@@ -39,10 +51,14 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     try {
       url = await client.authorize(params.handle)
     } catch (err) {
-      logger.info({ err, handle: params.handle }, 'oauth start failed to resolve handle')
+      logger.info(
+        { err, handle: params.handle },
+        'oauth start failed to resolve handle',
+      )
       throw new LexServerError(400, {
         error: 'InvalidHandle',
-        message: 'Could not start login for that handle. Check it and try again.',
+        message:
+          'Could not start login for that handle. Check it and try again.',
       })
     }
     return { body: { authorizeUrl: url.toString() } }
@@ -59,21 +75,29 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         .executeTakeFirst()
       if (!row) {
         // Valid cookie but the account no longer exists (e.g. deleted) → not logged in.
-        throw new LexServerAuthError('AuthenticationRequired', 'Account not found', {
-          Bearer: { realm: 'account' },
-        })
+        throw new LexServerAuthError(
+          'AuthenticationRequired',
+          'Account not found',
+          {
+            Bearer: { realm: 'account' },
+          },
+        )
       }
       // account.email mirrors the PDS email. If the row is older than the TTL, opportunistically
       // re-observe + update it. Best-effort and off the critical path: never throws, whoami
       // always serves a value (the refreshed one if it changed, else the stored one).
-      const email = await refreshEmailIfStale(db, credentials.did, row, () => client.restore(credentials.did))
+      const email = await refreshEmailIfStale(db, credentials.did, row, () =>
+        client.restore(credentials.did),
+      )
       return {
         body: {
           did: credentials.did,
           // The lexicon types `handle` with the `handle` format (branded
           // `${string}.${string}`); the DB column is unconstrained text holding
           // the PDS-reported handle, so cast at the boundary.
-          ...(row.handle ? { handle: row.handle as `${string}.${string}` } : {}),
+          ...(row.handle
+            ? { handle: row.handle as `${string}.${string}` }
+            : {}),
           ...(email ? { email } : {}),
         },
       }
@@ -86,8 +110,13 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   router.add(internal.bps.oauth.logout, {
     auth: requireSession,
     handler: async ({ credentials }) => {
-      await client.revoke(credentials.did).catch((err) => logger.warn({ err }, 'revoke failed'))
-      await db.deleteFrom('oauth_session').where('did', '=', credentials.did as DidString).execute()
+      await client
+        .revoke(credentials.did)
+        .catch((err) => logger.warn({ err }, 'revoke failed'))
+      await db
+        .deleteFrom('oauth_session')
+        .where('did', '=', credentials.did as DidString)
+        .execute()
       return {
         headers: { 'set-cookie': clearCookieHeader(config) },
         body: { ok: true },
@@ -120,7 +149,9 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           label: created.label,
           preview: created.preview,
           createdAt: created.createdAt.toISOString(),
-          ...(created.expiresAt ? { expiresAt: created.expiresAt.toISOString() } : {}),
+          ...(created.expiresAt
+            ? { expiresAt: created.expiresAt.toISOString() }
+            : {}),
           key: created.full,
         },
       }
@@ -166,7 +197,9 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const did = credentials.did
-      await client.revoke(did).catch((err) => logger.warn({ err }, 'revoke during delete failed'))
+      await client
+        .revoke(did)
+        .catch((err) => logger.warn({ err }, 'revoke during delete failed'))
       await apiKeys.deleteConsumer(did) // atomic: deletes api_key rows + the account row together
       await db.deleteFrom('oauth_session').where('did', '=', did).execute() // cleanup; if this fails, account is already gone so whoami still 401s
       // Structured output (not a raw Response): `body` is type-checked against

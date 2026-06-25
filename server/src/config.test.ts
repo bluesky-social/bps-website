@@ -39,11 +39,15 @@ test('loadConfig rejects a non-numeric port', () => {
 })
 
 test('loadConfig parses oauth + cookie settings with dev defaults', () => {
-  const cfg = loadConfig({ ...valid, NODE_ENV: 'development', BPS_API_ORIGIN: 'http://127.0.0.1:8080' })
+  const cfg = loadConfig({
+    ...valid,
+    NODE_ENV: 'development',
+    BPS_API_ORIGIN: 'http://127.0.0.1:8080',
+  })
   assert.equal(cfg.oauthHandleResolver, 'https://bsky.social')
-  assert.equal(cfg.oauthKeyId, 'bps1')          // default
-  assert.equal(cfg.oauthPrivateKey, null)        // unset → null (ephemeral in dev)
-  assert.equal(cfg.cookieSecure, false)          // http + non-prod
+  assert.equal(cfg.oauthKeyId, 'bps1') // default
+  assert.equal(cfg.oauthPrivateKey, null) // unset → null (ephemeral in dev)
+  assert.equal(cfg.cookieSecure, false) // http + non-prod
   assert.equal(cfg.cookieSameSite, 'lax')
   assert.equal(cfg.devMode, true)
 })
@@ -58,7 +62,8 @@ test('loadConfig forces secure cookie + sameSite none in production', () => {
     ...valid,
     NODE_ENV: 'production',
     BPS_API_ORIGIN: 'https://api.example.com',
-    BPS_OAUTH_PRIVATE_KEY: '-----BEGIN PRIVATE KEY-----\nMIG...\n-----END PRIVATE KEY-----',
+    BPS_OAUTH_PRIVATE_KEY:
+      '-----BEGIN PRIVATE KEY-----\nMIG...\n-----END PRIVATE KEY-----',
   })
   assert.equal(cfg.cookieSecure, true)
   assert.equal(cfg.cookieSameSite, 'none')
@@ -68,7 +73,12 @@ test('loadConfig forces secure cookie + sameSite none in production', () => {
 
 test('loadConfig requires a private key in production', () => {
   assert.throws(
-    () => loadConfig({ ...valid, NODE_ENV: 'production', BPS_API_ORIGIN: 'https://api.example.com' }),
+    () =>
+      loadConfig({
+        ...valid,
+        NODE_ENV: 'production',
+        BPS_API_ORIGIN: 'https://api.example.com',
+      }),
     /BPS_OAUTH_PRIVATE_KEY/,
   )
 })
@@ -79,6 +89,9 @@ test('loadConfig defaults appViewUrl to the public AppView', () => {
 })
 
 test('loadConfig honors BPS_APPVIEW_URL override', () => {
-  const cfg = loadConfig({ ...valid, BPS_APPVIEW_URL: 'https://appview.example' })
+  const cfg = loadConfig({
+    ...valid,
+    BPS_APPVIEW_URL: 'https://appview.example',
+  })
   assert.equal(cfg.appViewUrl, 'https://appview.example')
 })

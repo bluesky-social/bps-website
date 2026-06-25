@@ -4,7 +4,9 @@ import { createDb, type DB } from '../db/index.ts'
 import { runMigrations } from '../db/migrate.ts'
 import { createSessionStore } from './session-store.ts'
 
-const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5433/bps_account'
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 const did = 'did:plc:sessiontest' as any
 let db: DB
 
@@ -28,7 +30,11 @@ test('session store round-trips, upserts, and deletes by DID', async () => {
   await store.set(did, v2) // upsert, not duplicate
   assert.deepEqual(await store.get(did), v2)
 
-  const rows = await db.selectFrom('oauth_session').selectAll().where('did', '=', did).execute()
+  const rows = await db
+    .selectFrom('oauth_session')
+    .selectAll()
+    .where('did', '=', did)
+    .execute()
   assert.equal(rows.length, 1)
 
   await store.del(did)

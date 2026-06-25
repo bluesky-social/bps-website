@@ -3,10 +3,18 @@ import type { Selectable } from 'kysely'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from '../db/index.ts'
 import type { ApiKeyTable } from '../db/types.ts'
-import type { ApiKeyProvider, ApiKeyMeta, CreatedKey, Consumer } from './provider.ts'
+import type {
+  ApiKeyProvider,
+  ApiKeyMeta,
+  CreatedKey,
+  Consumer,
+} from './provider.ts'
 import { generateApiKey } from './key.ts'
 
-type ApiKeyRow = Pick<Selectable<ApiKeyTable>, 'id' | 'label' | 'key_preview' | 'created_at' | 'expires_at'>
+type ApiKeyRow = Pick<
+  Selectable<ApiKeyTable>,
+  'id' | 'label' | 'key_preview' | 'created_at' | 'expires_at'
+>
 
 function toMeta(row: ApiKeyRow): ApiKeyMeta {
   return {
@@ -68,7 +76,11 @@ export function createPostgresApiKeyProvider(db: DB): ApiKeyProvider {
     },
 
     async deleteKey(did, keyId): Promise<void> {
-      await db.deleteFrom('api_key').where('did', '=', did).where('id', '=', keyId).execute()
+      await db
+        .deleteFrom('api_key')
+        .where('did', '=', did)
+        .where('id', '=', keyId)
+        .execute()
     },
   }
 }

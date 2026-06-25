@@ -1,4 +1,7 @@
-import type { NodeSavedState, NodeSavedStateStore } from '@atproto/oauth-client-node'
+import type {
+  NodeSavedState,
+  NodeSavedStateStore,
+} from '@atproto/oauth-client-node'
 import type { DB } from '../db/index.ts'
 
 // SimpleStore<string, NodeSavedState> backed by the oauth_state table.

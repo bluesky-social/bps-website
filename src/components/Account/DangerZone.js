@@ -47,7 +47,10 @@ function normalizeHandle(raw) {
 
 function ConsequenceList() {
   return (
-    <ul className={styles.consequenceList} aria-label="What account deletion removes">
+    <ul
+      className={styles.consequenceList}
+      aria-label="What account deletion removes"
+    >
       <li className={styles.consequenceItem}>
         <span className={styles.consequenceIcon} aria-hidden="true">
           <TrashIcon />
@@ -97,7 +100,8 @@ export default function DangerZone() {
   const inFlightRef = useRef(false)
 
   const typedNormalized = normalizeHandle(typed)
-  const confirmed = normalizedExpected.length > 0 && typedNormalized === normalizedExpected
+  const confirmed =
+    normalizedExpected.length > 0 && typedNormalized === normalizedExpected
   const isDeleting = deleteStatus === 'deleting'
 
   function handleExpand() {
@@ -136,7 +140,9 @@ export default function DangerZone() {
       window.location.assign('/')
     } catch (err) {
       setDeleteStatus('error')
-      setDeleteError(err?.message || 'Could not delete account. Please try again.')
+      setDeleteError(
+        err?.message || 'Could not delete account. Please try again.',
+      )
     } finally {
       inFlightRef.current = false
     }
@@ -161,8 +167,8 @@ export default function DangerZone() {
             <div className={styles.deleteRowText}>
               <span className={styles.deleteRowTitle}>Delete this account</span>
               <span className={styles.deleteRowDesc}>
-                Permanently removes your account, all API keys, and revokes access.
-                This cannot be undone.
+                Permanently removes your account, all API keys, and revokes
+                access. This cannot be undone.
               </span>
             </div>
             <button
@@ -196,12 +202,13 @@ export default function DangerZone() {
 
           {/* Handle confirmation gate */}
           <div className={styles.confirmGate}>
-            <label className={styles.confirmLabel} htmlFor="delete-confirm-handle">
+            <label
+              className={styles.confirmLabel}
+              htmlFor="delete-confirm-handle"
+            >
               Type your handle{' '}
-              {handle && (
-                <code className={styles.handleHint}>{handle}</code>
-              )}{' '}
-              to confirm
+              {handle && <code className={styles.handleHint}>{handle}</code>} to
+              confirm
             </label>
             <input
               ref={inputRef}
@@ -222,7 +229,9 @@ export default function DangerZone() {
               spellCheck={false}
               disabled={isDeleting}
               aria-describedby={
-                deleteStatus === 'error' ? 'delete-error-msg' : 'delete-handle-hint'
+                deleteStatus === 'error'
+                  ? 'delete-error-msg'
+                  : 'delete-handle-hint'
               }
               aria-invalid={deleteStatus === 'error' ? 'true' : undefined}
             />
@@ -264,7 +273,11 @@ export default function DangerZone() {
                 </>
               ) : (
                 <>
-                  <TrashIcon className={styles.deleteBtnIcon} strokeWidth="1.8" aria-hidden="true" />
+                  <TrashIcon
+                    className={styles.deleteBtnIcon}
+                    strokeWidth="1.8"
+                    aria-hidden="true"
+                  />
                   Yes, permanently delete
                 </>
               )}

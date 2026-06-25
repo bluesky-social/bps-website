@@ -77,7 +77,7 @@ export default function ProfileCard() {
   const { handle: whoamiHandle, did, profile, email, logout } = useAuth()
   const [signingOut, setSigningOut] = useState(false)
 
-  const rawHandle = (whoamiHandle ?? profile?.handle) ?? ''
+  const rawHandle = whoamiHandle ?? profile?.handle ?? ''
   const handle = rawHandle.startsWith('@') ? rawHandle.slice(1) : rawHandle
   const displayName = profile?.displayName || handle || did || null
   const avatar = profile?.avatar || null
@@ -99,9 +99,7 @@ export default function ProfileCard() {
           <h1 id="profile-card-name" className={styles.displayName}>
             {displayName || 'Unknown'}
           </h1>
-          {handle && (
-            <span className={styles.handle}>@{handle}</span>
-          )}
+          {handle && <span className={styles.handle}>@{handle}</span>}
           {/* Email as 3rd line — display-only, omitted when no email on file */}
           <EmailLine email={email} />
         </div>

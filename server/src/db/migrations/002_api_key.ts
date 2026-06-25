@@ -11,7 +11,9 @@ export async function up(db: Kysely<any>): Promise<void> {
     .addColumn('key_hash', 'text', (c) => c.notNull().unique())
     .addColumn('key_preview', 'text', (c) => c.notNull())
     .addColumn('expires_at', 'timestamptz')
-    .addColumn('created_at', 'timestamptz', (c) => c.notNull().defaultTo(sql`now()`))
+    .addColumn('created_at', 'timestamptz', (c) =>
+      c.notNull().defaultTo(sql`now()`),
+    )
     .addColumn('last_used_at', 'timestamptz')
     .execute()
 

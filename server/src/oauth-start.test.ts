@@ -24,7 +24,9 @@ function routerWithAuthorize(authorize: NodeOAuthClient['authorize']) {
 }
 
 test('oauth.start returns 200 + authorizeUrl on success', async () => {
-  const router = routerWithAuthorize(async () => new URL('https://pds.example/oauth/authorize?x=1'))
+  const router = routerWithAuthorize(
+    async () => new URL('https://pds.example/oauth/authorize?x=1'),
+  )
   const res = await router.fetch(
     new Request('http://local/xrpc/internal.bps.oauth.start?handle=alice.test'),
   )
@@ -38,7 +40,9 @@ test('oauth.start returns 400 (not 500) when the handle cannot be resolved', asy
     throw new Error('handle resolution failed')
   })
   const res = await router.fetch(
-    new Request('http://local/xrpc/internal.bps.oauth.start?handle=not-a-handle.invalid'),
+    new Request(
+      'http://local/xrpc/internal.bps.oauth.start?handle=not-a-handle.invalid',
+    ),
   )
   assert.equal(res.status, 400)
   const json = (await res.json()) as { error: string }

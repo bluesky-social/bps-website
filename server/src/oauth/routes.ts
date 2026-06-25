@@ -40,7 +40,7 @@ export function mountOAuthRoutes(app: Express, deps: Deps): void {
         .onConflict((oc) =>
           oc.column('did').doUpdateSet({
             handle: sql`coalesce(excluded.handle, account.handle)`,
-            email: sql`coalesce(excluded.email, account.email)`,  // PDS observation wins; keep last-known on NULL
+            email: sql`coalesce(excluded.email, account.email)`, // PDS observation wins; keep last-known on NULL
             updated_at: sql`now()`,
           }),
         )

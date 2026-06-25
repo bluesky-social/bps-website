@@ -7,9 +7,18 @@ test('generateApiKey returns a prefixed key, its sha256 hash, and a masked previ
   assert.ok(full.startsWith(KEY_PREFIX), 'full key is prefixed')
   assert.equal(hash, hashApiKey(full), 'hash matches sha256 of full')
   assert.equal(hash.length, 64, 'sha256 hex is 64 chars')
-  assert.ok(preview.startsWith(`${KEY_PREFIX}…`), 'preview is masked with an ellipsis')
-  assert.ok(!preview.includes(full.slice(KEY_PREFIX.length, -4)), 'preview omits the secret body')
-  assert.ok(preview.endsWith(full.slice(-4)), 'preview ends with the last 4 chars of the full key')
+  assert.ok(
+    preview.startsWith(`${KEY_PREFIX}…`),
+    'preview is masked with an ellipsis',
+  )
+  assert.ok(
+    !preview.includes(full.slice(KEY_PREFIX.length, -4)),
+    'preview omits the secret body',
+  )
+  assert.ok(
+    preview.endsWith(full.slice(-4)),
+    'preview ends with the last 4 chars of the full key',
+  )
 })
 
 test('generateApiKey produces unique keys and hashes', () => {

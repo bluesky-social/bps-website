@@ -7,7 +7,9 @@ import { runMigrations } from '../db/migrate.ts'
 import { createPostgresApiKeyProvider } from './postgres-provider.ts'
 import { KEY_PREFIX } from './key.ts'
 
-const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5433/bps_account'
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 const did = 'did:plc:keystest' as DidString
 let db: DB
 
@@ -29,7 +31,11 @@ test('ensureConsumer upserts the account row idempotently', async () => {
   const c1 = await p.ensureConsumer(did)
   assert.equal(c1.did, did)
   await p.ensureConsumer(did) // no error on second call
-  const rows = await db.selectFrom('account').selectAll().where('did', '=', did).execute()
+  const rows = await db
+    .selectFrom('account')
+    .selectAll()
+    .where('did', '=', did)
+    .execute()
   assert.equal(rows.length, 1)
 })
 
@@ -48,7 +54,11 @@ test('createKey returns the full secret once; listKeys never does', async () => 
   assert.ok(!('full' in list[0]), 'listKeys items carry no secret')
 
   // the stored hash is not the plaintext
-  const row = await db.selectFrom('api_key').select(['key_hash', 'key_preview']).where('id', '=', created.id).executeTakeFirstOrThrow()
+  const row = await db
+    .selectFrom('api_key')
+    .select(['key_hash', 'key_preview'])
+    .where('id', '=', created.id)
+    .executeTakeFirstOrThrow()
   assert.notEqual(row.key_hash, created.full)
   assert.equal(row.key_preview, created.preview)
 })
@@ -68,7 +78,10 @@ test('deleteKey removes only that key for that DID', async () => {
   const b = await p.createKey(did, { label: 'b', expiresAt: null })
   await p.deleteKey(did, a.id)
   const list = await p.listKeys(did)
-  assert.deepEqual(list.map((k) => k.id), [b.id])
+  assert.deepEqual(
+    list.map((k) => k.id),
+    [b.id],
+  )
 })
 
 test('deleteConsumer cascades keys and removes the account', async () => {
@@ -77,6 +90,10 @@ test('deleteConsumer cascades keys and removes the account', async () => {
   await p.createKey(did, { label: 'x', expiresAt: null })
   await p.deleteConsumer(did)
   assert.equal((await p.listKeys(did)).length, 0)
-  const acct = await db.selectFrom('account').selectAll().where('did', '=', did).execute()
+  const acct = await db
+    .selectFrom('account')
+    .selectAll()
+    .where('did', '=', did)
+    .execute()
   assert.equal(acct.length, 0)
 })

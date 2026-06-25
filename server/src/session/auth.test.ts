@@ -9,7 +9,10 @@ const did = 'did:plc:authtest' as any
 
 test('requireSession returns {did} for a valid cookie', async () => {
   const requireSession = makeRequireSession(config)
-  const sealed = await sealData({ did }, { password: config.ironSessionPassword })
+  const sealed = await sealData(
+    { did },
+    { password: config.ironSessionPassword },
+  )
   const request = new Request('http://local/xrpc/internal.bps.account.whoami', {
     headers: { cookie: `${SESSION_COOKIE_NAME}=${sealed}` },
   })
@@ -20,5 +23,8 @@ test('requireSession returns {did} for a valid cookie', async () => {
 test('requireSession throws when no cookie present', async () => {
   const requireSession = makeRequireSession(config)
   const request = new Request('http://local/xrpc/internal.bps.account.whoami')
-  await assert.rejects(() => requireSession({ request }), /Authentication|auth|session/i)
+  await assert.rejects(
+    () => requireSession({ request }),
+    /Authentication|auth|session/i,
+  )
 })

@@ -4,7 +4,9 @@ import { createDb, type DB } from '../db/index.ts'
 import { runMigrations } from '../db/migrate.ts'
 import { createStateStore } from './state-store.ts'
 
-const url = process.env.BPS_TEST_DATABASE_URL ?? 'postgres://bps:bps@localhost:5433/bps_account'
+const url =
+  process.env.BPS_TEST_DATABASE_URL ??
+  'postgres://bps:bps@localhost:5433/bps_account'
 let db: DB
 
 before(async () => {
@@ -19,7 +21,11 @@ after(async () => {
 
 test('state store round-trips a value and deletes it', async () => {
   const store = createStateStore(db)
-  const value = { foo: 'bar', nested: { n: 1 }, dpopJwk: { kty: 'EC', crv: 'P-256' } } as any
+  const value = {
+    foo: 'bar',
+    nested: { n: 1 },
+    dpopJwk: { kty: 'EC', crv: 'P-256' },
+  } as any
   await store.set('key-1', value)
   const got = await store.get('key-1')
   assert.deepEqual(got, value)

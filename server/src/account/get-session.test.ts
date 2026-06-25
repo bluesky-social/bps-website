@@ -10,7 +10,12 @@ function stubSession(behavior: string) {
       if (behavior === 'throw') throw new Error('network')
       if (behavior === 'notok') return new Response('nope', { status: 502 })
       return new Response(
-        JSON.stringify({ did: 'did:plc:x', handle: 'alice.test', email: 'a@b.co', emailConfirmed: true }),
+        JSON.stringify({
+          did: 'did:plc:x',
+          handle: 'alice.test',
+          email: 'a@b.co',
+          emailConfirmed: true,
+        }),
         { status: 200, headers: { 'content-type': 'application/json' } },
       )
     },
@@ -36,7 +41,8 @@ test('safeGetSession omits email when absent', async () => {
   const session = {
     fetchHandler: async () =>
       new Response(JSON.stringify({ did: 'did:plc:x', handle: 'bob.test' }), {
-        status: 200, headers: { 'content-type': 'application/json' },
+        status: 200,
+        headers: { 'content-type': 'application/json' },
       }),
   }
   const r = await safeGetSession(session)

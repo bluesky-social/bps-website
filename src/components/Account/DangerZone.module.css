@@ -36,7 +36,8 @@ html[data-theme='light'] .section {
 /* ── Section wrapper ────────────────────────────────────────────────────── */
 
 .section {
-  border: 1px solid color-mix(in srgb, var(--dz-danger) 30%, var(--ifm-color-emphasis-200));
+  border: 1px solid
+    color-mix(in srgb, var(--dz-danger) 30%, var(--ifm-color-emphasis-200));
   border-radius: 10px;
   overflow: hidden;
   /* Subtle red ambient shadow in light mode for visual separation */
@@ -47,7 +48,9 @@ html[data-theme='light'] .section {
    * page paper (#f4f6f9), not a dim block. The header re-tints over this. */
   background: #ffffff;
   border-color: color-mix(in srgb, var(--dz-danger) 28%, #dfe3e8);
-  box-shadow: 0 1px 4px rgba(208, 69, 76, 0.08), 0 0 0 0 transparent;
+  box-shadow:
+    0 1px 4px rgba(208, 69, 76, 0.08),
+    0 0 0 0 transparent;
 }
 
 html[data-theme='dark'] .section {
@@ -62,8 +65,13 @@ html[data-theme='dark'] .section {
   align-items: center;
   gap: 0.45rem;
   padding: 0.85rem 1.125rem 0.65rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--dz-danger) 20%, var(--ifm-color-emphasis-200));
-  background: color-mix(in srgb, var(--dz-danger) 5%, var(--ifm-background-surface-color, #fff));
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--dz-danger) 20%, var(--ifm-color-emphasis-200));
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 5%,
+    var(--ifm-background-surface-color, #fff)
+  );
 }
 
 html[data-theme='light'] .header {
@@ -92,7 +100,8 @@ html[data-theme='dark'] .header {
 }
 
 .heading {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -155,14 +164,19 @@ html[data-theme='dark'] .deleteRowDesc {
   border: 1px solid color-mix(in srgb, var(--dz-danger) 55%, transparent);
   border-radius: 6px;
   color: var(--dz-danger-text);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease;
 }
 
 html[data-theme='light'] .expandBtn:hover {
@@ -193,7 +207,11 @@ html[data-theme='dark'] .expandBtn:hover {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  background: color-mix(in srgb, var(--dz-danger) 4%, var(--ifm-background-surface-color, #fff));
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 4%,
+    var(--ifm-background-surface-color, #fff)
+  );
 }
 
 html[data-theme='light'] .confirmPanel {
@@ -228,7 +246,11 @@ html[data-theme='dark'] .consequenceIntro {
   list-style: none;
   margin: 0;
   padding: 0.75rem 1rem;
-  background: color-mix(in srgb, var(--dz-danger) 6%, var(--ifm-background-surface-color, #fff));
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 6%,
+    var(--ifm-background-surface-color, #fff)
+  );
   border: 1px solid color-mix(in srgb, var(--dz-danger) 22%, transparent);
   border-radius: 8px;
   display: flex;
@@ -299,7 +321,8 @@ html[data-theme='dark'] .consequenceIcon {
 }
 
 .confirmLabel {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -313,7 +336,8 @@ html[data-theme='dark'] .confirmLabel {
 }
 
 .handleHint {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.82em;
   font-weight: 700;
   color: var(--dz-danger-text);
@@ -334,15 +358,20 @@ html[data-theme='dark'] .handleHint {
   height: 40px;
   padding: 0 12px;
   background: var(--ifm-background-surface-color, #fff);
-  border: 1.5px solid color-mix(in srgb, var(--dz-danger) 35%, var(--ifm-color-emphasis-300));
+  border: 1.5px solid
+    color-mix(in srgb, var(--dz-danger) 35%, var(--ifm-color-emphasis-300));
   border-radius: 7px;
   color: var(--ifm-color-emphasis-900);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.9rem;
   font-weight: 500;
   letter-spacing: 0.02em;
   outline: none;
-  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 html[data-theme='light'] .confirmInput {
@@ -377,7 +406,8 @@ html[data-theme='light'] .confirmInput:focus {
 
 html[data-theme='dark'] .confirmInput:focus {
   border-color: var(--dz-danger-text);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--dz-danger-text) 12%, transparent);
   background: #161c26;
 }
 
@@ -398,7 +428,8 @@ html[data-theme='dark'] .confirmInputValid {
 }
 
 .confirmHint {
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.68rem;
   color: var(--ifm-color-emphasis-500);
   margin: 0;
@@ -420,7 +451,8 @@ html[data-theme='dark'] .confirmHint {
   background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
   border-radius: 6px;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--dz-danger-text);
@@ -459,14 +491,18 @@ html[data-theme='dark'] .errorMsg {
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: 6px;
   color: var(--ifm-color-emphasis-600);
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .cancelBtn:hover:not(:disabled) {
@@ -502,14 +538,18 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
   border: none;
   border-radius: 6px;
   color: #fff;
-  font-family: 'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family:
+    'Atkinson Hyperlegible Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.1s ease;
 }
 
 .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
@@ -523,13 +563,18 @@ html[data-theme='dark'] .cancelBtn:hover:not(:disabled) {
 /* Disabled — visually muted, click-blocked; also covers aria-disabled state */
 .deleteBtn:disabled,
 .deleteBtn[aria-disabled='true'] {
-  background: color-mix(in srgb, var(--dz-danger) 40%, var(--ifm-color-emphasis-300));
+  background: color-mix(
+    in srgb,
+    var(--dz-danger) 40%,
+    var(--ifm-color-emphasis-300)
+  );
   cursor: not-allowed;
   opacity: 0.6;
   transform: none;
 }
 
-html[data-theme='dark'] .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
+html[data-theme='dark']
+  .deleteBtn:hover:not(:disabled):not([aria-disabled='true']) {
   background: #c22f2c;
 }
 
@@ -547,7 +592,9 @@ html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
 /* ── Deleting spinner ───────────────────────────────────────────────────── */
 
 @keyframes dzSpinnerSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .deletingSpinner {
