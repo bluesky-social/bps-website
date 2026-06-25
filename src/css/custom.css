@@ -626,18 +626,18 @@ html[data-theme='dark']:root {
 }
 /* Mirror the desktop sidebar's type split:
  *  - MAIN menu (level-1 category labels + top-level links, incl. our custom
- *    NavCustomLink items) → Atkinson mono, uppercase, tracked
- *  - SUBMENU (level-2 children) → Inter (inherits base) */
+ *    NavCustomLink items) → sans, larger, semi-bold
+ *  - SUBMENU (level-2 children) → sans, slightly smaller, medium weight */
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__link,
 .navbar-sidebar__items .menu__list > .menu__list-item > .menu__list-item-collapsible > .menu__link {
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-xs); font-weight: 700;
-  letter-spacing: 0.09em; text-transform: uppercase;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-base); font-weight: 600;
+  letter-spacing: -0.005em; text-transform: none;
 }
-/* nested (submenu) items stay Inter, normal case */
+/* nested (submenu) items → slightly smaller + medium weight */
 .navbar-sidebar__items .menu__list .menu__list .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: var(--bps-text-base); font-weight: 400;
+  font-size: var(--bps-text-sm); font-weight: 500;
   letter-spacing: normal; text-transform: none;
 }
 
@@ -934,15 +934,15 @@ div[class*='codeBlockTitle_'] {
  * ===================================================================== */
 .theme-doc-sidebar-menu { font-size: var(--bps-text-base); }
 
-/* Top-level labels → mono, uppercase, tracked. Covers both collapsible
+/* Top-level labels → sans, larger + semi-bold. Covers both collapsible
  * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
  * which are theme-doc-sidebar-item-link-level-1, not categories) so all
  * first-level siblings share the same heading style. */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-sm); font-weight: 700;
-  letter-spacing: 0.09em; text-transform: uppercase;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-base); font-weight: 600;
+  letter-spacing: -0.005em;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
   color: var(--ifm-color-emphasis-800);
@@ -958,6 +958,13 @@ html[data-theme='dark']
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
   line-height: 1.5; border-radius: var(--bps-radius-sm);
+}
+/* Second-level (child) items → slightly smaller + a touch bolder than the
+ * top-level labels, so the hierarchy reads as: large semi-bold parents, compact
+ * medium-weight children. Scoped to nested lists (a .menu__list inside the
+ * top-level .menu__list) so it never hits the level-1 labels above. */
+.theme-doc-sidebar-menu .menu__list .menu__list .menu__link {
+  font-size: var(--bps-text-sm); font-weight: 500;
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
@@ -983,14 +990,23 @@ html[data-theme='dark']
 
 /* Active item: soft blue tint + left accent bar. The bar is a ::before
  * pseudo-element (not an inset box-shadow) so it sits flush inside the item's
- * border-radius rather than being clipped square at the corner. */
-.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist) {
+ * border-radius rather than being clipped square at the corner.
+ * Two cases get the treatment:
+ *   1. A leaf link that is active (:not(--sublist)).
+ *   2. A top-level CATEGORY label when you're on that category's own page —
+ *      i.e. it's a --sublist link AND carries aria-current="page". The
+ *      aria-current guard is what distinguishes "on the category page" from
+ *      "a child page is open" (where the parent is --active but NOT
+ *      aria-current), so opening a child doesn't light up its parent. */
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist),
+.theme-doc-sidebar-menu .menu__link--sublist.menu__link--active[aria-current='page'] {
   position: relative;
   background: color-mix(in srgb, var(--ifm-color-primary) 9%, transparent);
   color: var(--ifm-color-primary);
   font-weight: 600;
 }
-.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before {
+.theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before,
+.theme-doc-sidebar-menu .menu__link--sublist.menu__link--active[aria-current='page']::before {
   content: '';
   position: absolute;
   top: 0; left: 0; bottom: 0;
