@@ -14,7 +14,12 @@ const credFetch: typeof fetch = (input, init = {}) =>
   fetch(input, { ...init, credentials: 'include' })
 
 export function buildClient(service: string) {
-  const client = new Client({ service, fetchHandler: credFetch })
+  // Pass an AgentConfig ({ service, fetch }), NOT an Agent ({ fetchHandler }).
+  // An object with a `fetchHandler` is detected as a ready-made Agent and its
+  // `service` is ignored — the handler would then receive a bare path with no
+  // origin, so requests hit the current page instead of the API (404). With
+  // { service, fetch } the agent prepends `service` to each request path.
+  const client = new Client({ service, fetch: credFetch })
   return {
     whoami: () => client.call(internal.bps.account.whoami),
     profile: () => client.call(internal.bps.account.profile),
