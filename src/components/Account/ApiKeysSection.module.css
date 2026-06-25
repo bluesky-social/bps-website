@@ -29,12 +29,12 @@ html[data-theme='dark'] .sectionHeading {
 .createForm {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--bps-space-lg);
   padding: 1rem 1.125rem;
   background: var(--ifm-background-surface-color, var(--bps-white));
   border: 1px solid var(--bps-rule-light);
   border-radius: var(--bps-radius-lg);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--bps-space-2xl);
 }
 
 html[data-theme='light'] .createForm {
@@ -49,14 +49,14 @@ html[data-theme='dark'] .createForm {
 
 .createFields {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--bps-space-lg);
   align-items: flex-end;
 }
 
 .formField {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--bps-space-xs);
 }
 
 .formField:first-child {
@@ -240,7 +240,7 @@ html[data-theme='dark'] .errorMsg {
   border: 1.5px solid
     color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
   border-radius: var(--bps-radius-lg);
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--bps-space-2xl);
 }
 
 html[data-theme='dark'] .secretReveal {
@@ -252,7 +252,7 @@ html[data-theme='dark'] .secretReveal {
   display: flex;
   align-items: center;
   gap: 7px;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--bps-space-sm);
 }
 
 .secretBadge {
@@ -446,13 +446,13 @@ html[data-theme='dark'] .secretDoneBtn:hover {
 /* ── List area ──────────────────────────────────────────────────────────── */
 
 .listArea {
-  margin-top: 0.25rem;
+  margin-top: var(--bps-space-2xs);
 }
 
 .listLoading {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
   padding: 1.25rem 0;
   color: var(--ifm-color-emphasis-500);
   font-family: var(--bps-docs-mono);
@@ -493,7 +493,7 @@ html[data-theme='dark'] .listLoadingSpinner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--bps-space-lg);
   flex-wrap: wrap;
   padding: 0.65rem 0.875rem;
   background: color-mix(in srgb, var(--bps-danger) 10%, transparent);
@@ -538,7 +538,7 @@ html[data-theme='dark'] .retryBtn {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--bps-space-xs);
   padding: 2.5rem 1rem;
   text-align: center;
 }
@@ -546,7 +546,7 @@ html[data-theme='dark'] .retryBtn {
 .emptyIcon {
   width: 36px;
   height: 36px;
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--bps-space-xs);
   color: var(--ifm-color-emphasis-400);
   opacity: 0.6;
 }
@@ -612,7 +612,7 @@ html[data-theme='dark'] .keyList {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--bps-space-xl);
   flex-wrap: wrap;
   padding: 0.875rem 1rem;
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
@@ -644,13 +644,13 @@ html[data-theme='dark'] .keyRow:hover {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--bps-space-xs);
 }
 
 .keyIdentity {
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
   flex-wrap: wrap;
 }
 
@@ -687,8 +687,8 @@ html[data-theme='dark'] .keyPreview {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  row-gap: 0.25rem;
+  gap: var(--bps-space-sm);
+  row-gap: var(--bps-space-2xs);
 }
 
 .keyMetaItem {
@@ -696,7 +696,7 @@ html[data-theme='dark'] .keyPreview {
   /* Item 2: baseline alignment so the label (0.62rem) and value (0.72rem) share
      a text baseline rather than being force-centered at their different sizes. */
   align-items: baseline;
-  gap: 0.3rem;
+  gap: var(--bps-space-2xs);
 }
 
 .keyMetaLabel {
@@ -771,7 +771,7 @@ html[data-theme='dark'] .statusDotExpired {
 .keyActions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--bps-space-sm);
   flex-wrap: wrap;
   flex-shrink: 0;
   padding-top: 2px;
@@ -822,7 +822,7 @@ html[data-theme='dark'] .deleteBtn:hover:not(:disabled) {
 .confirmGroup {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--bps-space-xs);
   flex-wrap: wrap;
 }
 
@@ -983,7 +983,7 @@ html[data-theme='dark'] .keyDeleteError {
   /* Key rows stack vertically — keyActions sits below the key metadata */
   .keyRow {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--bps-space-sm);
   }
 
   .keyActions {
@@ -993,6 +993,6 @@ html[data-theme='dark'] .keyDeleteError {
   .confirmGroup {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.35rem;
+    gap: var(--bps-space-xs);
   }
 }

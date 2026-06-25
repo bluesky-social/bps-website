@@ -27,7 +27,7 @@
 .divider {
   height: 1px;
   background: var(--bps-account-divider);
-  margin-top: 1.25rem;
+  margin-top: var(--bps-space-2xl);
   margin-bottom: 2rem;
 }
 
@@ -46,7 +46,7 @@
 .skeletonHeader {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--bps-space-xl);
   padding: 0.25rem 0 0.5rem;
 }
 
@@ -74,7 +74,7 @@ html[data-theme='dark'] .skeletonAvatar {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-top: 0.5rem;
+  padding-top: var(--bps-space-sm);
 }
 
 .skeletonHeading {
@@ -152,7 +152,7 @@ html[data-theme='dark'] .anonLede {
 .anonForm {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--bps-space-sm);
 }
 
 .inputLabel {

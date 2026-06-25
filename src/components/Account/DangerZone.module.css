@@ -63,7 +63,7 @@ html[data-theme='dark'] .section {
 .header {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: var(--bps-space-xs);
   padding: 0.85rem 1.125rem 0.65rem;
   border-bottom: 1px solid
     color-mix(in srgb, var(--dz-danger) 20%, var(--ifm-color-emphasis-200));
@@ -128,14 +128,14 @@ html[data-theme='dark'] .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--bps-space-xl);
   flex-wrap: wrap;
 }
 
 .deleteRowText {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: var(--bps-space-2xs);
   flex: 1;
   min-width: 0;
 }
@@ -212,7 +212,7 @@ html[data-theme='dark'] .expandBtn:hover {
   padding: 1.25rem 1.125rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--bps-space-2xl);
   background: color-mix(
     in srgb,
     var(--dz-danger) 4%,
@@ -233,7 +233,7 @@ html[data-theme='dark'] .confirmPanel {
 .consequenceBlock {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
 }
 
 .consequenceIntro {
@@ -261,7 +261,7 @@ html[data-theme='dark'] .consequenceIntro {
   border-radius: var(--bps-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
 }
 
 html[data-theme='light'] .consequenceList {
@@ -277,7 +277,7 @@ html[data-theme='dark'] .consequenceList {
 .consequenceItem {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
   font-size: var(--bps-text-md);
   color: var(--ifm-color-emphasis-800);
   line-height: 1.45;
@@ -323,7 +323,7 @@ html[data-theme='dark'] .consequenceIcon {
 .confirmGate {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: var(--bps-space-xs);
 }
 
 .confirmLabel {
@@ -453,7 +453,7 @@ html[data-theme='dark'] .confirmHint {
 .errorMsg {
   display: flex;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--bps-space-sm);
   padding: 8px 12px;
   background: color-mix(in srgb, var(--dz-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--dz-danger) 28%, transparent);
@@ -485,7 +485,7 @@ html[data-theme='dark'] .errorMsg {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.6rem;
+  gap: var(--bps-space-md);
   flex-wrap: wrap;
 }
 
@@ -618,7 +618,7 @@ html[data-theme='dark'] .deleteBtn[aria-disabled='true'] {
   .deleteRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
+    gap: var(--bps-space-lg);
   }
 
   .expandBtn {

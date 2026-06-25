@@ -38,7 +38,7 @@
   font-size: var(--bps-text-2xs); font-weight: 700;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--ifm-color-primary);
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--bps-space-md);
 }
 .title {
   font-size: 2rem; font-weight: 740; letter-spacing: -0.024em;

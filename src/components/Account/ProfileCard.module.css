@@ -24,7 +24,7 @@
   display: flex;
   align-items: flex-start;
   gap: 1.125rem;
-  padding-bottom: 0.5rem;
+  padding-bottom: var(--bps-space-sm);
 }
 
 /* ── Avatar ─────────────────────────────────────────────────────────────── */
@@ -125,7 +125,7 @@ html[data-theme='dark'] .handle {
 .emailLine {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--bps-space-xs);
   min-width: 0;
 }
 

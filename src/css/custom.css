@@ -109,6 +109,23 @@
   --bps-text-sm: 0.78rem; /* secondary buttons, notes */
   --bps-text-md: 0.82rem; /* descriptive body text */
   --bps-text-base: 0.875rem; /* inputs, primary body, sidebar/footer links */
+
+  /* Spacing scale — for SINGLE-AXIS spacing (gap, and single-value margin /
+   * padding). Steps follow a ~4px grid; the low end keeps the 6px/10px stops
+   * the UI actually leans on. Near-duplicates that differed by <1px (0.2/0.3 vs
+   * 0.25; 0.35/0.4 vs 0.375; 0.6/0.65 vs 0.625) are unified here.
+   * Scope note: multi-value padding/margin SHORTHANDS (e.g. card boxes with
+   * intentionally asymmetric top/bottom) are left as literals — they're
+   * per-component box compositions, not scale steps — as are large one-off
+   * section paddings (2.25/2.5/3/4rem). */
+  --bps-space-2xs: 0.25rem; /* 4px  — tight inline gaps */
+  --bps-space-xs: 0.375rem; /* 6px  — icon/label gaps */
+  --bps-space-sm: 0.5rem; /* 8px  — control gaps */
+  --bps-space-md: 0.625rem; /* 10px — row gaps */
+  --bps-space-lg: 0.75rem; /* 12px — group gaps */
+  --bps-space-xl: 1rem; /* 16px — block gaps */
+  --bps-space-2xl: 1.25rem; /* 20px — section inner gaps */
+  --bps-space-3xl: 1.5rem; /* 24px — section gaps */
 }
 
 /* =====================================================================
@@ -755,8 +772,8 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * margin-top own the gap (otherwise they stack to ~3.5rem). */
 .markdown > .bpsDocHero:has(+ .theme-doc-toc-mobile) { margin-bottom: 0; }
 .markdown > .theme-doc-toc-mobile {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: var(--bps-space-3xl);
+  margin-bottom: var(--bps-space-3xl);
 }
 
 /* Right-hand TOC: quiet it. */
@@ -1081,7 +1098,7 @@ html[data-theme='dark'] .footer {
 
 /* Copyright line — Atkinson mono, uppercase, de-emphasized, with extra breathing
  * room above it. */
-.footer__bottom { margin-top: 1.5rem; }
+.footer__bottom { margin-top: var(--bps-space-3xl); }
 .footer__copyright,
 .bpsFooterCopy {
   color: var(--bps-footer-copy);
