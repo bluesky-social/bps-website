@@ -239,7 +239,11 @@ html[data-theme='dark'] {
    * is clipped by its own radial mask + the row height instead. */
 }
 /* ----- light-mode navbar palette ----- */
-html[data-theme='light'] .navbar {
+/* `:not(:has(.bps-home))` keeps this OFF the homepage: that page is an
+ * always-dark design, so the masthead must stay on the dark .navbar defaults
+ * above even when the user's mode is light. Everywhere else, light mode re-tints
+ * the bar. (Paired with the same exclusion on the topo ::before below.) */
+html[data-theme='light']:not(:has(.bps-home)) .navbar {
   --bps-nav-bg: #f4f6f9;           /* matches the docs paper-light surface */
   --bps-nav-border: #dfe3e8;
   --bps-nav-ink: #0d1117;
@@ -287,8 +291,9 @@ html[data-theme='light'] .navbar {
   padding: 0 32px 0 40px;
 }
 /* Light-mode topo: re-tint the lines to a faint blue-gray that reads on the
- * light bar (the dark default uses near-white lines at low opacity). */
-html[data-theme='light'] .navbar::before {
+ * light bar (the dark default uses near-white lines at low opacity).
+ * Excluded on the homepage (always-dark masthead) — see the palette block. */
+html[data-theme='light']:not(:has(.bps-home)) .navbar::before {
   opacity: 0.7;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 720 76' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='none' stroke='%2398a9c0' stroke-opacity='0.5'%3E%3Cpath d='M 0,-10 C 80,4 180,12 280,16 C 380,20 480,18 600,8 C 660,2 700,-4 720,-10'/%3E%3Cpath d='M 0,18 C 100,28 200,38 320,44 C 440,50 560,42 660,32 C 690,28 710,24 720,22'/%3E%3Cpath stroke-opacity='0.7' stroke-width='1.4' d='M 0,38 C 120,52 220,64 360,70 C 500,74 620,66 720,54'/%3E%3Cpath d='M 0,62 C 100,78 220,86 380,86 C 540,86 640,78 720,68'/%3E%3Cpath d='M 0,86 C 140,90 260,96 400,98 C 540,100 660,96 720,90'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='360' cy='40' r='2.5' fill='%237088a6'/%3E%3Ccircle cx='360' cy='40' r='7' fill='none' stroke='%237088a6' stroke-opacity='0.5' stroke-width='0.7'/%3E%3C/g%3E%3C/svg%3E");
 }
@@ -322,6 +327,19 @@ html[data-theme='light'] .navbar::before {
 .navbar-sidebar [class*='toggleButton']:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
+}
+
+/* The homepage is an always-dark design (the .bps-home body and the masthead
+ * are dark in both color modes). Rather than force the global color mode to
+ * dark there — which mutates shared, persisted state and is brittle across SPA
+ * navigation — we keep the page on whatever mode the user has and just pin the
+ * one remaining mode-following element (the footer) dark via CSS, and hide the
+ * now-pointless toggle. Scoped via `html:has(.bps-home)` so it's homepage-only
+ * (other custom pages like /account share the plugin-pages html class, so that
+ * can't be the hook). The footer dark-pin lives in the footer section below. */
+html:has(.bps-home) .navbar [class*='colorModeToggle'],
+html:has(.bps-home) .navbar-sidebar [class*='colorModeToggle'] {
+  display: none;
 }
 
 /* ── Right-nav item ordering (desktop) ──────────────────────────────────────
@@ -371,9 +389,11 @@ html[data-theme='light'] .navbar::before {
   display: block;
 }
 /* Light mode: swap the butterfly fill to the inverted (dark-core) gradient so
- * the halftone dots stay legible against the pale bar. */
-html[data-theme='light'] .bpsBrand__pulse { fill: url(#bsky-grad-light); }
-html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); }
+ * the halftone dots stay legible against the pale bar. Excluded on the homepage
+ * (always-dark masthead) so the logo keeps its dark-bar gradient there — same
+ * `:not(:has(.bps-home))` exclusion as the navbar palette above. */
+html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse { fill: url(#bsky-grad-light); }
+html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: url(#bsky-grad-light); }
 .bpsBrand,
 .bpsBrand:hover { text-decoration: none; }
 .bpsBrand__word {
@@ -1136,6 +1156,22 @@ html[data-theme='dark'] .footer {
    * for dark mode — no per-theme override needed. */
   --bps-footer-link: #c4ccd8;      /* normal text color */
   --bps-footer-copy: #6b7686;      /* de-emphasized */
+}
+/* Homepage footer is always dark (the page is an always-dark design — see the
+ * color-mode note in the navbar section). Pin the dark footer tokens regardless
+ * of the active color mode. Unlike the [data-theme='dark'] block, we must also
+ * set --bps-footer-title / -link-hover explicitly: those default to
+ * var(--ifm-color-primary), which is only remapped to the light-on-dark blue
+ * under [data-theme='dark'] — in light mode it's the darker #0052cc, which is
+ * low-contrast on this dark footer. Use the dark-mode primary (#7dd3fc) so the
+ * column headers match the real dark-mode footer exactly. */
+html:has(.bps-home) .footer {
+  --bps-footer-bg: #0b0e13;
+  --bps-footer-border: #1f2733;
+  --bps-footer-link: #c4ccd8;
+  --bps-footer-copy: #6b7686;
+  --bps-footer-title: #7dd3fc;
+  --bps-footer-link-hover: #7dd3fc;
 }
 
 /* Column titles → strong color + the mono UI accent, echoing the sidebar/nav
