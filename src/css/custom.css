@@ -38,6 +38,58 @@
 }
 
 /* =====================================================================
+ * BPS BRAND PALETTE — site-wide named constants
+ * The single source of truth for the brand's raw color swatches, so custom
+ * styles reference a name instead of repeating the hex. These are theme-
+ * INDEPENDENT constants (a swatch list), not theme-flipping tokens: light/dark
+ * selection still happens at the use site (light rules lean on Infima's
+ * --ifm-color-emphasis-* ramp; dark `html[data-theme='dark']` blocks pull the
+ * dark surface/ink/rule swatches below). Names match landing.css so the two
+ * sheets share one vocabulary. custom.css is the only site-wide stylesheet, so
+ * defining them here makes them available everywhere (landing.css, loaded only
+ * on the homepage, re-states the overlapping few — same values). */
+:root {
+  /* surfaces — dark */
+  --bps-paper: #0d1117; /* base page paper */
+  --bps-paper-2: #161c26; /* raised panel (cards, code body) */
+  --bps-surface-3: #1c2532; /* hover / inset fills above paper-2 */
+  /* surfaces — light */
+  --bps-white: #ffffff;
+  --bps-surface-light-2: #fafbfc; /* faint off-white input fill */
+
+  /* rules — dark */
+  --bps-rule: #1f2733;
+  --bps-rule-2: #2a3340;
+  --bps-rule-3: #3d4e60; /* stronger dark rule (focus-adjacent borders) */
+  /* rules — light */
+  --bps-rule-light: #dfe3e8;
+  --bps-rule-light-2: #c9d1d9;
+
+  /* ink — dark surfaces (brightest → faintest) */
+  --bps-ink: #f0f6fc;
+  --bps-ink-2: #e6edf3; /* input text */
+  --bps-ink-soft: #c4ccd8;
+  --bps-ink-muted: #8893a2;
+  --bps-ink-faint: #5a6473;
+
+  /* accent — brand blue on dark surfaces */
+  --bps-blue-dark: #3994ff;
+
+  /* danger — destructive actions / errors */
+  --bps-danger: #d0454c; /* light base */
+  --bps-danger-dark: #da3633; /* dark base */
+  --bps-danger-hover: #b53c43; /* light hover */
+  --bps-danger-hover-dark: #c22f2c; /* dark hover */
+  --bps-danger-text: #c0392b; /* error text, light */
+  --bps-danger-text-dark: #ff7b72; /* error text, dark */
+  --bps-danger-text-bright: #ff9a94; /* emphasized danger text, dark */
+
+  /* success — confirmations / active status */
+  --bps-success: #2e9e57; /* light */
+  --bps-success-dark: #3fb950; /* dark */
+}
+
+/* =====================================================================
  * DOCS READING SURFACE — type & accent foundation (mono-accent anchor)
  * Body & headings: Inter. Monospace (JetBrains Mono) is a deliberate
  * accent only (nav category, breadcrumb, admonition labels, code, inline

@@ -47,8 +47,8 @@
 }
 
 html[data-theme='dark'] .avatarImg {
-  border-color: #2a3340;
-  background: #1c2532;
+  border-color: var(--bps-rule-2);
+  background: var(--bps-surface-3);
 }
 
 .avatarFallback {
@@ -68,9 +68,9 @@ html[data-theme='dark'] .avatarImg {
 }
 
 html[data-theme='dark'] .avatarFallback {
-  border-color: #2a3340;
-  background: #1c2532;
-  color: #3994ff;
+  border-color: var(--bps-rule-2);
+  background: var(--bps-surface-3);
+  color: var(--bps-blue-dark);
 }
 
 /* ── Identity text ──────────────────────────────────────────────────────── */
@@ -99,7 +99,7 @@ html[data-theme='dark'] .avatarFallback {
 }
 
 html[data-theme='dark'] .displayName {
-  color: #f0f6fc;
+  color: var(--bps-ink);
 }
 
 /* Item 1: handle → Inter (was Atkinson mono). Weight 600. */
@@ -116,7 +116,7 @@ html[data-theme='dark'] .displayName {
 }
 
 html[data-theme='dark'] .handle {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 /* ── Email line (3rd names row) ─────────────────────────────────────────── */
@@ -138,7 +138,7 @@ html[data-theme='dark'] .handle {
 }
 
 html[data-theme='dark'] .emailIcon {
-  color: #5a6473;
+  color: var(--bps-ink-faint);
 }
 
 /* Item 1: email address → Inter (was Atkinson mono) */
@@ -156,7 +156,7 @@ html[data-theme='dark'] .emailIcon {
 }
 
 html[data-theme='dark'] .emailAddress {
-  color: #8893a2;
+  color: var(--bps-ink-muted);
 }
 
 /* ── Sign out — quiet text button, top-right of the identity row ──────────
@@ -188,10 +188,10 @@ html[data-theme='dark'] .emailAddress {
   cursor: default;
 }
 html[data-theme='dark'] .signOutBtn {
-  color: #5a6473;
+  color: var(--bps-ink-faint);
 }
 html[data-theme='dark'] .signOutBtn:hover {
-  color: #7dd3fc;
+  color: var(--ifm-color-primary);
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────────── */
