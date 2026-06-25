@@ -16,6 +16,29 @@ const atprotoGlobe = require('@site/static/img/atproto-globe.png').default
 // rather than transcribing ~130 SVG nodes + template-literal braces into JSX.
 // ---------------------------------------------------------------------------
 
+// The "PDS" pin cluster + its label originally sat center-left (cx 580–660,
+// label at 690,172), which clashed with the hero headline/lede/CTA copy. Two
+// staged options to compare — flip this constant and rebuild:
+//   'move'   — relocate the cluster + label to the lower-right quadrant, which
+//              is reliably clear of the left-aligned copy.
+//   'remove' — drop the cluster + label entirely.
+const HERO_PDS_MODE = 'move'
+
+// PDS pin cluster + label, positioned per HERO_PDS_MODE. The four pins keep
+// their relative arrangement; only the group is translated. The label sits just
+// above-right of the cluster in both placements.
+const HERO_PDS_HTML =
+  HERO_PDS_MODE === 'remove'
+    ? ''
+    : `
+  <g style="color: var(--c-relay)">
+    <circle class="pin cool" cx="1060" cy="120" r="3.2"/>
+    <circle class="pin cool" cx="1100" cy="150" r="3.2"/>
+    <circle class="pin cool" cx="1050" cy="180" r="3.2"/>
+    <circle class="pin cool" cx="1110" cy="200" r="3.2"/>
+  </g>
+  <text x="1140" y="138" class="label cool" style="text-anchor:end">PDS · ×1,206</text>`
+
 const HERO_TOPO_HTML = `
 <svg viewBox="0 0 1180 540" preserveAspectRatio="xMidYMid slice">
   <g>
@@ -37,14 +60,7 @@ const HERO_TOPO_HTML = `
     <circle class="pin-ring" cx="980" cy="280" r="40" style="stroke-dasharray:2 4"/>
     <circle class="pin warm" cx="980" cy="280" r="5.5"/>
   </g>
-  <text x="998" y="278" class="label warm">RELAY · APPVIEW · JETSTREAM</text>
-  <g style="color: var(--c-relay)">
-    <circle class="pin cool" cx="600" cy="160" r="3.2"/>
-    <circle class="pin cool" cx="640" cy="200" r="3.2"/>
-    <circle class="pin cool" cx="580" cy="240" r="3.2"/>
-    <circle class="pin cool" cx="660" cy="270" r="3.2"/>
-  </g>
-  <text x="690" y="172" class="label cool">PDS · ×1,206</text>
+  <text x="998" y="278" class="label warm">RELAY · APPVIEW · JETSTREAM</text>${HERO_PDS_HTML}
   <g style="color: var(--c-api)">
     <circle class="pin-ring" cx="1110" cy="430" r="14"/>
     <circle class="pin mag" cx="1110" cy="430" r="3.8"/>
