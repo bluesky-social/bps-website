@@ -6,7 +6,7 @@
 .hero {
   position: relative;
   overflow: hidden;
-  border-radius: 0 0 10px 0;
+  border-radius: 0 0 var(--bps-radius-xl) 0;
   /* Break out of the content column's padding: pull up over the top padding
    * and out to the left edge, and extend further right past the column's
    * right padding into the gutter toward the TOC. Inner padding re-aligns the

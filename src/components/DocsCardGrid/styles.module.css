@@ -9,7 +9,7 @@
 .card {
   display: block;
   border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 9px;
+  border-radius: var(--bps-radius-lg);
   padding: 0.85rem 0.95rem;
   background: var(--ifm-background-color);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;

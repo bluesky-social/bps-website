@@ -87,6 +87,16 @@
   /* success — confirmations / active status */
   --bps-success: #2e9e57; /* light */
   --bps-success-dark: #3fb950; /* dark */
+
+  /* Corner radius scale — one source of truth for the four corner sizes used
+   * across BPS surfaces. Earlier the codebase used 3/4/5/6/7/8/9/10/12px almost
+   * as a continuum; these four steps collapse that to perceptible tiers. Fully
+   * round shapes (50% avatars/icon-buttons, 999px pills) stay literal — they're
+   * a different intent than the corner scale, and self-documenting. */
+  --bps-radius-sm: 4px; /* inline tags, small chips, carets */
+  --bps-radius-md: 6px; /* controls: inputs, buttons, small boxes */
+  --bps-radius-lg: 8px; /* cards, code blocks, key list */
+  --bps-radius-xl: 10px; /* large containers, hero corner */
 }
 
 /* =====================================================================
@@ -391,7 +401,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
 .navbar .DocSearch-Button {
   background: var(--bps-nav-surface);
   border: 1px solid var(--bps-nav-rule);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   height: 36px;
   /* balanced internal spacing: icon · placeholder ······ keys */
   padding: 0 8px 0 12px;
@@ -432,7 +442,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   margin: 0;
   background: var(--bps-nav-key-bg);
   border: 1px solid var(--bps-nav-rule);
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   box-shadow: none;
   color: var(--bps-nav-muted);
   font-family: var(--bps-docs-mono);
@@ -479,9 +489,9 @@ html[data-theme='dark']:root {
   --docsearch-footer-shadow: 0 -1px 0 #1f2733;
 }
 /* Inter for the modal UI; the search input + hit titles align with the docs. */
-.DocSearch-Modal { font-family: var(--ifm-font-family-base); border-radius: 12px; }
-.DocSearch-Form { border-radius: 8px; }
-.DocSearch-Hit a { border-radius: 8px; }
+.DocSearch-Modal { font-family: var(--ifm-font-family-base); border-radius: var(--bps-radius-xl); }
+.DocSearch-Form { border-radius: var(--bps-radius-lg); }
+.DocSearch-Hit a { border-radius: var(--bps-radius-lg); }
 /* hint key caps use the same Atkinson mono treatment as the nav ⌘K caps */
 .DocSearch-Commands-Key,
 .DocSearch-Hit-action .DocSearch-Hit-Select-Icon { font-family: var(--bps-docs-mono); }
@@ -699,7 +709,7 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
 .breadcrumbs__link {
   font-size: 0.72rem; letter-spacing: 0.02em;
   background: transparent; padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
 }
 /* Hide the Home item (icon link), but keep a leading slash before the first
  * real crumb so the path still reads "/ get started / ...". */
@@ -769,7 +779,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 .markdown :not(pre) > code {
   font-family: var(--ifm-font-family-monospace);
   font-size: 0.86em;
-  padding: 1px 5px; border-radius: 4px;
+  padding: 1px 5px; border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   border: 0;
 }
@@ -794,7 +804,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 .theme-admonition {
   position: relative;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   background: var(--ifm-color-emphasis-100);
   /* per-type accent, defaulting to the primary; overridden per variant below */
   --bps-admon-accent: var(--ifm-color-primary);
@@ -808,7 +818,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
   top: -1px; left: -1px; bottom: -1px;
   width: 5px;
   background-color: var(--bps-admon-accent);
-  border-radius: 5px 0 0 5px;
+  border-radius: var(--bps-radius-md) 0 0 var(--bps-radius-md);
 }
 /* The heading class is hashed by Docusaurus (admonitionHeading_xxxx), so match
  * it by substring rather than literal class. */
@@ -867,7 +877,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * ===================================================================== */
 .theme-code-block {
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   box-shadow: none;
 }
 /* the title bar (shown when a code block has a title="...") — code chrome, so
@@ -915,7 +925,7 @@ html[data-theme='dark']
 
 /* Items: Inter; comfortable spacing. */
 .theme-doc-sidebar-menu .menu__link {
-  line-height: 1.5; border-radius: 4px;
+  line-height: 1.5; border-radius: var(--bps-radius-sm);
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
@@ -926,7 +936,7 @@ html[data-theme='dark']
  * scoped to .theme-doc-sidebar-menu, the former not). */
 .theme-doc-sidebar-menu .menu__caret,
 .navbar-sidebar .menu__caret {
-  border-radius: 0 4px 4px 0;
+  border-radius: 0 var(--bps-radius-sm) var(--bps-radius-sm) 0;
 }
 .theme-doc-sidebar-menu .menu__caret::before,
 .navbar-sidebar .menu__caret::before {
@@ -954,7 +964,7 @@ html[data-theme='dark']
   top: 0; left: 0; bottom: 0;
   width: 4px;
   background-color: var(--ifm-color-primary);
-  border-radius: 4px 0 0 4px;
+  border-radius: var(--bps-radius-sm) 0 0 var(--bps-radius-sm);
 }
 
 /* =====================================================================

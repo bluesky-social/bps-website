@@ -80,7 +80,7 @@ html[data-theme='dark'] .skeletonAvatar {
 .skeletonHeading {
   height: 14px;
   width: 30%;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   margin-bottom: 4px;
   animation: accountSkeletonPulse 1.6s ease-in-out infinite;
@@ -92,7 +92,7 @@ html[data-theme='dark'] .skeletonHeading {
 
 .skeletonLine {
   height: 10px;
-  border-radius: 4px;
+  border-radius: var(--bps-radius-sm);
   background: var(--ifm-color-emphasis-200);
   animation: accountSkeletonPulse 1.6s ease-in-out infinite;
 }
@@ -110,7 +110,7 @@ html[data-theme='dark'] .skeletonLine {
   background: var(--ifm-background-surface-color, var(--bps-white));
   /* Border matches the account-page divider (token adapts per theme). */
   border: 1px solid var(--bps-account-divider);
-  border-radius: 10px;
+  border-radius: var(--bps-radius-xl);
 }
 
 html[data-theme='light'] .anonContainer {
@@ -183,7 +183,7 @@ html[data-theme='dark'] .inputLabel {
   padding: 0 11px;
   background: var(--ifm-color-emphasis-100);
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   /* Item 5/1: Inter for the handle input (was Atkinson mono); width:100% ensures
      full-width when the row stacks to a column on mobile. */
@@ -231,7 +231,7 @@ html[data-theme='dark'] .handleInput:focus {
   padding: 0 16px;
   background: var(--ifm-color-primary-darkest);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
@@ -264,7 +264,7 @@ html[data-theme='dark'] .handleInput:focus {
   padding: 8px 10px;
   background: color-mix(in srgb, var(--bps-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
   font-size: 0.75rem;
   font-weight: 500;

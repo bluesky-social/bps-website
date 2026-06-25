@@ -33,7 +33,7 @@ html[data-theme='dark'] .sectionHeading {
   padding: 1rem 1.125rem;
   background: var(--ifm-background-surface-color, var(--bps-white));
   border: 1px solid var(--bps-rule-light);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   margin-bottom: 1.25rem;
 }
 
@@ -84,7 +84,7 @@ html[data-theme='dark'] .fieldLabel {
   padding: 0 11px;
   background: var(--ifm-color-emphasis-100);
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   font-family: var(--ifm-font-family-base);
   font-size: 0.875rem;
@@ -137,7 +137,7 @@ html[data-theme='dark'] .textInput.textInputError {
   padding: 0 30px 0 11px;
   background: var(--ifm-color-emphasis-100);
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-900);
   /* Item 1: Inter instead of Atkinson mono; normal-case (no uppercase) */
   font-family: var(--ifm-font-family-base);
@@ -180,7 +180,7 @@ html[data-theme='dark'] .select:focus {
   padding: 0 18px;
   background: var(--ifm-color-primary-darkest);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
@@ -213,7 +213,7 @@ html[data-theme='dark'] .select:focus {
   padding: 7px 10px;
   background: color-mix(in srgb, var(--bps-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
   font-size: 0.72rem;
   font-weight: 500;
@@ -239,7 +239,7 @@ html[data-theme='dark'] .errorMsg {
   background: color-mix(in srgb, var(--ifm-color-primary) 5%, transparent);
   border: 1.5px solid
     color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   margin-bottom: 1.25rem;
 }
 
@@ -321,7 +321,7 @@ html[data-theme='dark'] .secretWarning strong {
   height: 40px;
   background: var(--ifm-background-surface-color, var(--bps-white));
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
   font-weight: 500;
@@ -355,7 +355,7 @@ html[data-theme='dark'] .secretValue {
   padding: 0 14px;
   background: var(--ifm-color-primary-darkest);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
@@ -411,7 +411,7 @@ html[data-theme='dark'] .copyErrNote {
   padding: 8px 0;
   background: none;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-700);
   font-family: var(--bps-docs-mono);
   font-size: 0.78rem;
@@ -498,7 +498,7 @@ html[data-theme='dark'] .listLoadingSpinner {
   padding: 0.65rem 0.875rem;
   background: color-mix(in srgb, var(--bps-danger) 10%, transparent);
   border: 1px solid color-mix(in srgb, var(--bps-danger) 25%, transparent);
-  border-radius: 6px;
+  border-radius: var(--bps-radius-md);
   font-family: var(--bps-docs-mono);
   font-size: 0.72rem;
   font-weight: 500;
@@ -591,7 +591,7 @@ html[data-theme='dark'] .emptySubtext {
   margin: 0;
   padding: 0;
   border: 1px solid var(--ifm-color-emphasis-200);
-  border-radius: 8px;
+  border-radius: var(--bps-radius-lg);
   overflow: hidden;
 }
 
@@ -673,7 +673,7 @@ html[data-theme='dark'] .keyLabel {
   color: var(--ifm-color-emphasis-600);
   background: var(--ifm-color-emphasis-200);
   padding: 1px 6px;
-  border-radius: 3px;
+  border-radius: var(--bps-radius-sm);
   letter-spacing: 0.04em;
   white-space: nowrap;
 }
@@ -782,7 +782,7 @@ html[data-theme='dark'] .statusDotExpired {
   padding: 0 12px;
   background: none;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
   font-family: var(--bps-docs-mono);
   font-size: 0.72rem;
@@ -844,7 +844,7 @@ html[data-theme='dark'] .confirmLabel {
   padding: 0 10px;
   background: var(--bps-danger);
   border: none;
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   color: var(--bps-white);
   font-family: var(--bps-docs-mono);
   font-size: 0.7rem;
@@ -880,7 +880,7 @@ html[data-theme='dark'] .confirmYesBtn {
   padding: 0 10px;
   background: none;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 5px;
+  border-radius: var(--bps-radius-md);
   color: var(--ifm-color-emphasis-600);
   font-family: var(--bps-docs-mono);
   font-size: 0.7rem;
