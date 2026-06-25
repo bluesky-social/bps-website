@@ -404,7 +404,7 @@ html[data-theme='light'] .bpsBrand__pulse circle { fill: url(#bsky-grad-light); 
   color: var(--bps-nav-ink-soft);
   text-decoration: none;
 }
-.bpsNav--link:hover { color: var(--bps-nav-hover); }
+.bpsNav--link:hover { color: var(--bps-nav-hover); text-decoration: none; }
 /* middot separator between the mono links (prototype .nav-mini .sep) — a real
  * flex child so the right group's even gaps sit on both sides. */
 .bpsNav__sep {
