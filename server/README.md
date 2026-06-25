@@ -62,7 +62,9 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
   (400 `InvalidHandle` if the handle can't be resolved).
 - XRPC `internal.bps.oauth.logout` (POST, authed) — revokes the atproto session,
   deletes the `oauth_session` row, clears the cookie.
-- XRPC `internal.bps.account.whoami` (authed) — `{ did, hasEmail }`.
+- XRPC `internal.bps.account.whoami` (authed) — `{ did, handle?, email? }`. The
+  stored `email` mirrors the PDS account email (captured at login, refreshed
+  opportunistically on whoami); it is not user-editable here.
 
 ### Dev vs production client
 
@@ -72,7 +74,7 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 - **Production**: hosted-metadata + `private_key_jwt`. Set `BPS_OAUTH_PRIVATE_KEY`
   (PKCS8 PEM or JWK JSON) and `BPS_OAUTH_KEY_ID`.
 
-### Manual e2e smoke test (verified 2026-06-23)
+### Manual e2e smoke test
 
 The full authorization-code + PKCE + DPoP round-trip can't run in CI (needs a
 live atproto auth server + a real account). To exercise it manually:
@@ -80,8 +82,8 @@ live atproto auth server + a real account). To exercise it manually:
 1. `npm run dev`, then
    `curl "localhost:8080/xrpc/internal.bps.oauth.start?handle=YOUR_HANDLE"`.
 2. Open the returned `authorizeUrl` in a browser and approve. You'll be
-   redirected to `${BPS_SITE_ORIGIN}/account` — that page 404s until the
-   frontend (Phase 4) exists; **the success signal is in the database**.
+   redirected to `${BPS_SITE_ORIGIN}/account`. You can verify there, or confirm
+   directly in the database below.
 3. Confirm rows were created:
    ```bash
    docker compose exec postgres psql -U bps -d bps_account \
@@ -91,12 +93,11 @@ live atproto auth server + a real account). To exercise it manually:
    ```
    A row in **both** tables for your DID = pass.
 
-## Account ops + API keys (Phase 3)
+## Account ops + API keys
 
 All authed via the `bps_session` cookie.
 
-- XRPC `internal.bps.account.profile` — live bsky profile `{ did, handle, displayName?, avatar? }` (fetched via the user's OAuth session; not cached).
-- XRPC `internal.bps.account.setEmail` (POST `{email}`) — store-only, unverified; 400 `InvalidEmail` on malformed.
+- XRPC `internal.bps.account.profile` — public bsky profile `{ did, handle, displayName?, avatar? }` (fetched unauthenticated from the public AppView; not cached).
 - XRPC `internal.bps.account.delete` (POST) — hard-deletes the account + keys + OAuth session, revokes atproto access, clears the cookie.
 - XRPC `internal.bps.apiKey.create` (POST `{label, expiresAt?}`) — returns the full `jsk_…` secret **once**.
 - XRPC `internal.bps.apiKey.list` — metadata only (`{id,label,preview,createdAt,expiresAt?}`); never the secret.
