@@ -56,3 +56,23 @@ test('answers preflight OPTIONS with 204 and allow headers', async () => {
   assert.equal(res.status, 204)
   assert.match(res.headers.get('access-control-allow-methods') ?? '', /POST/)
 })
+
+test('preflight allows the atproto-* headers the lex Client sends', async () => {
+  // The @atproto/lex Client adds atproto-accept-labelers (and atproto-proxy for
+  // proxied calls) to every XRPC request; the preflight must allow them or the
+  // browser blocks the real request. Regression guard for the login CORS break.
+  const res = await fetch(`${base}/x`, {
+    method: 'OPTIONS',
+    headers: {
+      origin: 'http://localhost:3000',
+      'access-control-request-method': 'GET',
+      'access-control-request-headers': 'atproto-accept-labelers',
+    },
+  })
+  assert.equal(res.status, 204)
+  const allowed = (
+    res.headers.get('access-control-allow-headers') ?? ''
+  ).toLowerCase()
+  assert.match(allowed, /atproto-accept-labelers/)
+  assert.match(allowed, /atproto-proxy/)
+})

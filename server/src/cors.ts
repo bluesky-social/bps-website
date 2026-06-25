@@ -11,7 +11,14 @@ export function corsMiddleware(config: AppConfig): RequestHandler {
       res.setHeader('Access-Control-Allow-Credentials', 'true')
       res.setHeader('Vary', 'Origin')
       res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+      // `atproto-*` headers are added by the @atproto/lex Client on every XRPC
+      // call (atproto-accept-labelers always; atproto-proxy for service-proxied
+      // calls). They are non-simple, so the browser preflights them — allow them
+      // or the preflight fails and the real request never goes out.
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, atproto-accept-labelers, atproto-proxy',
+      )
     }
     if (req.method === 'OPTIONS') {
       res.statusCode = 204
