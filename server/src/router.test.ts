@@ -35,7 +35,7 @@ test('router.fetch serves XRPC methods (whoami rejects without a cookie)', async
   const apiKeys = createPostgresApiKeyProvider(db)
   const router = buildRouter({ db, config: cfg, client, apiKeys })
   // No session cookie → the auth gate rejects. This proves router.fetch routes
-  // and runs the auth middleware (liveness is covered by GET /healthz in app.test.ts).
+  // and runs the auth middleware (liveness is covered by GET /_health in app.test.ts).
   const res = await router.fetch(
     new Request('http://local/xrpc/internal.bps.account.whoami'),
   )

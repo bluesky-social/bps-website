@@ -21,8 +21,7 @@ npm run dev                 # http://localhost:8080
 
 ## Verify
 ```bash
-curl localhost:8080/healthz                          # {"status":"ok"}
-curl localhost:8080/xrpc/internal.bps.health         # {"status":"ok","db":true}
+curl localhost:8080/_health                          # {"status":"ok"}
 ```
 
 ## Scripts

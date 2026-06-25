@@ -14,11 +14,11 @@ export function buildApp(deps: AppDeps): express.Express {
   const app = express()
 
   // Credentialed CORS for the static site origin must be the first middleware
-  // so preflight and headers apply to every route including /healthz and XRPC.
+  // so preflight and headers apply to every route including /_health and XRPC.
   app.use(corsMiddleware(deps.config))
 
   // Plain liveness route (no XRPC envelope) for infra probes.
-  app.get('/healthz', (_req, res) => {
+  app.get('/_health', (_req, res) => {
     res.json({ status: 'ok' })
   })
 

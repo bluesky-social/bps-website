@@ -45,8 +45,8 @@ after(async () => {
   await db.destroy()
 })
 
-test('GET /healthz returns 200 ok', async () => {
-  const res = await fetch(`${base}/healthz`)
+test('GET /_health returns 200 ok', async () => {
+  const res = await fetch(`${base}/_health`)
   assert.equal(res.status, 200)
   const json = (await res.json()) as { status: string }
   assert.equal(json.status, 'ok')
