@@ -312,10 +312,13 @@ html[data-theme='light'] .navbar::before {
  * bar AND the mobile hamburger drawer (.navbar-sidebar) so the toggle hover is
  * consistent across the two navs. */
 /* Target the toggle BUTTON directly (its hashed class is `toggleButton_*`) so
- * the rule wins over Infima's `.toggleButton:hover { background: emphasis-200 }`
- * grey in BOTH the desktop bar and the mobile drawer (which renders the same
- * toggle markup when opened). */
-[class*='toggleButton']:hover,
+ * the rule matches in BOTH the desktop bar and the mobile drawer (which renders
+ * the same toggle markup when opened). Both selectors are scoped under an
+ * ancestor (.navbar / .navbar-sidebar) so they reach specificity (0,3,0) and
+ * win over Infima's own `.toggleButton:hover { background: emphasis-200 }`
+ * (0,2,0) regardless of stylesheet source order — Infima's copy is concatenated
+ * after custom.css, so a bare (0,2,0) selector here would lose the tie. */
+.navbar [class*='toggleButton']:hover,
 .navbar-sidebar [class*='toggleButton']:hover {
   background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
   color: var(--bps-nav-hover);
