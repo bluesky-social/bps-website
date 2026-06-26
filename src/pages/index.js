@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import Link from '@docusaurus/Link'
+import useBaseUrl from '@docusaurus/useBaseUrl'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import Layout from '@theme/Layout'
 import Butterfly from '../components/Navbar/Butterfly'
@@ -7,9 +8,11 @@ import BlueskyWordmark from '../components/Navbar/BlueskyWordmark'
 
 import '../css/landing.css'
 
-// Pre-masked amber dot-globe (transparent background), used in the third row's logo card.
-const atprotoGlobe =
-  require('@site/static/img/atproto-globe-circle.png').default
+// Pre-masked amber dot-globe (transparent background), used in the third row's
+// logo card. Lives in static/, so reference it by served URL (resolved through
+// useBaseUrl at render) rather than require()-ing it through webpack — the
+// latter is unreliable in production builds for static/ assets.
+const ATPROTO_GLOBE_SRC = '/img/atproto-globe-circle.png'
 
 // ---------------------------------------------------------------------------
 // Decorative, static markup carried over verbatim from the design mockup
@@ -383,6 +386,7 @@ function useProof() {
 
 export default function Home() {
   const { siteConfig } = useDocusaurusContext()
+  const atprotoGlobe = useBaseUrl(ATPROTO_GLOBE_SRC)
   useProof()
   return (
     <Layout
