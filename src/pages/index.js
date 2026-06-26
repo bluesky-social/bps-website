@@ -580,7 +580,8 @@ export default function Home() {
             <cite>
               — <b>David Clark</b>
               <span className="desktopOnly">
-                , <i>A Cloudy Crystal Ball: Visions of the Future</i>,
+                {' '}
+                <i>A Cloudy Crystal Ball: Visions of the Future</i>,
               </span>{' '}
               IETF 1992
             </cite>
