@@ -182,10 +182,20 @@ const config = {
             variant: "divider",
           },
           {
-            // "AT Protocol" → the broader protocol site, outbound. This is now
-            // the only link in the masthead cluster: the docs funnel lives in
-            // the page body (hero "Explore the network" → Protocol Services) and
-            // the sidebar, deliberately keeping the chrome out of the way.
+            // "Get Started" → the Protocol Services docs landing page.
+            type: "custom-navLink",
+            position: "right",
+            label: "Get Started",
+            to: "/docs/protocol-services",
+          },
+          {
+            // Middot separator between the two masthead links.
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // "AT Protocol" → the broader protocol site, outbound.
             type: "custom-navLink",
             position: "right",
             label: "AT Protocol",

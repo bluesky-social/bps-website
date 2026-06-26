@@ -400,15 +400,23 @@ html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: ur
   display: inline-flex;
   flex-direction: column;
   line-height: 1;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: subpixel-antialiased;
 }
 .bpsBrand__full { display: flex; flex-direction: column; }
+/* Official Bluesky wordmark (SVG). Sized by height; width follows the 116×31
+ * aspect. align-self:flex-start keeps the flex column from stretching it wide.
+ * Inherits nav ink via currentColor. */
 .bpsBrand__w1 {
-  font-size: 18px; font-weight: 500; letter-spacing: -0.012em; color: var(--bps-nav-ink);
+  display: block;
+  align-self: flex-start;
+  height: 17px; width: auto;
+  color: var(--bps-nav-ink);
 }
+/* "Protocol Services" — the Inter UI stack, but preferring Helvetica Neue where
+ * the OS has it (matches Bluesky's own wordmark setting). */
 .bpsBrand__w2 {
-  margin-top: 3px;
+  margin-top: 2px;
+  font-family: 'Helvetica Neue', var(--ifm-font-family-base);
   font-size: 11px; font-weight: 500; letter-spacing: 0.02em; color: var(--bps-nav-ink-soft);
 }
 
@@ -425,6 +433,8 @@ html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: ur
   text-decoration: none;
 }
 .bpsNav--link:hover { color: var(--bps-nav-hover); text-decoration: none; }
+/* selected state — current route sits on this link's page (set by NavCustomLink) */
+.bpsNav--link--active { color: var(--bps-nav-ink); }
 /* middot separator between the mono links (prototype .nav-mini .sep) — a real
  * flex child so the right group's even gaps sit on both sides. */
 .bpsNav__sep {
@@ -565,7 +575,7 @@ html[data-theme='dark']:root {
   .bpsBrand { column-gap: 12px; }
   .bpsBrand__pulseWrap { width: 40px; height: 34px; }
   .bpsBrand__pulse { height: 36px; }
-  .bpsBrand__w1 { font-size: 16px; }
+  .bpsBrand__w1 { height: 14px; }
   .bpsBrand__w2 { font-size: 10px; }
 
   /* hide the bar's link cluster + dividers + separator + toggle + locale picker
@@ -1072,24 +1082,40 @@ html[data-theme='dark']
   color: var(--ifm-color-primary);
   font-weight: 600;
 }
+/* A top-level LEAF (e.g. Get Started) keeps the level-1 label weight (500) when
+ * selected — active top-level CATEGORIES don't bold, so the leaf shouldn't
+ * either. The 600 above is meant for active level-2 children, not level-1. */
+.theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active {
+  font-weight: 500;
+}
 /* The category's inner <a> must stay transparent — its tint lives on the
  * wrapper above. (The leaf active <a>, by contrast, carries its own tint, so it
  * is deliberately NOT zeroed here.) */
 .theme-doc-sidebar-menu .menu__list-item-collapsible--active > .menu__link {
   background: none;
 }
-/* Top-level CATEGORY label gets the primary color when selected. This needs to
- * out-specify the level-1 label color rule above (which sets emphasis-800 /
- * emphasis-600 in dark at specificity 0,4,0), so mirror that selector's depth
- * and add the --active wrapper. Both themes. */
+/* Top-level CATEGORY label, and a top-level LEAF link (e.g. Get Started), get
+ * the primary color when selected. This needs to out-specify the level-1 label
+ * color rule above (which sets emphasis-800 / emphasis-600 in dark at
+ * specificity 0,4,1), so mirror that selector's depth and add the active class.
+ * Without this the dark-mode grey label rule wins and the active leaf reads
+ * grey instead of blue. Both themes. */
 html .theme-doc-sidebar-menu
   > .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible--active
   > .menu__link,
+html .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active,
 html[data-theme='dark'] .theme-doc-sidebar-menu
   > .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible--active
-  > .menu__link {
+  > .menu__link,
+html[data-theme='dark'] .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active {
   color: var(--ifm-color-primary);
 }
 .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before,

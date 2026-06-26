@@ -1,5 +1,6 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
+import BlueskyWordmark from './BlueskyWordmark'
 
 // Bluesky butterfly halftone — concentric rings of dots faded outward from a
 // body-anchored core. Geometry locked from the mockup's "pulse" lockup
@@ -92,7 +93,7 @@ export default function BpsBrand({ mobile, to, href }) {
       </span>
       <span className="bpsBrand__word">
         <span className="bpsBrand__full">
-          <span className="bpsBrand__w1">Bluesky</span>
+          <BlueskyWordmark className="bpsBrand__w1" />
           <span className="bpsBrand__w2">Protocol Services</span>
         </span>
       </span>
