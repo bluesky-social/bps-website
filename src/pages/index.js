@@ -409,15 +409,14 @@ export default function Home() {
               <em className="atmo">Atmosphere</em>?
             </p>
             <div className="cta-row">
-              <Link className="btn ghost" to="/docs/jetstream">
-                Explore the network
-              </Link>
               <Link className="btn primary" to="/docs/get-started">
-                Get started with Bluesky
+                <span>Start Building</span>
+                <span aria-hidden="true">→</span>
               </Link>
             </div>
             <p className="signoff">
-              Bluesky open social network, operated by <b>Bluesky PBC.</b>
+              Bluesky Protocol Services,
+              <br className="mobileOnly" /> operated by <b>Bluesky PBC.</b>
             </p>
           </div>
         </section>

@@ -71,6 +71,11 @@
   overflow: hidden;
   min-height: 540px;
   isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  /* 5rem 0 2rem, composed from the spacing scale */
+  padding: calc(var(--bps-space-3xl) * 2 + var(--bps-space-xl) * 2) 0 calc(var(--bps-space-xl) * 2);
   background: var(--bps-paper);
   border-bottom: 1px solid var(--bps-rule);
   filter: contrast(1.12) saturate(0.8);
@@ -79,10 +84,8 @@
   position: relative; z-index: 3;
   padding: 0 40px;
   max-width: 860px;
-  min-height: 540px;
+  flex: 1;
   display: flex; flex-direction: column;
-  background:
-    radial-gradient(640px 320px at 18% 35%, rgba(10,13,17,0.45), transparent 70%);
 }
 .bps-home .hero h1 {
   margin: 0;
@@ -111,29 +114,34 @@
   display: flex; gap: 14px; align-items: center;
 }
 .bps-home .hero .cta-row .btn {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; justify-content: space-between;
+  width: 200px;
   font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 11px 18px;
+  padding: var(--bps-space-sm) var(--bps-space-lg);
   border-radius: var(--bps-radius-md);
   border: 1px solid var(--bps-blue-dark);
   transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
 .bps-home .hero .cta-row .btn.primary {
-  background: var(--bps-blue); border-color: var(--bps-blue); color: #fff;
+  color: var(--bps-ink);
+  border-color: var(--bps-ink);
+  background: color-mix(in srgb, var(--bps-ink) 10%, transparent);
 }
-.bps-home .hero .cta-row .btn.primary:hover { background: var(--bps-blue-dark); border-color: var(--bps-blue-dark); }
-.bps-home .hero .cta-row .btn.ghost { color: var(--bps-ink); border-color: var(--bps-rule-2); }
-.bps-home .hero .cta-row .btn.ghost:hover { border-color: var(--bps-blue-dark); color: var(--bps-blue-dark); }
+.bps-home .hero .cta-row .btn.primary:hover {
+  background: color-mix(in srgb, var(--bps-ink) 25%, transparent);
+}
 .bps-home .hero .signoff {
   margin-top: auto;
   padding-top: 32px;
   font-family: var(--bps-font-mono-ui);
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-  color: var(--bps-rule-soft);
+  color: var(--bps-ink-soft);
 }
-.bps-home .hero .signoff b { color: var(--bps-ink-soft); font-weight: 700; }
+.bps-home .hero .signoff b { color: var(--bps-ink); font-weight: 700; }
+/* signoff line break — only forced on mobile (shown in the responsive block) */
+.bps-home .hero .signoff br.mobileOnly { display: none; }
 
 /* oil pools */
 .bps-home .blob {
@@ -416,7 +424,7 @@
 }
 .bps-home .prod-grid .cell {
   background: var(--bps-paper);
-  padding: 28px 28px 0;
+  padding: 28px 30px 0;
   display: flex; flex-direction: column;
   min-height: 230px;
   position: relative;
@@ -451,7 +459,7 @@
   margin-top: auto;
   margin-bottom: 28px;
   font-family: var(--bps-font-mono-ui);
-  font-size: 11px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-ink);
   border-bottom: 1.5px solid var(--bps-quiet);
@@ -667,9 +675,29 @@
 
 /* ============== RESPONSIVE ============== */
 @media screen and (max-width: 900px) {
-  .bps-home .proof { grid-template-columns: 1fr; }
+  .bps-home .proof { grid-template-columns: 1fr; padding-left: 30px; padding-right: 30px; }
+  .bps-home .proof .cta h2 { font-size: 24px; }
+  .bps-home .proof .cta p { font-size: 14px; }
   .bps-home .prod-grid .cells { grid-template-columns: 1fr; }
-  .bps-home .hero h1 { font-size: 34px; }
+
+  /* 5rem 0 1.5rem, composed from the spacing scale */
+  .bps-home .hero {
+    padding: calc(var(--bps-space-3xl) * 2 + var(--bps-space-xl) * 2) 0 var(--bps-space-3xl);
+  }
+  /* keep the copy within the viewport so long lines (lede, signoff) can wrap */
+  .bps-home .hero .copy { max-width: 100%; }
+  .bps-home .hero h1 {
+    font-size: 24px;
+    text-shadow: 0 0 50px black;
+  }
+  .bps-home .hero .lede {
+    font-size: 16px;
+    text-shadow: 0 0 50px black, 0 0 50px black;
+  }
+  .bps-home .hero .cta-row { margin-top: 56px; }
+  .bps-home .hero .signoff { text-shadow: 0 0 50px black, 0 0 100px black; }
+  .bps-home .hero .signoff br.mobileOnly { display: inline; }
+
   .bps-home .quote { padding: 64px 28px; }
   .bps-home .quote blockquote { font-size: 26px; }
 }
