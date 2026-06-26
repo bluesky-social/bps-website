@@ -6,8 +6,9 @@ import Butterfly from '../components/Navbar/Butterfly'
 
 import '../css/landing.css'
 
-// Static crop of atproto.com's amber dot-globe, used in the third row's logo card.
-const atprotoGlobe = require('@site/static/img/atproto-globe.png').default
+// Pre-masked amber dot-globe (transparent background), used in the third row's logo card.
+const atprotoGlobe =
+  require('@site/static/img/atproto-globe-circle.png').default
 
 // ---------------------------------------------------------------------------
 // Decorative, static markup carried over verbatim from the design mockup
@@ -73,8 +74,10 @@ const PROOF_GRAIN_HTML = `
   <rect width="1180" height="360" filter="url(#proof-grain)"/>
 </svg>`
 
-const PROOF_GUTTER_HTML =
-  Array.from({ length: 16 }, (_, i) => `<span class="ln code-ln">${i + 1}</span>`).join('')
+const PROOF_GUTTER_HTML = Array.from(
+  { length: 16 },
+  (_, i) => `<span class="ln code-ln">${i + 1}</span>`,
+).join('')
 
 // Pre-tokenized TS sample. Single-quoted lines so the literal backticks and
 // ${...} template-literal markers inside the code stay inert.
@@ -120,7 +123,12 @@ function ProtocolCard({ title, em, endpoint, what, href, to }) {
     </>
   )
   return href ? (
-    <a className="cell prod" href={href} target="_blank" rel="noopener noreferrer">
+    <a
+      className="cell prod"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       {inner}
     </a>
   ) : (
@@ -140,7 +148,12 @@ function FriendlyCard({ title, what, cta, href, to }) {
     </>
   )
   return href ? (
-    <a className="cell friendly" href={href} target="_blank" rel="noopener noreferrer">
+    <a
+      className="cell friendly"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
       {inner}
     </a>
   ) : (
@@ -153,8 +166,15 @@ function FriendlyCard({ title, what, cta, href, to }) {
 // Thin-stroke line icons, echoing atproto.com's card iconography.
 function TutorialsIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1"
-      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M12 6.5C10.4 5.4 7.8 5 4 5v12c3.8 0 6.4.4 8 1.5 1.6-1.1 4.2-1.5 8-1.5V5c-3.8 0-6.4.4-8 1.5Z" />
       <path d="M12 6.5v12" />
     </svg>
@@ -162,8 +182,15 @@ function TutorialsIcon() {
 }
 function SdkIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1"
-      strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
       <path d="M8.5 8 4 12l4.5 4M15.5 8 20 12l-4.5 4M13.5 5.5l-3 13" />
     </svg>
   )
@@ -172,9 +199,18 @@ function SdkIcon() {
 // Third-row card: atproto.com design language (amber accent, thin line icon).
 function AtprotoCard({ icon, title, what, href }) {
   return (
-    <a className="cell atproto" href={href} target="_blank" rel="noopener noreferrer">
-      <span className="atproto-icon" aria-hidden="true">{icon}</span>
-      <h3>{title}</h3>
+    <a
+      className="cell atproto"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <span className="atproto-head">
+        <span className="atproto-icon" aria-hidden="true">
+          {icon}
+        </span>
+        <h3>{title}</h3>
+      </span>
       <p className="what">{what}</p>
       <span className="more">Learn more →</span>
     </a>
@@ -192,36 +228,73 @@ function useProof() {
     if (!proof || !runBtn || !out || !gutter) return
 
     const DIDS = [
-      'did:plc:7iza6de2dwap2sbkpav7c6c6', 'did:plc:z72i7hdynmk6r22z27h6tvur',
-      'did:plc:ragtjsm2j2vknwkz3zp4oxrd', 'did:plc:ewvi7nxzyoun6zhxrhs64oiz',
-      'did:plc:oky5czdrnfjpqslsw2a5iclo', 'did:plc:44ybard66vv44zksje25o7dz',
-      'did:plc:wzsilnxf24ehtmmc3gssy5bu', 'did:plc:6z5jrxbpiwzljyq4yvxj7gxd',
-      'did:plc:lz7yu4xxzm2ndqecxw4qg2nd', 'did:plc:t1xq3w5pl9k2nvm6dcr7b8ux',
-      'did:plc:af0nxjk5cm2pq8whdtzs3l4r', 'did:plc:bn5xq8we4r2tk7m3djpz6vyc',
+      'did:plc:7iza6de2dwap2sbkpav7c6c6',
+      'did:plc:z72i7hdynmk6r22z27h6tvur',
+      'did:plc:ragtjsm2j2vknwkz3zp4oxrd',
+      'did:plc:ewvi7nxzyoun6zhxrhs64oiz',
+      'did:plc:oky5czdrnfjpqslsw2a5iclo',
+      'did:plc:44ybard66vv44zksje25o7dz',
+      'did:plc:wzsilnxf24ehtmmc3gssy5bu',
+      'did:plc:6z5jrxbpiwzljyq4yvxj7gxd',
+      'did:plc:lz7yu4xxzm2ndqecxw4qg2nd',
+      'did:plc:t1xq3w5pl9k2nvm6dcr7b8ux',
+      'did:plc:af0nxjk5cm2pq8whdtzs3l4r',
+      'did:plc:bn5xq8we4r2tk7m3djpz6vyc',
     ]
     const TIDS = [
-      '3kj2xq8wlmc24', '3kl9pn4rt6s2v', '3km4rx9pn8d3w', '3kn8qm2vt5f4r',
-      '3kp7sj6wn9c8x', '3kr2tk5xm7b9q', '3ks5tn8vp9c4r', '3kt9wj7xm6b2k',
-      '3ku4ql8nm5d9p', '3kv2xn7wj6c8m',
+      '3kj2xq8wlmc24',
+      '3kl9pn4rt6s2v',
+      '3km4rx9pn8d3w',
+      '3kn8qm2vt5f4r',
+      '3kp7sj6wn9c8x',
+      '3kr2tk5xm7b9q',
+      '3ks5tn8vp9c4r',
+      '3kt9wj7xm6b2k',
+      '3ku4ql8nm5d9p',
+      '3kv2xn7wj6c8m',
     ]
     const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
     const pickPair = (arr) => {
       const a = pick(arr)
       let b
-      do { b = pick(arr) } while (b === a)
+      do {
+        b = pick(arr)
+      } while (b === a)
       return [a, b]
     }
     const follow = () => {
       const p = pickPair(DIDS)
-      return '<span class="line-follow"><b>🌱</b>  <span class="did">' + p[0] + '</span>  follows  <span class="did">' + p[1] + '</span></span>'
+      return (
+        '<span class="line-follow"><b>🌱</b>  <span class="did">' +
+        p[0] +
+        '</span>  follows  <span class="did">' +
+        p[1] +
+        '</span></span>'
+      )
     }
     const repost = () => {
       const p = pickPair(DIDS)
-      return '<span class="line-repost"><b>♻️</b>  <span class="did">' + p[0] + '</span>  reposts  <span class="uri">at://' + p[1] + '/app.bsky.feed.post/' + pick(TIDS) + '</span></span>'
+      return (
+        '<span class="line-repost"><b>♻️</b>  <span class="did">' +
+        p[0] +
+        '</span>  reposts  <span class="uri">at://' +
+        p[1] +
+        '/app.bsky.feed.post/' +
+        pick(TIDS) +
+        '</span></span>'
+      )
     }
     const reply = () => {
       const p = pickPair(DIDS)
-      return '<span class="line-reply"><b>💭</b>  <span class="did">' + p[0] + '</span>  replies  <span class="uri">at://' + p[1] + '/app.bsky.feed.post/' + pick(TIDS) + '</span></span>'
+      return (
+        '<span class="line-reply"><b>💭</b>  <span class="did">' +
+        p[0] +
+        '</span>  replies  <span class="uri">at://' +
+        p[1] +
+        '/app.bsky.feed.post/' +
+        pick(TIDS) +
+        '</span></span>'
+      )
     }
     const nextLine = () => {
       const r = Math.random()
@@ -251,27 +324,37 @@ function useProof() {
       runBtn.classList.add('is-running')
       runBtn.querySelector('.run-label').textContent = 'Stop'
       out.innerHTML = ''
-      Array.prototype.forEach.call(gutter.querySelectorAll('.out-ln'), (n) => n.remove())
+      Array.prototype.forEach.call(gutter.querySelectorAll('.out-ln'), (n) =>
+        n.remove(),
+      )
       lineCount = 0
       for (let i = 0; i < 6; i++) appendLine()
       streamId = setInterval(appendLine, 180 + Math.round(Math.random() * 80))
     }
     const stop = () => {
-      if (streamId) { clearInterval(streamId); streamId = null }
+      if (streamId) {
+        clearInterval(streamId)
+        streamId = null
+      }
       proof.classList.remove('is-running')
       runBtn.classList.remove('is-running')
       runBtn.querySelector('.run-label').textContent = 'Run'
       const prev = gutter.querySelector('.out-ln.is-active')
       if (prev) prev.classList.remove('is-active')
     }
-    const onRun = () => { if (streamId) stop(); else start() }
+    const onRun = () => {
+      if (streamId) stop()
+      else start()
+    }
     const onCopy = () => {
       const pre = proof.querySelector('pre.code')
       if (!pre || !navigator.clipboard) return
       navigator.clipboard.writeText(pre.textContent).then(() => {
         const prevLabel = copyBtn.textContent
         copyBtn.textContent = 'Copied'
-        setTimeout(() => { copyBtn.textContent = prevLabel }, 1400)
+        setTimeout(() => {
+          copyBtn.textContent = prevLabel
+        }, 1400)
       })
     }
 
@@ -319,10 +402,11 @@ export default function Home() {
               <span className="quiet">unlocked for every builder.</span>
             </h1>
             <p className="lede">
-              <em>Billions</em> of interactions across millions of accounts, streaming to you in{' '}
-              <em>realtime</em>.
+              <em>Billions</em> of interactions across millions of accounts,
+              streaming to you in <em>realtime</em>.
               <br />
-              What will <em className="you">you</em> build on the <em className="atmo">Atmosphere</em>?
+              What will <em className="you">you</em> build on the{' '}
+              <em className="atmo">Atmosphere</em>?
             </p>
             <div className="cta-row">
               <Link className="btn ghost" to="/docs/jetstream">
@@ -371,7 +455,10 @@ export default function Home() {
                 dangerouslySetInnerHTML={{ __html: PROOF_GUTTER_HTML }}
               />
               <div className="pane">
-                <pre className="code" dangerouslySetInnerHTML={{ __html: PROOF_CODE_HTML }} />
+                <pre
+                  className="code"
+                  dangerouslySetInnerHTML={{ __html: PROOF_CODE_HTML }}
+                />
                 <pre className="out" id="proof-out" aria-live="polite"></pre>
               </div>
             </div>
@@ -384,14 +471,18 @@ export default function Home() {
               More building.
             </h2>
             <p>
-              No API keys, no signup, no waiting to get started. <b>Free and open.</b> You're in.
+              No API keys, no signup, no waiting to get started.{' '}
+              <b>Free and open.</b> You're in.
             </p>
             <h2 className="next">
               Backed by
               <br />
               AT&nbsp;Protocol.
             </h2>
-            <p>Lay foundations on top of an open network that can't be taken away.</p>
+            <p>
+              Lay foundations on top of an open network that can't be taken
+              away.
+            </p>
             <Link className="more" to="/docs/jetstream">
               More examples →
             </Link>
@@ -459,7 +550,12 @@ export default function Home() {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img className="globeImg" src={atprotoGlobe} alt="" aria-hidden="true" />
+              <img
+                className="globeImg"
+                src={atprotoGlobe}
+                alt=""
+                aria-hidden="true"
+              />
               <span className="globeWord">AT&nbsp;Protocol</span>
             </a>
           </div>
@@ -468,12 +564,13 @@ export default function Home() {
         {/* ===== QUOTE ===== */}
         <section className="quote">
           <blockquote>
-            <span className="line">We reject kings, presidents, and voting.</span>
+            <span className="line">Our best success was not computing,</span>
             <span className="line">
-              We believe in <em>rough consensus</em> and <em>running code</em>.
+              but <em>hooking people together</em>.
             </span>
             <cite>
-              — <b>David Clark</b>, IETF
+              — <b>David Clark</b>{' '}
+              <i>A Cloudy Crystal Ball: Visions of the Future</i>, IETF 1992
             </cite>
           </blockquote>
         </section>

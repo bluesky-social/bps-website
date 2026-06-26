@@ -27,10 +27,13 @@
 
   /* type — alias the site-wide font stacks (defined in custom.css) so the
    * homepage shares one vocabulary. --bps-font-code is the CODE mono (JetBrains
-   * Mono); named distinctly from the docs UI-mono accent --bps-docs-mono
-   * (Atkinson Hyperlegible Mono) to avoid the two being confused. */
+   * Mono), reserved for the proof window's actual TS sample + line numbers.
+   * --bps-font-mono-ui is the UI/label mono (Atkinson Hyperlegible Mono, the
+   * docs accent) used for every NON-code mono bit of text: buttons, eyebrows,
+   * endpoints, "learn more" links, map labels, the cite. */
   --bps-font-sans:      var(--ifm-font-family-base);
   --bps-font-code:      var(--ifm-font-family-monospace);
+  --bps-font-mono-ui:   var(--bps-docs-mono);
 
   /* per-service color */
   --c-jetstream:        var(--bps-blue-dark);
@@ -74,7 +77,7 @@
 }
 .bps-home .hero .copy {
   position: relative; z-index: 3;
-  padding: 110px 40px 32px 40px;
+  padding: 0 40px;
   max-width: 860px;
   min-height: 540px;
   display: flex; flex-direction: column;
@@ -109,7 +112,7 @@
 }
 .bps-home .hero .cta-row .btn {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   padding: 11px 18px;
@@ -126,7 +129,7 @@
 .bps-home .hero .signoff {
   margin-top: auto;
   padding-top: 32px;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-rule-soft);
 }
@@ -189,7 +192,7 @@
 .bps-home .topo .pin-ring { fill: none; stroke: currentColor; stroke-opacity: 0.35; }
 .bps-home .topo .label {
   fill: var(--bps-ink-soft);
-  font: 700 10px/1 var(--bps-font-code);
+  font: 700 10px/1 var(--bps-font-mono-ui);
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -253,7 +256,7 @@
 .bps-home .proof .cta p b { color: var(--bps-ink); font-weight: 700; }
 .bps-home .proof .cta a.more {
   display: inline-block;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-ink); text-decoration: none;
@@ -268,6 +271,7 @@
   padding: 9px 12px;
   border-bottom: 1px solid var(--bps-rule);
   background: var(--bps-paper-2);
+  font-family: var(--bps-font-mono-ui);
   font-size: 10px; letter-spacing: 0.04em; text-transform: none;
   color: var(--bps-rule-soft); font-weight: 400;
 }
@@ -432,7 +436,7 @@
 .bps-home .prod-grid .cell.prod h3 em { font-style: normal; color: var(--bps-rule-soft); }
 .bps-home .prod-grid .cell.prod .endpoint {
   margin-top: 4px;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 10.5px; letter-spacing: 0.04em;
   color: var(--bps-rule-soft);
 }
@@ -446,7 +450,7 @@
 .bps-home .prod-grid .cell.prod .more {
   margin-top: auto;
   margin-bottom: 28px;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-ink);
@@ -543,7 +547,7 @@
   z-index: 1;
 }
 .bps-home .prod-grid .cell.decor .repeat {
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-weight: 700;
   font-size: 64px;
   line-height: 0.8;
@@ -566,12 +570,19 @@
   transition: background .15s ease;
 }
 .bps-home .prod-grid a.cell.atproto:hover { background: #0e131c; }
+/* icon sits inline, left of the title — keeps the card's vertical rhythm in
+ * step with the prod/friendly cards (which have no icon row). */
+.bps-home .prod-grid .cell.atproto .atproto-head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
 .bps-home .prod-grid .cell.atproto .atproto-icon {
-  display: block;
-  margin: 2px 0 18px;
+  display: inline-flex;
+  flex: 0 0 auto;
   color: #f5b740;
 }
-.bps-home .prod-grid .cell.atproto .atproto-icon svg { width: 42px; height: 42px; display: block; }
+.bps-home .prod-grid .cell.atproto .atproto-icon svg { width: 26px; height: 26px; display: block; }
 .bps-home .prod-grid .cell.atproto h3 {
   margin: 0;
   font-family: var(--bps-font-sans);
@@ -588,14 +599,15 @@
 .bps-home .prod-grid .cell.atproto .more {
   margin-top: auto;
   margin-bottom: 28px;
-  align-self: start;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: #f5b740;
   border-bottom: 1.5px solid rgba(245, 183, 64, 0.45);
   padding-bottom: 1px;
+  align-self: start;
   transition: border-color .15s ease;
+  position: relative; z-index: 2;
 }
 .bps-home .prod-grid a.cell.atproto:hover .more { border-bottom-color: #f5b740; }
 
@@ -609,10 +621,8 @@
 }
 .bps-home .prod-grid .globeImg {
   width: 150px; height: 150px;
-  object-fit: cover;
+  object-fit: contain;
   flex: 0 0 auto;
-  -webkit-mask-image: radial-gradient(circle, #000 56%, transparent 72%);
-  mask-image: radial-gradient(circle, #000 56%, transparent 72%);
 }
 .bps-home .prod-grid .globeWord {
   font-family: var(--bps-font-sans);
@@ -623,11 +633,11 @@
 /* ============== QUOTE ============== */
 .bps-home .quote {
   padding: 120px 60px 120px;
-  border-bottom: 1px solid var(--bps-rule);
   display: flex; justify-content: center;
 }
 .bps-home .quote blockquote {
   margin: 0;
+  padding: var(--bps-space-xl) calc(var(--bps-space-xl) * 2);
   font-family: var(--bps-font-sans);
   font-weight: 600;
   font-size: 36px;
@@ -647,7 +657,7 @@
 .bps-home .quote cite {
   display: block;
   margin-top: 36px;
-  font-family: var(--bps-font-code);
+  font-family: var(--bps-font-mono-ui);
   font-style: normal;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase;
