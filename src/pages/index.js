@@ -111,8 +111,19 @@ const PROOF_CODE_HTML = [
 
 const DECOR_WORD = 'BLUESKYPROTOCOLSERVICES'.repeat(11)
 
-// Top-row card: dark, mono, with an endpoint line.
-function ProtocolCard({ title, em, endpoint, what, href, to }) {
+// Top-row card: dark, mono, with an endpoint line. `cta` defaults to the
+// neutral "Learn More" but the Jetstream card overrides it to "Get Started" —
+// the homepage grid is the one place that label still lives (see the
+// "Learn Bluesky" rename elsewhere).
+function ProtocolCard({
+  title,
+  em,
+  endpoint,
+  what,
+  href,
+  to,
+  cta = 'Learn More',
+}) {
   const inner = (
     <>
       <h3>
@@ -121,7 +132,7 @@ function ProtocolCard({ title, em, endpoint, what, href, to }) {
       </h3>
       <span className="endpoint">{endpoint}</span>
       <p className="what">{what}</p>
-      <span className="more">Learn More →</span>
+      <span className="more">{cta} →</span>
     </>
   )
   return href ? (
@@ -411,8 +422,8 @@ export default function Home() {
               <em className="atmo">Atmosphere</em>?
             </p>
             <div className="cta-row">
-              <Link className="btn primary" to="/docs/get-started">
-                <span>Start Building</span>
+              <Link className="btn primary" to="/docs/protocol-services">
+                <span>Explore the Network</span>
                 <span aria-hidden="true">→</span>
               </Link>
             </div>
@@ -501,13 +512,14 @@ export default function Home() {
               title="Jetstream"
               endpoint="wss://jetstream2.us-east.bsky.network"
               what="Replay data from the network or stream in real time. Slice the data you care about."
-              href="/docs/jetstream"
+              to="/docs/jetstream"
+              cta="Get Started"
             />
             <ProtocolCard
               title="Relay"
               endpoint="wss://bsky.network"
               what="Sync the full Atmosphere in a zero trust setting. Build your own independent infrastructure."
-              href="/docs/relay"
+              to="/docs/relay"
             />
 
             {/* Bottom row — friendly / legacy Bluesky */}

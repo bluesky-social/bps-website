@@ -1,0 +1,252 @@
+/* Live Jetstream widget — a dark terminal panel that reads the same in light
+ * and dark docs, echoing the homepage "proof" window (src/css/landing.css). It
+ * leans on the global --bps-* tokens defined in custom.css :root. */
+
+.widget {
+  margin: 1.5rem 0 2rem;
+  background: #0a0e14;
+  border: 1px solid var(--bps-rule-2);
+  border-radius: var(--bps-radius-xl);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+/* ---- header: endpoint line + run control ---- */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--bps-space-lg);
+  padding: 9px 12px;
+  background: #141c26;
+  border-bottom: 1px solid var(--bps-rule);
+  font-size: var(--bps-text-xs);
+  color: var(--bps-ink-muted);
+}
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--bps-space-sm);
+  min-width: 0;
+}
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--bps-space-md);
+  flex: 0 0 auto;
+}
+.endpoint {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #c9d1d9;
+}
+.prompt {
+  color: var(--bps-ink-faint);
+}
+.isRunning .endpoint {
+  background: linear-gradient(90deg, #b87b1f, #ffd479);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* status dot */
+.dot {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bps-ink-faint);
+}
+.dot[data-state='live'] {
+  background: var(--bps-success-dark);
+  box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.6);
+  animation: pulse 1.4s ease-out infinite;
+}
+@keyframes pulse {
+  to {
+    box-shadow: 0 0 0 6px rgba(63, 185, 80, 0);
+  }
+}
+
+.rate {
+  font-size: var(--bps-text-2xs);
+  letter-spacing: 0.04em;
+  color: var(--bps-success-dark);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.run {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--bps-space-xs);
+  border: 1px solid #2e7d32;
+  background: rgba(63, 185, 80, 0.12);
+  color: #56d364;
+  border-radius: var(--bps-radius-md);
+  font: inherit;
+  font-size: var(--bps-text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.run:hover {
+  background: rgba(63, 185, 80, 0.2);
+}
+.runActive {
+  border-color: var(--bps-ember-dark, #b87b1f);
+  background: rgba(184, 123, 31, 0.16);
+  color: #ffd479;
+}
+.runActive:hover {
+  background: rgba(184, 123, 31, 0.26);
+}
+.playGlyph {
+  width: 0;
+  height: 0;
+  border-left: 7px solid currentColor;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+.stopGlyph {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  border-radius: 1px;
+}
+.runLabel {
+  display: inline-block;
+}
+
+/* ---- filter caption ---- */
+.filter {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--bps-rule);
+  background: rgba(255, 255, 255, 0.015);
+  font-size: var(--bps-text-2xs);
+  color: var(--bps-ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- stream output ---- */
+.out {
+  height: 320px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 10px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bps-rule-2) transparent;
+}
+.out::-webkit-scrollbar {
+  width: 8px;
+}
+.out::-webkit-scrollbar-thumb {
+  background: var(--bps-rule-2);
+  border-radius: 999px;
+}
+
+.placeholder {
+  padding: 18px 16px;
+  max-width: 60ch;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--bps-text-md);
+  line-height: 1.55;
+  color: var(--bps-ink-soft);
+}
+.placeholder b {
+  color: var(--bps-ink);
+  font-weight: 600;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6ch;
+  padding: 1px 14px;
+  font-size: var(--bps-text-xs);
+  line-height: 1.7;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.glyph {
+  flex: 0 0 auto;
+}
+.actor {
+  color: #c9d1d9;
+}
+.verb {
+  color: var(--bps-ink-faint);
+}
+.subject {
+  color: var(--bps-ink-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* per-type accents on the verb, echoing the homepage proof colors */
+.v_follow .verb {
+  color: #56d364;
+}
+.v_repost .verb {
+  color: #e3a008;
+}
+.v_like .verb {
+  color: #ff7b9c;
+}
+.v_reply .verb {
+  color: var(--bps-blue-dark);
+}
+.v_post .verb {
+  color: #a5d6ff;
+}
+
+/* ---- click-through CTA (optional footer bar) ---- */
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--bps-space-sm);
+  padding: 12px 14px;
+  border-top: 1px solid var(--bps-rule);
+  background: rgba(57, 148, 255, 0.08);
+  color: var(--bps-blue-dark);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--bps-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.cta:hover {
+  background: rgba(57, 148, 255, 0.16);
+  color: #6cb0ff;
+  text-decoration: none;
+}
+.cta svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+.cta:hover svg {
+  transform: translateX(3px);
+}
+
+@media (max-width: 600px) {
+  .endpoint {
+    font-size: var(--bps-text-2xs);
+  }
+  .out {
+    height: 260px;
+  }
+}

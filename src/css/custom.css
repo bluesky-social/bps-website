@@ -433,6 +433,8 @@ html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: ur
   text-decoration: none;
 }
 .bpsNav--link:hover { color: var(--bps-nav-hover); text-decoration: none; }
+/* selected state — current route sits on this link's page (set by NavCustomLink) */
+.bpsNav--link--active { color: var(--bps-nav-ink); }
 /* middot separator between the mono links (prototype .nav-mini .sep) — a real
  * flex child so the right group's even gaps sit on both sides. */
 .bpsNav__sep {
@@ -1080,24 +1082,40 @@ html[data-theme='dark']
   color: var(--ifm-color-primary);
   font-weight: 600;
 }
+/* A top-level LEAF (e.g. Get Started) keeps the level-1 label weight (500) when
+ * selected — active top-level CATEGORIES don't bold, so the leaf shouldn't
+ * either. The 600 above is meant for active level-2 children, not level-1. */
+.theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active {
+  font-weight: 500;
+}
 /* The category's inner <a> must stay transparent — its tint lives on the
  * wrapper above. (The leaf active <a>, by contrast, carries its own tint, so it
  * is deliberately NOT zeroed here.) */
 .theme-doc-sidebar-menu .menu__list-item-collapsible--active > .menu__link {
   background: none;
 }
-/* Top-level CATEGORY label gets the primary color when selected. This needs to
- * out-specify the level-1 label color rule above (which sets emphasis-800 /
- * emphasis-600 in dark at specificity 0,4,0), so mirror that selector's depth
- * and add the --active wrapper. Both themes. */
+/* Top-level CATEGORY label, and a top-level LEAF link (e.g. Get Started), get
+ * the primary color when selected. This needs to out-specify the level-1 label
+ * color rule above (which sets emphasis-800 / emphasis-600 in dark at
+ * specificity 0,4,1), so mirror that selector's depth and add the active class.
+ * Without this the dark-mode grey label rule wins and the active leaf reads
+ * grey instead of blue. Both themes. */
 html .theme-doc-sidebar-menu
   > .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible--active
   > .menu__link,
+html .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active,
 html[data-theme='dark'] .theme-doc-sidebar-menu
   > .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible--active
-  > .menu__link {
+  > .menu__link,
+html[data-theme='dark'] .theme-doc-sidebar-menu
+  > .theme-doc-sidebar-item-link-level-1
+  > .menu__link--active {
   color: var(--ifm-color-primary);
 }
 .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist)::before,
@@ -1109,6 +1127,55 @@ html[data-theme='dark'] .theme-doc-sidebar-menu
   background-color: var(--ifm-color-primary);
   border-radius: var(--bps-radius-sm) 0 0 var(--bps-radius-sm);
   z-index: 1;
+}
+
+/* =====================================================================
+ * SIDEBAR — "Getting Started" path grouping (§4)
+ * The first three top-level items (Get Started, About Bluesky Content,
+ * Tutorials) form the onboarding path. They carry the bpsGsPath className
+ * (set in sidebars.js) so this survives reordering as long as the classes
+ * travel with the items. They're rendered as one cohesive, neutral-blue
+ * panel — desaturated so it reads as "grouped/quiet" rather than competing
+ * with the blue accent used for the active item — inset with side margins
+ * and rounded top/bottom corners. The bordered outline alone separates it
+ * from the reference docs below; a little breathing room beneath it is
+ * enough (no divider rule).
+ * ===================================================================== */
+.theme-doc-sidebar-menu {
+  --bps-gs-bg: #e9eef7;          /* soft slate-blue panel fill */
+  --bps-gs-border: #d3ddec;
+}
+html[data-theme='dark'] .theme-doc-sidebar-menu {
+  --bps-gs-bg: #141d2c;          /* raised, blue-tinted surface over #0d1117 */
+  --bps-gs-border: #243047;
+}
+/* Each path item is a top-level <li>; tint it and bracket it with side rules.
+ * Flatten the inter-item gap (Infima adds margin-top between siblings) so the
+ * three rows read as one continuous block. */
+.theme-doc-sidebar-menu > .bpsGsPath {
+  margin-top: 0;
+  margin-left: 6px;
+  margin-right: 10px;
+  padding: 2px 6px;
+  background: var(--bps-gs-bg);
+  border-left: 1px solid var(--bps-gs-border);
+  border-right: 1px solid var(--bps-gs-border);
+}
+/* First item: top cap (rounded corners + top rule + a little breathing room
+ * above the panel). */
+.theme-doc-sidebar-menu > .bpsGsPath--first {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--bps-gs-border);
+  border-radius: 8px 8px 0 0;
+}
+/* Last item: bottom cap. The outline closes the panel here; just leave a gap
+ * before the reference docs below. */
+.theme-doc-sidebar-menu > .bpsGsPath--last {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--bps-gs-border);
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 1rem;
 }
 
 /* =====================================================================
