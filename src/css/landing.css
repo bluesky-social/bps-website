@@ -20,6 +20,9 @@
   --bps-ember:          #EA580C;        /* light bg */
   --bps-ember-dark:     #FB923C;        /* dark bg */
 
+  /* atproto brand yellow — used for the third (atproto.com) grid row's accents */
+  --bps-atproto-yellow: #f5b740;
+
   /* charcoal — quiet rules, line numbers, secondary labels */
   --bps-charcoal-dark:  #9CA3AF;
   --bps-rule-soft:      var(--bps-charcoal-dark);
@@ -117,7 +120,7 @@
   display: inline-flex; align-items: center; justify-content: space-between;
   width: 200px;
   font-family: var(--bps-font-mono-ui);
-  font-size: 12px; font-weight: 700;
+  font-size: 13px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   padding: var(--bps-space-sm) var(--bps-space-lg);
   border-radius: var(--bps-radius-md);
@@ -126,11 +129,12 @@
 }
 .bps-home .hero .cta-row .btn.primary {
   color: var(--bps-ink);
-  border-color: var(--bps-ink);
-  background: color-mix(in srgb, var(--bps-ink) 10%, transparent);
+  border-color: color-mix(in srgb, var(--bps-blue-dark) 60%, transparent);
+  background: color-mix(in srgb, var(--bps-blue-dark) 20%, transparent);
 }
 .bps-home .hero .cta-row .btn.primary:hover {
-  background: color-mix(in srgb, var(--bps-ink) 25%, transparent);
+  border-color: var(--bps-blue-dark);
+  background: color-mix(in srgb, var(--bps-blue-dark) 50%, transparent);
 }
 .bps-home .hero .signoff {
   margin-top: auto;
@@ -469,29 +473,24 @@
   position: relative; z-index: 2;
 }
 .bps-home .prod-grid .cell.prod:hover .more {
-  color: var(--bps-blue-dark);
-  border-bottom-color: var(--bps-blue-dark);
+  border-bottom-color: var(--bps-ember-dark);
 }
 
 /* ----- bottom row: friendlier "legacy Bluesky" cards ----- */
 .bps-home .prod-grid .cell.friendly {
   text-decoration: none;
   color: inherit;
-  background:
-    radial-gradient(130% 110% at 0% 0%, rgba(0, 106, 255, 0.12), transparent 58%),
-    #0b1119;
+  background: var(--bps-paper);
   transition: background .15s ease;
 }
 .bps-home .prod-grid a.cell.friendly:hover {
-  background:
-    radial-gradient(130% 110% at 0% 0%, rgba(0, 106, 255, 0.2), transparent 58%),
-    #0d1521;
+  background: var(--bps-paper-2);
 }
 .bps-home .prod-grid .cell.friendly h3 {
   margin: 0;
   font-family: var(--bps-font-sans);
   font-size: 22px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2;
-  color: #6fb2ff;
+  color: var(--bps-ink);
 }
 .bps-home .prod-grid .cell.friendly .what {
   margin: 12px 0 0;
@@ -503,35 +502,62 @@
 .bps-home .prod-grid .cell.friendly .more {
   margin-top: auto;
   margin-bottom: 28px;
+  font-family: var(--bps-font-mono-ui);
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--bps-ink);
+  border-bottom: 1.5px solid var(--bps-blue-dark);
+  padding-bottom: 1px;
   align-self: start;
-  font-family: var(--bps-font-sans);
-  font-size: 13px; font-weight: 600;
-  letter-spacing: 0; text-transform: none;
-  color: #fff;
-  background: var(--bps-blue);
-  border-radius: 999px;
-  padding: 7px 16px;
-  transition: background .15s ease;
+  transition: color .15s ease;
+  position: relative; z-index: 2;
 }
-.bps-home .prod-grid a.cell.friendly:hover .more { background: var(--bps-blue-dark); }
+.bps-home .prod-grid a.cell.friendly:hover .more { color: var(--bps-blue-dark); }
 
-/* friendly logo card — butterfly + wordmark, mirrors the top-row decor cell */
+/* friendly logo card — butterfly + wordmark lockup, centered, with the same
+ * grain treatment as the top-row decor cell over the friendly-blue gradient. */
 .bps-home .prod-grid .cell.friendly.logocard {
-  flex-direction: row;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(130% 110% at 0% 0%, rgba(0, 106, 255, 0.12), transparent 58%),
+    var(--bps-paper);
+}
+.bps-home .prod-grid a.cell.friendly.logocard:hover {
+  background:
+    radial-gradient(130% 110% at 0% 0%, rgba(0, 106, 255, 0.12), transparent 58%),
+    var(--bps-paper-2);
+}
+.bps-home .prod-grid .cell.friendly.logocard::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+.bps-home .prod-grid .friendlyLockup {
+  display: inline-flex;
+  align-items: center;
   gap: 16px;
-  background: #0b1119;
 }
 .bps-home .prod-grid .friendlyBfly {
   width: 46px; height: 41px;
-  color: var(--bps-blue-dark);
+  color: var(--bps-blue);
   flex: 0 0 auto;
 }
 .bps-home .prod-grid .friendlyWord {
-  font-family: var(--bps-font-sans);
-  font-size: 26px; font-weight: 700; letter-spacing: -0.02em;
+  display: block;
+  height: 28px; width: auto;
   color: var(--bps-ink);
+  position: relative;
+  top: 4px;
 }
 
 /* decorative cell — repeated wordmark texture */
@@ -574,10 +600,10 @@
 .bps-home .prod-grid .cell.atproto {
   text-decoration: none;
   color: inherit;
-  background: #0a0e14;
+  background: var(--bps-paper);
   transition: background .15s ease;
 }
-.bps-home .prod-grid a.cell.atproto:hover { background: #0e131c; }
+.bps-home .prod-grid a.cell.atproto:hover { background: var(--bps-paper-2); }
 /* icon sits inline, left of the title — keeps the card's vertical rhythm in
  * step with the prod/friendly cards (which have no icon row). */
 .bps-home .prod-grid .cell.atproto .atproto-head {
@@ -588,7 +614,7 @@
 .bps-home .prod-grid .cell.atproto .atproto-icon {
   display: inline-flex;
   flex: 0 0 auto;
-  color: #f5b740;
+  color: var(--bps-atproto-yellow);
 }
 .bps-home .prod-grid .cell.atproto .atproto-icon svg { width: 26px; height: 26px; display: block; }
 .bps-home .prod-grid .cell.atproto h3 {
@@ -608,33 +634,60 @@
   margin-top: auto;
   margin-bottom: 28px;
   font-family: var(--bps-font-mono-ui);
-  font-size: 11px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
-  color: #f5b740;
-  border-bottom: 1.5px solid rgba(245, 183, 64, 0.45);
+  color: var(--bps-ink);
+  border-bottom: 1.5px solid var(--bps-atproto-yellow);
   padding-bottom: 1px;
   align-self: start;
-  transition: border-color .15s ease;
+  transition: color .15s ease;
   position: relative; z-index: 2;
 }
-.bps-home .prod-grid a.cell.atproto:hover .more { border-bottom-color: #f5b740; }
+.bps-home .prod-grid a.cell.atproto:hover .more { color: var(--bps-atproto-yellow); }
 
-/* atproto logo card — the dot-globe + wordmark, mirrors the other logo cells */
+/* atproto logo card — dot-globe + wordmark lockup, centered, with the same
+ * grain treatment as the logo cell but over an amber (row-hue) gradient.
+ * Mirrors .logocard: paper base, paper-2 on hover, under the row-hue gradient. */
 .bps-home .prod-grid .cell.atproto.globecard {
-  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 18px;
-  background: #080b11;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(130% 110% at 0% 0%, color-mix(in srgb, var(--bps-atproto-yellow) 12%, transparent), transparent 58%),
+    var(--bps-paper);
+}
+.bps-home .prod-grid a.cell.atproto.globecard:hover {
+  background:
+    radial-gradient(130% 110% at 0% 0%, color-mix(in srgb, var(--bps-atproto-yellow) 12%, transparent), transparent 58%),
+    var(--bps-paper-2);
+}
+.bps-home .prod-grid .cell.atproto.globecard::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='5' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+.bps-home .prod-grid .globeLockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
 }
 .bps-home .prod-grid .globeImg {
-  width: 150px; height: 150px;
+  width: 50px; height: 50px;
   object-fit: contain;
   flex: 0 0 auto;
 }
 .bps-home .prod-grid .globeWord {
-  font-family: var(--bps-font-sans);
-  font-size: 24px; font-weight: 700; letter-spacing: -0.02em;
+  font-family: var(--bps-font-mono-ui);
+  font-size: 22px; font-weight: 700; letter-spacing: -0.02em;
+  text-transform: uppercase;
   color: var(--bps-ink);
 }
 
@@ -679,6 +732,24 @@
   .bps-home .proof .cta h2 { font-size: 24px; }
   .bps-home .proof .cta p { font-size: 14px; }
   .bps-home .prod-grid .cells { grid-template-columns: 1fr; }
+  /* shorter logo/decor cells on mobile */
+  .bps-home .prod-grid .cell.decor,
+  .bps-home .prod-grid .cell.friendly.logocard,
+  .bps-home .prod-grid .cell.atproto.globecard {
+    min-height: 120px;
+  }
+  .bps-home .prod-grid .cell.decor .repeat { font-size: 36px; }
+  /* the six content cells — shorter, smaller body copy on mobile */
+  .bps-home .prod-grid .cell.prod,
+  .bps-home .prod-grid .cell.friendly:not(.logocard),
+  .bps-home .prod-grid .cell.atproto:not(.globecard) {
+    min-height: 210px;
+  }
+  .bps-home .prod-grid .cell.prod .what,
+  .bps-home .prod-grid .cell.friendly .what,
+  .bps-home .prod-grid .cell.atproto .what {
+    font-size: 13px;
+  }
 
   /* 5rem 0 1.5rem, composed from the spacing scale */
   .bps-home .hero {
@@ -695,9 +766,22 @@
     text-shadow: 0 0 50px black, 0 0 50px black;
   }
   .bps-home .hero .cta-row { margin-top: 56px; }
+  .bps-home .hero .cta-row .btn.primary {
+    border-color: color-mix(in srgb, var(--bps-ink) 60%, transparent);
+    background: color-mix(in srgb, var(--bps-ink) 10%, transparent);
+  }
+  .bps-home .hero .cta-row .btn.primary:hover {
+    border-color: color-mix(in srgb, var(--bps-ink) 90%, transparent);
+    background: color-mix(in srgb, var(--bps-ink) 25%, transparent);
+  }
   .bps-home .hero .signoff { text-shadow: 0 0 50px black, 0 0 100px black; }
   .bps-home .hero .signoff br.mobileOnly { display: inline; }
 
   .bps-home .quote { padding: 64px 28px; }
-  .bps-home .quote blockquote { font-size: 26px; }
+  .bps-home .quote blockquote {
+    font-size: 18px;
+    padding: var(--bps-space-sm) var(--bps-space-xl);
+  }
+  .bps-home .quote cite { margin-top: 28px; font-size: 10px; }
+  .bps-home .quote cite .desktopOnly { display: none; }
 }

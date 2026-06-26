@@ -3,6 +3,7 @@ import Link from '@docusaurus/Link'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import Layout from '@theme/Layout'
 import Butterfly from '../components/Navbar/Butterfly'
+import BlueskyWordmark from '../components/Navbar/BlueskyWordmark'
 
 import '../css/landing.css'
 
@@ -115,7 +116,8 @@ function ProtocolCard({ title, em, endpoint, what, href, to }) {
   const inner = (
     <>
       <h3>
-        {title} <em>{em}</em>
+        {title}
+        {em ? <em> {em}</em> : null}
       </h3>
       <span className="endpoint">{endpoint}</span>
       <p className="what">{what}</p>
@@ -492,45 +494,67 @@ export default function Home() {
         <section className="prod-grid">
           <div className="cells">
             {/* Top row — protocol services */}
+            <div className="cell decor" aria-hidden="true">
+              <div className="repeat">{DECOR_WORD}</div>
+            </div>
             <ProtocolCard
               title="Jetstream"
-              em="v2"
               endpoint="wss://jetstream2.us-east.bsky.network"
               what="Replay data from the network or stream in real time. Slice the data you care about."
               href="/docs/jetstream"
             />
             <ProtocolCard
-              title="The"
-              em="Relay"
+              title="Relay"
               endpoint="wss://bsky.network"
               what="Sync the full Atmosphere in a zero trust setting. Build your own independent infrastructure."
               href="/docs/relay"
             />
-            <div className="cell decor" aria-hidden="true">
-              <div className="repeat">{DECOR_WORD}</div>
-            </div>
 
             {/* Bottom row — friendly / legacy Bluesky */}
+            <a
+              className="cell friendly logocard"
+              href="https://bsky.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Bluesky"
+            >
+              <span className="friendlyLockup">
+                <Butterfly className="friendlyBfly" />
+                <BlueskyWordmark className="friendlyWord" />
+              </span>
+            </a>
             <FriendlyCard
               title="Bluesky API"
               what="Develop against Bluesky. Work with profiles, posts, threads, relationships, interactions, and feeds."
-              cta="Get Started"
+              cta="Learn More"
               to="/docs/get-started"
             />
             <FriendlyCard
               title="HTTP Reference"
               what="Browse every API endpoint used by Bluesky, with full request and response schemas."
-              cta="Browse the reference"
+              cta="Learn More"
               // NOTE: temporary target — the HTTP reference is moving off this
               // site to a standalone OpenAPI site. Update when that lands.
               href="https://endpoints.bsky.app/"
             />
-            <div className="cell friendly logocard" aria-hidden="true">
-              <Butterfly className="friendlyBfly" />
-              <span className="friendlyWord">Bluesky</span>
-            </div>
 
             {/* Third row — atproto.com (amber accent, thin line icons) */}
+            <a
+              className="cell atproto globecard"
+              href="https://atproto.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="globeLockup">
+                <img
+                  className="globeImg"
+                  src={atprotoGlobe}
+                  alt=""
+                  aria-hidden="true"
+                />
+                <span className="globeWord">AT&nbsp;Protocol</span>
+              </span>
+            </a>
             <AtprotoCard
               icon={<TutorialsIcon />}
               title="Tutorials"
@@ -543,20 +567,6 @@ export default function Home() {
               what="Reference and community SDKs for TypeScript, Go, and many others."
               href="https://atproto.com/sdks"
             />
-            <a
-              className="cell atproto globecard"
-              href="https://atproto.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                className="globeImg"
-                src={atprotoGlobe}
-                alt=""
-                aria-hidden="true"
-              />
-              <span className="globeWord">AT&nbsp;Protocol</span>
-            </a>
           </div>
         </section>
 
@@ -568,8 +578,11 @@ export default function Home() {
               but <em>hooking people together</em>.
             </span>
             <cite>
-              — <b>David Clark</b>{' '}
-              <i>A Cloudy Crystal Ball: Visions of the Future</i>, IETF 1992
+              — <b>David Clark</b>
+              <span className="desktopOnly">
+                , <i>A Cloudy Crystal Ball: Visions of the Future</i>,
+              </span>{' '}
+              IETF 1992
             </cite>
           </blockquote>
         </section>
