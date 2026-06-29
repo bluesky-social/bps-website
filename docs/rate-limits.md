@@ -60,9 +60,9 @@ Most authenticated API requests in go through the account's PDS host, which appl
 The PDS also applies a maximum size limit on individual blob uploads (separate from any application-specific blob size limit). The current limit is 52,428,800 bytes (50 MByte).
 
 
-## Bluesky AppView Limits
+## Bluesky API Limits
 
-Sometimes clients connect directly to the Bluesky AppView, at `https://api.bsky.app` or `https://public.api.bsky.app`. These direct endpoints do not support authentication. The `public.api.bsky.app` endpoint is cached, and we request developers use that for "public web" use cases.
+Sometimes clients connect directly to the Bluesky API, at `https://api.bsky.app` or `https://public.api.bsky.app`. These direct endpoints do not support authentication. The `public.api.bsky.app` endpoint is cached, and we request developers use that for "public web" use cases.
 
 These API services have generous rate-limits. Please contact us if you encounter rate-limiting.
 
@@ -84,7 +84,7 @@ These limits are intended to limit abuse while still allowing open federation. I
 
 ## Label Limits
 
-The Bluesky AppView applies the following limits to all labeling services (eg, Ozone moderation instances):
+The Bluesky API applies the following limits to all labeling services (eg, Ozone moderation instances):
 
 - 5 per second
 - 10,000 per hour
