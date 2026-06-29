@@ -513,7 +513,6 @@ export default function Home() {
               endpoint="wss://jetstream2.us-east.bsky.network"
               what="Replay data from the network or stream in real time. Slice the data you care about."
               to="/docs/jetstream"
-              cta="Get Started"
             />
             <ProtocolCard
               title="Relay"
