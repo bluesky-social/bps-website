@@ -13,8 +13,7 @@ You tell it which records you care about — posts, likes, follows, or a single
 account — and it streams them back as plain JSON over one WebSocket, the moment
 they happen.
 
-Setup is minimal. There are no API keys, no infrastructure to run, and no binary
-formats to decode. You describe the slice of the network you want, and Jetstream
+Setup is minimal. You describe the slice of the network you want, and Jetstream
 delivers it live, replayed from history, or both at once, all through the same
 interface. The same handful of lines works whether you're building a realtime
 bot or backfilling a month of data into a larger application.
@@ -174,7 +173,7 @@ started.
 
 ## See also
 
-- **[Backfilling with Jetstream](/docs/jetstream-backfill)**: stream history and
+- **[Network Replay with Jetstream](/docs/jetstream-backfill)**: stream history and
   live from one interface.
 - **[Relay](/docs/relay)** and **[Consuming the firehose](/docs/consuming-the-firehose)**:
   the raw, full-fidelity path, for when you need binary records or cryptographic

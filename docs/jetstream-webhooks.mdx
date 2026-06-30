@@ -47,6 +47,8 @@ loop barely does any work; almost everything you read is already a match.
 
 ## Example: alert on activity from a watchlist
 
+Discord webhooks are a good example here because they [do not require auth](https://docs.discord.com/developers/resources/webhook).
+
 This script watches a small list of accounts and posts a Discord message
 whenever any of them creates a new post. Because every event the server sends
 is already a match, there's no client-side filtering — the forward function
@@ -61,8 +63,8 @@ import websockets
 # Server-side filter does all the work: only events produced by these DIDs,
 # only post records. Add more DIDs or collections as needed.
 WATCHLIST = [
-    "did:plc:eygmaihciaxprqvxpfvl6flk",
-    "did:plc:wa7b35aakoll7hugkrjtf3xf",
+    "did:plc:ragtjsm2j2vknwkz3zp4oxrd",
+    "did:plc:44ybard66vv44zksje25o7dz",
 ]
 
 params = "&".join(
@@ -123,7 +125,7 @@ stream than the firehose, even without `wantedDids`. Push everything you can
 to the server first; only widen when the question you're asking genuinely
 needs the broader stream.
 
-## Don't block the read loop
+## Make sure to handle backpressure
 
 Note the `asyncio.create_task(...)` above. The one thing you should *not* do is
 `await` the webhook POST inside the message-receive loop. Webhook endpoints

@@ -61,7 +61,7 @@ const config = {
       async: true,
     },
   ],
-  title: "Bluesky",
+  title: "Bluesky Protocol Services",
   tagline: "High scale open social, unlocked for every builder.",
   favicon: "img/favicon.png",
 

@@ -5,7 +5,7 @@ description: Stream records straight from Jetstream into Coop, an open-source mo
 
 import DocumentRecord from './_snippets/jetstream-coop-document-record.mdx';
 
-# Feeding Jetstream into a moderation tool
+# Streaming to moderation
 
 Most of the Jetstream guides so far end with data landing in *your* code: a
 webhook, a datastore, a notification. This one points Jetstream at a
@@ -23,7 +23,7 @@ as a record type; an article or
 blog post published to the network. You can optionally use [Jetstream-side slicing](/docs/jetstream#filtering-ask-for-just-your-slice) for Lexicons that produce an especially high volume of records.
 
 :::note Getting history, not just live
-The live tail keeps Coop fed with new documents. To backfill from existing records, use [tap](https://atproto.com/guides/backfilling).
+The live tail keeps Coop fed with new documents. To replay data from the network, refer back to the [Jetstream](/docs/jetstream) docs.
 :::
 
 ## The data you'll be moving
@@ -38,7 +38,7 @@ The fields you can rely on being present are `title`, `textContent`, `site`,
 `tags`, `updatedAt`, and `coverImage` are optional, so you need to handle their absence.
 
 :::caution `coverImage` is a blob, not a URL
-`coverImage` is a [blob reference](/docs/about-bluesky-content/video), not a
+`coverImage` is a [blob reference](https://atproto.com/guides/images-and-video), not a
 fetchable link. Coop fetches media fields by URL (for HMA hashing and reviewer
 display), so you can't hand it the raw blob ref. To use the image you'd resolve
 the blob to a CDN URL first — e.g.

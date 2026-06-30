@@ -2,7 +2,7 @@
 sidebar_position: 13
 ---
 
-# Bluesky Developer Guidelines
+# Developer Guidelines
 
 Developers who federate their apps or services on the AT Protocol must adhere to the Bluesky Developer Guidelines in order to communicate with Bluesky services:
 

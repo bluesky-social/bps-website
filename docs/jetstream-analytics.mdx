@@ -22,7 +22,7 @@ reactions; they're aggregations over many events, sometimes joined across
 collections, and you can't answer them without accumulating data somewhere
 queryable.
 
-That's the niche this page covers: pointing Jetstream at a local SQL engine so
+That's the use case this page covers: pointing Jetstream at a local SQL engine so
 you can ask aggregate questions with plain SQL. The example below uses
 [DuckDB](https://duckdb.org/) because it runs in-process with a single
 dependency and is fast enough on a laptop to make iteration tight — but the
@@ -93,8 +93,8 @@ import websockets
 import duckdb
 
 COMMUNITY = [
-    "did:plc:eygmaihciaxprqvxpfvl6flk",
-    "did:plc:wa7b35aakoll7hugkrjtf3xf",
+    "did:plc:ragtjsm2j2vknwkz3zp4oxrd",
+    "did:plc:44ybard66vv44zksje25o7dz",
     # ...the rest of the accounts you want to analyze
 ]
 
@@ -235,18 +235,10 @@ the smaller and faster everything downstream gets.
 ## At-least-once delivery and dedup
 
 Jetstream delivers events at-least-once, so the same record can land in your
-table twice across a reconnect. Either run an occasional dedup query keyed on
-the record's `at://` URI:
+table twice across a reconnect. 
 
-```sql
-DELETE FROM posts
-WHERE rowid NOT IN (
-    SELECT min(rowid) FROM posts GROUP BY did, rkey
-);
-```
-
-…or enforce uniqueness up front with a `UNIQUE (did, rkey)` constraint plus
-`INSERT OR IGNORE`-style handling.
+To avoid this, you should enforce uniqueness up front with a `UNIQUE (did, rkey)` constraint plus
+`INSERT OR IGNORE`-style handling. This could also just be a primary key on `(did, rkey)`.
 
 ## Scaling beyond one machine
 
