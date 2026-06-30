@@ -74,8 +74,7 @@ const sidebars = {
     { type: 'link', label: 'Tutorials', href: 'https://atproto.com/guides/tutorials', className: 'bpsGsPath bpsGsPath--last' },
     // A few related docs are nested under a parent doc to keep the top level
     // to ~9-10 items. The category links to the parent doc itself.
-    { type: 'category', label: 'API Hosts and Auth', link: { type: 'doc', id: 'api-directory' }, items: ['rate-limits', 'oauth-client']},
-    {type: 'category', label: 'Resolving Identities', link: {type: 'doc', id: 'resolving-identities'}, items: ['entryway']},
+    { type: 'category', label: 'API Hosts and Auth', link: { type: 'doc', id: 'api-directory' }, items: ['rate-limits', 'resolving-identities', 'entryway', 'oauth-client']},
     'developer-guidelines',
   ],
 
