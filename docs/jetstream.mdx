@@ -15,8 +15,14 @@ they happen.
 
 Setup is minimal. You describe the slice of the network you want, and Jetstream
 delivers it live, replayed from history, or both at once, all through the same
-interface. The same handful of lines works whether you're building a realtime
-bot or backfilling a month of data into a larger application.
+interface. The same code works whether you're building a realtime
+bot or replaying a month of history into a larger application.
+
+There are three ways to use it: the **live** tail (just this page's WebSocket),
+**[replay](/docs/jetstream-replay)** (the WebSocket plus a few HTTP calls to pull
+history), and an orchestrated SDK over those same methods that's
+[still ahead](/docs/jetstream-replay#where-this-is-going). Start with the live
+tail below.
 
 Jetstream is [open source](https://github.com/bluesky-social/jetstream),
 implemented in Go, and cheap to self-host. You don't have to, though. Bluesky
@@ -88,8 +94,10 @@ parsing step. Alongside `commit` events, the stream also carries `identity` and
 | `wss://jetstream1.us-west.bsky.network` | US West |
 | `wss://jetstream2.us-east.bsky.network` | US East |
 
-No authentication is required. These instances serve the full network; your
-`wantedCollections` / `wantedDids` filters decide how much of it reaches you.
+No authentication is required for the live tail. These instances serve the full
+network; your `wantedCollections` / `wantedDids` filters decide how much of it
+reaches you. (Historical [replay](/docs/jetstream-replay) reads from the archive
+over HTTP and does require a bearer token — the live tail does not.)
 
 ## Filtering: ask for just your slice
 
@@ -134,12 +142,14 @@ duplicates become harmless.
 
 The cursor window above is meant for short reconnects, not for loading the past.
 When you also need historical data — say, every `app.bsky.feed.post` from the
-last month, then live updates from there — Jetstream can stream the archive and
-cut over to the live tail through one interface. Your code never has to know
-whether a given event is history or real time.
+last month, then live updates from there — Jetstream **replays** the archive over
+HTTP and cuts over to this live tail at the tip. The server holds the archive, so
+there's nothing to stage on your side; your code never has to know whether a
+given event is history or real time.
 
-That's involved enough to have its own page:
-**[Backfilling with Jetstream](/docs/jetstream-backfill)**.
+That's the **[Network Replay](/docs/jetstream-replay)** path. It uses the same
+filters as the live tail and adds a few authenticated HTTP calls to pull the
+history.
 
 ## How Jetstream relates to the firehose
 
@@ -173,12 +183,10 @@ started.
 
 ## See also
 
-- **[Network Replay with Jetstream](/docs/jetstream-backfill)**: stream history and
-  live from one interface.
+- **[Network Replay](/docs/jetstream-replay)**: replay history and cut over to
+  live through one interface.
+- **[HTTP reference](https://endpoints.bsky.app)**: the `network.bsky.jetstream.*`
+  methods that back replay.
 - **[Relay](/docs/relay)** and **[Consuming the firehose](/docs/consuming-the-firehose)**:
   the raw, full-fidelity path, for when you need binary records or cryptographic
   verification.
-- **[Tap](https://github.com/bluesky-social/indigo/tree/main/cmd/tap)**: a
-  related tool focused on cursor management (webhooks and acks) for per-repo
-  subscriptions. It solves a different problem than Jetstream and can be pointed
-  at a firehose today.

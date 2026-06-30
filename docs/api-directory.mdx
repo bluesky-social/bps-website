@@ -36,7 +36,7 @@ There are a few other patterns of API requests.
 
 **Admin Auth:** used for a few specific operational tasks, like administering PDS instances, or bulk operations against Ozone moderation services. Requests are made directly to the relevant service, using fixed/static Bearer tokens.
 
-**Bulk Data Requests:** for example, when backfilling existing data from the network in to a new service instance, like a standalone app. It is possible to distribute load across all the PDS instances, or centralize requests to a Relay instance, which may have a faster network connection.
+**Bulk Data Requests:** for example, when loading existing data from the network in to a new service instance, like a standalone app. It is possible to distribute load across all the PDS instances, or centralize requests to a Relay instance, which may have a faster network connection. For most apps, [Jetstream's network replay](/docs/jetstream-replay) is the simpler path — it serves filtered history over HTTP without a per-PDS crawl.
 
 
 ## Bluesky Services

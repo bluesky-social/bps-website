@@ -13,14 +13,14 @@ A profile is made up of a user's biographical information — display name, avat
 
 :::info
 To learn how to fetch a user's posts, see the [Viewing
-feeds](/docs/get-started/viewing-feeds#author-feeds) tutorial under "Author
+feeds](/docs/bluesky-api/viewing-feeds#author-feeds) tutorial under "Author
 feeds."
 :::
 
 ### Fetching a user's profile info
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     To fetch a user's profile info, you can use the `getProfile` method.
 
     ```typescript title="agent.getProfile"
@@ -57,7 +57,7 @@ feeds."
 Fetching multiple profiles is as easy as fetching a single profile:
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.getProfiles"
     const { data } = await agent.getProfiles({ actors: ['did:plc:...', ...] })
     const { profiles } = data
@@ -100,7 +100,7 @@ and submit it with `comatproto.RepoPutRecord`).
 :::
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.upsertProfile"
     await agent.upsertProfile(existingProfile => {
       const existing = existingProfile ?? {}
@@ -127,7 +127,7 @@ avatar or profile banner requires an additional step of uploading the image blob
 to your PDS.
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.upsertProfile"
     const avatar = 'data:image/png;base64,...'
 

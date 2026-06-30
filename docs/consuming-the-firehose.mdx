@@ -92,8 +92,9 @@ wss://relay1.us-east.bsky.network/xrpc/com.atproto.sync.subscribeRepos?cursor=<s
 ```
 
 Relays only buffer a limited backlog, so if you're offline long enough to fall
-outside that window you'll need to [backfill](/docs/jetstream) the gap from
-repository checkpoints. Connecting to a [Sync 1.1 endpoint](/docs/relay#blueskys-relays)
+outside that window, [Jetstream's network replay](/docs/jetstream-replay) can
+stream the gap from history and cut back over to live — simpler than re-deriving
+it from repository checkpoints yourself. Connecting to a [Sync 1.1 endpoint](/docs/relay#blueskys-relays)
 makes this more robust: the `prevData` field on each commit lets you detect gaps
 and verify you haven't missed an update for a given repo.
 

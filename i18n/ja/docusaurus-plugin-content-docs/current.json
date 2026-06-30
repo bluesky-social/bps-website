@@ -3,9 +3,9 @@
     "message": "Next",
     "description": "The label for version current"
   },
-  "sidebar.tutorialSidebar.category.Learn the Bluesky API": {
-    "message": "はじめに",
-    "description": "The label for category Learn the Bluesky API in sidebar tutorialSidebar"
+  "sidebar.tutorialSidebar.category.Bluesky API": {
+    "message": "Bluesky API",
+    "description": "The label for category Bluesky API in sidebar tutorialSidebar"
   },
   "sidebar.tutorialSidebar.category.About Bluesky Content": {
     "message": "Blueskyのコンテンツについて",

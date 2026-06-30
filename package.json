@@ -18,6 +18,7 @@
   "dependencies": {
     "@atproto/lex": "^0.1.4",
     "@docusaurus/core": "^3.6.2",
+    "@docusaurus/plugin-client-redirects": "^3.6.2",
     "@docusaurus/plugin-content-docs": "^3.6.2",
     "@docusaurus/plugin-ideal-image": "^3.6.2",
     "@docusaurus/preset-classic": "^3.6.2",

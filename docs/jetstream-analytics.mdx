@@ -34,7 +34,7 @@ the destination changes.
 Before any of this: don't subscribe to more than you need. Jetstream filters
 the stream server-side via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice),
 and those filters narrow both the live tail and any historical
-[backfill](/docs/jetstream-backfill) you do — so a tightly-scoped subscription
+[replay](/docs/jetstream-replay) you do — so a tightly-scoped subscription
 gets you a tightly-scoped dataset without scanning the full archive.
 
 The example below scopes to a fixed list of accounts (a "community" — could be
@@ -207,8 +207,8 @@ across many events, you want a query engine.
 The script above starts from "whenever you ran it." For analysis you usually
 want to start from a real corpus — last month, last year, all time.
 
-Pair the ingest loop with [Backfilling with Jetstream](/docs/jetstream-backfill).
-The backfill client streams history and live events through the same
+Pair the ingest loop with [Network Replay with Jetstream](/docs/jetstream-replay).
+Replay streams history and live events through the same
 interface, scoped by the same `wantedDids`/`wantedCollections` filters — so
 the server uses its per-segment DID and collection indexes to skip most of
 the archive and only ships you the slice you asked for. The table fills with
@@ -255,7 +255,7 @@ quarter." If you outgrow it:
 ## See also
 
 - **[Jetstream](/docs/jetstream)** — the live tail this builds on.
-- **[Backfilling with Jetstream](/docs/jetstream-backfill)** — load history
+- **[Network Replay with Jetstream](/docs/jetstream-replay)** — replay history
   into the table before going live.
 - **[Forwarding to webhooks](/docs/jetstream-webhooks)** — the stateless
   counterpart: react per event without accumulating any data.
