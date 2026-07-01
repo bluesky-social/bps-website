@@ -92,15 +92,49 @@ wss://relay1.us-east.bsky.network/xrpc/com.atproto.sync.subscribeRepos?cursor=<s
 ```
 
 Relays only buffer a limited backlog, so if you're offline long enough to fall
-outside that window, [Jetstream's network replay](/docs/jetstream-replay) can
-stream the gap from history and cut back over to live — simpler than re-deriving
-it from repository checkpoints yourself. Connecting to a [Sync 1.1 endpoint](/docs/relay#blueskys-relays)
-makes this more robust: the `prevData` field on each commit lets you detect gaps
-and verify you haven't missed an update for a given repo.
+outside that window, resuming by cursor alone isn't enough — you need to catch up
+from history. How you do that comes down to whether your position in the stream
+is **stateless** or **stateful**.
+
+A stateless catch-up derives the gap on demand and forgets it afterward:
+[Jetstream's network replay](/docs/jetstream-replay) streams history and cuts
+back over to live in one pass, but tracking what you've processed is on you.
+
+For a position that persists across restarts,
+[**Tap**](https://github.com/bluesky-social/indigo/tree/main/cmd/tap) is the
+recommended tool for long-lived cursor management. It sits in front of the
+firehose and keeps a durable, per-repo cursor: you subscribe to the repos you
+care about, and Tap handles the connection, verification, backfill, and
+buffering — delivering historical events first, then
+cutting over to the live tail. As you acknowledge events, Tap
+advances your cursor, so a restart resumes exactly where you left off.
+
+```bash
+go install github.com/bluesky-social/indigo/cmd/tap@latest
+
+# Start Tap and open its event channel
+tap run
+websocat ws://localhost:2480/channel
+
+# Subscribe to a repo — Tap backfills it, then streams live
+curl -X POST http://localhost:2480/repos/add \
+  -H "Content-Type: application/json" \
+  -d '{"dids": ["did:plc:ewvi7nxzyoun6zhxrhs64oiz"]}'
+```
+
+Tap builds on the same repository backfill primitives described in atproto's
+[Backfilling guide](https://atproto.com/guides/backfilling).
+
+Either approach becomes more robust against a [Sync 1.1
+endpoint](/docs/relay#blueskys-relays): the `prevData` field on each commit lets
+you detect gaps and verify you haven't missed an update for a given repo.
 
 ## See also
 
 - **[Relay](/docs/relay)**: what the relay is and which endpoints Bluesky runs.
 - **[Jetstream](/docs/jetstream)**: the filtered JSON alternative.
+- **[Tap](https://github.com/bluesky-social/indigo/tree/main/cmd/tap)** and the
+  **[Backfilling guide](https://atproto.com/guides/backfilling)**: stateful
+  cursor management and catching up from history.
 - **[Event Stream spec](https://atproto.com/specs/event-stream)** and
   **[Sync spec](https://atproto.com/specs/sync)**: the protocol-level details.
