@@ -8,12 +8,12 @@ description: Replay history and continue live through one interface — Jetstrea
 Most applications need more than the live tail. To build an
 [App](https://atproto.com/guides/the-at-stack#app-views), run analysis, or
 catch up after downtime, you want the records that already exist on the network
-*and* every new one as it arrives — with no gap in between.
+*and* every new one as it arrives, with no gap in between.
 
 Jetstream serves both from one place. It keeps a compressed archive of the whole
 network and replays it through the same JSON shape as the
 [live tail](/docs/jetstream), so the handoff from history to real time is the
-server's problem, not yours. **Jetstream is your buffer** — there's nothing to
+server's problem, not yours. **Jetstream is your buffer**; there's nothing to
 stage on the client.
 
 ## Three ways to consume Jetstream
@@ -45,7 +45,7 @@ then connect the live socket once at the tip. Three steps:
 1. **Page a plan.** `POST` your filters (`dids`, `collections`, an optional
    `afterSeq`/`beforeSeq` window) to
    [`planBackfill`](https://endpoints.bsky.app). It pins the current sealed tip
-   `S` and returns the sealed segments — or specific block ranges within them —
+   `S` and returns the sealed segments (or specific block ranges within them)
    that may hold matching rows. Call it repeatedly, advancing `afterSeq` to the
    previous response's `plannedThroughSeq`, until the plan reaches `S`.
 2. **Download the archive.** For each planned unit, fetch the whole segment with
@@ -63,7 +63,7 @@ in seq order** (across accounts, events may interleave).
 
 ## Folding the stream (eventually consistent)
 
-Replay delivers **every matching event at least once, in seq order** — creates,
+Replay delivers **every matching event at least once, in seq order**. Creates,
 updates, and deletes all ride inline, the same way they happen on the network.
 The server doesn't hide superseded records for you; instead you **fold** the
 stream to converge on the current state:
@@ -73,7 +73,7 @@ stream to converge on the current state:
 - an `update` replaces it.
 
 Apply events in order and you arrive at network truth. A record you'll later
-delete may show up transiently before its delete arrives — that's expected, and
+delete may show up transiently before its delete arrives. That's expected, and
 it's why your writes should be **idempotent** (keying on each record's `at://`
 URI is usually enough). This is the whole contract: no overlay to download, no
 tombstone window to reason about.
@@ -82,13 +82,13 @@ tombstone window to reason about.
 Account-level markers (`#account`, `#identity`, `#sync`) carry no collection, so
 they ride a reserved channel and are always included in a collection-filtered
 plan. If your data model needs to react to an account being deleted, handle
-those events — don't filter them out.
+those events, don't filter them out.
 :::
 
 ## Where this is going
 
-The replay flow above is a handful of HTTP calls plus one WebSocket — runnable
-today against the public instances with a bearer token. What doesn't exist
+The replay flow above is a handful of HTTP calls plus one WebSocket, runnable
+against the public instances with a bearer token. What doesn't exist
 *yet* is a client library that **orchestrates it for you**: paging the plan,
 fanning out the downloads, decoding, folding, and managing the live cutover
 behind a single iterator.

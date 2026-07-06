@@ -8,17 +8,15 @@ import TabItem from '@theme/TabItem';
 
 # Forwarding Jetstream to webhooks
 
-Most teams already have a notification surface — a Discord channel, a Slack
-workspace, an in-house alerting endpoint. Jetstream is a natural source to point
+Most developers already have several notification surfaces wired up: a Discord channel, a Slack
+workspace, or some other custom endpoint. Jetstream is a natural source to point
 at those: filter the slice of the network you care about, forward each matching
 event to the webhook, and you have realtime activity landing in the place your
 team already watches.
 
 This is one of the lightest-weight things you can do with Jetstream. There's no
-state to keep, no database, no scheduler — just a WebSocket on one side, an HTTP
-POST on the other, and a few lines of glue in between.
-
-Common patterns this fits:
+state to keep, no database, no scheduler. Just a WebSocket on one side, an HTTP
+POST on the other, and a few lines of glue in between. It fits several use cases:
 
 - **Watching a known set of accounts** — alert when any DID in a watchlist
   posts, follows, or has its identity updated.
@@ -31,15 +29,13 @@ Common patterns this fits:
 
 ## Slice as much as you can on the server
 
-The single biggest lever for keeping this cheap is **not asking for more data
-than you need**. Every Jetstream subscription filters in two places, and the
-order matters:
+The biggest lever for keeping this (computationally) cheap is **not asking for more data
+than you need**. Every Jetstream subscription technically filters in two places:
 
 - **Server-side**, via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice):
-  Jetstream narrows the stream before it ever reaches your process. Free; use
-  it aggressively.
+  Jetstream narrows the stream before it ever reaches your process.
 - **Client-side**, in your code: only when the server filters can't express
-  what you need — for example, matching the post `text` against a keyword.
+  what you need; for example, matching the post `text` against a keyword.
 
 A subscription with `wantedDids=<10 accounts>&wantedCollections=app.bsky.feed.post`
 is a couple of events per second instead of the full firehose. The receive
@@ -51,7 +47,7 @@ Discord webhooks are a good example here because they [do not require auth](http
 
 This script watches a small list of accounts and posts a Discord message
 whenever any of them creates a new post. Because every event the server sends
-is already a match, there's no client-side filtering — the forward function
+is already a match, there's no client-side filtering. The forward function
 just builds a payload and POSTs it.
 
 ```python
@@ -99,7 +95,7 @@ async def main():
 asyncio.run(main())
 ```
 
-That's the whole bridge. Each matching post lands in your channel within
+In Discord's case, that's all you need. Each matching post lands in your channel within
 seconds of being created on the network.
 
 ## When the server filter isn't enough
@@ -120,9 +116,9 @@ if not any(k.lower() in text.lower() for k in KEYWORDS):
 ```
 
 A `wantedCollections=app.bsky.feed.post` subscription still drops every like,
-follow, profile edit, list change, and identity event — it's a much smaller
+follow, profile edit, list change, and identity event. It's a much smaller
 stream than the firehose, even without `wantedDids`. Push everything you can
-to the server first; only widen when the question you're asking genuinely
+to the server first; only widen when the question you're asking
 needs the broader stream.
 
 ## Make sure to handle backpressure

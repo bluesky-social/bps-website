@@ -14,16 +14,15 @@ open-source Trust & Safety platform from [Roost](https://roost.tools/). The goal
 is to get records off the network and in front of automated rules and human
 reviewers, with no glue service in the middle.
 
-The pipeline is small: point Jetstream at a collection, map each record onto a
-Coop *item type*, and `POST` it. No transformation service to run, no schema
-negotiation — the JSON Jetstream already hands you is most of the way there.
+The pipeline is small. Point Jetstream at a collection, map each record onto a
+Coop *item type*, and `POST` it.
 
 This guide uses [`site.standard.document`](https://pdsls.dev/at://did:plc:vmt7o7y6titkqzzxav247zrn/site.standard.document)
 as a record type; an article or
 blog post published to the network. You can optionally use [Jetstream-side slicing](/docs/jetstream#filtering-ask-for-just-your-slice) for Lexicons that produce an especially high volume of records.
 
 :::note Getting history, not just live
-The live tail keeps Coop fed with new documents. To replay data from the network, refer back to the [Jetstream](/docs/jetstream) docs.
+The live tail keeps Coop fed with new documents. To replay data from the network, refer back to the [Jetstream Replay](/docs/jetstream-replay) docs.
 :::
 
 ## The data you'll be moving
@@ -41,22 +40,22 @@ The fields you can rely on being present are `title`, `textContent`, `site`,
 `coverImage` is a [blob reference](https://atproto.com/guides/images-and-video), not a
 fetchable link. Coop fetches media fields by URL (for HMA hashing and reviewer
 display), so you can't hand it the raw blob ref. To use the image you'd resolve
-the blob to a CDN URL first — e.g.
-`https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{$link}@jpeg`. This guide
+the blob to a CDN URL first (e.g.
+`https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{$link}@jpeg`). This guide
 maps the **text fields only** and leaves images out of the main path.
 :::
 
 ## Set up the item types in Coop
 
 Coop needs to know the shape of what you're sending before it can render or
-rule-match it. That's a one-time setup step, not middleware: every item you
+rule-match it. That's a one-time setup step: every item you
 submit references an **item type**, and its `data` must match that type's schema.
 See Coop's [Basic Concepts](https://roostorg.github.io/coop/latest/user/concepts.html)
 for the full model.
 
 You'll create two: a **Bluesky User** for the document's author, and a
 **Standard Document** for the document itself. Modelling the author as its own
-item is what lets a reviewer pivot on the DID — every document, plus any reports
+item is what lets a reviewer pivot on the DID; every document, plus any reports
 submitted later via `com.atproto.moderation.createReport`, collects on one
 record. A plain `authorDid` string would just repeat in a column.
 
@@ -95,7 +94,7 @@ One gotcha worth knowing before you build the Document schema:
   permalink instead. This is more useful for a reviewer anyway, since it's
   clickable. That conversion is the one transform the bridge does.
 
-Once both types are created, copy each one's **ID** from the dashboard — you'll
+Once both types are created, copy each one's **ID** from the dashboard. You'll
 pass them as `typeId` on every item. Then create an **API key** under
 **Settings → API Keys**.
 
@@ -220,7 +219,7 @@ ws.on("message", async (raw) => {
 
 Leave that running and Coop fills up with documents. Each submission is keyed on
 the record's `at://` URI, so [Jetstream's at-least-once
-delivery](/docs/jetstream#resuming-where-you-left-off) is harmless — re-submitting
+delivery](/docs/jetstream#resuming-where-you-left-off) is harmless. Re-submitting
 the same URI updates the existing item rather than duplicating it. To survive a
 restart, persist the last `cursor` and reconnect with `?cursor=N`, exactly as in
 the other Jetstream guides.
@@ -253,7 +252,7 @@ setup — create a queue and a routing rule — separate from ingest.)
 
 Actioning a document in Coop should *do* something back on the network. Coop's
 model for that is [Actions](https://roostorg.github.io/coop/latest/api/actions.html):
-you define an action (say, *Label as spam*) with a callback URL, and when a
+you define an action (e.g. *Label as spam*) with a callback URL, and when a
 moderator (or a rule) applies it, Coop `POST`s the decision to your endpoint.
 That's where you translate a Coop decision into an atproto
 [moderation label](https://atproto.com/guides/labels).
