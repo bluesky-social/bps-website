@@ -23,7 +23,7 @@ const sidebars = {
     // straight into Jetstream — kept as the very next entry — as the place to
     // start.
     'protocol-services',
-    {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-replay', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop'] },
+    {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-sdk', 'jetstream-replay', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop'] },
     {type: 'category', label: 'Relay', link: {type: 'doc', id: 'relay'}, items: ['consuming-the-firehose']},
     {
       // Children listed explicitly: a manual category doesn't apply the

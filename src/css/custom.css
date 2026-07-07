@@ -1303,3 +1303,15 @@ html:has(.bps-home) .footer {
   font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-xs); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
 }
+
+/* ── Image click-to-zoom (medium-zoom) ──────────────────────────────────────
+ * Wired up in src/theme/Root.js, scoped to `.markdown img`. medium-zoom adds
+ * the .medium-zoom-image class to every attached image; hint that they're
+ * interactive with a zoom-in cursor, and lift the overlay above the navbar. */
+.markdown img.medium-zoom-image {
+  cursor: zoom-in;
+}
+.medium-zoom-overlay,
+.medium-zoom-image--opened {
+  z-index: 300;
+}

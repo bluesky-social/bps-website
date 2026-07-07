@@ -50,50 +50,90 @@ whenever any of them creates a new post. Because every event the server sends
 is already a match, there's no client-side filtering. The forward function
 just builds a payload and POSTs it.
 
-```python
-import asyncio
-import json
-import aiohttp
-import websockets
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    // npm install bsky-jetstream-preview — see the Jetstream SDK page.
+    import { Jetstream } from 'bsky-jetstream-preview'
 
-# Server-side filter does all the work: only events produced by these DIDs,
-# only post records. Add more DIDs or collections as needed.
-WATCHLIST = [
-    "did:plc:ragtjsm2j2vknwkz3zp4oxrd",
-    "did:plc:44ybard66vv44zksje25o7dz",
-]
+    // Server-side filter does all the work: only events produced by these DIDs,
+    // only post records. Add more DIDs or collections as needed.
+    const WATCHLIST = [
+      'did:plc:ragtjsm2j2vknwkz3zp4oxrd',
+      'did:plc:44ybard66vv44zksje25o7dz',
+    ]
+    const WEBHOOK = 'https://discord.com/api/webhooks/...' // your webhook URL
 
-params = "&".join(
-    [f"wantedDids={did}" for did in WATCHLIST]
-    + ["wantedCollections=app.bsky.feed.post"]
-)
-JETSTREAM = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
-WEBHOOK = "https://discord.com/api/webhooks/..."  # your webhook URL
+    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
 
-async def forward(session, msg):
-    record = msg["commit"]["record"]
-    did = msg["did"]
-    rkey = msg["commit"]["rkey"]
-    url = f"https://bsky.app/profile/{did}/post/{rkey}"
-    payload = {"content": f"New post: {url}\n> {record.get('text', '')[:280]}"}
-    async with session.post(WEBHOOK, json=payload) as resp:
-        await resp.read()
+    async function forward(did: string, rkey: string, text: string) {
+      const url = `https://bsky.app/profile/${did}/post/${rkey}`
+      await fetch(WEBHOOK, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ content: `New post: ${url}\n> ${text.slice(0, 280)}` }),
+      })
+    }
 
-async def main():
-    async with aiohttp.ClientSession() as session:
-        async with websockets.connect(JETSTREAM) as ws:
-            async for raw in ws:
-                msg = json.loads(raw)
-                if msg.get("kind") != "commit":
-                    continue
-                if msg["commit"].get("operation") != "create":
-                    continue
-                # Don't await — let the forward happen in the background
-                # so a slow webhook never stalls the WebSocket read loop.
-                asyncio.create_task(forward(session, msg))
+    for await (const evt of jetstream.live({
+      collections: ['app.bsky.feed.post'],
+      dids: WATCHLIST,
+    })) {
+      if (evt.kind !== 'commit' || evt.commit.operation !== 'create') continue
+      const record = evt.commit.record as { text?: string }
+      // Don't await — let the POST run in the background so a slow webhook
+      // never stalls the read loop.
+      void forward(evt.did, evt.commit.rkey, record.text ?? '')
+    }
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    import asyncio
+    import json
+    import aiohttp
+    import websockets
 
-asyncio.run(main())
-```
+    # Server-side filter does all the work: only events produced by these DIDs,
+    # only post records. Add more DIDs or collections as needed.
+    WATCHLIST = [
+        "did:plc:ragtjsm2j2vknwkz3zp4oxrd",
+        "did:plc:44ybard66vv44zksje25o7dz",
+    ]
+
+    params = "&".join(
+        [f"wantedDids={did}" for did in WATCHLIST]
+        + ["wantedCollections=app.bsky.feed.post"]
+    )
+    JETSTREAM = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
+    WEBHOOK = "https://discord.com/api/webhooks/..."  # your webhook URL
+
+    async def forward(session, msg):
+        record = msg["commit"]["record"]
+        did = msg["did"]
+        rkey = msg["commit"]["rkey"]
+        url = f"https://bsky.app/profile/{did}/post/{rkey}"
+        payload = {"content": f"New post: {url}\n> {record.get('text', '')[:280]}"}
+        async with session.post(WEBHOOK, json=payload) as resp:
+            await resp.read()
+
+    async def main():
+        async with aiohttp.ClientSession() as session:
+            async with websockets.connect(JETSTREAM) as ws:
+                async for raw in ws:
+                    msg = json.loads(raw)
+                    if msg.get("kind") != "commit":
+                        continue
+                    if msg["commit"].get("operation") != "create":
+                        continue
+                    # Don't await — let the forward happen in the background
+                    # so a slow webhook never stalls the WebSocket read loop.
+                    asyncio.create_task(forward(session, msg))
+
+    asyncio.run(main())
+    ```
+  </TabItem>
+</Tabs>
 
 In Discord's case, that's all you need. Each matching post lands in your channel within
 seconds of being created on the network.
@@ -106,14 +146,27 @@ process. Keyword and content matching are the common cases. The shape is the
 same as above, but you keep the broad `wantedCollections` filter and add a
 check in the receive loop:
 
-```python
-KEYWORDS = {"bluesky", "atproto"}
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    const KEYWORDS = ['bluesky', 'atproto']
 
-# ...inside the receive loop, before asyncio.create_task(forward(...)):
-text = msg["commit"]["record"].get("text", "")
-if not any(k.lower() in text.lower() for k in KEYWORDS):
-    continue
-```
+    // ...inside the for-await loop, before forward(...):
+    const text = (evt.commit.record as { text?: string }).text ?? ''
+    if (!KEYWORDS.some((k) => text.toLowerCase().includes(k))) continue
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    KEYWORDS = {"bluesky", "atproto"}
+
+    # ...inside the receive loop, before asyncio.create_task(forward(...)):
+    text = msg["commit"]["record"].get("text", "")
+    if not any(k.lower() in text.lower() for k in KEYWORDS):
+        continue
+    ```
+  </TabItem>
+</Tabs>
 
 A `wantedCollections=app.bsky.feed.post` subscription still drops every like,
 follow, profile edit, list change, and identity event. It's a much smaller
@@ -146,7 +199,7 @@ your filters, or batch multiple matches into a single webhook payload.
 so the same record can arrive twice across a reconnect. Most webhook targets
 don't dedupe by content, so you may see a duplicate notification.
 
-Two reasonable options:
+There are two common ways to handle this:
 
 - **Accept it** for FYI-style notifications. A double-posted alert is rarely
   worth the engineering to prevent.
@@ -161,12 +214,14 @@ delivered and reconnect with `?cursor=N`. Jetstream replays from just after
 that point within its lookback window, so you don't lose minutes of activity
 on every deploy. See [Resuming where you left off](/docs/jetstream#resuming-where-you-left-off).
 
-If you need durability beyond the lookback window — or to fill in history
-before going live — pair this pattern with [Network Replay with Jetstream](/docs/jetstream-replay).
+If you need durability beyond the lookback window, or to fill in history
+before going live, pair this pattern with [Network Replay with Jetstream](/docs/jetstream-replay).
 
 ## See also
 
 - **[Jetstream](/docs/jetstream)** — the live tail and filtering primitives this
   builds on.
+- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client behind the TS
+  tabs above; it handles the socket, decoding, and reconnects.
 - **[Network Replay with Jetstream](/docs/jetstream-replay)** — combine
   historical events with live forwarding through one interface.
