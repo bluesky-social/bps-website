@@ -13,15 +13,25 @@ You tell it which records you care about — posts, likes, follows, or a single
 account — and it streams them back as plain JSON over one WebSocket, the moment
 they happen.
 
-Setup is minimal. There are no API keys, no infrastructure to run, and no binary
-formats to decode. You describe the slice of the network you want, and Jetstream
+You describe the slice of the network you want, and Jetstream
 delivers it live, replayed from history, or both at once, all through the same
-interface. The same handful of lines works whether you're building a realtime
-bot or backfilling a month of data into a larger application.
+interface. The same code works whether you're building a realtime
+bot or replaying a month of history into a larger application.
+
+There are three ways to consume it:
+
+- **Live tail** — a single WebSocket that streams events the moment they happen.
+- **[Replay](/docs/jetstream-replay)** — the WebSocket plus a few HTTP calls to
+  pull history, then cut over to live.
+- **Snapshotting** — a point-in-time copy of the archive over HTTP, with no live
+  tail.
+
+The **[Jetstream SDK](/docs/jetstream-sdk)** is a TypeScript client for all three
+— today it wraps the live tail, with replay and snapshotting following. Start
+with the live tail below.
 
 Jetstream is [open source](https://github.com/bluesky-social/jetstream),
-implemented in Go, and cheap to self-host. You don't have to, though. Bluesky
-runs public instances you can connect to right now.
+implemented in Go, and cheap to self-host. Read on to interact with Bluesky's public instances.
 
 ## Quickstart: live tail
 
@@ -29,6 +39,20 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Add a
 `wantedCollections` filter so you receive just the record types you care about:
 
 <Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    Use the [**Jetstream SDK**](/docs/jetstream-sdk):
+
+    ```ts
+    // npm install bsky-jetstream-preview — see the Jetstream SDK page.
+    import { Jetstream } from 'bsky-jetstream-preview'
+
+    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+
+    for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
+      console.log(evt)
+    }
+    ```
+  </TabItem>
   <TabItem value="python" label="Python">
     ```python
     import asyncio
@@ -84,13 +108,21 @@ parsing step. Alongside `commit` events, the stream also carries `identity` and
 
 ### Public endpoints
 
-| Endpoint | Region |
-| --- | --- |
-| `wss://jetstream1.us-west.bsky.network` | US West |
-| `wss://jetstream2.us-east.bsky.network` | US East |
+Bluesky runs two sets of public instances. The live tail is identical on
+both — point any example on this page at either host and it behaves the same.
 
-No authentication is required. These instances serve the full network; your
-`wantedCollections` / `wantedDids` filters decide how much of it reaches you.
+| Version | Endpoint | Region |
+| --- | --- | --- |
+| **v2** | `wss://jetstream.us-west.bsky.network` | US West |
+| **v2** | `wss://jetstream.us-east.bsky.network` | US East |
+| **v1** | `wss://jetstream1.us-west.bsky.network` | US West |
+| **v1** | `wss://jetstream2.us-east.bsky.network` | US East |
+
+**Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides legacy timestamps.
+
+No authentication is required for the live tail; these
+instances serve the full network, and your `wantedCollections` / `wantedDids`
+filters decide how much of it reaches you.
 
 ## Filtering: ask for just your slice
 
@@ -135,18 +167,20 @@ duplicates become harmless.
 
 The cursor window above is meant for short reconnects, not for loading the past.
 When you also need historical data — say, every `app.bsky.feed.post` from the
-last month, then live updates from there — Jetstream can stream the archive and
-cut over to the live tail through one interface. Your code never has to know
-whether a given event is history or real time.
+last month, then live updates from there — Jetstream **replays** the archive over
+HTTP and cuts over to this live tail at the tip. The server holds the archive, so
+there's nothing to stage on your side; your code never has to know whether a
+given event is history or real time.
 
-That's involved enough to have its own page:
-**[Backfilling with Jetstream](/docs/jetstream-backfill)**.
+That's the **[Network Replay](/docs/jetstream-replay)** path. It uses the same
+filters as the live tail and adds a few authenticated HTTP calls to pull the
+history.
 
 ## How Jetstream relates to the firehose
 
 Under the hood, Jetstream consumes the network's full
 [firehose](/docs/consuming-the-firehose) from a [Relay](/docs/relay) and does
-the heavy lifting — decoding, filtering, and archiving — so you don't have to.
+the decoding and filtering so you don't have to.
 You only need the raw firehose directly when you want something Jetstream
 deliberately trades away for simplicity:
 
@@ -157,29 +191,31 @@ deliberately trades away for simplicity:
 | History | **live, historical, or both** | live only |
 | What you run | a WebSocket client | a CBOR/CAR decoder, cursor logic |
 
-Reach for the [raw firehose](/docs/consuming-the-firehose) when you need every
+Use the [raw firehose](/docs/consuming-the-firehose) when you need every
 record with no filtering, or the cryptographic proofs to verify repository state
 yourself. For nearly everything else, Jetstream is the simpler path.
 
 ## Running your own Jetstream
 
 The public instances are enough for most consumers. If you'd rather run your
-own, Jetstream is a single static Go binary built to be cheap to operate — modest
-CPU, a fair bit of RAM for the initial backfill, and a few TB of disk for a
-full-network archive. Reach for it when you want an instance scoped
-to your own collections, an isolated dev environment, or your own archive to
-build an [App View](https://atproto.com/guides/the-at-stack#app-views) on. See
+own, Jetstream is a single static Go binary. See
 the [Jetstream repository](https://github.com/bluesky-social/jetstream) to get
 started.
 
+If you run a Jetstream v2 instance, note that [Replay](/docs/jetstream-replay) reads from
+the archive are far more expensive to serve than the live tail — a single
+`planBackfill` can scan a lot of the archive. That's why the public instances
+require a **bearer token** on the replay HTTP endpoints while leaving the live
+tail open. You'll likely want the same gate on your own instance, so a handful of clients can't run up your server's query load.
+
 ## See also
 
-- **[Backfilling with Jetstream](/docs/jetstream-backfill)**: stream history and
-  live from one interface.
+- **[Jetstream SDK](/docs/jetstream-sdk)**: a TypeScript client that opens the
+  socket, decodes and types events, and reconnects for you.
+- **[Network Replay](/docs/jetstream-replay)**: replay history and cut over to
+  live through one interface.
+- **[HTTP reference](https://endpoints.bsky.app)**: the `network.bsky.jetstream.*`
+  methods that back replay.
 - **[Relay](/docs/relay)** and **[Consuming the firehose](/docs/consuming-the-firehose)**:
   the raw, full-fidelity path, for when you need binary records or cryptographic
   verification.
-- **[Tap](https://github.com/bluesky-social/indigo/tree/main/cmd/tap)**: a
-  related tool focused on cursor management (webhooks and acks) for per-repo
-  subscriptions. It solves a different problem than Jetstream and can be pointed
-  at a firehose today.

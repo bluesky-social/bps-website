@@ -12,32 +12,32 @@ A lot of what makes Jetstream attractive is how much you can do *without* a
 database. The stream is dynamic and responsive enough that you can answer
 plenty of questions just-in-time: filter for the events you care about, react
 to each one as it arrives, and forget it. The
-[webhook bridge](/docs/jetstream-webhooks) is a good example — no stored state,
+[webhook bridge](/docs/jetstream-webhooks) is a good example: no stored state,
 just a transform between two endpoints.
 
 But some questions don't fit that shape. "What hours of the day does this
-community post most?" "How does reply ratio change over time for these
-accounts?" "Which languages are these users writing in?" These aren't per-event
-reactions; they're aggregations over many events, sometimes joined across
-collections, and you can't answer them without accumulating data somewhere
+community post most?" or "How does reply ratio change over time for these
+accounts?" or "Which languages are these users writing in?"
+
+These are aggregations over many events, sometimes joined across
+collections, and you can't answer these questions without accumulating data somewhere
 queryable.
 
-That's the niche this page covers: pointing Jetstream at a local SQL engine so
+That's the use case this page covers: pointing Jetstream at a local database so
 you can ask aggregate questions with plain SQL. The example below uses
 [DuckDB](https://duckdb.org/) because it runs in-process with a single
-dependency and is fast enough on a laptop to make iteration tight — but the
-shape transfers to ClickHouse, Postgres, BigQuery, or any column store; only
-the destination changes.
+dependency and is able to keep-up with Jetstream on a laptop. But the same
+approach transfers to ClickHouse, Postgres, BigQuery, and most column stores.
 
 ## Slice on the server, not in your process
 
 Before any of this: don't subscribe to more than you need. Jetstream filters
 the stream server-side via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice),
 and those filters narrow both the live tail and any historical
-[backfill](/docs/jetstream-backfill) you do — so a tightly-scoped subscription
+[replay](/docs/jetstream-replay) you do. A tightly-scoped subscription
 gets you a tightly-scoped dataset without scanning the full archive.
 
-The example below scopes to a fixed list of accounts (a "community" — could be
+The example below scopes to a fixed list of accounts (a "community" which could be
 a research cohort, your app's user base, a watchlist, the membership of a
 custom feed). With a server-side `wantedDids` filter, the receive loop only
 sees events from those accounts; ingest stays linear in the size of the
@@ -52,105 +52,188 @@ Jetstream WS (wantedDids + wantedCollections)
 
 ## Setting up the table
 
-DuckDB is comfortable storing JSON, and you can let it figure out the schema —
+DuckDB is comfortable storing JSON, and you can let it figure out the schema,
 but for analytical queries it's worth declaring the columns you'll actually
 use, so the engine doesn't re-parse JSON on every read.
 
-```python
-import duckdb
+`(did, rkey)` is a record's stable identity in atproto, which makes it a
+natural primary key — the ingest loop below leans on it for both dedup and
+deletes.
 
-con = duckdb.connect("posts.duckdb")
-con.execute("""
-    CREATE TABLE IF NOT EXISTS posts (
-        did         TEXT,
-        rkey        TEXT,
-        cid         TEXT,
-        created_at  TIMESTAMP,
-        text        TEXT,
-        langs       TEXT[],
-        reply_root  TEXT,    -- at:// URI of the thread root if this is a reply
-        cursor      BIGINT   -- Jetstream cursor for the event
-    )
-""")
-con.execute("CREATE INDEX IF NOT EXISTS posts_created_at ON posts (created_at)")
-```
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    // npm install bsky-jetstream-preview @duckdb/node-api
+    import { DuckDBInstance } from '@duckdb/node-api'
+
+    const instance = await DuckDBInstance.create('posts.duckdb')
+    const con = await instance.connect()
+    await con.run(`
+        CREATE TABLE IF NOT EXISTS posts (
+            did         TEXT,
+            rkey        TEXT,
+            cid         TEXT,
+            created_at  TIMESTAMP,
+            text        TEXT,
+            langs       TEXT[],
+            reply_root  TEXT,    -- at:// URI of the thread root if this is a reply
+            cursor      BIGINT,  -- Jetstream cursor for the event
+            PRIMARY KEY (did, rkey)
+        )
+    `)
+    await con.run('CREATE INDEX IF NOT EXISTS posts_created_at ON posts (created_at)')
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    import duckdb
+
+    con = duckdb.connect("posts.duckdb")
+    con.execute("""
+        CREATE TABLE IF NOT EXISTS posts (
+            did         TEXT,
+            rkey        TEXT,
+            cid         TEXT,
+            created_at  TIMESTAMP,
+            text        TEXT,
+            langs       TEXT[],
+            reply_root  TEXT,    -- at:// URI of the thread root if this is a reply
+            cursor      BIGINT,  -- Jetstream cursor for the event
+            PRIMARY KEY (did, rkey)
+        )
+    """)
+    con.execute("CREATE INDEX IF NOT EXISTS posts_created_at ON posts (created_at)")
+    ```
+  </TabItem>
+</Tabs>
 
 ## Ingesting from Jetstream
 
 The ingest loop is similar to the [Jetstream quickstart](/docs/jetstream#quickstart-live-tail):
-read messages, decode JSON, write to the table. Two practical notes:
+read messages, decode JSON, write to the table. The TS tab uses the
+[Jetstream SDK](/docs/jetstream-sdk) and passes the post *lexicon schema* as the
+collection filter, so the socket and decoding are handled and each record comes
+out typed against its schema — no guessing at record shapes. On top of that, note:
 
-- **Batch inserts.** One `INSERT` per row is fine for low volumes, but bursty
-  communities can produce dozens of events per second. Buffer a few hundred
-  rows and `executemany` them in a single transaction.
-- **Persist the cursor.** Store the last cursor you wrote alongside the data so
+- Write per event. A `wantedDids`-scoped stream only moves at the community's
+  posting rate, so one awaited `INSERT` per event keeps up easily and the table
+  is always current. If you need to batch writes with a larger slice, use
+  [`LexIndexer`](/docs/jetstream-sdk#indexing-workloads), which parallelizes
+  handlers for you.
+- Dedup with the primary key. Jetstream delivers events at-least-once, so the
+  same record can arrive twice across a reconnect; `INSERT OR IGNORE` against
+  the `(did, rkey)` primary key makes duplicates harmless.
+- Persist the cursor. Store the last cursor you wrote alongside the data so
   a restart can resume from where it stopped, not from "now."
 
-```python
-import asyncio
-import json
-import websockets
-import duckdb
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    import { Jetstream } from 'bsky-jetstream-preview'
+    import { DuckDBInstance, listValue } from '@duckdb/node-api'
+    import { app } from '@bsky.app/sdk/lexicons'
 
-COMMUNITY = [
-    "did:plc:eygmaihciaxprqvxpfvl6flk",
-    "did:plc:wa7b35aakoll7hugkrjtf3xf",
-    # ...the rest of the accounts you want to analyze
-]
+    const COMMUNITY = [
+      'did:plc:ragtjsm2j2vknwkz3zp4oxrd',
+      'did:plc:44ybard66vv44zksje25o7dz',
+      // ...the rest of the accounts you want to analyze
+    ]
 
-params = "&".join(
-    [f"wantedDids={did}" for did in COMMUNITY]
-    + ["wantedCollections=app.bsky.feed.post"]
-)
-URI = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
+    const instance = await DuckDBInstance.create('posts.duckdb')
+    const con = await instance.connect()
 
-con = duckdb.connect("posts.duckdb")
+    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
 
-BATCH = 200
-buffer = []
+    // Server-side filter: only these accounts, only post records with the Lexicon.
+    for await (const evt of jetstream.live({
+      collections: [app.bsky.feed.post],
+      dids: COMMUNITY,
+    })) {
+      if (evt.kind !== 'commit') continue
+      if (evt.commit.operation === 'delete') {
+        // Drop deleted posts so aggregates don't count content that's gone.
+        await con.run('DELETE FROM posts WHERE did = $1 AND rkey = $2', [
+          evt.did,
+          evt.commit.rkey,
+        ])
+        continue
+      }
+      const r = evt.commit.record
+      await con.run('INSERT OR IGNORE INTO posts VALUES ($1,$2,$3,$4,$5,$6,$7,$8)', [
+        evt.did,
+        evt.commit.rkey,
+        evt.commit.cid,
+        r.createdAt,
+        r.text,
+        r.langs?.length ? listValue(r.langs) : null,
+        r.reply?.root?.uri ?? null,
+        BigInt(evt.seq),
+      ])
+    }
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    import asyncio
+    import json
+    import websockets
+    import duckdb
 
-def flush():
-    if not buffer:
-        return
-    con.executemany(
-        "INSERT INTO posts VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        buffer,
+    COMMUNITY = [
+        "did:plc:ragtjsm2j2vknwkz3zp4oxrd",
+        "did:plc:44ybard66vv44zksje25o7dz",
+        # ...the rest of the accounts you want to analyze
+    ]
+
+    params = "&".join(
+        [f"wantedDids={did}" for did in COMMUNITY]
+        + ["wantedCollections=app.bsky.feed.post"]
     )
-    buffer.clear()
+    URI = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
 
-async def ingest():
-    async with websockets.connect(URI) as ws:
-        async for raw in ws:
-            msg = json.loads(raw)
-            if msg.get("kind") != "commit":
-                continue
-            commit = msg["commit"]
-            if commit.get("operation") != "create":
-                continue
-            record = commit["record"]
-            buffer.append((
-                msg["did"],
-                commit["rkey"],
-                commit["cid"],
-                record.get("createdAt"),
-                record.get("text"),
-                record.get("langs") or [],
-                (record.get("reply") or {}).get("root", {}).get("uri"),
-                msg.get("cursor"),
-            ))
-            if len(buffer) >= BATCH:
-                flush()
+    con = duckdb.connect("posts.duckdb")
 
-asyncio.run(ingest())
-```
+    async def ingest():
+        async with websockets.connect(URI) as ws:
+            async for raw in ws:
+                msg = json.loads(raw)
+                if msg.get("kind") != "commit":
+                    continue
+                commit = msg["commit"]
+                if commit.get("operation") == "delete":
+                    # Drop deleted posts
+                    con.execute(
+                        "DELETE FROM posts WHERE did = ? AND rkey = ?",
+                        (msg["did"], commit["rkey"]),
+                    )
+                    continue
+                record = commit["record"]
+                con.execute(
+                    "INSERT OR IGNORE INTO posts VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        msg["did"],
+                        commit["rkey"],
+                        commit["cid"],
+                        record.get("createdAt"),
+                        record.get("text"),
+                        record.get("langs") or [],
+                        (record.get("reply") or {}).get("root", {}).get("uri"),
+                        msg.get("cursor"),
+                    ),
+                )
+
+    asyncio.run(ingest())
+    ```
+  </TabItem>
+</Tabs>
 
 Leave that running, and you have a growing table you can query at any time
-from another process — DuckDB supports concurrent readers while one writer
+from another process. DuckDB supports concurrent readers while one writer
 holds the file.
 
 ## Querying
 
-Now the payoff: SQL.
+Now you can create some SQL queries to run analytics on this table. For example:
 
 **Top languages in the community:**
 
@@ -199,71 +282,28 @@ LIMIT 25;
 ```
 
 None of these are realistic to answer with a reactive script, because each
-needs the full corpus to compute. That's the line: if a question needs *state*
+needs the full corpus to compute. That's the motivation here; if a question needs *state*
 across many events, you want a query engine.
 
 ## Loading history alongside live
 
 The script above starts from "whenever you ran it." For analysis you usually
-want to start from a real corpus — last month, last year, all time.
+want to start from a real corpus (e.g., last month, last year, all time).
 
-Pair the ingest loop with [Backfilling with Jetstream](/docs/jetstream-backfill).
-The backfill client streams history and live events through the same
-interface, scoped by the same `wantedDids`/`wantedCollections` filters — so
+Pair the ingest loop with [Network Replay with Jetstream](/docs/jetstream-replay).
+Replay streams history and live events through the same
+interface, scoped by the same `wantedDids`/`wantedCollections` filters, so
 the server uses its per-segment DID and collection indexes to skip most of
 the archive and only ships you the slice you asked for. The table fills with
 the past and stays fresh going forward without any extra cutover logic on
 your side.
 
-## Widening or narrowing the scope
-
-The community-scoped example is the cheapest shape: every event the server
-sends is one you want. You can adjust it in either direction:
-
-- **Drop `wantedDids`** to analyze the whole network for a collection — useful
-  for network-level trends like "language distribution among all posts" or
-  "global hashtag frequency." Ingest scales with the firehose, so DuckDB on a
-  laptop will fall behind on busy collections; either narrow the time window
-  you keep around, or move ingest to a process that batches more aggressively.
-- **Widen `wantedCollections`** to bring in likes, follows, reposts, or
-  identity events for the same accounts — useful for joining engagement
-  patterns against posting patterns inside the community.
-
-If you only need one slice and one shape of question, the tighter the filter,
-the smaller and faster everything downstream gets.
-
-## At-least-once delivery and dedup
-
-Jetstream delivers events at-least-once, so the same record can land in your
-table twice across a reconnect. Either run an occasional dedup query keyed on
-the record's `at://` URI:
-
-```sql
-DELETE FROM posts
-WHERE rowid NOT IN (
-    SELECT min(rowid) FROM posts GROUP BY did, rkey
-);
-```
-
-…or enforce uniqueness up front with a `UNIQUE (did, rkey)` constraint plus
-`INSERT OR IGNORE`-style handling.
-
-## Scaling beyond one machine
-
-DuckDB on a laptop is great for tens of millions of rows — fine for "a year of
-posts from this community" or "all posts mentioning my brand for the last
-quarter." If you outgrow it:
-
-- Persist rows to Parquet on object storage and query in place with DuckDB or
-  any columnar engine.
-- Move ingest into a dedicated process that writes to ClickHouse, BigQuery,
-  Snowflake, or your warehouse of choice. The Jetstream side of the script
-  doesn't change; only the destination does.
-
 ## See also
 
 - **[Jetstream](/docs/jetstream)** — the live tail this builds on.
-- **[Backfilling with Jetstream](/docs/jetstream-backfill)** — load history
+- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client used in the TS
+  tabs above; it owns the socket so your code is just the datastore.
+- **[Network Replay with Jetstream](/docs/jetstream-replay)** — replay history
   into the table before going live.
 - **[Forwarding to webhooks](/docs/jetstream-webhooks)** — the stateless
   counterpart: react per event without accumulating any data.

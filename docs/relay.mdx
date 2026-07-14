@@ -47,9 +47,12 @@ signatures, then forwards events to whoever is listening. Making sense of the
 records is the job of downstream consumers like [App Views](https://atproto.com/guides/the-at-stack#app-views),
 feed generators, and labelers.
 
-This is the AT Protocol's "big world with small world fallbacks" design: a
-relatively small number of large aggregators broadcast the network's data back
-out, so consumers don't have to discover and crawl every PDS themselves.
+:::info
+Looking for protocol-level detail on the event stream and sync model? The
+[AT Protocol docs](https://atproto.com/guides/the-at-stack#relays) cover relays,
+the [event stream](https://atproto.com/specs/event-stream), and the
+[sync spec](https://atproto.com/specs/sync) in depth.
+:::
 
 ## Bluesky's relays
 
@@ -64,8 +67,8 @@ authentication is required; the firehose is public.
 | `wss://bsky.network` | The original firehose endpoint. Still widely used, but does **not** emit `prevData`. |
 
 :::tip Which one should I use?
-Use the **Sync 1.1** endpoint (`wss://relay1.us-east.bsky.network`) for anything
-new. The `prevData` field it adds lets consumers detect gaps and verify
+Use the **Sync 1.1** endpoint (`wss://relay1.us-east.bsky.network`) for any new projects.
+The `prevData` field it adds lets consumers detect gaps and verify
 repository state without re-fetching whole repos. It also let relays stop
 caching their entire broadcast history, which cut storage needs enough to make
 [public, full-network mirrors](https://atproto.com/blog/introducing-hubble-a-public-mirror-for-the-whole-atmosphere)
@@ -107,7 +110,7 @@ The firehose is core network infrastructure, and its volume grows with the
 network. If you only care about a few collections (say, just posts and likes)
 and would rather work with plain JSON than binary CBOR, you probably want
 [**Jetstream**](/docs/jetstream) instead. Jetstream consumes the relay's
-firehose on your behalf and fans out a filtered, compressed JSON stream — far
+firehose on your behalf and fans out a filtered, compressed JSON stream. This is far
 cheaper to operate for most feed generators, bots, and labelers.
 
 Reach for the relay firehose directly when you need:
@@ -115,8 +118,7 @@ Reach for the relay firehose directly when you need:
 - **completeness:** every record on the network, with no filtering
 - **cryptographic verification:** the signed commits and MST proofs needed to
   validate repository state in a zero-trust setting
-- **your own independent infrastructure:** e.g. running an App View, or your
-  own Jetstream
+- **your own independent infrastructure:** independence from Bluesky-the-org, verified archiving
 
 ## Rate limits and abuse protection
 
@@ -130,7 +132,7 @@ turn into a thundering herd of reconnects.
 ## Running your own relay
 
 A full-network relay isn't especially expensive to run and doesn't need
-specialized hardware — its main cost is network bandwidth, since it ingests
+specialized hardware. Its main cost is network bandwidth, since it ingests
 from every PDS and fans out to every consumer. You might run a partial relay
 scoped to a specific community, region, or research use case instead of the
 whole network.
@@ -145,10 +147,3 @@ repository alongside the rest of our Go tooling.
   events, and handle them in order.
 - **[Jetstream](/docs/jetstream)**: the simpler, JSON-based alternative.
 - **[Rate Limits](/docs/rate-limits)**: limits that apply to relay endpoints.
-
-:::info
-Looking for protocol-level detail on the event stream and sync model? The
-[AT Protocol docs](https://atproto.com/guides/the-at-stack#relays) cover relays,
-the [event stream](https://atproto.com/specs/event-stream), and the
-[sync spec](https://atproto.com/specs/sync) in depth.
-:::

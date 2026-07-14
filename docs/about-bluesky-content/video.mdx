@@ -16,7 +16,7 @@ The Bluesky video CDN also applies additional account-level limits on publishing
 The easiest way to upload a video is to upload it as you would an image - use `uploadBlob` to upload the file directly to the PDS, and reference the returned blob.
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadBlob"
     const { data } = await userAgent.com.atproto.repo.uploadBlob(
       fs.readFileSync(videoPath),
@@ -51,7 +51,7 @@ This is a little more involved, and involves communicating directly with the vid
 Here is a code snippet for the full flow:
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadVideo"
     const { data: serviceAuth } = await userAgent.com.atproto.server.getServiceAuth(
       {

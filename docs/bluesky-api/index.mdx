@@ -1,5 +1,5 @@
 ---
-slug: /get-started
+slug: /bluesky-api
 sidebar_position: 1
 hide_title: true
 ---
@@ -10,7 +10,7 @@ import DocsHero from '@site/src/components/DocsHero';
 import DocsCardGrid from '@site/src/components/DocsCardGrid';
 import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
 
-<DocsHero eyebrow="Learn Bluesky" title="Build on Bluesky">
+<DocsHero eyebrow="Bluesky API" title="Build on Bluesky">
   Make your first post to the Bluesky app via the API in under 5 minutes — then keep going with the guides below.
 </DocsHero>
 
@@ -21,10 +21,10 @@ import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
 
 <DocsCardGrid
   items={[
-    { title: 'Creating a post', body: 'Write your first record with rich text.', to: '/docs/get-started/creating-a-post' },
-    { title: 'Viewing feeds', body: 'Fetch and render timelines and custom feeds.', to: '/docs/get-started/viewing-feeds' },
-    { title: 'Likes & reposts', body: 'Create interactions between records.', to: '/docs/get-started/like-repost' },
-    { title: 'Profiles', body: 'Resolve handles, DIDs, and profile data.', to: '/docs/get-started/profiles' },
+    { title: 'Creating a post', body: 'Write your first record with rich text.', to: '/docs/bluesky-api/creating-a-post' },
+    { title: 'Viewing feeds', body: 'Fetch and render timelines and custom feeds.', to: '/docs/bluesky-api/viewing-feeds' },
+    { title: 'Likes & reposts', body: 'Create interactions between records.', to: '/docs/bluesky-api/like-repost' },
+    { title: 'Profiles', body: 'Resolve handles, DIDs, and profile data.', to: '/docs/bluesky-api/profiles' },
   ]}
 />
 
@@ -33,11 +33,11 @@ import DocItemTOCMobile from '@theme/DocItem/TOC/Mobile';
 The examples below use TypeScript, Python, Go, and `curl`. These are a few of the libraries available for atproto; for other languages and the full list of community-maintained SDKs, see [atproto.com/sdks](https://atproto.com/sdks).
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     Install [@atproto/api](https://www.npmjs.com/package/@atproto/api) using your preferred package manager.
 
     ```
-    yarn add @atproto/api
+    npm install @atproto/api
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -64,7 +64,7 @@ The examples below use TypeScript, Python, Go, and `curl`. These are a few of th
 Log in with your handle and an [app password](https://bsky.app/settings/app-passwords) to create an authentication session. (Use an app password rather than your main account password.)
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript
     import { AtpAgent } from '@atproto/api'
 
@@ -126,7 +126,7 @@ The `com.atproto.server.createSession` API endpoint returns a session object con
 * `refreshJwt`: a refresh token which lasts longer and is used only to update the session with a new access token
 
 <Tabs groupId="sdk" className="hiddenTabs">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     The agent object stores this session information for you, and will include it in the headers of its requests.
   </TabItem>
   <TabItem value="python" label="Python">
@@ -145,7 +145,7 @@ Now you can create a post by sending a POST request to the createRecord endpoint
 
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript
     await agent.post({
       text: 'Hello world! I posted this via the API.',
@@ -188,7 +188,7 @@ This will return an object containing the post's URI and a CID (a hash of the co
 
 
 <Tabs groupId="sdk" className="hiddenTabs">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```json
     {
         "uri": "at://did:plc:abc123..../app.bsky.feed.post/xyz...",
@@ -222,7 +222,7 @@ Check out your profile to see the post you just created!
 
 ## Next Steps
 
-- Keep going with the Learn Bluesky guides, like [creating a post with rich text](/docs/get-started/creating-a-post) or [viewing feeds](/docs/get-started/viewing-feeds).
+- Keep going with the Bluesky API guides, like [creating a post with rich text](/docs/bluesky-api/creating-a-post) or [viewing feeds](/docs/bluesky-api/viewing-feeds).
 - Building an app with end-user login? Use [OAuth](https://atproto.com/guides/about-oauth) for authentication instead of password auth (bots and command-line tools can stick with passwords).
 - Sync the network in realtime with [Jetstream](/docs/jetstream) or [the Relay](/docs/relay).
 - Find more tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials).

@@ -15,7 +15,7 @@ Feeds are lists of posts, paginated by cursors. Bluesky has a few types of feeds
 
 ## Viewing a user's timeline
 
-The Bluesky agent you created in the [Learn Bluesky](/docs/get-started) section has a dedicated `getTimeline` method that returns the authenticated user's timeline. It accepts two parameters: `cursor` and `limit`.
+The Bluesky agent you created in the [Bluesky API](/docs/bluesky-api) section has a dedicated `getTimeline` method that returns the authenticated user's timeline. It accepts two parameters: `cursor` and `limit`.
 
 | Parameter | Type     | Description                                           | Required | Default |
 | --------- | -------- | ----------------------------------------------------- | -------- | ------- |
@@ -23,7 +23,7 @@ The Bluesky agent you created in the [Learn Bluesky](/docs/get-started) section 
 | `limit`   | `number` | The number of posts to return per page (max `100`)    | No       | `50`    |
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.getTimeline"
     const { data } = await agent.getTimeline({
       cursor: "...",
@@ -76,7 +76,7 @@ In the example below, we fetch the first 30 posts from the ["Discover"
 custom feed](https://bsky.app/profile/bsky.app/feed/whats-hot).
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.app.bsky.feed.getFeed"
     const { data } = await agent.app.bsky.feed.getFeed(
       {
@@ -131,7 +131,7 @@ parameter, `feed`, which is the URI of the feed generator to fetch.
 | `feed`    | `string` | The URI of the feed generator to fetch | Yes      |         |
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.app.bsky.feed.getFeedGenerator"
     const { data } = await agent.app.bsky.feed.getFeedGenerator({
       feed: "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot",
@@ -178,7 +178,7 @@ Author feeds return posts by a single user.
 | `limit`   | `number` | The number of posts to return per page (max `100`)      | No       |                                                                                          | `50`                 |
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.getAuthorFeed"
     const { data } = await agent.getAuthorFeed({
       actor: 'did:plc:z72i7hdynmk6r22z27h6tvur',

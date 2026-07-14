@@ -16,7 +16,7 @@ blocking prevents interaction in both directions.
 Muting a user hides their posts from your feeds. Mutes are private — like Bookmarks, they are stored in the [Bluesky App](https://atproto.com/guides/overview#app-views), rather than in your PDS. Muting a user is as easy as liking a post or following a user.
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.mute"
       await agent.mute(did)
     ```
@@ -42,7 +42,7 @@ Muting a user hides their posts from your feeds. Mutes are private — like Book
 Easy peasy:
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.unmute"
       await agent.unmute(did)
     ```
@@ -70,7 +70,7 @@ Blocking a user prevents interaction and hides the user from the client experien
 Blocking users is as simple as muting, but requires creating a record directly.
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.app.bsky.graph.block.create"
     const { uri } = await agent.app.bsky.graph.block.create(
       { repo: agent.session.did },
@@ -127,7 +127,7 @@ Similar to likes and follows, unblocking a user is as simple as deleting the
 record.
 
 <Tabs groupId="sdk">
-  <TabItem value="ts" label="Typescript">
+  <TabItem value="ts" label="TypeScript">
     ```typescript title="agent.app.bsky.graph.block.delete"
     import { AtUri } from '@atproto/api'
 

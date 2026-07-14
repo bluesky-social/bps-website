@@ -61,7 +61,7 @@ const config = {
       async: true,
     },
   ],
-  title: "Bluesky",
+  title: "Bluesky Protocol Services",
   tagline: "High scale open social, unlocked for every builder.",
   favicon: "img/favicon.png",
 
@@ -115,7 +115,35 @@ const config = {
       },
     },
   ],
-  plugins: ["@docusaurus/plugin-ideal-image"],
+  plugins: [
+    "@docusaurus/plugin-ideal-image",
+    [
+      // Preserve inbound links after the get-started → bluesky-api and
+      // jetstream-backfill → jetstream-replay renames (see sidebars.js / the
+      // Jetstream launch restructure). Explicit list — the moved set is finite.
+      "@docusaurus/plugin-client-redirects",
+      {
+        redirects: [
+          { from: "/docs/get-started", to: "/docs/bluesky-api" },
+          ...[
+            "creating-a-post",
+            "viewing-feeds",
+            "viewing-threads",
+            "like-repost",
+            "profiles",
+            "following",
+            "muting-and-blocking",
+            "user-lists",
+            "custom-feeds",
+          ].map((page) => ({
+            from: `/docs/get-started/${page}`,
+            to: `/docs/bluesky-api/${page}`,
+          })),
+          { from: "/docs/jetstream-backfill", to: "/docs/jetstream-replay" },
+        ],
+      },
+    ],
+  ],
 
   // The HTTP/XRPC endpoint reference is no longer generated into this site. It
   // now lives as a standalone, OpenAPI-driven static site (see ../endpoints).
@@ -236,8 +264,8 @@ const config = {
             title: "Docs",
             items: [
               {
-                label: "Learn Bluesky",
-                to: "/docs/get-started",
+                label: "Bluesky API",
+                to: "/docs/bluesky-api",
               },
               {
                 label: "Jetstream",
@@ -290,6 +318,10 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
+        // `json` is not in prism-react-renderer v2's default bundle (unlike go,
+        // python, ts, sql), so ```json blocks rendered as plain text until it
+        // was added here.
+        additionalLanguages: ["json"],
       },
       algolia: {
         appId: "T5MN80JFZF",

@@ -10,7 +10,7 @@ const DOCS_LINKS = [
   { label: 'Protocol Services', to: '/docs/protocol-services' },
   { label: 'Jetstream', to: '/docs/jetstream' },
   { label: 'Relay', to: '/docs/relay' },
-  { label: 'Learn the Bluesky API', to: '/docs/get-started' },
+  { label: 'Bluesky API', to: '/docs/bluesky-api' },
   { label: 'About Bluesky Content', to: '/docs/about-bluesky-content' },
   { label: 'API Hosts and Auth', to: '/docs/api-directory' },
   { label: 'OAuth', to: '/docs/oauth-client' },

@@ -5,7 +5,7 @@ description: Stream records straight from Jetstream into Coop, an open-source mo
 
 import DocumentRecord from './_snippets/jetstream-coop-document-record.mdx';
 
-# Feeding Jetstream into a moderation tool
+# Streaming to moderation
 
 Most of the Jetstream guides so far end with data landing in *your* code: a
 webhook, a datastore, a notification. This one points Jetstream at a
@@ -14,16 +14,15 @@ open-source Trust & Safety platform from [Roost](https://roost.tools/). The goal
 is to get records off the network and in front of automated rules and human
 reviewers, with no glue service in the middle.
 
-The pipeline is small: point Jetstream at a collection, map each record onto a
-Coop *item type*, and `POST` it. No transformation service to run, no schema
-negotiation — the JSON Jetstream already hands you is most of the way there.
+The pipeline is small. Point Jetstream at a collection, map each record onto a
+Coop *item type*, and `POST` it.
 
 This guide uses [`site.standard.document`](https://pdsls.dev/at://did:plc:vmt7o7y6titkqzzxav247zrn/site.standard.document)
 as a record type; an article or
 blog post published to the network. You can optionally use [Jetstream-side slicing](/docs/jetstream#filtering-ask-for-just-your-slice) for Lexicons that produce an especially high volume of records.
 
 :::note Getting history, not just live
-The live tail keeps Coop fed with new documents. To backfill from existing records, use [tap](https://atproto.com/guides/backfilling).
+The live tail keeps Coop fed with new documents. To replay data from the network, refer back to the [Jetstream Replay](/docs/jetstream-replay) docs.
 :::
 
 ## The data you'll be moving
@@ -38,25 +37,25 @@ The fields you can rely on being present are `title`, `textContent`, `site`,
 `tags`, `updatedAt`, and `coverImage` are optional, so you need to handle their absence.
 
 :::caution `coverImage` is a blob, not a URL
-`coverImage` is a [blob reference](/docs/about-bluesky-content/video), not a
+`coverImage` is a [blob reference](https://atproto.com/guides/images-and-video), not a
 fetchable link. Coop fetches media fields by URL (for HMA hashing and reviewer
 display), so you can't hand it the raw blob ref. To use the image you'd resolve
-the blob to a CDN URL first — e.g.
-`https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{$link}@jpeg`. This guide
+the blob to a CDN URL first (e.g.
+`https://cdn.bsky.app/img/feed_thumbnail/plain/{did}/{$link}@jpeg`). This guide
 maps the **text fields only** and leaves images out of the main path.
 :::
 
 ## Set up the item types in Coop
 
 Coop needs to know the shape of what you're sending before it can render or
-rule-match it. That's a one-time setup step, not middleware: every item you
+rule-match it. That's a one-time setup step: every item you
 submit references an **item type**, and its `data` must match that type's schema.
 See Coop's [Basic Concepts](https://roostorg.github.io/coop/latest/user/concepts.html)
 for the full model.
 
-You'll create two: a **Bluesky User** for the document's author, and a
+You'll create two types: a **Bluesky User** for the document's author, and a
 **Standard Document** for the document itself. Modelling the author as its own
-item is what lets a reviewer pivot on the DID — every document, plus any reports
+item is what lets a reviewer pivot on the DID; every document, plus any reports
 submitted later via `com.atproto.moderation.createReport`, collects on one
 record. A plain `authorDid` string would just repeat in a column.
 
@@ -95,40 +94,34 @@ One gotcha worth knowing before you build the Document schema:
   permalink instead. This is more useful for a reviewer anyway, since it's
   clickable. That conversion is the one transform the bridge does.
 
-Once both types are created, copy each one's **ID** from the dashboard — you'll
+Once both types are created, copy each one's **ID** from the dashboard. You'll
 pass them as `typeId` on every item. Then create an **API key** under
 **Settings → API Keys**.
 
 ## The bridge
 
-That's the whole pipeline: read the collection off Jetstream, map each record
+This is the flow: read the collection off Jetstream, map each record
 onto the item type, and batch-`POST` to Coop's
 [Submit Items API](https://roostorg.github.io/coop/latest/api/items.html). It's
 asynchronous; Coop returns `202 Accepted` and runs your
 [proactive rules](https://roostorg.github.io/coop/latest/user/automated-enforcement.html)
 against each item on a background worker.
 
-Coop's API isn't an atproto service, so this side is just a WebSocket and an
+Coop's API isn't an atproto service, so this side is just a WebSocket (via the [Jetstream SDK](/docs/jetstream-sdk)) and an
 authenticated `fetch`.
 
 ```typescript
-import WebSocket from "ws"; // npm install ws
+import { Jetstream } from "bsky-jetstream-preview"; // npm install bsky-jetstream-preview
 
 const COOP_URL = "http://localhost:8080/api/v1/items/async/";
 const API_KEY = "…"; // Settings → API Keys
 const USER_TYPE_ID = "…"; // the Bluesky User item type's ID
 const DOC_TYPE_ID = "…"; // the Standard Document item type's ID
 
-// Server-side filter does the work: one low-volume collection, whole network.
-const JETSTREAM =
-  "wss://jetstream2.us-east.bsky.network/subscribe" +
-  "?wantedCollections=site.standard.document";
-
 const BATCH = 25; // the items API accepts batches; one request, many items
 const FLUSH_MS = 3000; // ...but don't let a slow collection sit unsent
 
-// Resolve a DID to its handle once and cache. Falls back to the DID so an
-// appview hiccup never stalls ingest.
+// Resolve a DID to its handle, cached; falls back to the DID so an appview hiccup never stalls ingest.
 const handleCache = new Map<string, string>();
 async function resolveHandle(did: string): Promise<string> {
   const cached = handleCache.get(did);
@@ -146,9 +139,7 @@ async function resolveHandle(did: string): Promise<string> {
   return did;
 }
 
-// Map a Jetstream commit onto two Coop items: the User for the author (so all
-// records and any later reports for that DID collect on one item) and the
-// Document itself.
+// Map a commit onto two Coop items — the author (User) and the Document — so records and later reports collect on one DID.
 async function toItems(msg: any) {
   const did: string = msg.did;
   const record = msg.commit.record;
@@ -181,8 +172,7 @@ async function toItems(msg: any) {
     data: docData,
   };
 
-  // User first: if Coop validates the Related Item link on intake, the target
-  // exists by the time it gets to the Document.
+  // User first, so the Related Item link resolves when Coop validates the Document.
   return [user, document];
 }
 
@@ -197,30 +187,30 @@ async function submit(items: unknown[]) {
   }
 }
 
+// The SDK owns the socket, decoding, and reconnects; the server-side filter does the rest.
+const jetstream = new Jetstream("https://jetstream2.us-east.bsky.network");
+
 let buffer: unknown[] = [];
 let lastFlush = Date.now();
 
-const ws = new WebSocket(JETSTREAM);
-ws.on("message", async (raw) => {
-  const msg = JSON.parse(raw.toString());
-  if (msg.kind !== "commit") return;
-  if (!["create", "update"].includes(msg.commit.operation)) return;
-  buffer.push(...(await toItems(msg)));
+for await (const evt of jetstream.live({ collections: ["site.standard.document"] })) {
+  if (evt.kind !== "commit") continue;
+  if (!["create", "update"].includes(evt.commit.operation)) continue;
+  buffer.push(...(await toItems(evt)));
 
   if (buffer.length >= BATCH || Date.now() - lastFlush >= FLUSH_MS) {
-    // Snapshot and clear before the async POST so new items arriving during
-    // the request go into the next batch, not this one.
+    // Snapshot and clear before the async POST so items arriving mid-request land in the next batch.
     const batch = buffer;
     buffer = [];
     lastFlush = Date.now();
     void submit(batch);
   }
-});
+}
 ```
 
 Leave that running and Coop fills up with documents. Each submission is keyed on
 the record's `at://` URI, so [Jetstream's at-least-once
-delivery](/docs/jetstream#resuming-where-you-left-off) is harmless — re-submitting
+delivery](/docs/jetstream#resuming-where-you-left-off) is harmless. Re-submitting
 the same URI updates the existing item rather than duplicating it. To survive a
 restart, persist the last `cursor` and reconnect with `?cursor=N`, exactly as in
 the other Jetstream guides.
@@ -253,7 +243,7 @@ setup — create a queue and a routing rule — separate from ingest.)
 
 Actioning a document in Coop should *do* something back on the network. Coop's
 model for that is [Actions](https://roostorg.github.io/coop/latest/api/actions.html):
-you define an action (say, *Label as spam*) with a callback URL, and when a
+you define an action (e.g. *Label as spam*) with a callback URL, and when a
 moderator (or a rule) applies it, Coop `POST`s the decision to your endpoint.
 That's where you translate a Coop decision into an atproto
 [moderation label](https://atproto.com/guides/labels).
@@ -337,8 +327,10 @@ To stand up an atproto Labeler, refer to:
 
 - **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints this
   builds on.
-- **[Backfilling with Jetstream](/docs/jetstream-backfill)** — load the document
-  back catalogue before going live.
+- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client used for the
+  stream above, in place of a hand-rolled WebSocket.
+- **[Network Replay with Jetstream](/docs/jetstream-replay)** — replay the
+  document back catalogue from history before going live.
 - **[Forwarding to webhooks](/docs/jetstream-webhooks)** — the same ingest shape,
   pointed at a chat channel instead of a moderation tool.
 - **[Coop documentation](https://roostorg.github.io/coop/)** — item types,

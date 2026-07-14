@@ -542,7 +542,7 @@ export default function Home() {
               title="Bluesky API"
               what="Develop against Bluesky. Work with profiles, posts, threads, relationships, interactions, and feeds."
               cta="Learn More"
-              to="/docs/get-started"
+              to="/docs/bluesky-api"
             />
             <FriendlyCard
               title="HTTP Reference"
