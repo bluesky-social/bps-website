@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Resolving Identities
 
-Identities in the Bluesky network consist of multiple parts:
+Identities on the AT Protocol network consist of multiple parts:
 
 - **DIDs**: unique, stable, global account IDs. They look like `did:plc:ewvi7nxzyoun6zhxrhs64oiz`. Details are in the [atproto specs](https://atproto.com/specs/did).
 - **Handles**: updatable, human-readable usernames for DIDs. They look like `atproto.bsky.social` or `atproto.com`. Details are in the [atproto specs](https://atproto.com/specs/handle).
@@ -29,7 +29,7 @@ It is strongly recommended to use identity caches for large backend services. Ca
 ## Advanced Tips
 
 - it may be appropriate to retry identity resolution when account data validation fails in certain ways. For example, if a commit signatures fails to validate, it might be worth purging any identity cache and directly re-resolving the DID to see if the signing keys were updated. If feed generator API requests fail, an intermediate service might want to re-resolve the service DID document to see if the service endpoint moved.
-- the DID PLC registry has a global operation log API endpoint, which can be used to poll for identity updates. The Relay firehose also includes identity update events. Both of these feeds can be used to proactively update identity caches while making fewer network calls
+- the DID PLC registry has a global operation log API endpoint, which can be used to poll for identity updates. Relay firehoses also include identity update events. Both of these feeds can be used to proactively update identity caches while making fewer network calls
 - remember that the global DNS system has it's own caching and TTL behaviors. In some cases it may be beneficial to retry handle resolutions "harder", for example using some degree of recursive resolution, or an alternative DNS server
 - depending on the use-case, services might want to proactively re-validate identities when they expire, or they might wait to "read-through" the cache
 - use best-practices for HTTP requests: reasonable timeouts and retries, exponential backoff, handling HTTP status codes correctly (including 429 "Rate-Limit Exceeded" and 404 "Not Found")

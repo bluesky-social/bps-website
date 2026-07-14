@@ -1,6 +1,6 @@
 ---
 sidebar_position: 2
-description: The Relay aggregates the whole network into a single firehose. These are the relays Bluesky operates, and how to connect to them.
+description: A Relay aggregates the whole network into a single firehose. These are the relays Bluesky operates, and how to connect to them.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 # Relay
 
 Every public action on the network — every post, like, follow, and reply across
-millions of accounts — is an event. The **Relay** bundles all of those events
+millions of accounts — is an event. A **Relay** bundles all of those events
 into a single realtime stream, the [**firehose**](/docs/consuming-the-firehose),
 and hands it to you over one connection.
 
@@ -28,7 +28,7 @@ everything as one ordered, de-duplicated stream.
        +-------------+-------------+
                      |
                      v
-               +-----------+                      the Relay aggregates, verifies,
+               +-----------+                      a Relay aggregates, verifies,
                |   Relay   |                      and de-duplicates them into one
                +-----+-----+                      ordered stream
                      |
@@ -109,11 +109,11 @@ for a full, runnable walkthrough.
 The firehose is core network infrastructure, and its volume grows with the
 network. If you only care about a few collections (say, just posts and likes)
 and would rather work with plain JSON than binary CBOR, you probably want
-[**Jetstream**](/docs/jetstream) instead. Jetstream consumes the relay's
+[**Jetstream**](/docs/jetstream) instead. Jetstream consumes a Relay's
 firehose on your behalf and fans out a filtered, compressed JSON stream. This is far
 cheaper to operate for most feed generators, bots, and labelers.
 
-Reach for the relay firehose directly when you need:
+Reach for a Relay firehose directly when you need:
 
 - **completeness:** every record on the network, with no filtering
 - **cryptographic verification:** the signed commits and MST proofs needed to
@@ -122,7 +122,7 @@ Reach for the relay firehose directly when you need:
 
 ## Rate limits and abuse protection
 
-In addition to aggregating events, the relay enforces rate limits and abuse
+In addition to aggregating events, a relay enforces rate limits and abuse
 protections across the PDSes it crawls, which keeps the network available even
 when an individual host misbehaves. If you're consuming at scale, see
 [Rate Limits](/docs/rate-limits) for the limits that apply to relay and PDS

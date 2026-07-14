@@ -112,6 +112,8 @@
 }
 .bps-home .hero .lede em.you  { border-bottom-color: var(--bps-blue-dark); }
 .bps-home .hero .lede em.atmo { border-bottom-color: var(--bps-ember-dark); }
+.bps-home .hero .lede a { color: inherit; text-decoration: none; }
+.bps-home .hero .lede a:hover em { border-bottom-width: 3px; }
 .bps-home .hero .cta-row {
   margin-top: 36px;
   display: flex; gap: 14px; align-items: center;
@@ -260,6 +262,11 @@
   color: var(--bps-ink);
 }
 .bps-home .proof .cta h2.next { margin-top: 40px; }
+.bps-home .proof .cta h2 a {
+  color: inherit; text-decoration: none;
+  border-bottom: 2px solid var(--bps-ember-dark);
+}
+.bps-home .proof .cta h2 a:hover { border-bottom-width: 3px; }
 .bps-home .proof .cta p {
   margin: 0 0 18px;
   font-family: var(--bps-font-sans);

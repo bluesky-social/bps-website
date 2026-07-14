@@ -3,7 +3,7 @@ slug: /protocol-services
 title: Get Started
 sidebar_label: Get Started
 hide_title: true
-description: Bluesky runs the public infrastructure of the AT Protocol — Jetstream, the Relay, and the app API — as open services you can build on today, no permission required. Start with Jetstream.
+description: Bluesky operates public infrastructure for the AT Protocol — Jetstream, Relay, and the Bluesky API — as open services you can build on today, no permission required. Start with Jetstream.
 ---
 
 import DocsHero from '@site/src/components/DocsHero';
@@ -24,7 +24,7 @@ Bluesky runs on a public social network of users' own individual data repositori
 **Many AT Protocol services and infrastructure are provided by Bluesky.** They sit at different
 layers, from a jetstream of everything happening right now, down to the
 cryptographically verifiable raw firehose; but they all share the same open data
-and the same open access. These docs describe the public protocol services and show how to build on them.
+and the same open access. These docs describe the public protocol services and show how to build on them, or host your own.
 
 **Jetstream** is the fastest way to stream and query real network data.
 
@@ -46,13 +46,13 @@ replaying it from history.
 <DocsCardGrid
   items={[
     { title: 'Jetstream →', body: 'Filtered, decoded JSON over one WebSocket. Live, historical, or both. The place to start.', to: '/docs/jetstream' },
-    { title: 'The Relay', body: 'The full firehose in its raw, cryptographically verifiable form — every record, binary-encoded.', to: '/docs/relay' },
+    { title: 'Relay', body: 'The full firehose in its raw, cryptographically verifiable form — every record, binary-encoded.', to: '/docs/relay' },
     { title: 'HTTP Reference', body: 'Bluesky app endpoints: profiles, posts, threads, feeds, and interactions over HTTP.', to: 'https://endpoints.bsky.app' },
     { title: 'Bluesky API', body: 'Bluesky API docs.', to: '/docs/bluesky-api' },
   ]}
 />
 
-Use the **Relay** when you need every record with no filtering, or the
+Use a **Relay** when you need every record with no filtering, or the
 proofs to verify repository state yourself. Use the **Bluesky API** when you're
 building against the Bluesky app's data model directly — see [API hosts and
 auth](/docs/api-directory) for endpoints and authentication, or browse the [full
