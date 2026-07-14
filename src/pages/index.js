@@ -389,10 +389,10 @@ export default function Home() {
   const atprotoGlobe = useBaseUrl(ATPROTO_GLOBE_SRC)
   useProof()
   return (
-    <Layout
-      title="Bluesky Developer Platform"
-      description="High scale open social, unlocked for every builder. Explore guides and tutorials to the Bluesky API."
-    >
+    // No `title` prop: the homepage tab should read just the site title
+    // ("Bluesky Protocol Services") — Docusaurus appends it to any page
+    // title, so passing one here would duplicate it.
+    <Layout description="High scale open social, unlocked for every builder. Bluesky operates public infrastructure for the AT Protocol — Jetstream, Relay, and the Bluesky API — as open services anyone can build on.">
       <main className="bps-home">
         {/* ===== HERO ===== */}
         <section className="hero">
@@ -423,7 +423,14 @@ export default function Home() {
               streaming to you in <em>realtime</em>.
               <br />
               What will <em className="you">you</em> build on the{' '}
-              <em className="atmo">Atmosphere</em>?
+              <a
+                href="https://atproto.com/guides/understanding-atproto"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <em className="atmo">Atmosphere</em>
+              </a>
+              ?
             </p>
             <div className="cta-row">
               <Link className="btn primary" to="/docs/protocol-services">
@@ -493,7 +500,14 @@ export default function Home() {
             <h2 className="next">
               Backed by
               <br />
-              AT&nbsp;Protocol.
+              <a
+                href="https://atproto.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                AT&nbsp;Protocol
+              </a>
+              .
             </h2>
             <p>
               Lay foundations on top of an open network that can't be taken
