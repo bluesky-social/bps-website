@@ -25,43 +25,35 @@ A thread gate may have up to 5 rules.
     You set a thread gate by creating a **app.bsky.feed.threadgate** record with the same rkey as the post you're gating.
 
     ```ts
+    import { currentDatetimeString } from '@atproto/lex'
+    import { AtUri } from '@atproto/syntax'
+    import { app } from '@bsky.app/sdk/lexicons'
+
     const {rkey} = new AtUri(postUri)
 
-    await agent.com.atproto.repo.createRecord({
-      repo: agent.session.did,
-      collection: 'app.bsky.feed.threadgate',
-      rkey,
-      record: {
-        $type: 'app.bsky.feed.threadgate',
-        post: postUri,
-        allow: [
-          // allow mentioned users
-          {$type: 'app.bsky.feed.threadgate#mentionRule'},
-          // allow followed users
-          {$type: 'app.bsky.feed.threadgate#followingRule'},
-          // allow list members
-          {$type: 'app.bsky.feed.threadgate#listRule', list: listUri},
-        ],
-        createdAt: new Date().toISOString()
-      }
-    })
+    await client.create(app.bsky.feed.threadgate, {
+      post: postUri,
+      allow: [
+        // allow mentioned users
+        {$type: 'app.bsky.feed.threadgate#mentionRule'},
+        // allow followed users
+        {$type: 'app.bsky.feed.threadgate#followingRule'},
+        // allow list members
+        {$type: 'app.bsky.feed.threadgate#listRule', list: listUri},
+      ],
+      createdAt: currentDatetimeString()
+    }, { rkey })
     ```
 
     If a thread gate record is present but empty, then nobody can reply.
 
     ```ts
-    await agent.com.atproto.repo.createRecord({
-      repo: agent.session.did,
-      collection: 'app.bsky.feed.threadgate',
-      rkey,
-      record: {
-        $type: 'app.bsky.feed.threadgate',
-        post: postUri,
-        // empty allow-list, nobody can reply
-        allow: [],
-        createdAt: new Date().toISOString()
-      }
-    })
+    await client.create(app.bsky.feed.threadgate, {
+      post: postUri,
+      // empty allow-list, nobody can reply
+      allow: [],
+      createdAt: currentDatetimeString()
+    }, { rkey })
     ```
 
     If a thread gate record is not present, then anybody can reply.

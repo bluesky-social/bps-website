@@ -17,8 +17,10 @@ Muting a user hides their posts from your feeds. Mutes are private — like Book
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.mute"
-      await agent.mute(did)
+    ```typescript title="muteActor"
+      import { muteActor } from '@bsky.app/sdk'
+
+      await client.call(muteActor, { actor: did })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -43,8 +45,10 @@ Easy peasy:
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.unmute"
-      await agent.unmute(did)
+    ```typescript title="unmuteActor"
+      import { unmuteActor } from '@bsky.app/sdk'
+
+      await client.call(unmuteActor, { actor: did })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -71,14 +75,14 @@ Blocking users is as simple as muting, but requires creating a record directly.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.app.bsky.graph.block.create"
-    const { uri } = await agent.app.bsky.graph.block.create(
-      { repo: agent.session.did },
-      {
-        subject: blockingUserDid,
-        createdAt: new Date().toISOString()
-      },
-    )
+    ```typescript title="client.create"
+    import { currentDatetimeString } from '@atproto/lex'
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    const { uri } = await client.create(app.bsky.graph.block, {
+      subject: blockingUserDid,
+      createdAt: currentDatetimeString(),
+    })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -107,8 +111,8 @@ Blocking users is as simple as muting, but requires creating a record directly.
   </TabItem>
 </Tabs>
 
-The `agent.app.bsky.graph.block.create` method takes two position parameters.
-First, the repo:
+Creating a block takes two pieces of information. First, the repo the record is
+written to (the TypeScript client fills this in from your session):
 
 | Parameter | Type     | Description                       | Required |
 | --------- | -------- | --------------------------------- | -------- |
@@ -128,17 +132,12 @@ record.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.app.bsky.graph.block.delete"
-    import { AtUri } from '@atproto/api'
+    ```typescript title="client.delete"
+    import { AtUri } from '@atproto/syntax'
 
     const { rkey } = new AtUri(uri)
 
-    await agent.app.bsky.graph.block.delete(
-      {
-        repo: agent.session.did,
-        rkey,
-      },
-    )
+    await client.delete(app.bsky.graph.block, { rkey })
     ```
 
   </TabItem>

@@ -63,7 +63,9 @@ There are two purposes:
     Call app.bsky.graph.getList to view a list and its members.
 
     ```ts
-    agent.app.bsky.graph.getList({
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    await client.call(app.bsky.graph.getList, {
       list: uri,
       limit: 30,
     })
@@ -74,26 +76,26 @@ There are two purposes:
     ```ts title="getList() output"
     {
       cursor?: string;
-      list: AppBskyGraphDefs.ListView;
-      items: AppBskyGraphDefs.ListItemView[];
+      list: app.bsky.graph.defs.ListView;
+      items: app.bsky.graph.defs.ListItemView[];
     }
     ```
 
     Use the cursor to paginate through the full list.
 
     ```ts
-    import {AppBskyGraphDefs} from '@atproto/api'
+    import { app } from '@bsky.app/sdk/lexicons'
 
     let cursor: string | undefined
-    let members: AppBskyGraphDefs.ListItemView[] = []
+    let members: app.bsky.graph.defs.ListItemView[] = []
     do {
-      let res = await agent.app.bsky.graph.getList({
+      const res = await client.call(app.bsky.graph.getList, {
         list: uri,
         limit: 30,
         cursor
       })
-      cursor = res.data.cursor
-      members = members.concat(res.data.items)
+      cursor = res.cursor
+      members = members.concat(res.items)
     } while (cursor)
     ```
   </TabItem>
@@ -106,7 +108,7 @@ There are two purposes:
     Call app.bsky.graph.getLists to view lists created by an actor.
 
     ```ts
-    agent.app.bsky.graph.getLists({
+    await client.call(app.bsky.graph.getLists, {
       actor: didOrHandle,
       limit: 30
     })
@@ -117,7 +119,7 @@ There are two purposes:
     ```ts title="getLists() output"
     {
       cursor?: string;
-      lists: AppBskyGraphDefs.ListView[];
+      lists: app.bsky.graph.defs.ListView[];
     }
     ```
 
@@ -132,7 +134,7 @@ There are two purposes:
     Call app.bsky.graph.getListMutes to view lists muted by the current actor.
 
     ```ts
-    agent.app.bsky.graph.getListMutes({
+    await client.call(app.bsky.graph.getListMutes, {
       limit: 30
     })
     ```
@@ -142,7 +144,7 @@ There are two purposes:
     ```ts title="getListMutes() output"
     {
       cursor?: string;
-      lists: AppBskyGraphDefs.ListView[];
+      lists: app.bsky.graph.defs.ListView[];
     }
     ```
 
@@ -157,7 +159,7 @@ There are two purposes:
     Call app.bsky.graph.getListBlocks to view lists blocked by the current actor.
 
     ```ts
-    agent.app.bsky.graph.getListBlocks({
+    await client.call(app.bsky.graph.getListBlocks, {
       limit: 30
     })
     ```
@@ -167,7 +169,7 @@ There are two purposes:
     ```ts title="getListBlocks() output"
     {
       cursor?: string;
-      lists: AppBskyGraphDefs.ListView[];
+      lists: app.bsky.graph.defs.ListView[];
     }
     ```
 
@@ -191,13 +193,13 @@ There are two purposes:
     For example:
 
     ```ts
-    const res = await agent.app.bsky.graph.getList({
+    const res = await client.call(app.bsky.graph.getList, {
       list: listUri
     })
-    if (res.data.list.viewer?.muted) {
+    if (res.list.viewer?.muted) {
       // is muting list
     }
-    if (res.data.list.viewer?.blocked) {
+    if (res.list.viewer?.blocked) {
       // is blocking list
     }
     ```
@@ -211,13 +213,15 @@ There are two purposes:
     Call app.bsky.graph.muteActorList to mute a list. The mute state is private.
 
     ```ts
-    await agent.muteModList(listUri)
+    import { muteActorList, unmuteActorList } from '@bsky.app/sdk'
+
+    await client.call(muteActorList, { list: listUri })
     ```
 
     Call app.bsky.graph.unmuteActorList to unmute a list.
 
     ```ts
-    await agent.unmuteModList(listUri)
+    await client.call(unmuteActorList, { list: listUri })
     ```
   </TabItem>
 </Tabs>
@@ -228,16 +232,18 @@ There are two purposes:
   <TabItem value="ts" label="TypeScript">
     Blocks are public records. You block a list by creating the **app.bsky.graph.listblock** record.
 
-    This is simplified for you with the `blockModList` method:
+    This is simplified for you with the `blockActorList` action:
 
     ```ts
-    await agent.blockModList(listUri)
+    import { blockActorList, unblockActorList } from '@bsky.app/sdk'
+
+    await client.call(blockActorList, { list: listUri })
     ```
 
-    You delete the listblock record to unblock the list. This is also simplified for you with `unblockModList`
+    You delete the listblock record to unblock the list. This is also simplified for you with `unblockActorList`
 
     ```ts
-    await agent.unblockModList(listUri)
+    await client.call(unblockActorList, { list: listUri })
     ```
   </TabItem>
 </Tabs>
@@ -249,16 +255,14 @@ There are two purposes:
     Create a list by creating a **app.bsky.graph.list** record.
 
     ```ts
-    await agent.com.atproto.repo.createRecord({
-      repo: agent.session.did,
-      collection: 'app.bsky.graph.list',
-      record: {
-        $type: 'app.bsky.graph.list',
-        purpose: 'app.bsky.graph.defs#curatelist',
-        name: 'Pals',
-        description: 'My good pals',
-        createdAt: new Date().toISOString()
-      }
+    import { currentDatetimeString } from '@atproto/lex'
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    await client.create(app.bsky.graph.list, {
+      purpose: 'app.bsky.graph.defs#curatelist',
+      name: 'Pals',
+      description: 'My good pals',
+      createdAt: currentDatetimeString()
     })
     ```
   </TabItem>
@@ -271,22 +275,19 @@ There are two purposes:
     Update a list by updating its **app.bsky.graph.list** record.
 
     ```ts
-    const {repo, collection, rkey} = new AtUri(listUri)
-    
-    // get the current record
-    const {value: record} = await agent.com.atproto.repo.getRecord({repo, collection, rkey})
+    import { AtUri } from '@atproto/syntax'
 
-    // modify the fields
-    record.name = newName
-    record.description = newDescription
-    // etc
-    
-    await agent.com.atproto.repo.putRecord({
-      repo: currentAccount.did,
-      collection,
-      rkey,
-      record,
-    })
+    const { rkey } = new AtUri(listUri)
+
+    // get the current record
+    const { value: record } = await client.get(app.bsky.graph.list, { rkey })
+
+    // modify the fields and write it back
+    await client.put(app.bsky.graph.list, {
+      ...record,
+      name: newName,
+      description: newDescription,
+    }, { rkey })
     ```
   </TabItem>
 </Tabs>
@@ -298,8 +299,8 @@ There are two purposes:
     Delete a list by deleting its **app.bsky.graph.list** record.
 
     ```ts
-    const {repo, collection, rkey} = new AtUri(listUri)
-    await agent.com.atproto.repo.deleteRecord({repo, collection, rkey})
+    const { rkey } = new AtUri(listUri)
+    await client.delete(app.bsky.graph.list, { rkey })
     ```
   </TabItem>
 </Tabs>
@@ -311,15 +312,10 @@ There are two purposes:
     Add a user to a list by creating a **app.bsky.graph.listitem** record.
 
     ```ts
-    await agent.com.atproto.repo.createRecord({
-      repo: agent.session.did,
-      collection: 'app.bsky.graph.listitem',
-      record: {
-        $type: 'app.bsky.graph.listitem',
-        subject: userDid,
-        list: listUri,
-        createdAt: new Date().toISOString()
-      }
+    await client.create(app.bsky.graph.listitem, {
+      subject: userDid,
+      list: listUri,
+      createdAt: currentDatetimeString()
     })
     ```
   </TabItem>
@@ -332,8 +328,8 @@ There are two purposes:
     Remove a user from a list by deleting their **app.bsky.graph.listitem** record.
 
     ```ts
-    const {repo, collection, rkey} = new AtUri(listItemUri)
-    await agent.com.atproto.repo.deleteRecord({repo, collection, rkey})
+    const { rkey } = new AtUri(listItemUri)
+    await client.delete(app.bsky.graph.listitem, { rkey })
     ```
   </TabItem>
 </Tabs>

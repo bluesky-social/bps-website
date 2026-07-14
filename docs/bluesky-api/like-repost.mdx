@@ -17,8 +17,10 @@ The URI indicates the repository DID, collection, and record key. The CID is the
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.like"
-      const { uri } = await agent.like(uri, cid)
+    ```typescript title="like"
+      import { like } from '@bsky.app/sdk'
+
+      const { uri: likeUri } = await client.call(like, { uri, cid })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -55,8 +57,10 @@ In the case of a Like, unliking the post means deleting the Like record.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.deleteLike"
-      await agent.deleteLike(uri)
+    ```typescript title="deleteLike"
+      import { deleteLike } from '@bsky.app/sdk'
+
+      await client.call(deleteLike, likeUri)
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -82,7 +86,7 @@ In the case of a Like, unliking the post means deleting the Like record.
 
 | Parameter | Type     | Description                    | Required |
 | --------- | -------- | ------------------------------ | -------- |
-| `uri`     | `string` | The URI of the post to un-like | Yes      |
+| `uri`     | `string` | The URI of the like record to delete | Yes      |
 
 ## Reposting a post
 
@@ -91,8 +95,10 @@ unliking.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.repost"
-      const { uri } = await agent.repost(uri, cid)
+    ```typescript title="repost"
+      import { repost } from '@bsky.app/sdk'
+
+      const { uri: repostUri } = await client.call(repost, { uri, cid })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -129,8 +135,10 @@ we want to delete.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.deleteRepost"
-      await agent.deleteRepost(uri)
+    ```typescript title="deleteRepost"
+      import { deleteRepost } from '@bsky.app/sdk'
+
+      await client.call(deleteRepost, repostUri)
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -154,7 +162,7 @@ we want to delete.
 
 | Parameter | Type     | Description                      | Required |
 | --------- | -------- | -------------------------------- | -------- |
-| `uri`     | `string` | The URI of the post to un-repost | Yes      |
+| `uri`     | `string` | The URI of the repost record to delete | Yes      |
 
 ## Quote reposting
 

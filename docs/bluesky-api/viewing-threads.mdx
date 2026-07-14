@@ -18,9 +18,12 @@ A _thread_ refers to a post, its replies (descendants), and its parents
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.getPostThread"
-      const res = await agent.getPostThread({uri: 'at://...'})
-      const { thread } = res.data
+    ```typescript title="app.bsky.feed.getPostThread"
+      import { app } from '@bsky.app/sdk/lexicons'
+
+      const { thread } = await client.call(app.bsky.feed.getPostThread, {
+        uri: 'at://...',
+      })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
