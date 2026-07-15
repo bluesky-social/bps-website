@@ -1,0 +1,544 @@
+/**
+ * "How it works" — the storytelling funnel page (react.dev-style intro).
+ *
+ * Shares the landing page's design vocabulary (BPS palette + spacing from
+ * custom.css, dark code windows, mono-UI labels) but is scoped under
+ * `.bps-hiw` so, like `.bps-home`, the dark opinionated theme never leaks
+ * into the Docusaurus doc shell.
+ */
+
+.bps-hiw {
+  font-family: var(--ifm-font-family-base);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--bps-paper);
+  color: var(--bps-ink);
+  font-feature-settings:
+    'ss01' on,
+    'cv11' on;
+}
+.bps-hiw *,
+.bps-hiw *::before,
+.bps-hiw *::after {
+  box-sizing: border-box;
+}
+.bps-hiw a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============== DOC-CHROME SUPPRESSION ==============
+ * The page is a doc (docs/how-it-works.mdx) so the real sidebar + mobile
+ * drawer render on the route, but the body wants the full-bleed treatment of
+ * a standalone page. Docusaurus puts `docs-doc-id-how-it-works` on <html>,
+ * which lets us strip the doc column's chrome for this one route. */
+html.docs-doc-id-how-it-works main[class*='docMainContainer'] {
+  background: var(--bps-paper);
+}
+html.docs-doc-id-how-it-works .theme-doc-breadcrumbs {
+  display: none;
+}
+html.docs-doc-id-how-it-works main[class*='docMainContainer'] > .container {
+  max-width: none;
+  padding: 0 !important;
+}
+html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row {
+  margin: 0;
+}
+html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
+  padding: 0;
+  max-width: 100% !important;
+}
+
+/* every band caps at 1100px and centers, matching the homepage rhythm */
+.bps-hiw .hiw-hero,
+.bps-hiw .beat {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+/* ============== HERO ============== */
+.bps-hiw .hiw-hero {
+  padding-top: calc(var(--bps-space-3xl) * 2 + var(--bps-space-xl) * 2);
+  padding-bottom: calc(var(--bps-space-xl) * 2);
+}
+.bps-hiw .hiw-hero .eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--bps-docs-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bps-ember-dark, #fb923c);
+}
+.bps-hiw .hiw-hero h1 {
+  margin: 0;
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  color: var(--bps-ink);
+}
+.bps-hiw .hiw-hero h1 .quiet {
+  color: var(--bps-ink-muted);
+  font-weight: 700;
+}
+.bps-hiw .hiw-hero .lede {
+  margin: 24px 0 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--bps-ink-soft);
+  max-width: 62ch;
+}
+.bps-hiw .hiw-hero .lede b {
+  color: var(--bps-ink);
+}
+
+/* the four-step "map" breadcrumb under the lede */
+.bps-hiw .hiw-path {
+  margin-top: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  font-family: var(--bps-docs-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bps-ink-muted);
+}
+.bps-hiw .hiw-path .seg {
+  padding: 5px 10px;
+  border: 1px solid var(--bps-rule-2);
+  border-radius: var(--bps-radius-md);
+  color: var(--bps-ink-soft);
+  background: color-mix(in srgb, var(--bps-paper-2) 60%, transparent);
+}
+.bps-hiw .hiw-path .seg.lit {
+  border-color: color-mix(in srgb, var(--bps-blue-dark) 55%, transparent);
+  color: var(--bps-ink);
+}
+.bps-hiw .hiw-path .arrow {
+  color: var(--bps-ink-faint);
+}
+
+/* ============== BEATS ============== */
+.bps-hiw .beat {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 48px;
+  align-items: start;
+  padding-top: 72px;
+  padding-bottom: 72px;
+  border-top: 1px solid var(--bps-rule);
+}
+/* grid items default to min-width:auto, which lets a wide <pre> blow the
+ * column out past the viewport instead of scrolling inside its window */
+.bps-hiw .beat > * {
+  min-width: 0;
+}
+/* stacked variant: copy on top, stage full-width below (lexicon grid, live stream) */
+.bps-hiw .beat.stacked {
+  display: block;
+}
+.bps-hiw .beat.stacked .beat-stage {
+  margin-top: 40px;
+}
+
+.bps-hiw .beat-num {
+  display: block;
+  margin-bottom: 14px;
+  font-family: var(--bps-docs-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--bps-blue-dark);
+}
+.bps-hiw .beat h2 {
+  margin: 0 0 16px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--bps-ink);
+}
+.bps-hiw .beat-copy p {
+  margin: 0 0 14px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--bps-ink-soft);
+  max-width: 52ch;
+}
+.bps-hiw .beat-copy p b {
+  color: var(--bps-ink);
+}
+.bps-hiw .beat-copy code {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.85em;
+  background: var(--bps-paper-2);
+  border: 1px solid var(--bps-rule);
+  border-radius: var(--bps-radius-sm);
+  padding: 1px 5px;
+  color: var(--bps-ink);
+}
+.bps-hiw .beat-copy a:not(.out),
+.bps-hiw .hiw-hero .lede a:not(.out) {
+  border-bottom: 1.5px solid var(--bps-blue-dark);
+  padding-bottom: 1px;
+  transition: border-width 0.15s ease;
+}
+.bps-hiw .beat-copy a.out,
+.bps-hiw .hiw-hero .lede a.out {
+  border-bottom: 1.5px solid var(--bps-ember-dark, #fb923c);
+  padding-bottom: 1px;
+  transition: border-width 0.15s ease;
+}
+.bps-hiw .beat-copy a:hover,
+.bps-hiw .hiw-hero .lede a:hover {
+  border-bottom-width: 3px;
+}
+
+/* ============== CODE WINDOW ============== */
+.bps-hiw .hiw-window {
+  background: #0a0e14;
+  border: 1px solid var(--bps-rule-2);
+  border-radius: var(--bps-radius-xl);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+.bps-hiw .hiw-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--bps-rule);
+  background: var(--bps-paper-2);
+  font-family: var(--bps-docs-mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--bps-ink-muted);
+}
+.bps-hiw .hiw-head .lang {
+  color: #a6a7a8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid #16171a;
+  border-radius: var(--bps-radius-sm);
+  padding: 2px 7px;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+.bps-hiw .hiw-head .filename {
+  color: #dfdfe0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bps-hiw pre.hiw-code {
+  margin: 0;
+  padding: 14px 0;
+  background: transparent;
+  color: #e6edf3;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 12.5px;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+}
+/* each line is a block span so highlights run full-bleed */
+.bps-hiw .hiw-code .cl {
+  display: block;
+  padding: 0 16px;
+}
+.bps-hiw .hiw-code .cl.hl {
+  background: color-mix(in srgb, var(--bps-blue-dark) 13%, transparent);
+  box-shadow: inset 2px 0 0 var(--bps-blue-dark);
+}
+
+/* TypeScript/JSON tokens — GitHub Dark, same palette as the homepage proof */
+.bps-hiw .tk-kw {
+  color: #ff7b72;
+  font-weight: 700;
+}
+.bps-hiw .tk-cls {
+  color: #79c0ff;
+}
+.bps-hiw .tk-key {
+  color: #79c0ff;
+}
+.bps-hiw .tk-str {
+  color: #a5d6ff;
+}
+.bps-hiw .tk-fn {
+  color: #d2a8ff;
+}
+.bps-hiw .tk-com {
+  color: #8b949e;
+  font-style: italic;
+}
+.bps-hiw .tk-num {
+  color: #79c0ff;
+}
+/* in-code annotation ("← a Lexicon name") */
+.bps-hiw .tk-note {
+  color: var(--bps-ember-dark, #fb923c);
+  font-style: italic;
+}
+
+/* caption line under a window */
+.bps-hiw .stage-caption {
+  margin: 12px 4px 0;
+  font-family: var(--bps-docs-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.05em;
+  color: var(--bps-ink-muted);
+}
+.bps-hiw .stage-caption a {
+  color: var(--bps-ink-soft);
+  border-bottom: 1px solid var(--bps-quiet, #4b5563);
+}
+.bps-hiw .stage-caption a:hover {
+  color: var(--bps-ink);
+}
+
+/* ============== LEXICON GRID (beat 02) ============== */
+.bps-hiw .lex-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--bps-rule);
+  border: 1px solid var(--bps-rule);
+  border-radius: var(--bps-radius-xl);
+  overflow: hidden;
+}
+.bps-hiw .lex-cell {
+  background: var(--bps-paper);
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 118px;
+  transition: background 0.15s ease;
+}
+.bps-hiw .lex-cell:hover {
+  background: var(--bps-paper-2);
+}
+.bps-hiw .lex-nsid {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 13px;
+  color: var(--bps-ink);
+  word-break: break-all;
+}
+.bps-hiw .lex-nsid .authority {
+  color: var(--bps-ink-muted);
+}
+.bps-hiw .lex-what {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--bps-ink-soft);
+}
+.bps-hiw .lex-app {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--bps-docs-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bps-ink-muted);
+}
+.bps-hiw .lex-app .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  flex: 0 0 auto;
+}
+.bps-hiw .lex-cell[data-hue='blue'] .dot {
+  background: var(--bps-blue-dark);
+}
+.bps-hiw .lex-cell[data-hue='ember'] .dot {
+  background: var(--bps-ember-dark, #fb923c);
+}
+.bps-hiw .lex-cell[data-hue='amber'] .dot {
+  background: var(--bps-atproto-yellow, #f5b740);
+}
+/* the "yours" cell spans the last row */
+.bps-hiw .lex-cell.yours {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  min-height: 0;
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 10px,
+      color-mix(in srgb, var(--bps-rule) 45%, transparent) 10px 11px
+    ),
+    var(--bps-paper);
+}
+.bps-hiw .lex-cell.yours .lex-nsid {
+  color: var(--bps-ink-soft);
+}
+.bps-hiw .lex-cell.yours .lex-what {
+  text-align: right;
+}
+
+/* ============== LIVE STREAM (beat 03) ============== */
+.bps-hiw .hiw-live {
+  /* JetstreamLive brings its own panel styling; just give it room */
+  max-width: 900px;
+}
+
+/* ============== APP GRID (beat 05) ============== */
+.bps-hiw .app-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+}
+.bps-hiw .app-card {
+  display: block;
+  border: 1px solid var(--bps-rule-2);
+  border-radius: var(--bps-radius-xl);
+  overflow: hidden;
+  background: var(--bps-paper-2);
+  box-shadow:
+    0 16px 32px -12px rgba(0, 0, 0, 0.5),
+    0 2px 6px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+.bps-hiw .app-card:hover {
+  border-color: var(--bps-rule-3);
+  transform: translateY(-2px);
+}
+.bps-hiw .app-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 11 / 8;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 1px solid var(--bps-rule);
+}
+.bps-hiw .app-caption {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.bps-hiw .app-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bps-ink);
+}
+.bps-hiw .app-lens {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  color: var(--bps-ink-muted);
+  text-align: right;
+}
+
+/* ============== PAYOFF / CTAs (beat 05) ============== */
+.bps-hiw .beat.payoff {
+  border-bottom: 1px solid var(--bps-rule);
+}
+.bps-hiw .payoff-ctas {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+.bps-hiw .payoff-ctas .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--bps-docs-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: var(--bps-space-sm) var(--bps-space-lg);
+  border-radius: var(--bps-radius-md);
+  border: 1px solid var(--bps-blue-dark);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.bps-hiw .payoff-ctas .btn.primary {
+  color: var(--bps-ink);
+  border-color: color-mix(in srgb, var(--bps-blue-dark) 60%, transparent);
+  background: color-mix(in srgb, var(--bps-blue-dark) 20%, transparent);
+}
+.bps-hiw .payoff-ctas .btn.primary:hover {
+  border-color: var(--bps-blue-dark);
+  background: color-mix(in srgb, var(--bps-blue-dark) 50%, transparent);
+}
+.bps-hiw .payoff-ctas .btn.quiet {
+  color: var(--bps-ink-soft);
+  border-color: var(--bps-rule-2);
+  background: transparent;
+}
+.bps-hiw .payoff-ctas .btn.quiet:hover {
+  color: var(--bps-ink);
+  border-color: var(--bps-rule-3);
+}
+/* ============== RESPONSIVE ============== */
+@media screen and (max-width: 900px) {
+  .bps-hiw .hiw-hero,
+  .bps-hiw .beat {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+  .bps-hiw .hiw-hero h1 {
+    font-size: 30px;
+  }
+  .bps-hiw .hiw-hero .lede {
+    font-size: 16px;
+  }
+  .bps-hiw .beat {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+  .bps-hiw .beat h2 {
+    font-size: 24px;
+  }
+  .bps-hiw .beat.stacked .beat-stage {
+    margin-top: 28px;
+  }
+  .bps-hiw .lex-grid {
+    grid-template-columns: 1fr;
+  }
+  .bps-hiw .app-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .bps-hiw .lex-cell {
+    min-height: 0;
+  }
+  .bps-hiw .lex-cell.yours {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .bps-hiw .lex-cell.yours .lex-what {
+    text-align: left;
+  }
+}

@@ -763,6 +763,9 @@ html[data-theme='dark'] .navbar-sidebar .menu__caret::before {
 /* the docs index hero breaks out of the measure to fill the column and bleed
  * over the column's horizontal padding (measured 16px = --ifm-spacing-horizontal). */
 .theme-doc-markdown.markdown > .bpsDocHero { max-width: none; }
+/* the How It Works page body is one full-bleed component that manages its own
+ * measure (beats cap at 1100px in how-it-works.css) — exempt it like the hero. */
+.theme-doc-markdown.markdown > .bps-hiw { max-width: none; }
 
 /* Breadcrumb → mono, natural case, slash-separated, tracked. Docusaurus
  * renders breadcrumbs as .breadcrumbs > .breadcrumbs__item > a/span, with a

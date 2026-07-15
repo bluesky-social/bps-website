@@ -23,6 +23,10 @@ const sidebars = {
     // straight into Jetstream — kept as the very next entry — as the place to
     // start.
     'protocol-services',
+    // "How It Works": the storytelling intro. A real doc (so this sidebar and
+    // the mobile drawer render on it), but the body is one full-bleed React
+    // component and the doc chrome is suppressed — see docs/how-it-works.mdx.
+    'how-it-works',
     {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-sdk', 'jetstream-replay', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop'] },
     {type: 'category', label: 'Relay', link: {type: 'doc', id: 'relay'}, items: ['consuming-the-firehose']},
     {
