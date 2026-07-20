@@ -851,15 +851,18 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 
 /* Prose links: blue, low-contrast underline that strengthens on hover.
  * Excludes .bpsDocCard (the DocsCardGrid card link — a stable global class,
- * since the CSS-module class is hashed and can't be matched by name here) and
+ * since the CSS-module class is hashed and can't be matched by name here),
  * .table-of-contents__link (the in-content mobile TOC on hero pages renders
- * inside .markdown, so its links would otherwise pick up the prose underline). */
-.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link) {
+ * inside .markdown, so its links would otherwise pick up the prose underline),
+ * and links inside .bps-hiw (the how-it-works page is a doc, so its component
+ * renders inside .markdown, but it draws its own border-bottom underlines —
+ * this rule would double-underline them). */
+.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(.bps-hiw a) {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
 }
-.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):hover {
+.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(.bps-hiw a):hover {
   text-decoration-color: var(--ifm-color-primary);
 }
 
