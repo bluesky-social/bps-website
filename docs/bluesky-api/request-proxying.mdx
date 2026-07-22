@@ -1,0 +1,130 @@
+# Request proxying
+
+The docs in this section mostly cover authenticated API requests. Authenticated API clients actually behave differently behind the scenes than
+unauthenticated clients: they route their requests across different
+endpoints of the Bluesky API. These endpoints don't all live on the same host,
+and where a request should be sent depends on whether the caller is
+authenticated:
+
+- **Most `app.bsky.*` `GET`s are public** and can be called without authentication against the Bluesky AppView at `https://public.api.bsky.app`. `POST`s (writes) and any endpoint that returns account-private data require auth.
+- **Authenticated requests should be sent to the user's own PDS**. The PDS validates the session and, if needed, proxies the request to the correct backend. Proxied requests should [include an `atproto-proxy` header](https://atproto.com/specs/xrpc#service-proxying). [Bluesky DMs](https://endpoints.bsky.app/#bluesky-dms/description/introduction) and [Ozone Moderation](https://endpoints.bsky.app/#ozone-moderation/description/introduction) requests always require proxying.
+
+The TypeScript SDK handles this routing for you. The rest of this page
+explains what it does by default, and how to take explicit control of it.
+
+## What the TypeScript SDK does by default
+
+The client sends every authenticated request to your PDS and splits the routing:
+
+- **Direct Lexicon `call`s are proxied through the PDS to the Bluesky app.** When you pass a Lexicon
+  `GET` or `POST` to `client.call` (or `client.xrpc`), the request is a
+  call to that endpoint wherever it's served, so your PDS passes it along to
+  the Bluesky App.
+- **All other "sugar" methods call your PDS directly without proxying.** The record helpers — `client.create`,
+  `client.get`, `client.put`, `client.delete`, `client.list` — and the actions
+  built on them (like `post` and `follow`) operate on your own repo, which
+  lives on your PDS.
+
+```typescript
+import { app, com } from '@bsky.app/sdk/lexicons'
+import { currentDatetimeString } from '@atproto/lex'
+
+// Creating a block record with a direct lexicon call: proxied
+await client.call(com.atproto.repo.createRecord, {
+  repo: client.assertDid,
+  collection: 'app.bsky.graph.block',
+  record: {
+    $type: 'app.bsky.graph.block',
+    subject: did,
+    createdAt: currentDatetimeString(),
+  },
+})
+
+// The same operation as a sugar method: not proxied, writes to your repo, on your PDS
+const { uri } = await client.create(app.bsky.graph.block, {
+  subject: did,
+  createdAt: currentDatetimeString(),
+})
+```
+
+These two calls are 1:1. Both create the same record through
+`com.atproto.repo.createRecord`, but the sugar method fills in the
+boilerplate and always addresses your PDS, while the direct call is routed
+like any other Lexicon request.
+
+The same rule extends to preferences: the `getPreferences` and
+`updatePreferences` actions target your PDS by default, because
+preferences live on your PDS rather than in the App.
+
+## Taking stricter control
+
+The default behavior above is consistent, but it's implicit; nothing in the
+code says which host serves each request. The
+SDK also provides three levels of explicitness.
+
+These can be particularly helpful if you're implementing your own PDS or your own App in a way that's inconsistent with the caching assumptions made by Bluesky.
+
+### Pin the client to a service
+
+The `api` constants address Bluesky's services. Constructing the client with a
+`service` makes every direct lexicon call carry an explicit
+[`atproto-proxy` header](https://atproto.com/specs/xrpc#service-proxying)
+naming its destination (sugar methods still target your PDS):
+
+```typescript
+import { Client } from '@atproto/lex'
+import { api } from '@bsky.app/sdk'
+
+// api.app.service === 'did:web:api.bsky.app#bsky_appview'
+const bskyClient = new Client(session, { service: api.app.service })
+```
+
+Bluesky DMs always require proxying, so use `api.chat.service` for
+`chat.bsky.*` calls.
+
+### Override the service per request
+
+Every `client.call` and `client.xrpc` accepts a `service` option. Pass `null`
+to make a read or write against your PDS itself rather than the Bluesky API:
+
+```typescript
+import { com } from '@bsky.app/sdk/lexicons'
+
+const res = await bskyClient.call(
+  com.atproto.repo.listRecords,
+  { repo: bskyClient.assertDid, collection: 'app.bsky.feed.post' },
+  { service: null }, // target the PDS rather than the Bluesky API
+)
+```
+
+Or pass a different service identifier to route a call elsewhere. For
+example, sending a moderation report to an independent labeler:
+
+```typescript
+await bskyClient.call(com.atproto.moderation.createReport, report, {
+  service: 'did:web:my-labeler.example.com#atproto_labeler',
+})
+```
+
+### Keep two clients
+
+If you'd rather never mix the two kinds of traffic on one client, construct a
+separate client for each from the same session — one that only ever talks to
+your PDS, and one for the Bluesky API:
+
+```typescript
+// Repo reads and writes: never proxied
+const accountClient = new Client(session)
+
+// Bluesky API queries: explicitly proxied
+const bskyClient = new Client(session, { service: api.app.service })
+```
+
+You can use the same principle for calling the API with `curl` over raw HTTP: send
+authenticated requests to your PDS and set the
+[`atproto-proxy` header](https://atproto.com/specs/xrpc#service-proxying)
+yourself when a request needs to reach a specific service.
+
+---
+
+<span class="docsFooterNote">Looking for more? Browse additional tutorials and guides on [atproto.com](https://atproto.com/guides/tutorials).</span>

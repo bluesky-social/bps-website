@@ -1,11 +1,13 @@
----
-sidebar_position: 7
----
-
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Following and unfollowing
+# Following, muting, and blocking
+
+Following, muting, and blocking are the basic social graph actions on Bluesky.
+Following subscribes you to someone's posts, while muting and blocking both let
+you limit your exposure to another user, in different ways: muting quietly
+hides someone's posts from your feeds, while blocking prevents interaction in
+both directions.
 
 ## Following
 
@@ -47,7 +49,7 @@ import TabItem from '@theme/TabItem';
 | --------- | -------- | ----------------------------- | -------- |
 | `did`     | `string` | The DID of the user to follow | Yes      |
 
-## Unfollowing 
+### Unfollowing
 
 Unfollowing a user involves deleting the follow record via its URI, returned
 when you created the follow. This is very similar to what we did when [unliking
@@ -84,6 +86,160 @@ a post](/docs/bluesky-api/like-repost).
 | --------- | -------- | ----------------------------- | -------- |
 | `uri`     | `string` | The URI of the follow record to delete | Yes      |
 
+## Muting
+
+Muting a user hides their posts from your feeds. Mutes are private — like Bookmarks, they are stored in the [Bluesky App](https://atproto.com/guides/overview#app-views), rather than in your PDS. Muting a user is as easy as liking a post or following a user.
+
+<Tabs groupId="sdk">
+  <TabItem value="ts" label="TypeScript">
+    ```typescript title="muteActor"
+      import { muteActor } from '@bsky.app/sdk'
+
+      await client.call(muteActor, { actor: did })
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="client.mute"
+      client.mute(did)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="GraphMuteActor"
+      appbsky.GraphMuteActor(ctx, client, &appbsky.GraphMuteActor_Input{Actor: did})
+    ```
+  </TabItem>
+</Tabs>
+
+| Parameter | Type     | Description                 | Required |
+| --------- | -------- | --------------------------- | -------- |
+| `did`     | `string` | The DID of the user to mute | Yes      |
+
+### Unmuting a user
+
+Easy peasy:
+
+<Tabs groupId="sdk">
+  <TabItem value="ts" label="TypeScript">
+    ```typescript title="unmuteActor"
+      import { unmuteActor } from '@bsky.app/sdk'
+
+      await client.call(unmuteActor, { actor: did })
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="client.unmute"
+      client.unmute(did)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="GraphUnmuteActor"
+      appbsky.GraphUnmuteActor(ctx, client, &appbsky.GraphUnmuteActor_Input{Actor: did})
+    ```
+  </TabItem>
+</Tabs>
+
+| Parameter | Type     | Description                    | Required |
+| --------- | -------- | ------------------------------ | -------- |
+| `did`     | `string` | The DID of the user to un-mute | Yes      |
+
+## Blocking
+
+Blocking a user prevents interaction and hides the user from the client experience. Blocked accounts will not be able to like, reply, mention, or follow you. Their posts, replies, and profile in search will also be hidden from you. Blocks are [public](https://atproto.com/blog/block-implementation).
+
+Blocking users is as simple as muting, but requires creating a record directly.
+
+<Tabs groupId="sdk">
+  <TabItem value="ts" label="TypeScript">
+    ```typescript title="client.create"
+    import { currentDatetimeString } from '@atproto/lex'
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    const { uri } = await client.create(app.bsky.graph.block, {
+      subject: blockingUserDid,
+      createdAt: currentDatetimeString(),
+    })
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="client.app.bsky.graph.block.create"
+    block_record = models.AppBskyGraphBlock.Record(
+      subject=blocked_user_did, 
+      created_at=client.get_current_time_iso()
+    )
+    uri = client.app.bsky.graph.block.create(client.me.did, block_record).uri
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Create an `app.bsky.graph.block` record whose subject is the DID to block.
+
+    ```go title="RepoCreateRecord"
+    block := &appbsky.GraphBlock{
+      CreatedAt: time.Now().UTC().Format(time.RFC3339),
+      Subject:   blockingUserDid,
+    }
+    resp, _ := comatproto.RepoCreateRecord(ctx, client, &comatproto.RepoCreateRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.graph.block",
+      Record:     &lexutil.LexiconTypeDecoder{Val: block},
+    })
+    ```
+  </TabItem>
+</Tabs>
+
+Creating a block takes two pieces of information. First, the repo the record is
+written to (the TypeScript client fills this in from your session):
+
+| Parameter | Type     | Description                       | Required |
+| --------- | -------- | --------------------------------- | -------- |
+| `repo`    | `string` | The DID of the authenticated user | Yes      |
+
+And the block record itself:
+
+| Parameter   | Type     | Description                  | Required |
+| ----------- | -------- | ---------------------------- | -------- |
+| `subject`   | `string` | The DID of the user to block | Yes      |
+| `createdAt` | `string` | The current timestamp        | Yes      |
+
+### Unblocking a user
+
+Similar to likes and follows, unblocking a user is as simple as deleting the
+record.
+
+<Tabs groupId="sdk">
+  <TabItem value="ts" label="TypeScript">
+    ```typescript title="client.delete"
+    import { AtUri } from '@atproto/syntax'
+
+    const { rkey } = new AtUri(uri)
+
+    await client.delete(app.bsky.graph.block, { rkey })
+    ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python title="client.app.bsky.graph.block.delete"
+    from atproto import AtUri
+
+    rkey = AtUri.from_str(uri).rkey
+    client.app.bsky.graph.block.delete(client.me.did, rkey)
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go title="RepoDeleteRecord"
+    rkey := uri[strings.LastIndex(uri, "/")+1:]
+    comatproto.RepoDeleteRecord(ctx, client, &comatproto.RepoDeleteRecord_Input{
+      Repo:       client.AccountDID.String(),
+      Collection: "app.bsky.graph.block",
+      Rkey:       rkey,
+    })
+    ```
+  </TabItem>
+</Tabs>
+
+| Parameter | Type     | Description                               | Required |
+| --------- | -------- | ----------------------------------------- | -------- |
+| `repo`    | `string` | The DID of the authenticated user         | Yes      |
+| `rkey`    | `string` | The record key (rkey) of the block record | Yes      |
 
 ---
 
