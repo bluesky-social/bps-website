@@ -6,7 +6,7 @@ endpoints of the Bluesky API. These endpoints don't all live on the same host,
 and where a request should be sent depends on whether the caller is
 authenticated:
 
-- **Most `app.bsky.*` `GET`s are public** and can be called without authentication against the Bluesky API at `https://public.api.bsky.app`. `POST`s (writes) and any endpoint that returns account-private data require auth.
+- **Most `app.bsky.*` `GET`s are public** and can be called without authentication against the Bluesky API at `https://public.api.bsky.app`. You can authenticate calls to the Bluesky API in order to `POST` or receive account-specific data, such as notifications, following, mute, and block status.
 - **Authenticated requests should be sent to the user's own PDS**. The PDS validates the session and, if needed, proxies the request to the correct backend. Proxied requests should [include an `atproto-proxy` header](https://atproto.com/specs/xrpc#service-proxying). [Bluesky DMs](https://endpoints.bsky.app/#bluesky-dms/description/introduction) and [Ozone Moderation](https://endpoints.bsky.app/#ozone-moderation/description/introduction) requests always require proxying.
 
 The TypeScript SDK handles this routing for you. The rest of this page
@@ -16,18 +16,18 @@ explains what it does by default, and how to take explicit control of it.
 
 The client sends every authenticated request to your PDS and splits the routing:
 
-- **Direct Lexicon `call`s are proxied through the PDS to the Bluesky app.** When you pass a Lexicon
-  `GET` or `POST` to `client.call` (or `client.xrpc`), the request is a
-  call to that endpoint wherever it's served, so your PDS passes it along to
-  the Bluesky App.
+- **Direct Lexicon `call`s are proxied through the PDS to the Bluesky app.** When you pass a Lexicon `GET` or `POST` to `client.call`, your PDS handles authentication and routes the call to the Bluesky API.
 - **All other "sugar" methods call your PDS directly without proxying.** The record helpers — `client.create`,
   `client.get`, `client.put`, `client.delete`, `client.list` — and the actions
-  built on them (like `post` and `follow`) operate on your own repo, which
+  built on them (like [`post`](/docs/bluesky-api/creating-a-post) and [`follow`](/docs/bluesky-api/following)) operate on your own repo, which
   lives on your PDS.
 
 ```typescript
 import { app, com } from '@bsky.app/sdk/lexicons'
 import { currentDatetimeString } from '@atproto/lex'
+
+// A session can be created from @atproto/lex-password-auth or @atproto/oauth-client-browser
+const client = new Client(session, { service: api.app.service })
 
 // Creating a block record with a direct lexicon call: proxied
 await client.call(com.atproto.repo.createRecord, {
@@ -78,9 +78,6 @@ import { api } from '@bsky.app/sdk'
 // api.app.service === 'did:web:api.bsky.app#bsky_appview'
 const bskyClient = new Client(session, { service: api.app.service })
 ```
-
-Bluesky DMs always require proxying, so use `api.chat.service` for
-`chat.bsky.*` calls.
 
 ### Override the service per request
 
