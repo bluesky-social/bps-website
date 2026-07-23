@@ -644,7 +644,7 @@ export default function HowItWorks() {
           </p>
           <p>
             This is <b>every blog post published anywhere on the network</b>, as
-            it happens, in eight lines.
+            it happens, in fewer than 10 lines.
           </p>
         </div>
         <div className="beat-stage">
