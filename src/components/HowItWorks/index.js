@@ -1,6 +1,7 @@
 import React from 'react'
 import Link from '@docusaurus/Link'
 import useBaseUrl from '@docusaurus/useBaseUrl'
+import { useColorMode } from '@docusaurus/theme-common'
 import JetstreamLive from '../JetstreamLive'
 
 import '../../css/how-it-works.css'
@@ -39,25 +40,53 @@ const L = ({ hl, children }) => (
   <span className={hl ? 'cl hl' : 'cl'}>{children ?? ' '}</span>
 )
 
-function CodeWindow({ lang, filename, children }) {
+// `href` makes the filename a link (beat 01 clicks through to the record on
+// pdsls). `wrap` soft-wraps long lines instead of scrolling — for real record
+// text that would otherwise force a horizontal scrollbar onto the window.
+function CodeWindow({ lang, filename, href, wrap, children }) {
   return (
     <div className="hiw-window">
       <div className="hiw-head">
         <span className="lang">{lang}</span>
-        <span className="filename">{filename}</span>
+        {href ? (
+          <a
+            className="filename"
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {filename}
+          </a>
+        ) : (
+          <span className="filename">{filename}</span>
+        )}
       </div>
-      <pre className="hiw-code">{children}</pre>
+      <pre className={wrap ? 'hiw-code wrap' : 'hiw-code'}>{children}</pre>
     </div>
   )
 }
 
 // ----- Beat 01: the record ---------------------------------------------------
 
+// A real record, live on the network (fetched 2026-07-23; verbatim except for
+// key order, ours reads better). Real beats mocked here: the same post can be
+// clicked through to pdsls (raw repo view) and rendered by the Bluesky embed
+// below — the same record, three ways.
+const REAL_POST = {
+  did: 'did:plc:ragtjsm2j2vknwkz3zp4oxrd', // @pfrazee.com
+  handle: 'pfrazee.com',
+  collection: 'app.bsky.feed.post',
+  rkey: '3mqvnw25ous2z',
+}
+const REAL_POST_ATURI = `at://${REAL_POST.did}/${REAL_POST.collection}/${REAL_POST.rkey}`
+
 function RecordSample() {
   return (
     <CodeWindow
       lang="JSON"
-      filename="at://alice.bsky.social/app.bsky.feed.post/3kj2xq8wlmc24"
+      filename={`at://${REAL_POST.handle}/${REAL_POST.collection}/${REAL_POST.rkey}`}
+      href={`https://pdsls.dev/${REAL_POST_ATURI}`}
+      wrap
     >
       <L>{'{'}</L>
       <L hl>
@@ -67,7 +96,12 @@ function RecordSample() {
       </L>
       <L>
         {'  '}
-        <Key>"text"</Key>: <Str>"just setting up my atproto"</Str>,
+        <Key>"text"</Key>:{' '}
+        <Str>
+          "Oh yeah I know Jimothy. Went to high school with him. Weird guy.
+          Loved trash"
+        </Str>
+        ,
       </L>
       <L>
         {'  '}
@@ -75,10 +109,45 @@ function RecordSample() {
       </L>
       <L>
         {'  '}
-        <Key>"createdAt"</Key>: <Str>"2026-07-15T17:03:24.522Z"</Str>
+        <Key>"createdAt"</Key>: <Str>"2026-07-18T06:41:53.927Z"</Str>
       </L>
       <L>{'}'}</L>
     </CodeWindow>
+  )
+}
+
+// The official embed widget (blockquote + embed.bsky.app/static/embed.js)
+// swaps in an iframe on a document-level scan, which doesn't survive SPA
+// navigation — so build the same iframe directly. Height arrives from the
+// embed via postMessage (matched on the `id` query param), and `colorMode`
+// keeps the card in step with the docs theme.
+const EMBED_ORIGIN = 'https://embed.bsky.app'
+const EMBED_ID = 'hiw-record'
+
+function BlueskyEmbed({ atUri }) {
+  const { colorMode } = useColorMode()
+  const [height, setHeight] = React.useState(160)
+  React.useEffect(() => {
+    const onMessage = (event) => {
+      if (event.origin !== EMBED_ORIGIN) return
+      if (event.data?.id === EMBED_ID && event.data.height) {
+        setHeight(event.data.height)
+      }
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [])
+  return (
+    <div className="hiw-embed">
+      <iframe
+        src={`${EMBED_ORIGIN}/embed/${atUri.slice('at://'.length)}?id=${EMBED_ID}&colorMode=${colorMode}`}
+        width="100%"
+        height={height}
+        scrolling="no"
+        title="The same post, rendered by Bluesky"
+        loading="lazy"
+      />
+    </div>
   )
 }
 
@@ -87,6 +156,12 @@ function RecordSample() {
 // A sampler of collections that share the network today: three from the
 // Bluesky app, three from other apps. Splitting authority/name lets the CSS
 // dim the domain part so the record name reads first.
+//
+// Each `sample` is a real record from the network (fetched 2026-07-23),
+// trimmed to its telling fields and with long identifiers elided (…) so the
+// hover card stays narrow. Shown on mouseover — the cells' hover state now
+// answers the "these feel like they should do something" itch by peeking at
+// what a record of that type actually looks like.
 const LEXICONS = [
   {
     authority: 'app.bsky.feed.',
@@ -94,6 +169,28 @@ const LEXICONS = [
     what: 'a post',
     app: 'Bluesky',
     hue: 'blue',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"app.bsky.feed.post"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"text"</Key>: <Str>"Oh yeah I know Jimothy. Went to…"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"langs"</Key>: [<Str>"en"</Str>],
+        </L>
+        <L>
+          {'  '}
+          <Key>"createdAt"</Key>: <Str>"2026-07-18T06:41:53.927Z"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
   {
     authority: 'app.bsky.feed.',
@@ -101,6 +198,37 @@ const LEXICONS = [
     what: 'a like',
     app: 'Bluesky',
     hue: 'blue',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"app.bsky.feed.like"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"subject"</Key>: {'{'}
+        </L>
+        <L>
+          {'    '}
+          <Key>"uri"</Key>: <Str>"at://did:plc:jbea…/app.bsky.feed.post/…"</Str>
+          ,
+        </L>
+        <L>
+          {'    '}
+          <Key>"cid"</Key>: <Str>"bafyreigr37…"</Str>
+        </L>
+        <L>
+          {'  '}
+          {'}'},
+        </L>
+        <L>
+          {'  '}
+          <Key>"createdAt"</Key>: <Str>"2026-07-23T21:13:53.837Z"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
   {
     authority: 'app.bsky.graph.',
@@ -108,6 +236,24 @@ const LEXICONS = [
     what: 'a follow',
     app: 'Bluesky',
     hue: 'blue',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"app.bsky.graph.follow"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"subject"</Key>: <Str>"did:plc:izttpdp3l6vss5crelt5kcux"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"createdAt"</Key>: <Str>"2026-07-23T15:51:56.879Z"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
   {
     authority: 'site.standard.',
@@ -115,6 +261,33 @@ const LEXICONS = [
     what: 'a blog post',
     app: 'Standard',
     hue: 'ember',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"site.standard.document"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"title"</Key>: <Str>"Recommend Lexicon"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"path"</Key>: <Str>"/docs/lexicons/recommend"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"site"</Key>:{' '}
+          <Str>"at://did:plc:re3e…/site.standard.publication/…"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"publishedAt"</Key>: <Str>"2026-05-19T00:00:00.000Z"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
   {
     authority: 'sh.tangled.',
@@ -122,6 +295,29 @@ const LEXICONS = [
     what: 'a git repository',
     app: 'Tangled',
     hue: 'ember',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"sh.tangled.repo"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"knot"</Key>: <Str>"knot1.tangled.sh"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"description"</Key>: <Str>"my website at https://anirudh.fi"</Str>
+          ,
+        </L>
+        <L>
+          {'  '}
+          <Key>"createdAt"</Key>: <Str>"2026-05-12T22:53:36+03:00"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
   {
     authority: 'events.smokesignal.calendar.',
@@ -129,38 +325,91 @@ const LEXICONS = [
     what: 'an event you can RSVP to',
     app: 'Smoke Signal',
     hue: 'amber',
+    sample: (
+      <>
+        <L>{'{'}</L>
+        <L>
+          {'  '}
+          <Key>"$type"</Key>: <Str>"events.smokesignal.calendar.event"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"name"</Key>: <Str>"Pigeons Playing Ping Pong @ Neptune…"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"startsAt"</Key>: <Str>"2025-03-22T03:00:00.000Z"</Str>,
+        </L>
+        <L>
+          {'  '}
+          <Key>"status"</Key>: <Str>"…calendar.event#scheduled"</Str>
+        </L>
+        <L>{'}'}</L>
+      </>
+    ),
   },
 ]
 
 function LexiconGrid() {
+  // One floating sample card, anchored above the hovered cell. It's a sibling
+  // of the grid (positioned off cell offsets, which resolve against the
+  // relative `.lex-wrap`) because the grid's rounded-corner overflow:hidden
+  // would clip anything popping out of a cell. POP_W mirrors the CSS
+  // max-width and clamps the card inside the wrapper near the edge columns.
+  const POP_W = 440
+  const wrapRef = React.useRef(null)
+  const [pop, setPop] = React.useState(null)
+  const showSample = (i) => (event) => {
+    const cell = event.currentTarget
+    const mid = cell.offsetLeft + cell.offsetWidth / 2
+    const max = wrapRef.current.offsetWidth - POP_W / 2
+    setPop({ i, left: Math.min(Math.max(mid, POP_W / 2), max), top: cell.offsetTop })
+  }
   return (
-    <div className="lex-grid">
-      {LEXICONS.map((lex) => (
-        <div
-          className="lex-cell"
-          data-hue={lex.hue}
-          key={lex.authority + lex.name}
-        >
+    <div
+      className="lex-wrap"
+      ref={wrapRef}
+      onMouseLeave={() => setPop(null)}
+    >
+      <div className="lex-grid">
+        {LEXICONS.map((lex, i) => (
+          <div
+            className="lex-cell"
+            data-hue={lex.hue}
+            key={lex.authority + lex.name}
+            onMouseEnter={showSample(i)}
+          >
+            <span className="lex-nsid">
+              <span className="authority">{lex.authority}</span>
+              {lex.name}
+            </span>
+            <span className="lex-what">{lex.what}</span>
+            <span className="lex-app">
+              <span className="dot" aria-hidden="true" />
+              {lex.app}
+            </span>
+          </div>
+        ))}
+        <div className="lex-cell yours" onMouseEnter={() => setPop(null)}>
           <span className="lex-nsid">
-            <span className="authority">{lex.authority}</span>
-            {lex.name}
+            <span className="authority">com.your-domain.</span>whatever
           </span>
-          <span className="lex-what">{lex.what}</span>
-          <span className="lex-app">
-            <span className="dot" aria-hidden="true" />
-            {lex.app}
+          <span className="lex-what">
+            Own a domain? You can publish a Lexicon. The network already knows
+            how to carry it.
           </span>
         </div>
-      ))}
-      <div className="lex-cell yours">
-        <span className="lex-nsid">
-          <span className="authority">com.your-domain.</span>whatever
-        </span>
-        <span className="lex-what">
-          Own a domain? You can publish a Lexicon. The network already knows how
-          to carry it.
-        </span>
       </div>
+      {pop && (
+        <div
+          className="lex-pop"
+          key={pop.i}
+          style={{ left: pop.left, top: pop.top }}
+          aria-hidden="true"
+        >
+          <pre className="lex-pop-code">{LEXICONS[pop.i].sample}</pre>
+        </div>
+      )}
     </div>
   )
 }
@@ -294,12 +543,15 @@ export default function HowItWorks() {
             AT Protocol
           </a>
           : an open network where every app reads and writes the same public
-          data. Here's how one small record becomes a network you can build on.
+          data. Here's how individually addressable records combine to form
+          the network you can build on.
         </p>
+        {/* Lexicon precedes record (a record is an instance of a Lexicon),
+            but the record stays lit: it's where the story below starts. */}
         <div className="hiw-path" aria-hidden="true">
-          <span className="seg lit">a record</span>
-          <span className="arrow">→</span>
           <span className="seg">a Lexicon</span>
+          <span className="arrow">→</span>
+          <span className="seg lit">a record</span>
           <span className="arrow">→</span>
           <span className="seg">the firehose</span>
           <span className="arrow">→</span>
@@ -318,12 +570,13 @@ export default function HowItWorks() {
             into their repo.
           </p>
           <p>
-            It has an address, that <code>at://</code> URI, and anyone can
-            fetch it.
+            It's addressable through that <code>at://</code> URI, and anyone
+            can fetch it.
           </p>
         </div>
         <div className="beat-stage">
           <RecordSample />
+          <BlueskyEmbed atUri={REAL_POST_ATURI} />
         </div>
       </section>
 
@@ -354,7 +607,7 @@ export default function HowItWorks() {
             >
               atproto.com
             </a>
-            . Here, what matters is the name.
+            .
           </p>
         </div>
       </section>
@@ -385,7 +638,7 @@ export default function HowItWorks() {
           <span className="beat-num">04</span>
           <h2>Filter by Lexicon, get your slice</h2>
           <p>
-            The name from step two is also the filter. Ask for one collection,
+            Lexicon types — namespaces — act as filters. Ask for one collection,
             and the server sends only those records, decoded, typed, and ready to
             use.
           </p>

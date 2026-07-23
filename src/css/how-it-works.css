@@ -5,6 +5,12 @@
  * custom.css, dark code windows, mono-UI labels) but is scoped under
  * `.bps-hiw` so, like `.bps-home`, the dark opinionated theme never leaks
  * into the Docusaurus doc shell.
+ *
+ * Unlike `.bps-home` (always dark), this page lives in the docs shell and
+ * follows the color mode: the LIGHT MODE section below remaps the dark
+ * --bps-* constants to light equivalents on the page root, while the dark
+ * window artifacts (code windows, JetstreamLive) re-pin the dark values so
+ * they read the same in both themes.
  */
 
 .bps-hiw {
@@ -50,6 +56,61 @@ html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row {
 html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
   padding: 0;
   max-width: 100% !important;
+}
+
+/* ============== LIGHT MODE ==============
+ * The site-wide --bps-* surface/ink/rule tokens are theme-INDEPENDENT dark
+ * swatches (see the palette note in custom.css), so without a remap the page
+ * renders dark in both color modes. Flip them on the page root in light mode;
+ * every rule below picks the change up for free. Accent hexes follow the
+ * landing.css light-bg pairs (--bps-blue #006aff, --bps-ember #ea580c) —
+ * stated literally because landing.css only loads on the homepage. */
+html[data-theme='light'] .bps-hiw {
+  /* surfaces */
+  --bps-paper: var(--bps-paper-light, #f4f6f9);
+  --bps-paper-2: var(--bps-white, #ffffff);
+  /* rules */
+  --bps-rule: var(--bps-rule-light, #dfe3e8);
+  --bps-rule-2: var(--bps-rule-light-2, #c9d1d9);
+  --bps-rule-3: #aab4c2;
+  /* ink — light-surface ramp mirroring the dark one */
+  --bps-ink: #1f2328;
+  --bps-ink-soft: #454f5b;
+  --bps-ink-muted: #6a7686;
+  --bps-ink-faint: #97a1ae;
+  /* accents — light-bg variants */
+  --bps-blue-dark: #006aff;
+  --bps-ember-dark: #ea580c;
+  --bps-atproto-yellow: #d97706;
+}
+html[data-theme='light'].docs-doc-id-how-it-works main[class*='docMainContainer'] {
+  background: var(--bps-paper-light, #f4f6f9);
+}
+/* The dark window artifacts keep their dark-mode palette in light mode (same
+ * treatment as the homepage proof window / JetstreamLive's dark terminal):
+ * re-pin the dark constants the remap above would otherwise flip. */
+html[data-theme='light'] .bps-hiw .hiw-window,
+html[data-theme='light'] .bps-hiw .hiw-live {
+  --bps-paper-2: #161c26;
+  --bps-rule: #1f2733;
+  --bps-rule-2: #2a3340;
+  --bps-ink: #f0f6fc;
+  --bps-ink-soft: #c4ccd8;
+  --bps-ink-muted: #8893a2;
+  --bps-ink-faint: #5a6473;
+  --bps-blue-dark: #3994ff;
+  --bps-ember-dark: #fb923c;
+}
+/* the near-black drop shadows read as smudges on light paper — soften */
+html[data-theme='light'] .bps-hiw .hiw-window {
+  box-shadow:
+    0 20px 40px -14px rgba(15, 23, 42, 0.3),
+    0 2px 6px rgba(15, 23, 42, 0.12);
+}
+html[data-theme='light'] .bps-hiw .app-card {
+  box-shadow:
+    0 12px 24px -12px rgba(15, 23, 42, 0.18),
+    0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 /* every band caps at 1100px and centers, matching the homepage rhythm */
@@ -244,6 +305,12 @@ html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* the filename can be a link (beat 01 → the same record on pdsls) */
+.bps-hiw .hiw-head a.filename:hover {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .bps-hiw pre.hiw-code {
   margin: 0;
   padding: 14px 0;
@@ -254,6 +321,12 @@ html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
   line-height: 1.6;
   white-space: pre;
   overflow-x: auto;
+}
+/* soft-wrap variant: real record text is long enough to force a horizontal
+ * scrollbar on the window; wrapping reads better than scrolling */
+.bps-hiw pre.hiw-code.wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 /* each line is a block span so highlights run full-bleed */
 .bps-hiw .hiw-code .cl {
@@ -311,7 +384,23 @@ html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
   color: var(--bps-ink);
 }
 
+/* ============== BLUESKY EMBED (beat 01) ==============
+ * The same record rendered by bsky.app — an iframe built to match the
+ * official embed widget's container (600px cap; the card inside brings its
+ * own border and radius). */
+.bps-hiw .hiw-embed {
+  max-width: 600px;
+  margin-top: 14px;
+}
+.bps-hiw .hiw-embed iframe {
+  display: block;
+  border: 0;
+}
+
 /* ============== LEXICON GRID (beat 02) ============== */
+.bps-hiw .lex-wrap {
+  position: relative;
+}
 .bps-hiw .lex-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -395,6 +484,58 @@ html.docs-doc-id-how-it-works main[class*='docMainContainer'] .row > .col {
 }
 .bps-hiw .lex-cell.yours .lex-what {
   text-align: right;
+}
+
+/* ============== LEXICON SAMPLE POPOVER (beat 02) ==============
+ * The floating record sample shown on cell hover — a small always-dark code
+ * card (same vocabulary as .hiw-window, so no light-mode remap needed) with
+ * deliberately generous padding and line-height: it should feel like a calm
+ * peek, not another panel fighting for attention. The entry animation's short
+ * delay keeps casual mouse travel across the grid from flashing cards. */
+.bps-hiw .lex-pop {
+  position: absolute;
+  z-index: 30;
+  width: max-content;
+  max-width: 440px;
+  transform: translate(-50%, calc(-100% - 12px));
+  background: #0a0e14;
+  border: 1px solid #2a3340;
+  border-radius: var(--bps-radius-xl);
+  box-shadow:
+    0 24px 48px -12px rgba(0, 0, 0, 0.55),
+    0 2px 6px rgba(0, 0, 0, 0.4);
+  padding: 24px 28px;
+  pointer-events: none;
+  animation: bps-hiw-pop-in 0.16s ease 0.06s both;
+}
+@keyframes bps-hiw-pop-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-100% - 6px));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, calc(-100% - 12px));
+  }
+}
+.bps-hiw .lex-pop-code {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: #e6edf3;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11.5px;
+  line-height: 1.75;
+  white-space: pre;
+  overflow: hidden;
+}
+.bps-hiw .lex-pop-code .cl {
+  display: block;
+}
+@media (hover: none), screen and (max-width: 900px) {
+  .bps-hiw .lex-pop {
+    display: none;
+  }
 }
 
 /* ============== LIVE STREAM (beat 03) ============== */
