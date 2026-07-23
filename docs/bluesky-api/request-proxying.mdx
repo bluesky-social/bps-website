@@ -6,7 +6,7 @@ endpoints of the Bluesky API. These endpoints don't all live on the same host,
 and where a request should be sent depends on whether the caller is
 authenticated:
 
-- **Most `app.bsky.*` `GET`s are public** and can be called without authentication against the Bluesky AppView at `https://public.api.bsky.app`. `POST`s (writes) and any endpoint that returns account-private data require auth.
+- **Most `app.bsky.*` `GET`s are public** and can be called without authentication against the Bluesky API at `https://public.api.bsky.app`. `POST`s (writes) and any endpoint that returns account-private data require auth.
 - **Authenticated requests should be sent to the user's own PDS**. The PDS validates the session and, if needed, proxies the request to the correct backend. Proxied requests should [include an `atproto-proxy` header](https://atproto.com/specs/xrpc#service-proxying). [Bluesky DMs](https://endpoints.bsky.app/#bluesky-dms/description/introduction) and [Ozone Moderation](https://endpoints.bsky.app/#ozone-moderation/description/introduction) requests always require proxying.
 
 The TypeScript SDK handles this routing for you. The rest of this page
