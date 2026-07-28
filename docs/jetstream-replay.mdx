@@ -27,17 +27,16 @@ stage on the client.
 | **Replay** | WebSocket **+** HTTP (plan + download, then tail) | API key on the HTTP calls |
 | **Snapshot** | HTTP only (download, no live tail) | API key |
 
-Each is a way of *consuming* Jetstream — same archive, same event shape
-throughout. This page covers **replay**: catching up from a point in the past
-and cutting over to live. The live tail has its
-[own page](/docs/jetstream); snapshotting is
+Each is a way of *consuming* Jetstream, using the same archive and the same event shape
+throughout. This page primarily covers **replay**: catching up from a point in the past
+and cutting over to live. Snapshotting is
 [below](#snapshotting-a-point-in-time-copy). Replay is a
 [Jetstream v2](/docs/jetstream#public-endpoints) feature.
 
 ## Quickstart: backfill, then live
 
 The client that ships in the [Jetstream
-repository](https://github.com/bluesky-social/jetstream) does the whole dance —
+repository](https://github.com/bluesky-social/jetstream) handles the whole flow —
 planning the backfill, downloading the archive in parallel, decoding, exact
 filtering, and the live cutover — behind one iterator. Give `Subscribe` a
 starting point and read:
@@ -79,7 +78,7 @@ starting point and read:
   </TabItem>
 </Tabs>
 
-The stream starts in the past and simply keeps going: when the archive range
+The stream starts in the past and keeps going: when the archive range
 is consumed, the client connects the live WebSocket at the tip and events
 continue arriving through the same loop, with the seam deduplicated for you.
 Your code never needs to know whether an event is history or real time.
@@ -89,14 +88,14 @@ after a restart, persist `batch.LastCursor()` as you go and pass it back as
 `WithAfterSeq(lastCursor)` — the archive picks up from there no matter how
 long you were down.
 
-On Bluesky-hosted instances, the HTTP side of replay requires an **API key** —
-see [Authentication and metering](#authentication-and-metering) for how to
+On Bluesky-hosted instances, the HTTP side of replay requires an **API key**.
+See [Authentication and metering](#authentication-and-metering) for how to
 attach it and what the limits look like.
 
 ## Folding the stream (eventually consistent)
 
 Replay delivers **every matching event at least once, in seq order**. Creates,
-updates, and deletes all ride inline, the same way they happen on the network.
+updates, and deletes are all part of the same stream, the same way they happen on the network.
 The server doesn't hide superseded records for you; instead your handler
 **folds** the stream to converge on the current state:
 
@@ -109,36 +108,33 @@ The server doesn't hide superseded records for you; instead your handler
 Apply events in order and you arrive at network truth. A record you'll later
 delete may show up transiently before its delete arrives. That's expected, and
 it's why your writes should be **idempotent** (keying on each record's `at://`
-URI is usually enough). This is the whole contract: no overlay to download, no
-tombstone window to reason about.
+URI is usually enough).
 
 :::tip Don't filter out the markers
 Account-level events (`account`, `identity`, `sync`) carry no collection, and
-Jetstream deliberately delivers them anyway — even to a collection-filtered
+Jetstream deliberately delivers them anyway, even to a collection-filtered
 consumer, in replay and live alike. If your data model needs to react to an
 account being deleted, handle those events rather than dropping them.
-(`identity` events are informational — handle changes — and don't remove
-records.)
+(`identity` events are informational and don't remove records.)
 :::
 
 ## Authentication and metering
 
-On Bluesky-hosted instances, the replay HTTP endpoints sit behind a metering
-gate. The behavior is designed so that a well-behaved client can recover from
+On Bluesky-hosted instances, the replay HTTP endpoints are **metered**. The behavior is designed so that a well-behaved client can recover from
 every limit without losing work:
 
-- **Auth is an API key** ([create one here](/account#api-keys-section-heading))
-  sent as `Authorization: Bearer <key>` on every HTTP call. A missing,
-  malformed, or revoked key gets a `401` with body
-  `{"error":"invalid bearer credential"}` — the same response in every case.
+- **To Auth, use an API key** ([create one here](/account#api-keys-section-heading))
+  sent as `Authorization: Bearer <key>` on every HTTP call. A response with a missing,
+  malformed, or revoked key will return a `401` with a body of 
+  `{"error":"invalid bearer credential"}`.
 - **Usage is metered in bytes, not requests.** What counts is the response
   bytes you download (compressed, as sent on the wire); headers and request
-  bodies don't. Narrow filters and cached responses are free wins.
-- **Over the limit means `429`** with body `{"error":"byte limit exceeded"}`
+  bodies don't.
+- **Being rate limited will return a `429`** with a body of `{"error":"byte limit exceeded"}`
   and a `Retry-After: <seconds>` header. Wait that long and retry; the quota
   refills continuously rather than resetting on a boundary.
 - **Running out mid-download closes the stream cleanly.** The bytes you already
-  received are intact — persist them, wait out the quota, and resume with an
+  received are intact. Persist them, wait out the quota, and resume with an
   HTTP `Range` request from your exact byte offset. Nothing is re-charged for
   data you don't re-download.
 
@@ -177,7 +173,7 @@ A **snapshot** is the archive without the live tail. There are two shapes,
 depending on what you want to hold at the end.
 
 For **a decoded dataset** — every matching record as of now, ready to load
-somewhere — run a bounded backfill with no cutover. The iterator simply ends
+somewhere — run a bounded backfill with no cutover. The iterator ends
 when the archive range is consumed:
 
 <Tabs groupId="lang">
@@ -216,21 +212,20 @@ ETag:
 }
 ```
 
-Segment files are a documented columnar format (see the [Jetstream
+Segment files are a columnar format (see the [Jetstream
 repository](https://github.com/bluesky-social/jetstream)) holding each event's
 metadata **and its raw CBOR**, so a mirror is independently auditable against
 the network. Note that sealed segments are immutable *between compactions*:
-the server periodically rewrites them to physically remove deleted records,
+the server [periodically rewrites them](jetstream-self-host#whats-on-disk) to physically remove deleted records,
 and rewritten files get new checksums. Re-list and compare checksums rather
 than assuming a segment never changes.
 
 ## How replay works
 
-Everything above is plain HTTP plus one WebSocket — here's the contract the
-client implements, for building a client in another language, tooling that
-works with the archive directly, or just knowing what's happening on your
-behalf. Replay is **stateless on the server**: there's no per-consumer cursor
-to manage, no subscription to register. Three steps:
+Everything above is plain HTTP plus one WebSocket. This section explains how that works under the hood, without an SDK.
+
+Replay is **stateless on the server**: there's no per-consumer cursor
+to manage, no subscription to register. In three steps:
 
 1. **Page a plan.** `POST` your filters to
    [`planBackfill`](https://endpoints.bsky.app): `dids` (exact),
@@ -254,8 +249,7 @@ to manage, no subscription to register. Three steps:
    between your plan and the live socket, there's no buffer to drain and no
    events lost in the handoff.
 
-A plan looks like this (a real response, trimmed — a fuller archive plans many
-segments per page):
+A plan looks like this:
 
 ```json
 {
@@ -276,22 +270,21 @@ segments per page):
 }
 ```
 
-Plans are **transport hints, not exact answers**: the planner guarantees no
+The planner guarantees no
 false negatives but may include blocks that turn out to hold no matching rows
 (it plans from bloom filters and per-block summaries without opening files).
 The client applies the exact `dids`/`collections` filter to what it decodes.
 
-Two edge cases the contract already covers:
+**Large plans truncate cleanly.** When a page would exceed the server's entry
+limit, it's cut at a whole segment or block-range boundary and
+`plannedThroughSeq` tells you exactly where to resume. At least one work unit
+is always admitted, so progress is guaranteed.
 
-- **Large plans truncate cleanly.** When a page would exceed the server's entry
-  limit, it's cut at a whole segment or block-range boundary and
-  `plannedThroughSeq` tells you exactly where to resume. At least one work unit
-  is always admitted, so progress is guaranteed.
-- **Slow backfills can't skip data.** If a backfill takes so long that `S`
-  ages out of the live socket's lookback window (36 hours on Bluesky-hosted
-  instances), the `/subscribe` connect fails with an explicit HTTP 400 carrying
-  the new floor — the client re-enters the plan loop from its last processed
-  sequence number rather than losing the gap.
+**Slow backfills can't skip data.** If a backfill takes so long that `S`
+ages out of the live socket's lookback window (36 hours on Bluesky-hosted
+instances), the `/subscribe` connect fails with an explicit HTTP 400 carrying
+the new floor. The client re-enters the plan loop from its last processed
+sequence number rather than losing the gap.
 
 The archive preserves the ordering guarantee you rely on from the live
 firehose: **every event for a single DID arrives in sequence order** (across

@@ -5,25 +5,14 @@ description: Jetstream is a single static Go binary that archives the whole netw
 
 # Running your own Jetstream
 
-The [public instances](/docs/jetstream#public-endpoints) are enough for most
-consumers. Run your own when you want the archive on your own hardware: no
+Jetstream consumers can use the [Bluesky-hosted instances](/docs/jetstream#public-endpoints). Run your own when you want the archive on your own hardware: no
 metering, your own retention of the network's history, and the ability to
-audit the data you serve. A self-hosted instance exposes exactly the same
-endpoints as Bluesky's — the [live tail](/docs/jetstream), the
-[replay](/docs/jetstream-replay) HTTP calls, and segment downloads — so every
-client and example in this section works against it unchanged.
+audit the data you serve.
 
 Jetstream is [open source](https://github.com/bluesky-social/jetstream) and
 ships as a single static Go binary (Docker images are published from the
 repository). One server is the whole deployment; there's no database to
 operate beside it.
-
-:::note
-Jetstream v2 is approaching its 1.0 tag. Until the repository tags 1.0, the
-on-disk archive format may change between releases, which means a re-backfill.
-The original v1 codebase lives on as
-[jetstream-legacy](https://github.com/bluesky-social/jetstream-legacy).
-:::
 
 ## Starting a server
 
@@ -35,8 +24,8 @@ jetstream serve --addr :8080 --data-dir /data/jetstream
 ```
 
 `--addr` (`JETSTREAM_ADDR`) is the public listener and `--data-dir`
-(`JETSTREAM_DATA_DIR`) is where the archive lives. Two more you'll commonly set: `--relay-url` (default `https://bsky.network`),
-which is the upstream [Relay](/docs/relay) it archives, and `--plc-url` for
+(`JETSTREAM_DATA_DIR`) is where the archive lives. You can also set `--relay-url`,
+which is the upstream [Relay](/docs/relay) it archives (default `https://bsky.network`), and `--plc-url` for
 identity lookups. For a development instance that doesn't archive the whole
 network, cap the backfill:
 
@@ -49,10 +38,8 @@ jetstream serve --data-dir ./data --max-backfill-repos=20
 
 A fresh instance builds its archive before it serves anyone. It walks the
 relay's repo list and downloads every repo, while simultaneously capturing the
-live firehose to the side so nothing is missed in between. Until this
-**bootstrap** completes, the server answers every request with a `503`. For
-the full network, expect the backfill to take on the order of **16 hours** (it
-is bounded by PDS rate limits, not your hardware); the merge step that follows
+live firehose so nothing is missed in between. Until this
+**bootstrap** completes, the server answers every request with a `503`. The merge step that follows
 takes minutes, and then the instance enters steady state and starts serving.
 
 Progress is visible the whole way on the human-readable **`/status`** page:
@@ -69,8 +56,8 @@ handles.
 - **Disk** is the real requirement: the full-network archive is
   multi-terabyte and grows with the network. (A filtered development instance
   is tiny.)
-- **Memory**: a few GiB in steady state — the server keeps per-segment indexes
-  resident — plus headroom during the initial backfill.
+- **Memory**: a few GiB in steady state. The server keeps per-segment indexes
+  resident, and you need some headroom during the initial backfill.
 - **CPU**: modest. Ingest and compaction are the main consumers; serving the
   live tail is cheap.
 
@@ -95,7 +82,7 @@ deletion requests.
 
 ## Serving configuration
 
-A few knobs shape what consumers can ask of your instance:
+A few params shape what consumers can ask of your instance:
 
 - **`--cursor-lookback`** (default 36h) bounds how far back a live
   `?cursor=` reconnect can reach. Older cursors mean the client re-enters the
@@ -105,26 +92,25 @@ A few knobs shape what consumers can ask of your instance:
   [`planBackfill`](https://endpoints.bsky.app). Plans truncate cleanly and
   paginate, so limits never break clients.
 - **`--segment-cache-max-age`** sets the `Cache-Control` max-age on segment
-  downloads — raise it when a CDN fronts your instance.
+  downloads. You can raise this if you're using a CDN.
 
 ## Gating the expensive endpoints
 
-Jetstream serves plain HTTP and has **no built-in auth or rate limiting** on
-its read endpoints — terminate TLS and set policy in whatever proxy or CDN you
-already run. The economics to know:
+Jetstream serves plain HTTP and unlike the Bluesky instances, self-hosting does not include **built-in auth or rate limiting**.
 
-- The **live tail is cheap** to serve; Bluesky's instances leave `/subscribe`
-  open, and per-IP connection limits at the proxy go a long way.
-- **Replay reads are the expensive path** — one `planBackfill` can touch a lot
-  of archive, and segment downloads move real bytes. Bluesky's hosted
-  instances front the four replay endpoints (`planBackfill`, `getSegment`,
-  `getBlock`, `listSegments`) with a proxy that requires an API key and
-  [meters the bytes each key downloads](/docs/jetstream-replay#authentication-and-metering),
-  while leaving everything else open. Any reverse proxy that can check a
-  bearer token and count response bytes can apply the same policy.
-- Segments and blocks are **immutable and ETag'd**, so a caching CDN in front
-  of the download endpoints absorbs most repeat traffic before it reaches
-  your disk.
+The **live tail is cheap** to serve; Bluesky's instances leave `/subscribe` open, and per-IP connection limits at the proxy go a long way.
+
+**Replay reads are the expensive path**. One `planBackfill` can touch a lot
+of archive, and segment downloads move real bytes. Bluesky's hosted
+instances gate the four replay endpoints (`planBackfill`, `getSegment`,
+`getBlock`, `listSegments`) with a proxy that requires an API key and
+[meters the bytes each key downloads](/docs/jetstream-replay#authentication-and-metering),
+while leaving everything else open. Any reverse proxy that can check a
+bearer token and count response bytes can apply the same policy.
+
+Segments and blocks are **immutable and ETag'd**, so a caching CDN in front
+of the download endpoints absorbs most repeat traffic before it reaches
+your disk.
 
 The one endpoint that's gated in-process is the operator-only timestamp
 import (below): it returns `401` unless you start the server with

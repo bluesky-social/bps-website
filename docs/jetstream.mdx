@@ -26,9 +26,6 @@ There are three ways to consume it:
 - **Snapshotting** — a point-in-time copy of the archive over HTTP, with no live
   tail.
 
-All three come with official clients, so none of it needs hand-rolling. Start
-with the live tail below.
-
 Jetstream is [open source](https://github.com/bluesky-social/jetstream),
 implemented in Go, and cheap to self-host. Read on to interact with Bluesky's public instances.
 
@@ -118,7 +115,7 @@ v2: each event also carries a `cursor` field (its sequence number; see
 | **v1** | `wss://jetstream1.us-west.bsky.network` | US West |
 | **v1** | `wss://jetstream2.us-east.bsky.network` | US East |
 
-**Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides legacy timestamps.
+**Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides [legacy timestamps](#resuming-where-you-left-off).
 
 No authentication is required for the live tail; these
 instances serve the full network, and your `wantedCollections` / `wantedDids`
