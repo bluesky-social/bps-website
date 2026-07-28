@@ -20,9 +20,10 @@ snapshotting.
 :::note Preview
 The SDK ships today as **`bsky-jetstream-preview`**, an early cut that wraps
 Jetstream's **v1** live tail, the same [live tail](/docs/jetstream#quickstart-live-tail)
-you can hit with `websocat`. The API shape is the one the v2 client will keep,
-so what you write now carries forward. [Replay](/docs/jetstream-replay) and
-snapshotting aren't wrapped yet; see [Where this is going](#where-this-is-going).
+you can hit with `websocat`. The live tail is open, so none of this needs an
+API key. The API shape is the one the v2 client will keep, so what you write
+now carries forward. For replay, head to [Network
+Replay](/docs/jetstream-replay).
 :::
 
 ## Install
@@ -178,7 +179,7 @@ tail above needs none of that; plain collection strings are enough.
 
 - **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints,
   with hand-rolled equivalents of what the SDK does for you.
-- **[Network Replay with Jetstream](/docs/jetstream-replay)** — the history path
-  the SDK will wrap next, alongside snapshotting.
+- **[Network Replay with Jetstream](/docs/jetstream-replay)** — replay history
+  and cut over to live through one interface.
 - **[HTTP reference](https://endpoints.bsky.app)** — the `network.bsky.jetstream.*`
   methods the v2 client is built on.

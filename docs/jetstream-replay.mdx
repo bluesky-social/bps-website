@@ -1,7 +1,10 @@
 ---
 sidebar_label: Network Replay
-description: Replay history and continue live through one interface — Jetstream is your buffer. The server holds the archive; you page a plan, download segments over HTTP, and tail the live WebSocket from the tip.
+description: Replay history and continue live through one interface — Jetstream is your buffer. The server holds the archive; the client backfills it and cuts over to the live tail with no gap.
 ---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 # Network Replay with Jetstream
 
@@ -21,63 +24,87 @@ stage on the client.
 | | Transport | Auth |
 | --- | --- | --- |
 | **Live** | WebSocket (`/subscribe`) | none |
-| **Replay** | WebSocket **+** HTTP (plan + download, then tail) | bearer token on the HTTP calls |
-| **Snapshot** | HTTP only (`listSegments` + `getSegment`, no live tail) | bearer token |
+| **Replay** | WebSocket **+** HTTP (plan + download, then tail) | API key on the HTTP calls |
+| **Snapshot** | HTTP only (download, no live tail) | API key |
 
-Each is a way of *consuming* Jetstream. The [Jetstream
-SDK](/docs/jetstream-sdk) is a client for all three — it wraps the live tail
-today, with replay and snapshotting following.
-
-This page covers **replay**: catching up from a point in the past and cutting
-over to live. The live tail has its [own page](/docs/jetstream); snapshotting is
-[sketched below](#where-this-is-going).
-
-:::note Replay requires auth
-The live tail is open and works unauthenticated. Replay reads from the archive,
-which is computationally expensive to serve, so the HTTP endpoints
-(`planBackfill`, `getSegment`, `getBlock`, `listSegments`) require a **bearer
-token in the `Authorization` header**. Generate one by signing in and [creating
-an API key](/account#api-keys-section-heading), then send
-it as `Authorization: Bearer <key>`. Browse the endpoints in the [HTTP
-reference](https://endpoints.bsky.app). Replay is a
+Each is a way of *consuming* Jetstream — same archive, same event shape
+throughout. This page covers **replay**: catching up from a point in the past
+and cutting over to live. The live tail has its
+[own page](/docs/jetstream); snapshotting is
+[below](#snapshotting-a-point-in-time-copy). Replay is a
 [Jetstream v2](/docs/jetstream#public-endpoints) feature.
-:::
 
-## How replay works
+## Quickstart: backfill, then live
 
-Replay is **stateless on the server**: there's no per-consumer cursor to manage,
-no subscription to register. You ask what's available, pull it over plain HTTP,
-then connect the live socket once at the tip. Three steps:
+The client that ships in the [Jetstream
+repository](https://github.com/bluesky-social/jetstream) does the whole dance —
+planning the backfill, downloading the archive in parallel, decoding, exact
+filtering, and the live cutover — behind one iterator. Give `Subscribe` a
+starting point and read:
 
-1. **Page a plan.** `POST` your filters (`dids`, `collections`, an optional
-   `afterSeq`/`beforeSeq` window) to
-   [`planBackfill`](https://endpoints.bsky.app). It pins the current sealed tip
-   `S` and returns the sealed segments (or specific block ranges within them)
-   that may hold matching rows. Call it repeatedly, advancing `afterSeq` to the
-   previous response's `plannedThroughSeq`, until the plan reaches `S`.
-2. **Download the archive.** For each planned unit, fetch the whole segment with
-   [`getSegment`](https://endpoints.bsky.app) or an individual block with
-   [`getBlock`](https://endpoints.bsky.app). These are immutable, ETag'd, and
-   CDN-cacheable, so downloads parallelize freely. Decode each row and apply your
-   exact filters.
-3. **Tail live from the tip.** Connect `/subscribe` **once** at `S`. Because the
-   server's own cold replay covers the window between your plan and the live
-   socket, there's no buffer to drain and no events lost in the handoff.
+<Tabs groupId="lang">
+  <TabItem value="go" label="Go">
+    ```go
+    // go get github.com/bluesky-social/jetstream
+    package main
 
-Because the archive is laid out per account, the ordering guarantee you rely on
-for the live firehose still holds: **every event for a single DID is delivered
-in seq order** (across accounts, events may interleave).
+    import (
+    	"context"
+    	"fmt"
+
+    	"github.com/bluesky-social/jetstream"
+    )
+
+    func main() {
+    	client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    		jetstream.WithAfterSeq(0), // start from the beginning of the archive
+    	)
+    	if err != nil {
+    		panic(err)
+    	}
+    	defer client.Close()
+
+    	for batch, err := range client.Events(context.Background()) {
+    		if err != nil {
+    			continue // recoverable; iteration ends only when the context does
+    		}
+    		for _, evt := range batch.Events() {
+    			fmt.Println(evt.Seq, evt.DID, evt.Kind)
+    		}
+    		// persist batch.LastCursor() to resume from here after a restart
+    	}
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The stream starts in the past and simply keeps going: when the archive range
+is consumed, the client connects the live WebSocket at the tip and events
+continue arriving through the same loop, with the seam deduplicated for you.
+Your code never needs to know whether an event is history or real time.
+
+A bare `Subscribe(host)` with no starting point is a pure live tail. To resume
+after a restart, persist `batch.LastCursor()` as you go and pass it back as
+`WithAfterSeq(lastCursor)` — the archive picks up from there no matter how
+long you were down.
+
+On Bluesky-hosted instances, the HTTP side of replay requires an **API key** —
+see [Authentication and metering](#authentication-and-metering) for how to
+attach it and what the limits look like.
 
 ## Folding the stream (eventually consistent)
 
 Replay delivers **every matching event at least once, in seq order**. Creates,
 updates, and deletes all ride inline, the same way they happen on the network.
-The server doesn't hide superseded records for you; instead you **fold** the
-stream to converge on the current state:
+The server doesn't hide superseded records for you; instead your handler
+**folds** the stream to converge on the current state:
 
-- a `create` adds a record,
-- a `delete` (or an `#account` / `#identity` / `#sync` marker) removes it,
-- an `update` replaces it.
+- a `create` adds a record, an `update` replaces it,
+- a `delete` removes it,
+- an account-level deletion (an `account` event with `active: false` and
+  `status: "deleted"`) or a `sync` divergence marker removes **all** of that
+  account's records.
 
 Apply events in order and you arrive at network truth. A record you'll later
 delete may show up transiently before its delete arrives. That's expected, and
@@ -85,54 +112,201 @@ it's why your writes should be **idempotent** (keying on each record's `at://`
 URI is usually enough). This is the whole contract: no overlay to download, no
 tombstone window to reason about.
 
-:::tip Subscribe to the markers you need
-Account-level markers (`#account`, `#identity`, `#sync`) carry no collection, so
-they ride a reserved channel and are always included in a collection-filtered
-plan. If your data model needs to react to an account being deleted, handle
-those events, don't filter them out.
+:::tip Don't filter out the markers
+Account-level events (`account`, `identity`, `sync`) carry no collection, and
+Jetstream deliberately delivers them anyway — even to a collection-filtered
+consumer, in replay and live alike. If your data model needs to react to an
+account being deleted, handle those events rather than dropping them.
+(`identity` events are informational — handle changes — and don't remove
+records.)
 :::
 
-## Where this is going
+## Authentication and metering
 
-The replay flow above is a handful of HTTP calls plus one WebSocket, runnable
-against the public instances with a bearer token. The [Jetstream
-SDK](/docs/jetstream-sdk) already wraps the **live tail** behind a single async
-iterator. What it doesn't **orchestrate yet** is replay: paging the plan,
-fanning out the downloads, decoding, folding, and managing the live cutover.
+On Bluesky-hosted instances, the replay HTTP endpoints sit behind a metering
+gate. The behavior is designed so that a well-behaved client can recover from
+every limit without losing work:
 
-That's what the `network.bsky.jetstream.*` methods in the [HTTP
-reference](https://endpoints.bsky.app) are building toward. It would slot onto
-the same client you use for the live tail today — differing only in that it
-starts in the past and takes a token:
+- **Auth is an API key** ([create one here](/account#api-keys-section-heading))
+  sent as `Authorization: Bearer <key>` on every HTTP call. A missing,
+  malformed, or revoked key gets a `401` with body
+  `{"error":"invalid bearer credential"}` — the same response in every case.
+- **Usage is metered in bytes, not requests.** What counts is the response
+  bytes you download (compressed, as sent on the wire); headers and request
+  bodies don't. Narrow filters and cached responses are free wins.
+- **Over the limit means `429`** with body `{"error":"byte limit exceeded"}`
+  and a `Retry-After: <seconds>` header. Wait that long and retry; the quota
+  refills continuously rather than resetting on a boundary.
+- **Running out mid-download closes the stream cleanly.** The bytes you already
+  received are intact — persist them, wait out the quota, and resume with an
+  HTTP `Range` request from your exact byte offset. Nothing is re-charged for
+  data you don't re-download.
 
-```ts
-// Illustrative — the SDK does not orchestrate replay yet. It would layer over
-// the same planBackfill / getSegment / getBlock / subscribe methods you can
-// call directly today, behind the same iterator that .live() already gives you.
-import { Jetstream } from 'bsky-jetstream-preview'
+The live WebSocket needs no key and is not metered. To attach your key:
 
-const jetstream = new Jetstream('https://jetstream.us-east.bsky.network') // a v2 host
+<Tabs groupId="lang">
+  <TabItem value="go" label="Go">
+    ```go
+    // The client sends whatever your http.Client sends, so attach the key
+    // with a small transport:
+    type withKey struct {
+    	key string
+    	rt  http.RoundTripper
+    }
 
-for await (const evt of jetstream.replay({
-  collections: ['app.bsky.feed.post'],
-  token, // an API key from your account page: /account
-})) {
-  db.apply(evt) // fold create / update / delete; idempotent
+    func (w withKey) RoundTrip(req *http.Request) (*http.Response, error) {
+    	req = req.Clone(req.Context())
+    	req.Header.Set("Authorization", "Bearer "+w.key)
+    	return w.rt.RoundTrip(req)
+    }
+
+    client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	jetstream.WithAfterSeq(0),
+    	jetstream.WithHTTPClient(&http.Client{
+    		Transport: withKey{key: os.Getenv("JETSTREAM_API_KEY"), rt: http.DefaultTransport},
+    	}),
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+## Snapshotting: a point-in-time copy
+
+A **snapshot** is the archive without the live tail. There are two shapes,
+depending on what you want to hold at the end.
+
+For **a decoded dataset** — every matching record as of now, ready to load
+somewhere — run a bounded backfill with no cutover. The iterator simply ends
+when the archive range is consumed:
+
+<Tabs groupId="lang">
+  <TabItem value="go" label="Go">
+    ```go
+    client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	jetstream.WithAfterSeq(0),
+    	jetstream.WithBackfillOnly(), // no live cutover; ends at the archive tip
+    )
+    ```
+  </TabItem>
+</Tabs>
+
+For **a raw archive mirror**, enumerate the sealed segment files with
+[`listSegments`](https://endpoints.bsky.app) and download each with
+[`getSegment`](https://endpoints.bsky.app). Every entry carries the segment's
+size, event count, sequence bounds, and a checksum that doubles as its HTTP
+ETag:
+
+```json
+{
+  "segments": [
+    {
+      "name": "seg_0000000000.jss",
+      "index": 0,
+      "sizeBytes": 193462065,
+      "checksum": "0c9577a8002d2b24",
+      "eventCount": 2569479,
+      "minSeq": 1,
+      "maxSeq": 2569835,
+      "minWitnessedAt": 1785262575375952,
+      "maxWitnessedAt": 1785262678113580
+    }
+  ]
 }
 ```
 
-A related shape is **snapshotting** — a point-in-time copy of the archive with
-no live tail, built purely from the HTTP side (`listSegments` to enumerate,
-`getSegment` to download). Same methods, no WebSocket.
+Segment files are a documented columnar format (see the [Jetstream
+repository](https://github.com/bluesky-social/jetstream)) holding each event's
+metadata **and its raw CBOR**, so a mirror is independently auditable against
+the network. Note that sealed segments are immutable *between compactions*:
+the server periodically rewrites them to physically remove deleted records,
+and rewritten files get new checksums. Re-list and compare checksums rather
+than assuming a segment never changes.
+
+## How replay works
+
+Everything above is plain HTTP plus one WebSocket — here's the contract the
+client implements, for building a client in another language, tooling that
+works with the archive directly, or just knowing what's happening on your
+behalf. Replay is **stateless on the server**: there's no per-consumer cursor
+to manage, no subscription to register. Three steps:
+
+1. **Page a plan.** `POST` your filters to
+   [`planBackfill`](https://endpoints.bsky.app): `dids` (exact),
+   `collections` (exact NSIDs, or `app.bsky.feed.*`-style namespace wildcards),
+   and an optional `afterSeq`/`beforeSeq` window. The first response reports the
+   archive's current sealed tip — pin it as `S = sealedTipSeq` for the whole
+   backfill. Each page also reports `plannedThroughSeq`, the highest sequence
+   number it accounts for. While `plannedThroughSeq < S`, call `planBackfill`
+   again with `afterSeq = plannedThroughSeq` and `beforeSeq = S`, so the range
+   never floats as new data arrives.
+2. **Download the archive.** Each planned segment comes back in one of two
+   modes: `mode: "segment"` (fetch the whole file with
+   [`getSegment`](https://endpoints.bsky.app)) or `mode: "blocks"` (fetch just
+   the listed block ranges with [`getBlock`](https://endpoints.bsky.app)).
+   Responses are immutable, ETag'd, and CDN-cacheable, and `getSegment` supports
+   HTTP `Range` requests, so downloads parallelize freely and resume exactly
+   where they stopped. Decode each row and apply your exact filters.
+3. **Tail live from the tip.** Connect `/subscribe` **once** at `?cursor=S`.
+   The cursor is inclusive — you'll receive the event at `S` again — so
+   deduplicate by sequence number. Because the server itself replays the window
+   between your plan and the live socket, there's no buffer to drain and no
+   events lost in the handoff.
+
+A plan looks like this (a real response, trimmed — a fuller archive plans many
+segments per page):
+
+```json
+{
+  "sealedTipSeq": 2569835,
+  "plannedThroughSeq": 2569835,
+  "segments": [
+    {
+      "name": "seg_0000000000.jss",
+      "index": 0,
+      "checksum": "0c9577a8002d2b24",
+      "minSeq": 1,
+      "maxSeq": 2569835,
+      "mode": "blocks",
+      "blocks": [{ "first": 7, "last": 9 }, { "first": 11, "last": 12 }]
+    }
+  ],
+  "stats": { "segmentsExamined": 1, "segmentsMatched": 1, "blocksMatched": 58, "entries": 19 }
+}
+```
+
+Plans are **transport hints, not exact answers**: the planner guarantees no
+false negatives but may include blocks that turn out to hold no matching rows
+(it plans from bloom filters and per-block summaries without opening files).
+The client applies the exact `dids`/`collections` filter to what it decodes.
+
+Two edge cases the contract already covers:
+
+- **Large plans truncate cleanly.** When a page would exceed the server's entry
+  limit, it's cut at a whole segment or block-range boundary and
+  `plannedThroughSeq` tells you exactly where to resume. At least one work unit
+  is always admitted, so progress is guaranteed.
+- **Slow backfills can't skip data.** If a backfill takes so long that `S`
+  ages out of the live socket's lookback window (36 hours on Bluesky-hosted
+  instances), the `/subscribe` connect fails with an explicit HTTP 400 carrying
+  the new floor — the client re-enters the plan loop from its last processed
+  sequence number rather than losing the gap.
+
+The archive preserves the ordering guarantee you rely on from the live
+firehose: **every event for a single DID arrives in sequence order** (across
+accounts, events interleave).
 
 ## See also
 
 - **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints.
-- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client that wraps the
-  live tail today and will orchestrate this replay flow next.
+- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client for the
+  live tail.
 - **[HTTP reference](https://endpoints.bsky.app)** — the `planBackfill`,
   `listSegments`, `getSegment`, and `getBlock` methods, with request and
   response schemas.
+- **[Running your own Jetstream](/docs/jetstream-self-host)** — the same
+  archive and endpoints, on your own hardware.
 - **[Consuming the firehose](/docs/consuming-the-firehose)** — the raw binary
   path, for when you need CBOR/CAR records or to verify repository state
   yourself.
