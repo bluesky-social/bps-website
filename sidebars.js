@@ -49,9 +49,9 @@ const sidebars = {
         'bluesky-api/like-repost',
         'bluesky-api/profiles',
         'bluesky-api/following',
-        'bluesky-api/muting-and-blocking',
         'bluesky-api/user-lists',
         'bluesky-api/custom-feeds',
+        'bluesky-api/request-proxying',
       ],
     },
     {

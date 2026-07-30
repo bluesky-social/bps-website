@@ -21,11 +21,14 @@ feeds."
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    To fetch a user's profile info, you can use the `getProfile` method.
+    To fetch a user's profile info, you can call the `app.bsky.actor.getProfile` endpoint.
 
-    ```typescript title="agent.getProfile"
-    const { data } = await agent.getProfile({ actor: 'did:plc:...' })
-    const { did, displayName, ... } = data
+    ```typescript title="app.bsky.actor.getProfile"
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    const { did, displayName } = await client.call(app.bsky.actor.getProfile, {
+      actor: 'did:plc:...',
+    })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -58,9 +61,10 @@ Fetching multiple profiles is as easy as fetching a single profile:
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.getProfiles"
-    const { data } = await agent.getProfiles({ actors: ['did:plc:...', ...] })
-    const { profiles } = data
+    ```typescript title="app.bsky.actor.getProfiles"
+    const { profiles } = await client.call(app.bsky.actor.getProfiles, {
+      actors: ['did:plc:...'],
+    })
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -92,8 +96,8 @@ the profile already exists, you must merge in new values manually and return
 result to be updated.
 
 :::note
-The `@atproto/api` library provides a convenient `upsertProfile` helper, shown
-below. Where an SDK doesn't have an equivalent, edit your profile directly: read
+The TypeScript SDK provides a convenient `upsertProfile` action, shown below.
+Where an SDK doesn't have an equivalent, edit your profile directly: read
 the `app.bsky.actor.profile` record at rkey `self`, change the fields you want,
 and write it back with a put-record call (in Go, build an `appbsky.ActorProfile`
 and submit it with `comatproto.RepoPutRecord`).
@@ -101,15 +105,14 @@ and submit it with `comatproto.RepoPutRecord`).
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.upsertProfile"
-    await agent.upsertProfile(existingProfile => {
-      const existing = existingProfile ?? {}
+    ```typescript title="upsertProfile"
+    import { upsertProfile } from '@bsky.app/sdk'
 
-      existing.displayName = 'New display name who dis'
-      existing.description = 'New bio who dis'
-
-      return existing
-    })
+    await client.call(upsertProfile, existing => ({
+      ...existing,
+      displayName: 'New display name who dis',
+      description: 'New bio who dis',
+    }))
     ```
   </TabItem>
 </Tabs>
@@ -128,19 +131,15 @@ to your PDS.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.upsertProfile"
+    ```typescript title="upsertProfile"
     const avatar = 'data:image/png;base64,...'
 
-    await agent.upsertProfile(existingProfile => {
-      const existing = existingProfile ?? {}
-
-      const { data } = await agent.uploadBlob(convertDataURIToUint8Array(avatar), {
-        encoding,
+    await client.call(upsertProfile, async existing => {
+      const { body } = await client.uploadBlob(convertDataURIToUint8Array(avatar), {
+        encoding: 'image/png',
       })
 
-      existing.avatar = data.blob
-
-      return existing
+      return { ...existing, avatar: body.blob }
     })
     ```
   </TabItem>

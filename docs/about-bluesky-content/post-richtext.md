@@ -89,7 +89,7 @@ Strings in the network are UTF-8 encoded. Facet ranges are indexed using byte of
 :::warning
 It's important to pay attention to this when working with facets. Incorrect indexing will produce bad data.
 
-If you are using TypeScript/Javascript, you **cannot** use `.slice()` or any of the native methods. It's suggested you use a library that handles this for you, such as the `RichText` helper in [`@atproto/api`](https://www.npmjs.com/package/@atproto/api).
+If you are using TypeScript/Javascript, you **cannot** use `.slice()` or any of the native methods. It's suggested you use a library that handles this for you, such as the `RichText` helper in [`@bsky.app/sdk`](https://www.npmjs.com/package/@bsky.app/sdk).
 :::
 
 To understand this fully, let's look at some of the kinds of indexing that Unicode supports:
@@ -110,9 +110,10 @@ Here are two example parsers to help you understand this behavior, but do *not* 
   <TabItem value="ts" label="TypeScript">
 ```ts
 import TLDs from 'tlds'
-import { AppBskyRichtextFacet } from '@atproto/api'
+import { type DidString, type UriString } from '@atproto/lex'
+import { app } from '@bsky.app/sdk/lexicons'
 
-type Facet = AppBskyRichtextFacet.Main
+type Facet = app.bsky.richtext.facet.Main
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
@@ -154,7 +155,7 @@ function detectFacets(text: UnicodeString): Facet[] | undefined {
         features: [
           {
             $type: 'app.bsky.richtext.facet#mention',
-            did: match[3], // must be resolved afterwards
+            did: match[3] as DidString, // placeholder — must be resolved afterwards
           },
         ],
       })
@@ -192,7 +193,7 @@ function detectFacets(text: UnicodeString): Facet[] | undefined {
         features: [
           {
             $type: 'app.bsky.richtext.facet#link',
-            uri,
+            uri: uri as UriString,
           },
         ],
       })

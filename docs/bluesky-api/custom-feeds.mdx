@@ -20,7 +20,9 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     Call app.bsky.feed.getFeedGenerator to view a feedgen's description.
 
     ```ts
-    agent.app.bsky.feed.getFeedGenerator({
+    import { app } from '@bsky.app/sdk/lexicons'
+
+    await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri
     })
     ```
@@ -29,14 +31,14 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
 
     ```ts title="getFeedGenerator() output"
     {
-      view: { // AppBskyFeedDefs.GeneratorView 
+      view: { // app.bsky.feed.defs.GeneratorView
         uri: string;
         cid: string;
         did: string;
-        creator: AppBskyActorDefs.ProfileView;
+        creator: app.bsky.actor.defs.ProfileView;
         displayName: string;
         description?: string;
-        descriptionFacets?: AppBskyRichtextFacet.Main[];
+        descriptionFacets?: app.bsky.richtext.facet.Main[];
         avatar?: string;
         likeCount?: number;
         viewer?: GeneratorViewerState;
@@ -87,7 +89,7 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     Call app.bsky.feed.getFeed to view posts from a feedgen.
 
     ```ts
-    agent.app.bsky.feed.getFeed({
+    await client.call(app.bsky.feed.getFeed, {
       feed: feedUri,
       limit: 30,
       cursor
@@ -99,7 +101,7 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     ```ts title="getFeed() output"
     {
       cursor?: string;
-      feed: AppBskyFeedDefs.FeedViewPost[];
+      feed: app.bsky.feed.defs.FeedViewPost[];
     }
     ```
 
@@ -140,11 +142,11 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     For example:
 
     ```ts
-    const res = await agent.app.bsky.feed.getFeedGenerator({
+    const res = await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri
     })
-    if (res.data.list.viewer?.like) {
-      // has liked list
+    if (res.view.viewer?.like) {
+      // has liked feed
     }
     ```
   </TabItem>
@@ -173,19 +175,23 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     Liking a feed is the same as liking any other item in the network. You just use the URI and CID of the feed generator to identify the feed.
 
     ```ts
-    const {data: feedInfo} = agent.app.bsky.feed.getFeedGenerator({
+    import { like, deleteLike } from '@bsky.app/sdk'
+
+    const { view } = await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri
     })
-    await agent.like(feedUri, feedInfo.view.cid)
+    await client.call(like, { uri: view.uri, cid: view.cid })
     ```
 
     Unliking a feed works the same way:
     
     ```ts
-    const {data: feedInfo} = agent.app.bsky.feed.getFeedGenerator({
+    const { view } = await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri
     })
-    await agent.unlike(feedInfo.view.viewer.like)
+    if (view.viewer?.like) {
+      await client.call(deleteLike, view.viewer.like)
+    }
     ```
   </TabItem>
   <TabItem value="python" label="Python">

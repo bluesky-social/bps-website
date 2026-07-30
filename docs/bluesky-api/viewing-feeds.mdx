@@ -15,7 +15,7 @@ Feeds are lists of posts, paginated by cursors. Bluesky has a few types of feeds
 
 ## Viewing a user's timeline
 
-The Bluesky agent you created in the [Bluesky API](/docs/bluesky-api) section has a dedicated `getTimeline` method that returns the authenticated user's timeline. It accepts two parameters: `cursor` and `limit`.
+The client you created in the [Bluesky API](/docs/bluesky-api) section can fetch the authenticated user's timeline with `getTimeline`. It accepts two parameters: `cursor` and `limit`.
 
 | Parameter | Type     | Description                                           | Required | Default |
 | --------- | -------- | ----------------------------------------------------- | -------- | ------- |
@@ -24,13 +24,13 @@ The Bluesky agent you created in the [Bluesky API](/docs/bluesky-api) section ha
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.getTimeline"
-    const { data } = await agent.getTimeline({
-      cursor: "...",
-      limit: 30,
-    });
+    ```typescript title="app.bsky.feed.getTimeline"
+    import { app } from '@bsky.app/sdk/lexicons'
 
-    const { feed: postsArray, cursor: nextPage } = data;
+    const { feed: postsArray, cursor: nextPage } = await client.call(
+      app.bsky.feed.getTimeline,
+      { cursor: "...", limit: 30 },
+    );
     ```
 
   </TabItem>
@@ -63,8 +63,8 @@ Feed generators (custom feeds) are created by users and organizations, and are t
 at://<did>/app.bsky.feed.generator/<record_key>
 ```
 
-To fetch a feed generator, use the `getFeed` method on the `app.bsky.feed`
-namespace on your Bluesky agent. The method accepts the following parameters
+To fetch a feed generator, call the `app.bsky.feed.getFeed` endpoint. It
+accepts the following parameters
 
 | Parameter | Type     | Description                                           | Required | Default |
 | --------- | -------- | ----------------------------------------------------- | -------- | ------- |
@@ -77,8 +77,9 @@ custom feed](https://bsky.app/profile/bsky.app/feed/whats-hot).
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.app.bsky.feed.getFeed"
-    const { data } = await agent.app.bsky.feed.getFeed(
+    ```typescript title="app.bsky.feed.getFeed"
+    const { feed: postsArray, cursor: nextPage } = await client.call(
+      app.bsky.feed.getFeed,
       {
         feed: "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot",
         limit: 30,
@@ -89,8 +90,6 @@ custom feed](https://bsky.app/profile/bsky.app/feed/whats-hot).
         },
       },
     );
-
-    const { feed: postsArray, cursor: nextPage } = data;
     ```
 
   </TabItem>
@@ -121,8 +120,8 @@ custom feed](https://bsky.app/profile/bsky.app/feed/whats-hot).
 We recommend sending the `Accept-Language` header to get posts in the user's preferred language. This header accepts a comma separated string of two-character language codes, e.g. `en,es`.
 :::
 
-Feed generators are also described by data accessible via the `getFeedGenerator`
-method also on the `app.bsky.feed` namespace. This method returns metadata about
+Feed generators are also described by data accessible via the
+`app.bsky.feed.getFeedGenerator` endpoint. This method returns metadata about
 the feed generator, including its name, description, etc. It accepts a single
 parameter, `feed`, which is the URI of the feed generator to fetch.
 
@@ -132,12 +131,12 @@ parameter, `feed`, which is the URI of the feed generator to fetch.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.app.bsky.feed.getFeedGenerator"
-    const { data } = await agent.app.bsky.feed.getFeedGenerator({
+    ```typescript title="app.bsky.feed.getFeedGenerator"
+    const { view } = await client.call(app.bsky.feed.getFeedGenerator, {
       feed: "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.generator/whats-hot",
     });
 
-    const { creator, displayName, description, avatar, likeCount } = data.view;
+    const { creator, displayName, description, avatar, likeCount } = view;
     ```
 
   </TabItem>
@@ -179,14 +178,15 @@ Author feeds return posts by a single user.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    ```typescript title="agent.getAuthorFeed"
-    const { data } = await agent.getAuthorFeed({
-      actor: 'did:plc:z72i7hdynmk6r22z27h6tvur',
-      filter: 'posts_and_author_threads',
-      limit: 30,
-    });
-
-    const { feed: postsArray, cursor: nextPage } = data;
+    ```typescript title="app.bsky.feed.getAuthorFeed"
+    const { feed: postsArray, cursor: nextPage } = await client.call(
+      app.bsky.feed.getAuthorFeed,
+      {
+        actor: 'did:plc:z72i7hdynmk6r22z27h6tvur',
+        filter: 'posts_and_author_threads',
+        limit: 30,
+      },
+    );
     ```
 
   </TabItem>
