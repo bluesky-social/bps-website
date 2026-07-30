@@ -259,7 +259,7 @@ const LEXICONS = [
     authority: 'site.standard.',
     name: 'document',
     what: 'a blog post',
-    app: 'Standard',
+    app: 'Standard Site',
     hue: 'ember',
     sample: (
       <>
@@ -390,15 +390,6 @@ function LexiconGrid() {
             </span>
           </div>
         ))}
-        <div className="lex-cell yours" onMouseEnter={() => setPop(null)}>
-          <span className="lex-nsid">
-            <span className="authority">com.your-domain.</span>whatever
-          </span>
-          <span className="lex-what">
-            Own a domain? You can publish a Lexicon. The network already knows
-            how to carry it.
-          </span>
-        </div>
       </div>
       {pop && (
         <div
