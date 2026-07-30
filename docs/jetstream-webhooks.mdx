@@ -14,28 +14,17 @@ at those: filter the slice of the network you care about, forward each matching
 event to the webhook, and you have realtime activity landing in the place your
 team already watches.
 
-This is one of the lightest-weight things you can do with Jetstream. There's no
-state to keep, no database, no scheduler. Just a WebSocket on one side, an HTTP
-POST on the other, and a few lines of glue in between. It fits several use cases:
+This is one of the lightest-weight things you can do with Jetstream. It fits several use cases:
 
 - **Watching a known set of accounts** — alert when any DID in a watchlist
   posts, follows, or has its identity updated.
-- **Auditing your own app's writes** — record every commit to a collection your
-  app cares about into an append-only log.
-- **Moderation triage** — push matches against a list into a queue your
-  moderators already read.
-- **Brand or keyword monitoring** — forward posts containing a watched word to
-  a team channel.
+- **Brand or keyword monitoring** — forward posts containing a watched word.
 
 ## Slice as much as you can on the server
 
 The biggest lever for keeping this (computationally) cheap is **not asking for more data
-than you need**. Every Jetstream subscription technically filters in two places:
-
-- **Server-side**, via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice):
-  Jetstream narrows the stream before it ever reaches your process.
-- **Client-side**, in your code: only when the server filters can't express
-  what you need; for example, matching the post `text` against a keyword.
+than you need**. Every Jetstream subscription can technically filter both **Server-side**, via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice), and 
+**Client-side**, when the server filters can't express what you need (e.g. matching the post `text` against a keyword).
 
 A subscription with `wantedDids=<10 accounts>&wantedCollections=app.bsky.feed.post`
 is a couple of events per second instead of the full firehose. The receive
@@ -43,12 +32,7 @@ loop barely does any work; almost everything you read is already a match.
 
 ## Example: alert on activity from a watchlist
 
-Discord webhooks are a good example here because they [do not require auth](https://docs.discord.com/developers/resources/webhook).
-
-This script watches a small list of accounts and posts a Discord message
-whenever any of them creates a new post. Because every event the server sends
-is already a match, there's no client-side filtering. The forward function
-just builds a payload and POSTs it.
+Discord webhooks are a good example here because they [do not require auth](https://docs.discord.com/developers/resources/webhook). This script watches a small list of accounts and posts a Discord message whenever any of them creates a new post:
 
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">

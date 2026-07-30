@@ -27,7 +27,7 @@ const sidebars = {
     // the mobile drawer render on it), but the body is one full-bleed React
     // component and the doc chrome is suppressed — see docs/how-it-works.mdx.
     'how-it-works',
-    {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-sdk', 'jetstream-replay', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop'] },
+    {type: 'category', label: 'Jetstream', link: { type: 'doc', id: 'jetstream' }, items: ['jetstream-sdk', 'jetstream-replay', 'jetstream-webhooks', 'jetstream-analytics', 'jetstream-coop', 'jetstream-self-host'] },
     {type: 'category', label: 'Relay', link: {type: 'doc', id: 'relay'}, items: ['consuming-the-firehose']},
     {
       // Children listed explicitly: a manual category doesn't apply the

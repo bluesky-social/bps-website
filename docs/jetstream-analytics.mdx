@@ -9,24 +9,19 @@ import TabItem from '@theme/TabItem';
 # Analytics on Jetstream with a datastore
 
 A lot of what makes Jetstream attractive is how much you can do *without* a
-database. The stream is dynamic and responsive enough that you can answer
-plenty of questions just-in-time: filter for the events you care about, react
-to each one as it arrives, and forget it. The
-[webhook bridge](/docs/jetstream-webhooks) is a good example: no stored state,
+database. The [webhook bridge](/docs/jetstream-webhooks) is a good example: no stored state,
 just a transform between two endpoints.
 
 But some questions don't fit that shape. "What hours of the day does this
 community post most?" or "How does reply ratio change over time for these
-accounts?" or "Which languages are these users writing in?"
-
-These are aggregations over many events, sometimes joined across
+accounts?" — These are aggregations over many events, sometimes joined across
 collections, and you can't answer these questions without accumulating data somewhere
 queryable.
 
-That's the use case this page covers: pointing Jetstream at a local database so
+This page covers pointing Jetstream at a local database so
 you can ask aggregate questions with plain SQL. The example below uses
 [DuckDB](https://duckdb.org/) because it runs in-process with a single
-dependency and is able to keep-up with Jetstream on a laptop. But the same
+dependency and is able to keep-up with Jetstream on a laptop. The same
 approach transfers to ClickHouse, Postgres, BigQuery, and most column stores.
 
 ## Slice on the server, not in your process
@@ -36,19 +31,6 @@ the stream server-side via [`wantedCollections` and `wantedDids`](/docs/jetstrea
 and those filters narrow both the live tail and any historical
 [replay](/docs/jetstream-replay) you do. A tightly-scoped subscription
 gets you a tightly-scoped dataset without scanning the full archive.
-
-The example below scopes to a fixed list of accounts (a "community" which could be
-a research cohort, your app's user base, a watchlist, the membership of a
-custom feed). With a server-side `wantedDids` filter, the receive loop only
-sees events from those accounts; ingest stays linear in the size of the
-community, not in the size of the network.
-
-```
-Jetstream WS (wantedDids + wantedCollections)
-       │
-       ▼
-   ingest loop  ──►  table  ──►  SQL queries
-```
 
 ## Setting up the table
 

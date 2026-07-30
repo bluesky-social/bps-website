@@ -1,0 +1,146 @@
+---
+sidebar_label: Running your own Jetstream
+description: Jetstream is a single static Go binary that archives the whole network to local disk and serves the same live tail, replay, and snapshot endpoints as the public instances. Here's what to expect when you run one.
+---
+
+# Running your own Jetstream
+
+Jetstream consumers can use the [Bluesky-hosted instances](/docs/jetstream#public-endpoints). Run your own when you want the archive on your own hardware: no
+metering, your own retention of the network's history, and the ability to
+audit the data you serve.
+
+Jetstream is [open source](https://github.com/bluesky-social/jetstream) and
+ships as a single static Go binary (Docker images are published from the
+repository). One server is the whole deployment; there's no database to
+operate beside it.
+
+## Starting a server
+
+Every option is available as a flag or a `JETSTREAM_*` environment variable.
+The defaults point at the production network, so a minimal start is:
+
+```shell
+jetstream serve --addr :8080 --data-dir /data/jetstream
+```
+
+`--addr` (`JETSTREAM_ADDR`) is the public listener and `--data-dir`
+(`JETSTREAM_DATA_DIR`) is where the archive lives. You can also set `--relay-url`,
+which is the upstream [Relay](/docs/relay) it archives (default `https://bsky.network`), and `--plc-url` for
+identity lookups. For a development instance that doesn't archive the whole
+network, cap the backfill:
+
+```shell
+# archive 20 random repos, then cut over to the live tail — up in ~2 minutes
+jetstream serve --data-dir ./data --max-backfill-repos=20
+```
+
+## What happens on first boot
+
+A fresh instance builds its archive before it serves anyone. It walks the
+relay's repo list and downloads every repo, while simultaneously capturing the
+live firehose so nothing is missed in between. Until this
+**bootstrap** completes, the server answers every request with a `503`. The merge step that follows
+takes minutes, and then the instance enters steady state and starts serving.
+
+Progress is visible the whole way on the human-readable **`/status`** page:
+phase, repos discovered/downloaded/errored, live-ingest freshness, and segment
+counts.
+
+Restarts after that are cheap: the archive is durable, and on boot the server
+resumes from its persisted firehose cursor. Events it re-receives across the
+overlap are the normal at-least-once behavior every Jetstream consumer already
+handles.
+
+## Hardware
+
+- **Disk** is the real requirement: the full-network archive is
+  multi-terabyte and grows with the network. (A filtered development instance
+  is tiny.)
+- **Memory**: a few GiB in steady state. The server keeps per-segment indexes
+  resident, and you need some headroom during the initial backfill.
+- **CPU**: modest. Ingest and compaction are the main consumers; serving the
+  live tail is cheap.
+
+## What's on disk
+
+```
+data/
+  meta.pebble/     # metadata store (cursor, per-repo state)
+  segments/        # the archive: sealed segment files
+    seg_0000000000.jss
+    seg_0000000001.jss
+    ...
+```
+
+Segment files are self-describing and checksummed, and clients download them
+directly (that's what [`getSegment`](https://endpoints.bsky.app) serves), so
+backing up or seeding another instance is just copying files. They are
+immutable *between compactions*: on a cadence (`--compaction-interval`,
+default 4h) the server rewrites older segments to physically remove records
+that were deleted or superseded, which is what makes your archive honor
+deletion requests.
+
+## Serving configuration
+
+A few params shape what consumers can ask of your instance:
+
+- **`--cursor-lookback`** (default 36h) bounds how far back a live
+  `?cursor=` reconnect can reach. Older cursors mean the client re-enters the
+  [replay flow](/docs/jetstream-replay) instead.
+- **`--plan-max-entries`** (default 1000), `--plan-max-dids`, and
+  `--plan-max-collections` bound the per-page cost of
+  [`planBackfill`](https://endpoints.bsky.app). Plans truncate cleanly and
+  paginate, so limits never break clients.
+- **`--segment-cache-max-age`** sets the `Cache-Control` max-age on segment
+  downloads. You can raise this if you're using a CDN.
+
+## Gating the expensive endpoints
+
+Jetstream serves plain HTTP and unlike the Bluesky instances, self-hosting does not include **built-in auth or rate limiting**.
+
+The **live tail is cheap** to serve; Bluesky's instances leave `/subscribe` open, and per-IP connection limits at the proxy go a long way.
+
+**Replay reads are the expensive path**. One `planBackfill` can touch a lot
+of archive, and segment downloads move real bytes. Bluesky's hosted
+instances gate the four replay endpoints (`planBackfill`, `getSegment`,
+`getBlock`, `listSegments`) with a proxy that requires an API key and
+[meters the bytes each key downloads](/docs/jetstream-replay#authentication-and-metering),
+while leaving everything else open. Any reverse proxy that can check a
+bearer token and count response bytes can apply the same policy.
+
+Segments and blocks are **immutable and ETag'd**, so a caching CDN in front
+of the download endpoints absorbs most repeat traffic before it reaches
+your disk.
+
+The one endpoint that's gated in-process is the operator-only timestamp
+import (below): it returns `401` unless you start the server with
+`--timestamp-import-token`.
+
+## Observability
+
+The debug listener is **off by default**; set `JETSTREAM_DEBUG_ADDR` (for
+example `:6060`) to expose Prometheus `/metrics`, `/healthz`, `/readyz`, and
+pprof on a port you keep private. The `/status` page on the public listener is
+the quick human view of the same story. The repository ships a Grafana
+dashboard for the metrics.
+
+## Migrating timestamps from an older indexer
+
+A fresh instance stamps every archived event with the time *it* witnessed the
+event — so during your backfill, a post from 2023 gets a `time_us` from today.
+If you're replacing an existing indexer and have the original timestamps,
+Jetstream can import them: the operator stages a CSV of AT URIs and
+timestamps, and a bearer-gated endpoint
+(`network.bsky.jetstream.importTimestamps`) patches the archive in place, with
+no downtime. See the [repository
+documentation](https://github.com/bluesky-social/jetstream) for the CSV format
+and operational details.
+
+## See also
+
+- **[Jetstream](/docs/jetstream)** — the live tail your instance serves.
+- **[Network Replay](/docs/jetstream-replay)** — the replay flow and the
+  metering model Bluesky applies to it.
+- **[Jetstream repository](https://github.com/bluesky-social/jetstream)** —
+  source, Docker images, the segment file format spec, and operational docs.
+- **[Relay](/docs/relay)** — the upstream your instance consumes.
