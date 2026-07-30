@@ -132,14 +132,21 @@ const config = {
             "like-repost",
             "profiles",
             "following",
-            "muting-and-blocking",
             "user-lists",
             "custom-feeds",
           ].map((page) => ({
             from: `/docs/get-started/${page}`,
             to: `/docs/bluesky-api/${page}`,
           })),
+          // Muting and blocking was folded into "Following, muting, and
+          // blocking" (bluesky-api/following); both old URLs land there.
+          ...["/docs/get-started/muting-and-blocking", "/docs/bluesky-api/muting-and-blocking"].map(
+            (from) => ({ from, to: "/docs/bluesky-api/following" }),
+          ),
           { from: "/docs/jetstream-backfill", to: "/docs/jetstream-replay" },
+          // How It Works started life as a standalone page at /how-it-works
+          // before moving into the docs plugin (to get the sidebar).
+          { from: "/how-it-works", to: "/docs/how-it-works" },
         ],
       },
     ],

@@ -24,22 +24,22 @@ Each post requires these fields: `text` and `createdAt` (a timestamp).
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    This script below will create a simple post with just a text field and a timestamp.
+    This script below will create a simple post with just a text field — the `post` action fills in the `createdAt` timestamp for you.
 
     ```ts
-    import { AtpAgent } from '@atproto/api'
+    import { Client } from '@atproto/lex'
+    import { PasswordSession } from '@atproto/lex-password-session'
+    import { post } from '@bsky.app/sdk'
 
-    const agent = new AtpAgent({
-      service: 'https://bsky.social'
-    })
-    await agent.login({
+    const session = await PasswordSession.login({
+      service: 'https://bsky.social',
       identifier: 'handle.example.com',
       password: 'hunter2'
     })
+    const client = new Client(session)
 
-    await agent.post({
-      text: 'Hello world! I posted this via the API.',
-      createdAt: new Date().toISOString()
+    await client.call(post, {
+      text: 'Hello world! I posted this via the API.'
     })
     ```
 
@@ -107,10 +107,9 @@ Setting the post's language helps custom feeds or other services filter and pars
 
     ```ts
     // an example with Thai and English (US) languages
-    await agent.post({
+    await client.call(post, {
       text: 'สวัสดีชาวโลก!\nHello World!',
-      langs: ["th", "en-US"],
-      createdAt: new Date().toISOString()
+      langs: ["th", "en-US"]
     })
     ```
   </TabItem>
@@ -162,19 +161,18 @@ Learn about how mentions and links work under the hood with the [Link, mentions,
     Use the RichText API to detect links and mentions.
 
     ```ts
-    import { RichText } from '@atproto/api'
+    import { RichText } from '@bsky.app/sdk/richtext'
 
     // creating richtext
     const rt = new RichText({
       text: '✨ example mentioning @atproto.com to share the URL 👨‍❤️‍👨 https://en.wikipedia.org/wiki/CBOR.',
     })
-    await rt.detectFacets(agent) // automatically detects mentions and links
-    const postRecord = {
-      $type: 'app.bsky.feed.post',
+    await rt.detectFacets(client) // automatically detects mentions and links
+
+    await client.call(post, {
       text: rt.text,
       facets: rt.facets,
-      createdAt: new Date().toISOString(),
-    }
+    })
 
     // rendering as markdown
     let markdown = ''
@@ -254,7 +252,7 @@ Since threads of replies can get pretty long, reply posts need to reference both
     Here's what this should look like when posting:
 
     ```ts
-    await agent.post({
+    await client.call(post, {
       text: 'lol!',
       reply: {
         root: {
@@ -265,8 +263,7 @@ Since threads of replies can get pretty long, reply posts need to reference both
           uri: postReplyingTo.uri,
           cid: postReplyingTo.cid,
         }
-      },
-      createdAt: new Date().toISOString()
+      }
     })
     ```
   </TabItem>
@@ -333,10 +330,10 @@ Images are also embedded objects in a post.
 
     ```ts
     const image = 'data:image/png;base64,...'
-    const { data } = await agent.uploadBlob(convertDataURIToUint8Array(image), {
-      encoding,
+    const { body } = await client.uploadBlob(convertDataURIToUint8Array(image), {
+      encoding: 'image/png',
     })
-    await agent.post({
+    await client.call(post, {
       text: 'I love my cat',
       embed: {
         $type: 'app.bsky.embed.images',
@@ -344,15 +341,14 @@ Images are also embedded objects in a post.
           // can be an array up to 4 values
           {
             alt: 'My cat mittens', // the alt text
-            image: data.blob,
+            image: body.blob,
             aspectRatio: {
               // a hint to clients
               width: 1000,
               height: 500
             }
         }],
-      },
-      createdAt: new Date().toISOString()
+      }
     })
     ```
   </TabItem>
@@ -474,10 +470,10 @@ A website card embed, often called a "social card," is the rendered preview of a
 
     ```ts
     const thumbnail = 'data:image/png;base64,...'
-    const { data } = await agent.uploadBlob(convertDataURIToUint8Array(thumbnail), {
-      encoding,
+    const { body } = await client.uploadBlob(convertDataURIToUint8Array(thumbnail), {
+      encoding: 'image/png',
     })
-    await agent.post({
+    await client.call(post, {
       text: 'check out this website!',
       embed: {
         $type: 'app.bsky.embed.external',
@@ -485,10 +481,9 @@ A website card embed, often called a "social card," is the rendered preview of a
           uri: 'https://bsky.app',
           title: 'Bluesky Social',
           description: 'See what\'s next.',
-          thumb: data.blob
+          thumb: body.blob
         }
-      },
-      createdAt: new Date().toISOString()
+      }
     })
     ```
   </TabItem>

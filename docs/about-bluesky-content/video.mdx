@@ -9,27 +9,29 @@ import TabItem from '@theme/TabItem';
 
 Video uploads differ slightly from image uploads, since they are typically much larger files and have a significantly long processing time.
 
-The Bluesky video CDN also applies additional account-level limits on publishing videos. Bluesky-hosted accounts need to have verified their account email before uploading video, and there are limits on the number of video posts which can be posted per day. Apps can check email verification status using the `com.atproto.server.getSession` endpoint on the PDS.
+The Bluesky video CDN also applies additional account-level limits on publishing videos. Bluesky-hosted accounts need to have verified their account email before uploading video, and there are limits on the number of video posts which can be posted per day. Apps can check email verification status using the [`com.atproto.server.getSession`](https://endpoints.bsky.app/#bluesky-app/tag/comatprotoserver/GET/xrpc/com.atproto.server.getSession) endpoint on the PDS.
 
 ## Simple method
 
-The easiest way to upload a video is to upload it as you would an image - use `uploadBlob` to upload the file directly to the PDS, and reference the returned blob.
+The easiest way to upload a video is to upload it as you would an image - use [`uploadBlob`](https://endpoints.bsky.app/#bluesky-app/tag/comatprotorepo/POST/xrpc/com.atproto.repo.uploadBlob) to upload the file directly to the PDS, and reference the returned blob.
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadBlob"
-    const { data } = await userAgent.com.atproto.repo.uploadBlob(
-      fs.readFileSync(videoPath),
-    );
+    import { post } from "@bsky.app/sdk";
 
-    await userAgent.post({
+    const { body } = await client.uploadBlob(fs.readFileSync(videoPath), {
+      encoding: "video/mp4",
+    });
+
+    await client.call(post, {
       text: "This post should have a video attached",
       langs: ["en"],
       embed: {
         $type: "app.bsky.embed.video",
-        video: data.blob,
+        video: body.blob,
         aspectRatio: await getAspectRatio(videoPath),
-      } satisfies AppBskyEmbedVideo.Main,
+      },
     });
     ```
   </TabItem>
@@ -44,8 +46,8 @@ Instead, we can send the video directly to the video service for preprocessing.
 This is a little more involved, and involves communicating directly with the video service. The steps are:
 
 1. Create a service token with an audience of your PDS, a scope allowing `uploadBlob`, and a slightly longer expiry - 30 minutes is recommended
-2. Upload the video directly to `https://video.bsky.app` with the appropriate access token
-3. Query `https://video.bsky.app` for the status of the processing job until it returns the BlobRef of the video
+2. Upload the video directly to `https://video.bsky.app` with the appropriate access token, using [`app.bsky.video.uploadVideo`](https://endpoints.bsky.app/#bluesky-app/tag/appbskyvideo/POST/xrpc/app.bsky.video.uploadVideo)
+3. Query `https://video.bsky.app` for the status of the processing job with [`app.bsky.video.getJobStatus`](https://endpoints.bsky.app/#bluesky-app/tag/appbskyvideo/GET/xrpc/app.bsky.video.getJobStatus) until it returns the BlobRef of the video
 4. Use the BlobRef in your post
 
 Here is a code snippet for the full flow:
@@ -53,20 +55,29 @@ Here is a code snippet for the full flow:
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadVideo"
-    const { data: serviceAuth } = await userAgent.com.atproto.server.getServiceAuth(
-      {
-        aud: `did:web:${userAgent.dispatchUrl.host}`,
-        lxm: "com.atproto.repo.uploadBlob",
-        exp: Date.now() / 1000 + 60 * 30, // 30 minutes
-      },
-    );
+    import { Client, type BlobRef } from "@atproto/lex";
+    import { post } from "@bsky.app/sdk";
+    import { app, com } from "@bsky.app/sdk/lexicons";
 
-    const token = serviceAuth.token;
+    // The service token audience is your PDS's DID. Your PDS host is listed
+    // in the DID document returned when you logged in:
+    const didDoc = session.session.didDoc as {
+      service: { id: string; serviceEndpoint: string }[];
+    };
+    const pdsHost = new URL(
+      didDoc.service.find((s) => s.id.endsWith("#atproto_pds"))!.serviceEndpoint,
+    ).host;
+
+    const { token } = await client.call(com.atproto.server.getServiceAuth, {
+      aud: `did:web:${pdsHost}`,
+      lxm: "com.atproto.repo.uploadBlob",
+      exp: Date.now() / 1000 + 60 * 30, // 30 minutes
+    });
 
     const uploadUrl = new URL(
       "https://video.bsky.app/xrpc/app.bsky.video.uploadVideo",
     );
-    uploadUrl.searchParams.append("did", userAgent.session!.did);
+    uploadUrl.searchParams.append("did", client.assertDid);
     uploadUrl.searchParams.append("name", videoPath.split("/").pop()!);
 
     const uploadResponse = await fetch(uploadUrl, {
@@ -74,41 +85,38 @@ Here is a code snippet for the full flow:
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "video/mp4",
-        "Content-Length": fs.statSync(videoPath).size
+        "Content-Length": String(fs.statSync(videoPath).size)
       },
       body: fs.readFileSync(videoPath),
     });
 
-    const jobStatus = (await uploadResponse.json()) as AppBskyVideoDefs.JobStatus;
+    const jobStatus = (await uploadResponse.json()) as app.bsky.video.defs.JobStatus;
 
     let blob: BlobRef | undefined = jobStatus.blob;
 
-    const videoAgent = new AtpAgent({ service: "https://video.bsky.app" });
+    const videoClient = new Client("https://video.bsky.app");
 
     while (!blob) {
-      const { data: status } = await videoAgent.app.bsky.video.getJobStatus(
+      const { jobStatus: status } = await videoClient.call(
+        app.bsky.video.getJobStatus,
         { jobId: jobStatus.jobId },
       );
-      console.log(
-        "Status:",
-        status.jobStatus.state,
-        status.jobStatus.progress || "",
-      );
-      if (status.jobStatus.blob) {
-        blob = status.jobStatus.blob;
+      console.log("Status:", status.state, status.progress || "");
+      if (status.blob) {
+        blob = status.blob;
       }
       // wait a second
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
-    await userAgent.post({
+    await client.call(post, {
       text: "This post should have a video attached",
       langs: ["en"],
       embed: {
         $type: "app.bsky.embed.video",
         video: blob,
         aspectRatio: await getAspectRatio(videoPath),
-      } satisfies AppBskyEmbedVideo.Main,
+      },
     });
     ```
   </TabItem>
