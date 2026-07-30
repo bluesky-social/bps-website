@@ -58,8 +58,8 @@
 .bps-home a { color: inherit; text-decoration: none; }
 .bps-home .mono { font-family: var(--bps-font-code); }
 
-/* each band caps at 1100px and centers within the dark surface */
-.bps-home .hero,
+/* each band caps at 1100px and centers within the dark surface
+   (the hero is full-bleed; its .copy re-implements this cap below) */
 .bps-home .proof,
 .bps-home .prod-grid,
 .bps-home .quote {
@@ -86,7 +86,9 @@
 .bps-home .hero .copy {
   position: relative; z-index: 3;
   padding: 0 40px;
-  max-width: 860px;
+  width: 100%;
+  max-width: 1100px;
+  margin-left: auto; margin-right: auto;
   flex: 1;
   display: flex; flex-direction: column;
 }
@@ -145,9 +147,6 @@
   font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-ink-soft);
 }
-.bps-home .hero .signoff b { color: var(--bps-ink); font-weight: 700; }
-/* signoff line break — only forced on mobile (shown in the responsive block) */
-.bps-home .hero .signoff br.mobileOnly { display: none; }
 
 /* oil pools */
 .bps-home .blob {
@@ -794,7 +793,12 @@
     background: color-mix(in srgb, var(--bps-ink) 25%, transparent);
   }
   .bps-home .hero .signoff { text-shadow: 0 0 50px black, 0 0 100px black; }
-  .bps-home .hero .signoff br.mobileOnly { display: inline; }
+  /* the right-anchored topo crop puts its labels/pins behind the copy on
+   * narrow viewports (desktop keeps them clear of the text column) — drop
+   * them and keep only the contour lines */
+  .bps-home .topo .label,
+  .bps-home .topo .pin,
+  .bps-home .topo .pin-ring { display: none; }
 
   .bps-home .quote { padding: 64px 28px; }
   .bps-home .quote blockquote {

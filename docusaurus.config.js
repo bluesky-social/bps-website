@@ -144,6 +144,9 @@ const config = {
             (from) => ({ from, to: "/docs/bluesky-api/following" }),
           ),
           { from: "/docs/jetstream-backfill", to: "/docs/jetstream-replay" },
+          // How It Works started life as a standalone page at /how-it-works
+          // before moving into the docs plugin (to get the sidebar).
+          { from: "/how-it-works", to: "/docs/how-it-works" },
         ],
       },
     ],

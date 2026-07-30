@@ -21,21 +21,26 @@ const ATPROTO_GLOBE_SRC = '/img/atproto-globe-circle.png'
 // rather than transcribing ~130 SVG nodes + template-literal braces into JSX.
 // ---------------------------------------------------------------------------
 
+// The artwork's focal cluster sits around x≈480–1180, with contour endpoints
+// extended to x=1280 so the composition reads ~100px in from the right edge
+// while the lines still bleed off it. The viewBox extends left so the
+// full-bleed hero gains margin on wide screens instead of zooming, and xMax
+// keeps the art pinned to the right edge.
 const HERO_TOPO_HTML = `
-<svg viewBox="0 0 1180 540" preserveAspectRatio="xMidYMid slice">
+<svg viewBox="-640 0 1920 540" preserveAspectRatio="xMaxYMid slice">
   <g>
-    <path class="line" d="M 1180,40 C 1080,30 980,80 920,160 C 860,240 760,260 700,340 C 640,420 720,500 880,520 L 1180,520 Z"/>
-    <path class="line" d="M 1180,90 C 1090,80 1000,120 950,200 C 900,280 800,290 760,360 C 720,430 800,490 920,500 L 1180,500 Z"/>
-    <path class="line" d="M 1180,140 C 1100,135 1030,170 990,240 C 950,310 850,320 820,380 C 800,440 870,470 960,478 L 1180,478 Z"/>
-    <path class="line bold" d="M 1180,190 C 1110,190 1060,220 1030,280 C 1000,340 920,355 890,400 C 870,440 920,455 1000,460 L 1180,460 Z"/>
-    <path class="line" d="M 1180,240 C 1130,240 1090,260 1070,310 C 1050,360 1010,380 990,410 C 980,430 1010,440 1050,442 L 1180,442 Z"/>
-    <path class="line" d="M 1180,290 C 1150,290 1130,300 1115,330 C 1100,360 1080,380 1080,400 C 1080,415 1110,420 1140,420 L 1180,420 Z"/>
-    <path class="line" d="M 1180,340 C 1160,340 1145,350 1140,370 C 1135,390 1120,395 1130,400 L 1180,400 Z"/>
-    <path class="line"      d="M 540,540 C 600,520 700,510 760,480 C 820,450 880,440 920,440 C 1000,440 1080,448 1180,460"/>
-    <path class="line"      d="M 600,540 C 660,530 740,520 780,500 C 820,480 860,470 900,470 C 1000,470 1080,478 1180,490"/>
-    <path class="line bold" d="M 670,540 C 730,535 800,528 830,520 C 860,510 880,505 900,505 C 1000,505 1080,512 1180,522"/>
-    <path class="line" d="M 480,0 C 520,40 600,60 680,40 C 760,20 820,40 900,30 L 1180,30"/>
-    <path class="line" d="M 520,0 C 560,30 620,50 700,40 C 780,30 830,50 900,50 L 1180,50"/>
+    <path class="line" d="M 1280,40 L 1180,40 C 1080,30 980,80 920,160 C 860,240 760,260 700,340 C 640,420 720,500 880,520 L 1280,520 Z"/>
+    <path class="line" d="M 1280,90 L 1180,90 C 1090,80 1000,120 950,200 C 900,280 800,290 760,360 C 720,430 800,490 920,500 L 1280,500 Z"/>
+    <path class="line" d="M 1280,140 L 1180,140 C 1100,135 1030,170 990,240 C 950,310 850,320 820,380 C 800,440 870,470 960,478 L 1280,478 Z"/>
+    <path class="line bold" d="M 1280,190 L 1180,190 C 1110,190 1060,220 1030,280 C 1000,340 920,355 890,400 C 870,440 920,455 1000,460 L 1280,460 Z"/>
+    <path class="line" d="M 1280,240 L 1180,240 C 1130,240 1090,260 1070,310 C 1050,360 1010,380 990,410 C 980,430 1010,440 1050,442 L 1280,442 Z"/>
+    <path class="line" d="M 1280,290 L 1180,290 C 1150,290 1130,300 1115,330 C 1100,360 1080,380 1080,400 C 1080,415 1110,420 1140,420 L 1280,420 Z"/>
+    <path class="line" d="M 1280,340 L 1180,340 C 1160,340 1145,350 1140,370 C 1135,390 1120,395 1130,400 L 1280,400 Z"/>
+    <path class="line"      d="M 540,540 C 600,520 700,510 760,480 C 820,450 880,440 920,440 C 1000,440 1080,448 1180,460 L 1280,472"/>
+    <path class="line"      d="M 600,540 C 660,530 740,520 780,500 C 820,480 860,470 900,470 C 1000,470 1080,478 1180,490 L 1280,502"/>
+    <path class="line bold" d="M 670,540 C 730,535 800,528 830,520 C 860,510 880,505 900,505 C 1000,505 1080,512 1180,522 L 1280,532"/>
+    <path class="line" d="M 480,0 C 520,40 600,60 680,40 C 760,20 820,40 900,30 L 1280,30"/>
+    <path class="line" d="M 520,0 C 560,30 620,50 700,40 C 780,30 830,50 900,50 L 1280,50"/>
   </g>
   <g style="color: var(--c-jetstream)">
     <circle class="pin-ring" cx="980" cy="280" r="22"/>
@@ -63,11 +68,11 @@ const HERO_TOPO_HTML = `
 </svg>`
 
 const HERO_GRAIN_HTML = `
-<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1180 540">
+<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1920 540">
   <filter id="hero-grain" x="0" y="0" width="100%" height="100%">
     <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="5" stitchTiles="stitch"/>
   </filter>
-  <rect width="1180" height="540" filter="url(#hero-grain)"/>
+  <rect width="1920" height="540" filter="url(#hero-grain)"/>
 </svg>`
 
 const PROOF_GRAIN_HTML = `
@@ -438,10 +443,7 @@ export default function Home() {
                 <span aria-hidden="true">→</span>
               </Link>
             </div>
-            <p className="signoff">
-              Bluesky Protocol Services,
-              <br className="mobileOnly" /> operated by <b>Bluesky PBC.</b>
-            </p>
+            <p className="signoff">Bluesky Protocol Services, from Bluesky PBC</p>
           </div>
         </section>
 

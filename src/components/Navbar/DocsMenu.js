@@ -5,17 +5,20 @@ import { useNavbarMobileSidebar } from '@docusaurus/theme-common/internal'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import NavbarItem from '@theme/NavbarItem'
 
-// Top-level docs sections, mirroring the sidebar (kept in sync by hand).
+// Top-level docs sections, mirroring sidebars.js 1:1 — same labels, same
+// order (kept in sync by hand; nested docs like OAuth stay out, matching the
+// collapsed top level of the real sidebar).
 const DOCS_LINKS = [
-  { label: 'Protocol Services', to: '/docs/protocol-services' },
+  { label: 'Get Started', to: '/docs/protocol-services' },
+  { label: 'How It Works', to: '/docs/how-it-works' },
   { label: 'Jetstream', to: '/docs/jetstream' },
   { label: 'Relay', to: '/docs/relay' },
   { label: 'Bluesky API', to: '/docs/bluesky-api' },
   { label: 'About Bluesky Content', to: '/docs/about-bluesky-content' },
-  { label: 'API Hosts and Auth', to: '/docs/api-directory' },
-  { label: 'OAuth', to: '/docs/oauth-client' },
-  { label: 'Developer Guidelines', to: '/docs/developer-guidelines' },
+  { label: 'HTTP Reference', href: 'https://endpoints.bsky.app' },
   { label: 'Tutorials', href: 'https://atproto.com/guides/tutorials' },
+  { label: 'API Hosts and Auth', to: '/docs/api-directory' },
+  { label: 'Developer Guidelines', to: '/docs/developer-guidelines' },
 ]
 
 // Surfaces the docs sections inside the mobile hamburger on NON-docs routes
