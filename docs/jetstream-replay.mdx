@@ -198,7 +198,7 @@ The archive is a series of **Jetstream sealed segment** files — `.jss`, one pe
 `seg_<index>` name, each sealed at roughly 256 MB of compressed data. These are
 what `getSegment` serves.
 
-Segment files are a columnar format ([below](#segment-files-jss)) holding each
+Segment files are a columnar format holding each
 event's metadata **and its raw CBOR**, so a mirror is independently auditable
 against the network. Note that sealed segments are immutable *between compactions*:
 the server [periodically rewrites them](jetstream-self-host#whats-on-disk) to physically remove deleted records,
