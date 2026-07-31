@@ -188,9 +188,24 @@ when the archive range is consumed:
   </TabItem>
 </Tabs>
 
-For **a raw archive mirror**, enumerate the sealed segment files with
+For **a raw archive mirror**, you need to use
 [`listSegments`](https://endpoints.bsky.app) and download each with
-[`getSegment`](https://endpoints.bsky.app). Every entry carries the segment's
+[`getSegment`](https://endpoints.bsky.app).
+
+## Segment files (`.jss`)
+
+The archive is a series of **Jetstream sealed segment** files — `.jss`, one per
+`seg_<index>` name, each sealed at roughly 256 MB of compressed data. These are
+what `getSegment` serves.
+
+Segment files are a columnar format ([below](#segment-files-jss)) holding each
+event's metadata **and its raw CBOR**, so a mirror is independently auditable
+against the network. Note that sealed segments are immutable *between compactions*:
+the server [periodically rewrites them](jetstream-self-host#whats-on-disk) to physically remove deleted records,
+and rewritten files get new checksums. Re-list and compare checksums rather
+than assuming a segment never changes.
+
+Every entry carries the segment's
 size, event count, sequence bounds, and a checksum that doubles as its HTTP
 ETag:
 
@@ -212,13 +227,7 @@ ETag:
 }
 ```
 
-Segment files are a columnar format (see the [Jetstream
-repository](https://github.com/bluesky-social/jetstream)) holding each event's
-metadata **and its raw CBOR**, so a mirror is independently auditable against
-the network. Note that sealed segments are immutable *between compactions*:
-the server [periodically rewrites them](jetstream-self-host#whats-on-disk) to physically remove deleted records,
-and rewritten files get new checksums. Re-list and compare checksums rather
-than assuming a segment never changes.
+For more information, see the [Jetstream repository](https://github.com/bluesky-social/jetstream).
 
 ## How replay works
 
