@@ -530,7 +530,7 @@ export default function Home() {
             </div>
             <ProtocolCard
               title="Jetstream"
-              endpoint="wss://jetstream2.us-east.bsky.network"
+              endpoint="wss://jetstream.us-east.bsky.network"
               what="Replay data from the network or stream in real time. Slice the data you care about."
               to="/docs/jetstream"
             />
