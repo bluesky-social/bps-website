@@ -67,7 +67,7 @@ for await (const evt of jetstream.live({
 ## Reacting to events
 
 Every event carries `did`, `seq` (a monotonically increasing cursor), and a
-`kind` of `commit`, `identity`, or `account`. Narrowing on `kind` narrows the type of what's inside, so `evt.commit.record`
+`kind` of `commit`, `identity`, or `account`. [Lexicons](how-it-works) are used for typing, so `evt.commit.record`
 is typed once you've checked you're holding a `create`/`update`:
 
 ```ts
@@ -111,7 +111,7 @@ for await (const evt of jetstream.live({
 
 Each event's `seq` is a cursor. The SDK reconnects and dedups within Jetstream's
 lookback window on its own, so a brief drop needs nothing from you. To resume
-across a process restart, persist the last `seq` you handled and hand the SDK a
+across a process restart, persist the last `seq` you handled and pass the SDK a
 `CursorStore`. It starts the stream from just after that point:
 
 ```ts

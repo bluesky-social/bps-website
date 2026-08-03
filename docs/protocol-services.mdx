@@ -34,7 +34,7 @@ and the same open access. These docs describe the public protocol services and s
 
 On AT Protocol you can access all the public data on Bluesky; posts, likes, and the full Bluesky social graph. But you can also tap into other kinds of data, like [shared code samples and CI patterns](https://tangled.org/), [a growing index of blog posts across the web](https://standard-reader.app/), and [local community groups](https://gifthood.community/).
 
-Jetstream hands you just the slice of the network you want as plain JSON over a WebSocket. The stream below is the live
+Jetstream provides just the slice of the network you want as plain JSON over a WebSocket. The stream below is the live
 network, right now:
 
 <JetstreamLive ctaHref="/docs/jetstream" ctaLabel="Get started with Jetstream" />
@@ -56,7 +56,7 @@ replaying it from history.
 
 Use a **Relay** when you need every record with no filtering, or the
 proofs to verify repository state yourself. Use the **Bluesky API** when you're
-building against the Bluesky app's data model directly — see [API hosts and
+building against the Bluesky app's data model directly. See [API hosts and
 auth](/docs/api-directory) for endpoints and authentication, or browse the [full
 HTTP reference](https://endpoints.bsky.app).
 

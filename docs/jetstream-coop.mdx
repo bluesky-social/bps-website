@@ -80,13 +80,13 @@ Then create a **Content** item type called *Standard Document* with:
 | `textContent` | `String`       | The document body / summary.                                    |
 | `site`        | `String`       | Source site, e.g. `https://example.com`.                        |
 | `path`        | `String`       | Path of the document on that site.                              |
-| `bskyPostUri` | `URL`          | Link to the Bluesky post (see the gotcha below).                |
+| `bskyPostUri` | `URL`          | Link to the Bluesky post (see the bullet below).                |
 | `publishedAt` | `Datetime`     | Set this field's role to **Created At**.                        |
 | `updatedAt`   | `Datetime`     | Optional.                                                       |
 
 ![Creating the Standard Document content item type in Coop](/img/docs/coop-item-type.png)
 
-One gotcha worth knowing before you build the Document schema:
+One thing worth knowing before you build the Document schema:
 
 - **A `URL` field rejects `at://` URIs.** Coop validates `URL` fields as real
   web URLs, so you can't drop the document's `bskyPostRef.uri`
