@@ -240,7 +240,7 @@ to manage, no subscription to register. In three steps:
    [`planBackfill`](https://endpoints.bsky.app): `dids` (exact),
    `collections` (exact NSIDs, or `app.bsky.feed.*`-style namespace wildcards),
    and an optional `afterSeq`/`beforeSeq` window. The first response reports the
-   archive's current sealed tip — pin it as `S = sealedTipSeq` for the whole
+   archive's current sealed tip. Pin this as `S = sealedTipSeq` for the whole
    backfill. Each page also reports `plannedThroughSeq`, the highest sequence
    number it accounts for. While `plannedThroughSeq < S`, call `planBackfill`
    again with `afterSeq = plannedThroughSeq` and `beforeSeq = S`, so the range

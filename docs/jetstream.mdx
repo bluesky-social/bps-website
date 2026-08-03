@@ -9,12 +9,10 @@ import TabItem from '@theme/TabItem';
 # Jetstream
 
 **Jetstream** is the easiest way to get data off the [AT Protocol](https://atproto.com) network at scale.
-You tell it which records you care about — posts, likes, follows, or a single
-account — and it streams them back as plain JSON over one WebSocket, the moment
+Filter the records you want (likes, posts, a single account), and Jetstream streams them as plain JSON over one WebSocket, the moment
 they happen.
 
-You describe the slice of the network you want, and Jetstream
-delivers it live, replayed from history, or both at once, all through the same
+Jetstream delivers data live, or replayed from history, or both at once, through the same
 interface. The same code works whether you're building a realtime
 bot or replaying a month of history into a larger application.
 
@@ -31,8 +29,7 @@ implemented in Go, and cheap to self-host. Read on to interact with Bluesky's pu
 
 ## Quickstart: live tail
 
-Open a WebSocket to the `/subscribe` endpoint and start reading events. Add a
-`wantedCollections` filter so you receive just the record types you care about:
+Open a WebSocket to the `/subscribe` endpoint and start reading events. Filter as needed:
 
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
@@ -42,7 +39,7 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Add a
     // npm install bsky-jetstream-preview — see the Jetstream SDK page.
     import { Jetstream } from 'bsky-jetstream-preview'
 
-    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
     for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
       console.log(evt)
@@ -54,7 +51,7 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Add a
     import asyncio
     import websockets
 
-    uri = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
+    uri = "wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
 
     async def listen():
       async with websockets.connect(uri) as ws:
@@ -104,8 +101,8 @@ parsing step. Alongside `commit` events, the stream also carries `identity` and
 ### Public endpoints
 
 Bluesky runs two sets of public instances. The live tail works the same on
-both — point any example on this page at either host — with one addition on
-v2: each event also carries a `cursor` field (its sequence number; see
+both, with one addition on
+v2: each event also carries a `cursor` field (see
 [Resuming](#resuming-where-you-left-off)).
 
 | Version | Endpoint | Region |
@@ -118,8 +115,7 @@ v2: each event also carries a `cursor` field (its sequence number; see
 **Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides [legacy timestamps](#resuming-where-you-left-off).
 
 No authentication is required for the live tail; these
-instances serve the full network, and your `wantedCollections` / `wantedDids`
-filters decide how much of it reaches you.
+instances serve the full network.
 
 ## Filtering: ask for just your slice
 
@@ -127,8 +123,7 @@ Filtering happens server-side, so a narrow filter means less bandwidth and less
 work for your client. Two filters are available, and they combine:
 
 - **`wantedCollections`**: one or more [NSIDs](https://atproto.com/specs/nsid).
-  Repeat the parameter for multiple collections. Prefixes work too, so
-  `app.bsky.feed.*`-style scoping lets you take a whole namespace.
+  Repeat the parameter for multiple collections.
 - **`wantedDids`**: restrict the stream to specific accounts by DID. Repeat for
   multiple accounts.
 
@@ -148,7 +143,7 @@ everything into the query string.
 
 ## Resuming where you left off
 
-On **v2** instances, every event carries a `cursor` — a monotonically
+On **v2** instances, every event carries a `cursor`, a monotonically
 increasing sequence number. If your consumer drops, reconnect with `?cursor=N`
 (the last value you processed) and Jetstream replays from there, within a
 bounded lookback window:
@@ -159,8 +154,7 @@ wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.p
 
 The cursor is **inclusive** — you'll receive event `N` itself again — and
 delivery is **at-least-once**, so an event may arrive more than once across a
-reconnect. Make your handlers idempotent. Key on each record's `at://` URI and
-duplicates become harmless.
+reconnect. Make your handlers idempotent. Key on each record's `at://` URI, so duplicates are harmless.
 
 On **v1** instances there is no `cursor` field: use an event's `time_us`
 (microsecond timestamp) as the `?cursor=` value instead. v2 accepts both kinds
@@ -170,7 +164,7 @@ pointing at a v2 host.
 ## Getting history, not just live
 
 The cursor window above is meant for short reconnects, not for loading the past.
-When you also need historical data — say, every `app.bsky.feed.post` from the
+When you also need historical data — e.g., every `app.bsky.feed.post` from the
 last month, then live updates from there — Jetstream **replays** the archive over
 HTTP and cuts over to this live tail at the tip. The server holds the archive, so
 there's nothing to stage on your side; your code never has to know whether a
@@ -185,8 +179,7 @@ history.
 Under the hood, Jetstream consumes the network's full
 [firehose](/docs/consuming-the-firehose) from a [Relay](/docs/relay) and does
 the decoding and filtering so you don't have to.
-You only need the raw firehose directly when you want something Jetstream
-deliberately trades away for simplicity:
+You generally only need the raw firehose when you want full network proofs:
 
 | | Jetstream | [Relay firehose](/docs/consuming-the-firehose) |
 | --- | --- | --- |
