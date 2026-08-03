@@ -210,6 +210,14 @@ const config = {
             position: "right",
           },
           {
+            // "AI" — opens the Kapa AI widget (whose own floating launcher is
+            // suppressed via data-button-hide above). Immediately right of the
+            // search box, so the two read as one search cluster; collapses to a
+            // circular icon button beside the search magnifying glass on mobile.
+            type: "custom-askAi",
+            position: "right",
+          },
+          {
             // Vertical divider bracketing the link cluster (prototype's
             // live-pill border-right).
             type: "custom-navSep",

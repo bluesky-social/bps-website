@@ -6,6 +6,7 @@ import NavCustomLink from '@site/src/components/Navbar/NavCustomLink'
 import NavSep from '@site/src/components/Navbar/NavSep'
 import DocsMenu from '@site/src/components/Navbar/DocsMenu'
 import BpsAccount from '@site/src/components/Navbar/BpsAccount'
+import AskAiButton from '@site/src/components/Navbar/AskAiButton'
 
 export default {
   ...ComponentTypes,
@@ -14,4 +15,5 @@ export default {
   'custom-navSep': NavSep,
   'custom-docsMenu': DocsMenu,
   'custom-bpsAccount': BpsAccount,
+  'custom-askAi': AskAiButton,
 }

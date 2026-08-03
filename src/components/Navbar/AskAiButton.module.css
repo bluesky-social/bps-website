@@ -1,0 +1,57 @@
+/*
+ * AskAiButton — navbar "AI" button (opens the Kapa AI widget).
+ *
+ * Sits immediately right of the search box. Desktop styling deliberately
+ * matches the mono masthead links (.bpsNav--link in custom.css — "GET STARTED",
+ * "AT PROTOCOL") rather than the search box's bordered surface: it's a nav
+ * action, not an input affordance, so borrowing the search chrome read as an odd
+ * second search control. Plain mono text keeps the masthead light.
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  /* strip the <button> UA chrome — this renders as text, like the nav links */
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--bps-nav-ink-soft);
+  cursor: pointer;
+  font-family: var(--bps-docs-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  /* Already uppercase in markup, but this keeps it stable if ever localized. */
+  text-transform: uppercase;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.button:hover {
+  color: var(--bps-nav-hover);
+}
+
+/* ── Mobile (≤996px) ──────────────────────────────────────────────────────────
+ * The search box collapses to a circular icon button at this width (custom.css)
+ * and the account slot sits beside it. Give this button the same 2rem circular
+ * hit area + blue tint on tap so the three controls match in the compact bar. */
+@media (max-width: 996px) {
+  .button {
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    transition:
+      background var(--ifm-transition-fast),
+      color 0.15s ease;
+    -webkit-tap-highlight-color: color-mix(
+      in srgb,
+      var(--bps-nav-hover) 14%,
+      transparent
+    );
+  }
+
+  .button:hover {
+    background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+}
