@@ -95,3 +95,41 @@ test('loadConfig honors BPS_APPVIEW_URL override', () => {
   })
   assert.equal(cfg.appViewUrl, 'https://appview.example')
 })
+
+test('gatekeeper config is null when no BPS_GATEKEEPER_* vars are set', () => {
+  const cfg = loadConfig(valid)
+  assert.equal(cfg.gatekeeper, null)
+})
+
+test('gatekeeper config parses when all three vars are set', () => {
+  const cfg = loadConfig({
+    ...valid,
+    BPS_GATEKEEPER_URL: 'http://gatekeeper.internal:8080/',
+    BPS_GATEKEEPER_BEARER_TOKEN: 'shhh',
+    BPS_GATEKEEPER_EMAIL: 'bps@bsky.app',
+  })
+  assert.deepEqual(cfg.gatekeeper, {
+    url: 'http://gatekeeper.internal:8080', // trailing slash stripped
+    bearerToken: 'shhh',
+    email: 'bps@bsky.app',
+  })
+})
+
+test('partial gatekeeper config fails startup (no silent fallback)', () => {
+  assert.throws(
+    () =>
+      loadConfig({
+        ...valid,
+        BPS_GATEKEEPER_URL: 'http://gatekeeper.internal:8080',
+      }),
+    /BPS_GATEKEEPER_BEARER_TOKEN/,
+  )
+  assert.throws(
+    () =>
+      loadConfig({
+        ...valid,
+        BPS_GATEKEEPER_BEARER_TOKEN: 'shhh',
+      }),
+    /BPS_GATEKEEPER_URL/,
+  )
+})
