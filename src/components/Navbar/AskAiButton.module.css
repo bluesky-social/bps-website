@@ -1,11 +1,14 @@
 /*
- * AskAiButton — navbar "AI" button (opens the Kapa AI widget).
+ * AskAiButton — navbar "Ask AI" button (opens the Kapa AI widget).
  *
  * Sits immediately right of the search box. Desktop styling deliberately
  * matches the mono masthead links (.bpsNav--link in custom.css — "GET STARTED",
  * "AT PROTOCOL") rather than the search box's bordered surface: it's a nav
  * action, not an input affordance, so borrowing the search chrome read as an odd
  * second search control. Plain mono text keeps the masthead light.
+ *
+ * The wordmark and the sparkle glyph are both in the markup; the breakpoint
+ * below picks one. Desktop shows the words, mobile the glyph.
  */
 
 .button {
@@ -24,11 +27,23 @@
   /* Already uppercase in markup, but this keeps it stable if ever localized. */
   text-transform: uppercase;
   line-height: 1;
+  /* two words now — never let the masthead wrap it */
+  white-space: nowrap;
   transition: color 0.15s ease;
 }
 
 .button:hover {
   color: var(--bps-nav-hover);
+}
+
+/* Desktop face: the words. The glyph is the mobile face (unhidden below). */
+.icon {
+  display: none;
+  /* Between the search glyph (16px) and the sign-in icon (19px): the sparkle's
+   * strokes read lighter than either, so it needs the extra size to match. */
+  width: 18px;
+  height: 18px;
+  flex: none;
 }
 
 /* ── Mobile (≤996px) ──────────────────────────────────────────────────────────
@@ -53,5 +68,14 @@
 
   .button:hover {
     background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+
+  /* Swap the wordmark for the glyph — the collapsed bar has room for icons only.
+   * The button keeps aria-label/title="Ask AI", so the name survives the swap. */
+  .label {
+    display: none;
+  }
+  .icon {
+    display: block;
   }
 }
