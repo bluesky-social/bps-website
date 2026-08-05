@@ -209,9 +209,12 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   // Ordering rationale: deleteConsumer (account + api_key) goes BEFORE the oauth_session cleanup so
   // that any partial failure leaves a safe state — once the account row is gone whoami returns 401,
   // making the user effectively deleted even if the orphaned oauth_session cleanup fails later.
-  // A single cross-store transaction is intentionally NOT used: under the Kong-future adapter the
+  // A single cross-store transaction is intentionally NOT used: under the Gatekeeper provider, the
   // consumer (account+keys) and oauth_session live in different stores, making a cross-store
-  // transaction impossible without breaking the ApiKeyProvider port abstraction.
+  // transaction impossible without breaking the ApiKeyProvider port abstraction. Under the Gatekeeper
+  // provider, deleteConsumer is itself NOT atomic across stores: it revokes keys in Gatekeeper first,
+  // loudly failing on partial error, and only deletes the local account row once that succeeds. Under
+  // the Postgres provider, deleteConsumer remains a single local transaction.
   router.add(internal.bps.account.delete, {
     auth: requireSession,
     handler: async ({ credentials }) => {
@@ -219,7 +222,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
       await client
         .revoke(did)
         .catch((err) => logger.warn({ err }, 'revoke during delete failed'))
-      await apiKeys.deleteConsumer(did) // atomic: deletes api_key rows + the account row together
+      await apiKeys.deleteConsumer(did) // see provider-specific atomicity note above
       await db.deleteFrom('oauth_session').where('did', '=', did).execute() // cleanup; if this fails, account is already gone so whoami still 401s
       // Structured output (not a raw Response): `body` is type-checked against
       // the method's Output<>; the expiring login cookie rides in `headers`.
