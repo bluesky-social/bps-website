@@ -30,7 +30,7 @@ function toMeta(key: GatekeeperKey): ApiKeyMeta {
 // the list. Accepted for v1; the lexicon/UI contract still treats expired
 // entries as possible so this can change later.
 export function createGatekeeperApiKeyProvider(
-  _db: DB,
+  db: DB,
   client: GatekeeperClient,
   opts: { service: string; defaultPolicy: unknown },
 ): ApiKeyProvider {
@@ -42,12 +42,22 @@ export function createGatekeeperApiKeyProvider(
   }
 
   return {
-    async ensureConsumer(_did: DidString): Promise<Consumer> {
-      throw new Error('not implemented') // Task 5
+    async ensureConsumer(did: DidString): Promise<Consumer> {
+      // Subjects exist implicitly in Gatekeeper once a key does; account
+      // rows are managed by the login flow, not the key provider.
+      return { did }
     },
 
-    async deleteConsumer(_did: DidString): Promise<void> {
-      throw new Error('not implemented') // Task 5
+    async deleteConsumer(did: DidString): Promise<void> {
+      // NOT atomic across Gatekeeper and Postgres. Revocations run first and
+      // sequentially; any failure throws immediately (loud partial failure
+      // beats silent continuation). The account row goes last so a partial
+      // failure leaves the account intact and this call safely re-runnable —
+      // already-revoked keys vanish from the subject listing.
+      for (const key of await listServiceKeys(did)) {
+        await client.revokeKey(service, key.id)
+      }
+      await db.deleteFrom('account').where('did', '=', did).execute()
     },
 
     async createKey(did, keyOpts): Promise<CreatedKey> {
@@ -83,8 +93,13 @@ export function createGatekeeperApiKeyProvider(
       return (await listServiceKeys(did)).map(toMeta)
     },
 
-    async deleteKey(_did, _keyId): Promise<void> {
-      throw new Error('not implemented') // Task 5
+    async deleteKey(did, keyId): Promise<void> {
+      // Gatekeeper's DELETE is not subject-scoped; verify ownership first so
+      // one user cannot revoke another's key. Unknown/foreign/already-revoked
+      // ids no-op, matching the Postgres provider's idempotent delete.
+      const owned = (await listServiceKeys(did)).some((key) => key.id === keyId)
+      if (!owned) return
+      await client.revokeKey(service, keyId)
     },
   }
 }

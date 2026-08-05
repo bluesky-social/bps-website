@@ -5,6 +5,8 @@ import { createGatekeeperClient } from './gatekeeper-client.ts'
 import { createGatekeeperApiKeyProvider } from './gatekeeper-provider.ts'
 import { LabelInUseError } from './provider.ts'
 import { startFakeGatekeeper, makeGatekeeperKey, type FakeGatekeeper } from './fake-gatekeeper.ts'
+import { createDb, type DB } from '../db/index.ts'
+import { runMigrations } from '../db/migrate.ts'
 
 const did = 'did:plc:gkprovtest' as DidString
 const POLICY = {
@@ -124,4 +126,117 @@ test('listKeys returns the service group mapped to ApiKeyMeta without secrets', 
 test('listKeys returns [] when the subject has no keys in the service', async () => {
   fake.setHandler(() => ({ status: 200, body: {} }))
   assert.deepEqual(await provider().listKeys(did), [])
+})
+
+test('ensureConsumer is a no-op returning the did', async () => {
+  const consumer = await provider().ensureConsumer(did)
+  assert.deepEqual(consumer, { did })
+  assert.equal(fake.requests.length, 0, 'no gatekeeper call made')
+})
+
+test('deleteKey revokes only keys owned by the did', async () => {
+  const mine = makeGatekeeperKey({ id: 'key_mineminemineminemineab' })
+  fake.setHandler((req) =>
+    req.method === 'GET'
+      ? { status: 200, body: { jetstream: [mine] } }
+      : { status: 204 },
+  )
+  await provider().deleteKey(did, mine.id)
+  assert.equal(fake.requests.length, 2)
+  assert.equal(fake.requests[0].method, 'GET')
+  assert.equal(fake.requests[1].method, 'DELETE')
+  assert.equal(fake.requests[1].path, `/v1/services/jetstream/keys/${mine.id}`)
+})
+
+test('deleteKey is a no-op for keys the did does not own (no DELETE issued)', async () => {
+  fake.setHandler(() => ({ status: 200, body: { jetstream: [makeGatekeeperKey()] } }))
+  await provider().deleteKey(did, 'key_notmineatallnotmineaa')
+  assert.equal(fake.requests.length, 1, 'only the ownership lookup, no DELETE')
+})
+
+test('deleteConsumer revokes every key then deletes the account row', async () => {
+  const dbUrl =
+    process.env.BPS_TEST_DATABASE_URL ??
+    'postgres://bps:bps@localhost:5433/bps_account'
+  const realDb: DB = createDb(dbUrl)
+  try {
+    await runMigrations(realDb)
+    await realDb.deleteFrom('account').where('did', '=', did).execute()
+    await realDb.insertInto('account').values({ did, email: null }).execute()
+
+    const a = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa' })
+    const b = makeGatekeeperKey({ id: 'key_bbbbbbbbbbbbbbbbbbbbbb' })
+    fake.setHandler((req) =>
+      req.method === 'GET'
+        ? { status: 200, body: { jetstream: [a, b] } }
+        : { status: 204 },
+    )
+
+    const client = createGatekeeperClient({
+      url: fake.url,
+      bearerToken: 't',
+      email: 'bps@example.com',
+    })
+    const p = createGatekeeperApiKeyProvider(realDb, client, {
+      service: 'jetstream',
+      defaultPolicy: POLICY,
+    })
+    await p.deleteConsumer(did)
+
+    const deletes = fake.requests.filter((r) => r.method === 'DELETE')
+    assert.deepEqual(
+      deletes.map((r) => r.path).sort(),
+      [
+        '/v1/services/jetstream/keys/key_aaaaaaaaaaaaaaaaaaaaaa',
+        '/v1/services/jetstream/keys/key_bbbbbbbbbbbbbbbbbbbbbb',
+      ],
+    )
+    const rows = await realDb
+      .selectFrom('account')
+      .selectAll()
+      .where('did', '=', did)
+      .execute()
+    assert.equal(rows.length, 0, 'account row deleted')
+  } finally {
+    await realDb.deleteFrom('account').where('did', '=', did).execute().catch(() => {})
+    await realDb.destroy()
+  }
+})
+
+test('deleteConsumer stops loudly when a revocation fails (account row survives)', async () => {
+  const dbUrl =
+    process.env.BPS_TEST_DATABASE_URL ??
+    'postgres://bps:bps@localhost:5433/bps_account'
+  const realDb: DB = createDb(dbUrl)
+  try {
+    await runMigrations(realDb)
+    await realDb.deleteFrom('account').where('did', '=', did).execute()
+    await realDb.insertInto('account').values({ did, email: null }).execute()
+
+    fake.setHandler((req) =>
+      req.method === 'GET'
+        ? { status: 200, body: { jetstream: [makeGatekeeperKey()] } }
+        : { status: 502, body: { title: 'Bad Gateway' } },
+    )
+    const client = createGatekeeperClient({
+      url: fake.url,
+      bearerToken: 't',
+      email: 'bps@example.com',
+    })
+    const p = createGatekeeperApiKeyProvider(realDb, client, {
+      service: 'jetstream',
+      defaultPolicy: POLICY,
+    })
+    await assert.rejects(p.deleteConsumer(did))
+
+    const rows = await realDb
+      .selectFrom('account')
+      .selectAll()
+      .where('did', '=', did)
+      .execute()
+    assert.equal(rows.length, 1, 'account row NOT deleted after failed revocation')
+  } finally {
+    await realDb.deleteFrom('account').where('did', '=', did).execute().catch(() => {})
+    await realDb.destroy()
+  }
 })
