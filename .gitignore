@@ -31,3 +31,6 @@ yarn-error.log*
 
 # Generated site-side lexicon client types
 /src/lexicons
+
+# superpowers scratch workspaces
+.superpowers/
