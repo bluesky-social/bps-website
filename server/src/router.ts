@@ -139,7 +139,14 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   router.add(internal.bps.apiKey.create, {
     auth: requireSession,
     handler: async ({ credentials, input }) => {
-      const { label, expiresAt } = input.body
+      const { expiresAt } = input.body
+      const label = input.body.label.trim()
+      if (label === '') {
+        throw new LexServerError(400, {
+          error: 'InvalidLabel',
+          message: 'Label must not be blank.',
+        })
+      }
       let created
       try {
         created = await apiKeys.createKey(credentials.did, {

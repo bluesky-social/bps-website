@@ -139,3 +139,14 @@ test('apiKey.create surfaces LabelInUseError as 400 LabelInUse', async () => {
     await new Promise<void>((resolve) => server2.close(() => resolve()))
   }
 })
+
+test('apiKey.create rejects a whitespace-only label as 400 InvalidLabel', async () => {
+  const res = await fetch(`${base}/xrpc/internal.bps.apiKey.create`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', cookie: await cookie() },
+    body: JSON.stringify({ label: '   ' }),
+  })
+  assert.equal(res.status, 400)
+  const body = (await res.json()) as { error: string; message: string }
+  assert.equal(body.error, 'InvalidLabel')
+})
