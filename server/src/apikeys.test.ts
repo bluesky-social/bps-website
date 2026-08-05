@@ -8,6 +8,8 @@ import { runMigrations } from './db/migrate.ts'
 import { loadConfig } from './config.ts'
 import { createOAuthClient } from './oauth/client.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
+import { LabelInUseError } from './apikeys/provider.ts'
+import type { ApiKeyProvider } from './apikeys/provider.ts'
 import { buildApp } from './app.ts'
 import { SESSION_COOKIE_NAME } from './session/cookie.ts'
 
@@ -105,4 +107,35 @@ test('create → list → delete round-trip', async () => {
     ((await listAfterDel.json()) as { keys: unknown[] }).keys.length,
     0,
   )
+})
+
+test('apiKey.create surfaces LabelInUseError as 400 LabelInUse', async () => {
+  const throwing: ApiKeyProvider = {
+    ensureConsumer: async (d) => ({ did: d }),
+    deleteConsumer: async () => {},
+    createKey: async () => {
+      throw new LabelInUseError('dupe')
+    },
+    listKeys: async () => [],
+    deleteKey: async () => {},
+  }
+  const client2 = await createOAuthClient(db, cfg)
+  const app2 = buildApp({ db, config: cfg, client: client2, apiKeys: throwing })
+  const server2 = await new Promise<ReturnType<typeof app2.listen>>((resolve) => {
+    const s = app2.listen(0, () => resolve(s))
+  })
+  try {
+    const base2 = `http://127.0.0.1:${(server2.address() as AddressInfo).port}`
+    const res = await fetch(`${base2}/xrpc/internal.bps.apiKey.create`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: await cookie() },
+      body: JSON.stringify({ label: 'dupe' }),
+    })
+    assert.equal(res.status, 400)
+    const body = (await res.json()) as { error: string; message: string }
+    assert.equal(body.error, 'LabelInUse')
+    assert.match(body.message, /label/i)
+  } finally {
+    await new Promise<void>((resolve) => server2.close(() => resolve()))
+  }
 })

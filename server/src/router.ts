@@ -8,6 +8,7 @@ import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from './db/index.ts'
 import type { AppConfig } from './config.ts'
+import { LabelInUseError } from './apikeys/provider.ts'
 import type { ApiKeyProvider } from './apikeys/provider.ts'
 import { logger } from './logger.ts'
 import { makeRequireSession } from './session/auth.ts'
@@ -139,10 +140,21 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     auth: requireSession,
     handler: async ({ credentials, input }) => {
       const { label, expiresAt } = input.body
-      const created = await apiKeys.createKey(credentials.did, {
-        label,
-        expiresAt: expiresAt ? new Date(expiresAt) : null,
-      })
+      let created
+      try {
+        created = await apiKeys.createKey(credentials.did, {
+          label,
+          expiresAt: expiresAt ? new Date(expiresAt) : null,
+        })
+      } catch (err) {
+        if (err instanceof LabelInUseError) {
+          throw new LexServerError(400, {
+            error: 'LabelInUse',
+            message: 'A key with this label already exists. Choose another label.',
+          })
+        }
+        throw err
+      }
       return {
         body: {
           id: created.id,
