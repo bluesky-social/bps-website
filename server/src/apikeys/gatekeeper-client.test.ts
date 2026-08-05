@@ -1,5 +1,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
+import { createServer } from 'node:http'
+import type { AddressInfo } from 'node:net'
 import { createGatekeeperClient, GatekeeperError } from './gatekeeper-client.ts'
 import { startFakeGatekeeper, makeGatekeeperKey, type FakeGatekeeper } from './fake-gatekeeper.ts'
 
@@ -104,4 +106,28 @@ test('non-JSON error bodies still produce GatekeeperError', async () => {
     client().listSubjectKeys('did:plc:alice'),
     (err: unknown) => err instanceof GatekeeperError && err.status === 502,
   )
+})
+
+test('request times out and aborts when the server never responds', async () => {
+  const hanging = createServer(() => {
+    // Never write a response: simulates a wedged Gatekeeper.
+  })
+  await new Promise<void>((resolve) => hanging.listen(0, resolve))
+  try {
+    const port = (hanging.address() as AddressInfo).port
+    const hungClient = createGatekeeperClient({
+      url: `http://127.0.0.1:${port}`,
+      bearerToken: 'test-secret',
+      email: 'bps@example.com',
+      timeoutMs: 100,
+    })
+    await assert.rejects(
+      hungClient.listSubjectKeys('did:plc:alice'),
+      (err: unknown) =>
+        err instanceof Error &&
+        (err.name === 'TimeoutError' || err.name === 'AbortError'),
+    )
+  } finally {
+    await new Promise<void>((resolve) => hanging.close(() => resolve()))
+  }
 })

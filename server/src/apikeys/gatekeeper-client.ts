@@ -54,7 +54,9 @@ export function createGatekeeperClient(cfg: {
   url: string
   bearerToken: string
   email: string
+  timeoutMs?: number
 }): GatekeeperClient {
+  const timeoutMs = cfg.timeoutMs ?? 10_000
   const request = async (
     method: string,
     path: string,
@@ -70,6 +72,7 @@ export function createGatekeeperClient(cfg: {
       method,
       headers,
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      signal: AbortSignal.timeout(timeoutMs),
     })
     if (!res.ok) {
       const problem = (await res.json().catch(() => ({}))) as Problem
