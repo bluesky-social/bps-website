@@ -70,7 +70,7 @@ export function makeGatekeeperKey(
   return {
     id: 'key_0123456789abcdefghijkl',
     subject: 'did:plc:gktest',
-    name: 'ci-key abc12345',
+    name: 'ci-key',
     key: 'gk_' + 'a'.repeat(39) + 'wxyz',
     data: { version: 1 },
     valid_from: null,

@@ -157,7 +157,8 @@ export function buildRouter(deps: RouterDeps): LexRouter {
         if (err instanceof LabelInUseError) {
           throw new LexServerError(400, {
             error: 'LabelInUse',
-            message: 'A key with this label already exists. Choose another label.',
+            message:
+              'You already have a key with this name (deleted keys keep their names). Please choose a different name.',
           })
         }
         throw err

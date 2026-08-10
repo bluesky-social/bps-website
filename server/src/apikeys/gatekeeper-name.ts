@@ -1,31 +1,23 @@
-import { randomBytes } from 'node:crypto'
-
-// TODO(stopgap): the user-facing label is encoded into Gatekeeper's immutable
-// key `name` as "{label} {nonce}" because keys have no mutable metadata home.
-// Consequences: labels are immutable and length-limited. Revisit when
-// Gatekeeper keys grow mutable metadata.
+// TODO(stopgap): the user-facing label IS Gatekeeper's immutable key `name`
+// (keys have no mutable metadata home), so labels are immutable and
+// length-limited. Revisit when Gatekeeper keys grow mutable metadata.
 //
-// The nonce exists ONLY to satisfy Gatekeeper's unconditional
-// UNIQUE (service_name, name) constraint, which counts revoked keys forever —
-// without it, deleting a key would burn its label permanently.
-// TODO(upstream): ask Gatekeeper to exclude revoked keys from name uniqueness
-// (partial unique index); the nonce can then shrink or disappear.
+// Name uniqueness is scoped to (service, subject), and revoked keys keep
+// their names forever. So a user re-using a deleted key's label gets a 409
+// (surfaced as LabelInUse and a "choose a different name" message). If that
+// proves annoying, the fix belongs in Gatekeeper: exclude revoked keys from
+// name uniqueness (partial unique index).
 
 export const NAME_MAX_LENGTH = 128
-export const NONCE_LENGTH = 8
 
 export function encodeKeyName(label: string): string {
   const trimmed = label.trim()
   if (trimmed === '') {
     throw new Error('api key label must not be blank')
   }
-  // 6 random bytes → 8 base64url chars; entropy only, never parsed or looked up.
-  const nonce = randomBytes(6).toString('base64url')
-  const maxLabel = NAME_MAX_LENGTH - 1 - NONCE_LENGTH
-  return `${trimmed.slice(0, maxLabel).trimEnd()} ${nonce}`.slice(0, NAME_MAX_LENGTH)
+  return trimmed.slice(0, NAME_MAX_LENGTH).trimEnd()
 }
 
 export function parseKeyLabel(name: string): string {
-  const i = name.lastIndexOf(' ')
-  return i === -1 ? name : name.slice(0, i)
+  return name
 }

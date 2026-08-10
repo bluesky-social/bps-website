@@ -140,7 +140,16 @@ test('apiKey.create surfaces LabelInUseError as 400 LabelInUse', async () => {
     assert.equal(res.status, 400)
     const body = (await res.json()) as { error: string; message: string }
     assert.equal(body.error, 'LabelInUse')
-    assert.match(body.message, /label/i)
+    assert.match(
+      body.message,
+      /different name/i,
+      'tells the user to pick a different name',
+    )
+    assert.match(
+      body.message,
+      /deleted/i,
+      'explains that deleted keys keep their names',
+    )
   } finally {
     await new Promise<void>((resolve) => server2.close(() => resolve()))
   }

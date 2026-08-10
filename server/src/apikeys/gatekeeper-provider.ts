@@ -99,8 +99,9 @@ export function createGatekeeperApiKeyProvider(
         })
       } catch (err) {
         if (err instanceof GatekeeperError && err.status === 409) {
-          // Name conflict. Includes collisions with revoked keys' names,
-          // which Gatekeeper never frees.
+          // Name conflict within this user's own keys — uniqueness is
+          // scoped to (service, subject). Includes names held by the user's
+          // deleted keys, which Gatekeeper never frees.
           throw new LabelInUseError(keyOpts.label)
         }
         if (err instanceof GatekeeperError && err.status === 422) {

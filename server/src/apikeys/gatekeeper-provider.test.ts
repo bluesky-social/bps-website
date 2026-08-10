@@ -48,7 +48,7 @@ function provider() {
 test('createKey sends subject/name/policy and maps the created key', async () => {
   const gkKey = makeGatekeeperKey({
     subject: did,
-    name: 'ci key abc12345',
+    name: 'ci key',
     valid_until: '2030-01-01T00:00:00Z',
   })
   fake.setHandler(() => ({ status: 201, body: gkKey }))
@@ -62,7 +62,7 @@ test('createKey sends subject/name/policy and maps the created key', async () =>
   assert.equal(req.path, '/v1/services/jetstream/keys')
   const body = req.body as Record<string, unknown>
   assert.equal(body.subject, did)
-  assert.match(body.name as string, /^ci key [A-Za-z0-9_-]{8}$/)
+  assert.equal(body.name, 'ci key')
   assert.deepEqual(body.data, POLICY)
   assert.equal(body.valid_until, '2030-01-01T00:00:00.000Z')
   assert.match(req.headers['idempotency-key'] as string, /^[0-9A-HJKMNP-TV-Z]{26}$/)
@@ -104,10 +104,10 @@ test('createKey surfaces 422 policy rejection as a server error, not LabelInUse'
 })
 
 test('listKeys returns the service group mapped to ApiKeyMeta without secrets', async () => {
-  const a = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa', name: 'first Xy12Ab34' })
+  const a = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa', name: 'first' })
   const b = makeGatekeeperKey({
     id: 'key_bbbbbbbbbbbbbbbbbbbbbb',
-    name: 'second Zz98Yy76',
+    name: 'second',
     valid_until: '2030-06-01T00:00:00Z',
   })
   fake.setHandler(() => ({ status: 200, body: { jetstream: [a, b], other: [makeGatekeeperKey()] } }))
@@ -124,24 +124,24 @@ test('listKeys returns the service group mapped to ApiKeyMeta without secrets', 
 })
 
 test('listKeys excludes revoked keys and maps lifecycle status', async () => {
-  const active = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa', name: 'live Xy12Ab34' })
+  const active = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa', name: 'live' })
   const expired = makeGatekeeperKey({
     id: 'key_bbbbbbbbbbbbbbbbbbbbbb',
-    name: 'old Zz98Yy76',
+    name: 'old',
     valid_until: '2020-01-01T00:00:00Z',
     current: false,
     expired: true,
   })
   const future = makeGatekeeperKey({
     id: 'key_cccccccccccccccccccccc',
-    name: 'later Qq11Ww22',
+    name: 'later',
     valid_from: '2099-01-01T00:00:00Z',
     current: false,
     future: true,
   })
   const revoked = makeGatekeeperKey({
     id: 'key_dddddddddddddddddddddd',
-    name: 'gone Mm33Nn44',
+    name: 'gone',
     revoked_at: '2026-08-01T00:00:00Z',
     current: false,
     revoked: true,
