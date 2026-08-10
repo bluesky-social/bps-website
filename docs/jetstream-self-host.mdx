@@ -123,9 +123,10 @@ import (below): it returns `401` unless you start the server with
 
 The debug listener is **off by default**; set `JETSTREAM_DEBUG_ADDR` (for
 example `:6060`) to expose Prometheus `/metrics`, `/healthz`, `/readyz`, and
-pprof on a port you keep private. The `/status` page on the public listener is
-the quick human view of the same story. The repository ships a Grafana
-dashboard for the metrics.
+pprof on a port you keep private. There is also a `/status` page on the public
+listener for a quick view of the same data.
+
+There is also a [Grafana dashboard](https://github.com/bluesky-social/jetstream/tree/main/contrib/grafana) included with Jetstream.
 
 ## Migrating timestamps from an older indexer
 

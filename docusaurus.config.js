@@ -65,8 +65,11 @@ const config = {
   tagline: "High scale open social, unlocked for every builder.",
   favicon: "img/favicon.png",
 
-  // Set the production url of your site here
-  url: "https://docs.bsky.app/",
+  // Set the production url of your site here. This site replaces docs.bsky.app,
+  // which now serves a path-preserving 301 wildcard here (see
+  // deploy/docs.bsky.app.conf) — so canonicals and the sitemap must advertise
+  // bsky.network, not the retired host.
+  url: "https://bsky.network/",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
@@ -118,13 +121,189 @@ const config = {
   plugins: [
     "@docusaurus/plugin-ideal-image",
     [
-      // Preserve inbound links after the get-started → bluesky-api and
-      // jetstream-backfill → jetstream-replay renames (see sidebars.js / the
-      // Jetstream launch restructure). Explicit list — the moved set is finite.
+      // Two kinds of redirect live here:
+      //
+      //  1. The docs.bsky.app migration set. This site replaces docs.bsky.app,
+      //     which now serves a path-preserving 301 wildcard to this host — so
+      //     every legacy docs.bsky.app pathname arrives here verbatim and needs
+      //     a landing spot. Sourced from the last docs.bsky.app sitemap; keep it
+      //     in sync if that inventory changes.
+      //  2. Internal renames within this site (get-started → bluesky-api,
+      //     jetstream-backfill → jetstream-replay, /how-it-works → /docs/...),
+      //     which never had docs.bsky.app URLs but do have live inbound links.
+      //
+      // These are client-side redirects (a meta-refresh HTML page per `from`),
+      // so a legacy deep link costs one 301 plus one in-page hop. Anything that
+      // needs a real server 301 — or a whole prefix, like the 200+ /docs/api/*
+      // endpoint pages — belongs in the docs.bsky.app nginx config instead.
       "@docusaurus/plugin-client-redirects",
       {
         redirects: [
+          // ---- 1. Legacy docs.bsky.app: /docs/tutorials/* ----
+          // The tutorials became the Bluesky API section.
+          ...[
+            "creating-a-post",
+            "viewing-feeds",
+            "viewing-threads",
+            "like-repost",
+            "following",
+            "user-lists",
+            "custom-feeds",
+          ].map((page) => ({
+            from: `/docs/tutorials/${page}`,
+            to: `/docs/bluesky-api/${page}`,
+          })),
+          // Viewing and editing profiles were merged into one Profiles page.
+          ...["editing-profiles", "viewing-profiles"].map((page) => ({
+            from: `/docs/tutorials/${page}`,
+            to: "/docs/bluesky-api/profiles",
+          })),
+          // Separate muting/blocking tutorials were folded into "Following,
+          // muting, and blocking".
+          ...["/docs/tutorials/muting", "/docs/tutorials/blocking"].map((from) => ({
+            from,
+            to: "/docs/bluesky-api/following",
+          })),
+          { from: "/docs/tutorials/thread-gates", to: "/docs/about-bluesky-content/thread-gates" },
+          { from: "/docs/tutorials/video", to: "/docs/about-bluesky-content/video" },
+
+          // ---- 1. Legacy docs.bsky.app: /docs/advanced-guides/* ----
+          // Guides that kept their content and moved to the site root.
+          ...[
+            "api-directory",
+            "entryway",
+            "intent-links",
+            "oauth-client",
+            "oembed",
+            "rate-limits",
+            "resolving-identities",
+          ].map((page) => ({ from: `/docs/advanced-guides/${page}`, to: `/docs/${page}` })),
+          // Guides that moved under About Bluesky Content.
+          ...["post-richtext", "posts", "timestamps"].map((page) => ({
+            from: `/docs/advanced-guides/${page}`,
+            to: `/docs/about-bluesky-content/${page}`,
+          })),
+          { from: "/docs/advanced-guides/firehose", to: "/docs/consuming-the-firehose" },
+          // "Backfilling the Network" (syncing the network from scratch) is now
+          // covered by Jetstream replay.
+          { from: "/docs/advanced-guides/backfill", to: "/docs/jetstream-replay" },
+          // The AT Protocol / Federation Architecture explainers are now the
+          // How It Works narrative.
+          ...["atproto", "federation-architecture"].map((page) => ({
+            from: `/docs/advanced-guides/${page}`,
+            to: "/docs/how-it-works",
+          })),
+          // Read-After-Write and Service Auth were both about PDS-mediated
+          // request routing, which Request proxying now covers.
+          ...["read-after-write", "service-auth"].map((page) => ({
+            from: `/docs/advanced-guides/${page}`,
+            to: "/docs/bluesky-api/request-proxying",
+          })),
+
+          // ---- 1. Legacy docs.bsky.app: pages with no successor here ----
+          // These topics are atproto.com's, not this site's.
+          { from: "/docs/advanced-guides/custom-schemas", to: "https://atproto.com/guides/lexicon" },
+          { from: "/docs/advanced-guides/moderation", to: "https://atproto.com/guides/moderation" },
+          // The starter templates are superseded by atproto.com's tutorials —
+          // the same destination the sidebar's "Tutorials" link points at.
+          ...[
+            "/docs/starter-templates/bots",
+            "/docs/starter-templates/clients",
+            "/docs/starter-templates/custom-feeds",
+            "/docs/category/starter-templates",
+          ].map((from) => ({ from, to: "https://atproto.com/guides/tutorials" })),
+          // The developer mailing list is gone; no equivalent to land on.
+          { from: "/docs/support/mailing-list", to: "https://atproto.com/" },
+          // /showcase listed community apps; App integrations is its closest heir.
+          { from: "/showcase", to: "/docs/about-bluesky-content/app-integrations" },
+
+          // ---- 1. Legacy docs.bsky.app: /docs/support/*, category pages ----
+          { from: "/docs/support/developer-guidelines", to: "/docs/developer-guidelines" },
           { from: "/docs/get-started", to: "/docs/bluesky-api" },
+          { from: "/docs/category/tutorials", to: "/docs/bluesky-api" },
+          { from: "/docs/category/advanced-guides", to: "/docs/protocol-services" },
+          { from: "/docs/category/support", to: "/docs/developer-guidelines" },
+          // The generated HTTP reference now lives on its own OpenAPI-driven
+          // site. Only the category landing is handled here; the per-operation
+          // /docs/api/* pages are a prefix rule in nginx.
+          { from: "/docs/category/http-reference", to: "https://endpoints.bsky.app" },
+
+          // ---- 1. Legacy docs.bsky.app: /blog/* ----
+          // The blog moved to atproto.com. Slugs verified against
+          // ../atproto-website/src/app/[locale]/blog (atproto.com serves posts
+          // unprefixed at /blog/<slug>).
+          ...[
+            "2024-protocol-roadmap",
+            "2025-protocol-roadmap-spring",
+            "atproto-grants",
+            "atproto-grants-recipients",
+            "bgs-and-did-doc",
+            "block-implementation",
+            "building-on-atproto",
+            "call-for-developers",
+            "create-post",
+            "federation-sandbox",
+            "introducing-tap",
+            "jetstream",
+            "label-grants",
+            "looking-back-2024",
+            "oauth-atproto",
+            "oauth-improvements",
+            "pinned-posts",
+            "plc-directory-org",
+            "protocol-roadmap",
+            "relay-ops",
+            "relay-rollout",
+            "repo-export",
+            "repo-sync-update",
+            "self-host-federation",
+          ].map((slug) => ({ from: `/blog/${slug}`, to: `https://atproto.com/blog/${slug}` })),
+          // Same posts, renamed slugs (titles confirmed identical).
+          ...Object.entries({
+            "account-management": "network-account-management",
+            "protocol-checkin-fall-2025": "protocol-check-in-fall-2025",
+            "relay-sync-updates": "relay-updates-sync-v1-1",
+            "taking-at-to-ietf": "taking-at-to-the-ietf",
+          }).map(([oldSlug, newSlug]) => ({
+            from: `/blog/${oldSlug}`,
+            to: `https://atproto.com/blog/${newSlug}`,
+          })),
+          // Posts that did not make the move, plus the index, pagination,
+          // archive, authors and tag pages: land on the blog index.
+          ...[
+            "/blog",
+            "/blog/archive",
+            "/blog/authors",
+            "/blog/page/2",
+            "/blog/page/3",
+            "/blog/page/4",
+            "/blog/api-v0-14-0-release-notes",
+            "/blog/blueskys-moderation-architecture",
+            "/blog/contact-import-rfc",
+            "/blog/feature-bridgyfed",
+            "/blog/feature-skyfeed",
+            "/blog/incoming-migration",
+            "/blog/rate-limits-pds-v3",
+            "/blog/skygaze-hackathon",
+            "/blog/ts-api-refactor",
+            "/blog/tags",
+            ...[
+              "community",
+              "feature",
+              "federation",
+              "firehose",
+              "guide",
+              "ietf",
+              "interop",
+              "lexicon",
+              "oauth",
+              "pds",
+              "plc",
+              "updates",
+            ].map((tag) => `/blog/tags/${tag}`),
+          ].map((from) => ({ from, to: "https://atproto.com/blog" })),
+
+          // ---- 2. Internal renames within this site ----
           ...[
             "creating-a-post",
             "viewing-feeds",
@@ -138,8 +317,6 @@ const config = {
             from: `/docs/get-started/${page}`,
             to: `/docs/bluesky-api/${page}`,
           })),
-          // Muting and blocking was folded into "Following, muting, and
-          // blocking" (bluesky-api/following); both old URLs land there.
           ...["/docs/get-started/muting-and-blocking", "/docs/bluesky-api/muting-and-blocking"].map(
             (from) => ({ from, to: "/docs/bluesky-api/following" }),
           ),
@@ -169,7 +346,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
           // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/bluesky-social/bsky-docs/tree/main/",
+          editUrl: "https://github.com/bluesky-social/bps-website/tree/main/",
         },
         // The blog has been removed from this site; its posts now live on
         // atproto.com. Disabling the preset's blog plugin entirely.
