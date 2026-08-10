@@ -17,7 +17,7 @@
             },
             "handle": {
               "type": "string",
-              "maxLength": 253
+              "format": "handle"
             },
             "displayName": {
               "type": "string",
@@ -25,7 +25,7 @@
             },
             "avatar": {
               "type": "string",
-              "maxLength": 8192
+              "format": "uri"
             }
           }
         }

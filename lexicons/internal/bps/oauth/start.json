@@ -24,8 +24,7 @@
           "properties": {
             "authorizeUrl": {
               "type": "string",
-              "minLength": 1,
-              "maxLength": 8192
+              "format": "uri"
             }
           }
         }

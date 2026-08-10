@@ -1,12 +1,12 @@
-import { xrpc } from '@atproto/lex'
+import { xrpc, type l } from '@atproto/lex'
 import type { DidString } from '@atproto/syntax'
 import * as app from '../lexicons/app.ts'
 
 export type Profile = {
   did: DidString
-  handle: string
+  handle: l.HandleString
   displayName?: string
-  avatar?: string
+  avatar?: l.UriString
 }
 
 // Profile (handle/displayName/avatar) is PUBLIC data: fetched unauthenticated

@@ -3,6 +3,7 @@ import {
   LexServerError,
   LexServerAuthError,
 } from '@atproto/lex-server'
+import type { l } from '@atproto/lex'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
@@ -62,7 +63,9 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           'Could not start login for that handle. Check it and try again.',
       })
     }
-    return { body: { authorizeUrl: url.toString() } }
+    // URL.toString() is typed as plain string, but a WHATWG URL always
+    // serializes as scheme ':' rest — the shape the uri format brands.
+    return { body: { authorizeUrl: url.toString() as l.UriString } }
   })
 
   // whoami: authenticated via the session cookie.
