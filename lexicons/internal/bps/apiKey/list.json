@@ -21,13 +21,18 @@
     },
     "keyMeta": {
       "type": "object",
-      "required": ["id", "label", "preview", "createdAt"],
+      "required": ["id", "label", "preview", "createdAt", "status"],
       "properties": {
         "id": { "type": "string" },
         "label": { "type": "string" },
         "preview": { "type": "string" },
         "createdAt": { "type": "string", "format": "datetime" },
-        "expiresAt": { "type": "string", "format": "datetime" }
+        "expiresAt": { "type": "string", "format": "datetime" },
+        "status": {
+          "type": "string",
+          "knownValues": ["active", "expired", "future"],
+          "description": "Lifecycle of the key. Revoked (deleted) keys are never listed. 'future' means the key is not yet valid."
+        }
       }
     }
   }

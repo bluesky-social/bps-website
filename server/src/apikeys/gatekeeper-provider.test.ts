@@ -123,6 +123,52 @@ test('listKeys returns the service group mapped to ApiKeyMeta without secrets', 
   assert.ok(!JSON.stringify(keys).includes(a.key), 'listKeys never exposes the secret')
 })
 
+test('listKeys excludes revoked keys and maps lifecycle status', async () => {
+  const active = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa', name: 'live Xy12Ab34' })
+  const expired = makeGatekeeperKey({
+    id: 'key_bbbbbbbbbbbbbbbbbbbbbb',
+    name: 'old Zz98Yy76',
+    valid_until: '2020-01-01T00:00:00Z',
+    current: false,
+    expired: true,
+  })
+  const future = makeGatekeeperKey({
+    id: 'key_cccccccccccccccccccccc',
+    name: 'later Qq11Ww22',
+    valid_from: '2099-01-01T00:00:00Z',
+    current: false,
+    future: true,
+  })
+  const revoked = makeGatekeeperKey({
+    id: 'key_dddddddddddddddddddddd',
+    name: 'gone Mm33Nn44',
+    revoked_at: '2026-08-01T00:00:00Z',
+    current: false,
+    revoked: true,
+  })
+  fake.setHandler(() => ({
+    status: 200,
+    body: { jetstream: [active, expired, future, revoked] },
+  }))
+
+  const keys = await provider().listKeys(did)
+  assert.deepEqual(
+    keys.map((k) => [k.id, k.status]),
+    [
+      ['key_aaaaaaaaaaaaaaaaaaaaaa', 'active'],
+      ['key_bbbbbbbbbbbbbbbbbbbbbb', 'expired'],
+      ['key_cccccccccccccccccccccc', 'future'],
+    ],
+    'revoked keys are excluded; others carry their lifecycle status',
+  )
+})
+
+test('createKey returns status active', async () => {
+  fake.setHandler(() => ({ status: 201, body: makeGatekeeperKey() }))
+  const created = await provider().createKey(did, { label: 'k', expiresAt: null })
+  assert.equal(created.status, 'active')
+})
+
 test('listKeys returns [] when the subject has no keys in the service', async () => {
   fake.setHandler(() => ({ status: 200, body: {} }))
   assert.deepEqual(await provider().listKeys(did), [])
@@ -152,6 +198,63 @@ test('deleteKey is a no-op for keys the did does not own (no DELETE issued)', as
   fake.setHandler(() => ({ status: 200, body: { jetstream: [makeGatekeeperKey()] } }))
   await provider().deleteKey(did, 'key_notmineatallnotmineaa')
   assert.equal(fake.requests.length, 1, 'only the ownership lookup, no DELETE')
+})
+
+test('deleteConsumer skips already-revoked keys', async () => {
+  const dbUrl =
+    process.env.BPS_TEST_DATABASE_URL ??
+    'postgres://bps:bps@localhost:5433/bps_account'
+  const realDb: DB = createDb(dbUrl)
+  try {
+    await runMigrations(realDb)
+    await realDb.deleteFrom('account').where('did', '=', did).execute()
+    await realDb.insertInto('account').values({ did, email: null }).execute()
+
+    const live = makeGatekeeperKey({ id: 'key_aaaaaaaaaaaaaaaaaaaaaa' })
+    const alreadyRevoked = makeGatekeeperKey({
+      id: 'key_bbbbbbbbbbbbbbbbbbbbbb',
+      revoked_at: '2026-08-01T00:00:00Z',
+      current: false,
+      revoked: true,
+    })
+    fake.setHandler((req) =>
+      req.method === 'GET'
+        ? { status: 200, body: { jetstream: [live, alreadyRevoked] } }
+        : { status: 204 },
+    )
+    const client = createGatekeeperClient({
+      url: fake.url,
+      bearerToken: 't',
+      email: 'bps@example.com',
+    })
+    const p = createGatekeeperApiKeyProvider(realDb, client, {
+      service: 'jetstream',
+      defaultPolicy: POLICY,
+    })
+    await p.deleteConsumer(did)
+
+    const deletes = fake.requests.filter((r) => r.method === 'DELETE')
+    assert.deepEqual(
+      deletes.map((r) => r.path),
+      ['/v1/services/jetstream/keys/key_aaaaaaaaaaaaaaaaaaaaaa'],
+      'only the live key is revoked',
+    )
+  } finally {
+    await realDb.deleteFrom('account').where('did', '=', did).execute().catch(() => {})
+    await realDb.destroy()
+  }
+})
+
+test('deleteKey is a no-op for an already-revoked key', async () => {
+  const revoked = makeGatekeeperKey({
+    id: 'key_dddddddddddddddddddddd',
+    revoked_at: '2026-08-01T00:00:00Z',
+    current: false,
+    revoked: true,
+  })
+  fake.setHandler(() => ({ status: 200, body: { jetstream: [revoked] } }))
+  await provider().deleteKey(did, revoked.id)
+  assert.equal(fake.requests.length, 1, 'only the lookup; no DELETE for a revoked key')
 })
 
 test('deleteConsumer revokes every key then deletes the account row', async () => {

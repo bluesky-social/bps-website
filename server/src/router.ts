@@ -171,6 +171,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
           ...(created.expiresAt
             ? { expiresAt: created.expiresAt.toISOString() }
             : {}),
+          status: created.status,
           key: created.full,
         },
       }
@@ -190,6 +191,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
             preview: k.preview,
             createdAt: k.createdAt.toISOString(),
             ...(k.expiresAt ? { expiresAt: k.expiresAt.toISOString() } : {}),
+            status: k.status,
           })),
         },
       }

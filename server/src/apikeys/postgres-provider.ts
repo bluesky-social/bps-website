@@ -23,6 +23,10 @@ function toMeta(row: ApiKeyRow): ApiKeyMeta {
     preview: row.key_preview,
     createdAt: row.created_at,
     expiresAt: row.expires_at,
+    // No valid_from in this schema, so keys are never 'future'; expiry is
+    // derived at read time (nothing marks rows expired in the database).
+    status:
+      row.expires_at && row.expires_at <= new Date() ? 'expired' : 'active',
   }
 }
 

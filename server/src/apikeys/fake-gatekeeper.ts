@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import type { IncomingHttpHeaders } from 'node:http'
-import type { GatekeeperKey } from './gatekeeper-client.ts'
+import type { GatekeeperSubjectKey } from './gatekeeper-client.ts'
 
 export type RecordedRequest = {
   method: string
@@ -61,9 +61,12 @@ export async function startFakeGatekeeper(): Promise<FakeGatekeeper> {
   }
 }
 
+// Defaults model a current (usable) key as returned by subject lookups.
+// Creation responses carry no lifecycle booleans; tests for createKey may
+// pass the same fixture — the extra fields are simply ignored there.
 export function makeGatekeeperKey(
-  overrides: Partial<GatekeeperKey> = {},
-): GatekeeperKey {
+  overrides: Partial<GatekeeperSubjectKey> = {},
+): GatekeeperSubjectKey {
   return {
     id: 'key_0123456789abcdefghijkl',
     subject: 'did:plc:gktest',
@@ -77,6 +80,10 @@ export function makeGatekeeperKey(
     revision: 1,
     database_revision: 1,
     fingerprint: 'sha256:0123456789abcdef',
+    current: true,
+    expired: false,
+    revoked: false,
+    future: false,
     ...overrides,
   }
 }

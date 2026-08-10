@@ -118,10 +118,10 @@ the Postgres adapter is `src/apikeys/postgres-provider.ts`, and a Gatekeeper
 adapter (`src/apikeys/gatekeeper-provider.ts`) can replace it without changing
 callers — see the Gatekeeper env vars above.
 
-When Gatekeeper-backed keys are enabled, key listings include only currently
-usable keys — expired and revoked keys disappear from the list (Gatekeeper's
-subject lookup omits them). The UI should still tolerate expired keys in list
-responses in case this changes.
+Key listings carry a `status` (`active`, `expired`, or `future`); revoked
+(deleted) keys are never listed. Under the Gatekeeper provider the status
+comes from Gatekeeper's server-side lifecycle classification; the Postgres
+provider derives it from `expires_at` at read time.
 
 Note: `whoami` returns 401 if the cookie is valid but the account row no longer
 exists (e.g. after `account.delete`). Expected client errors (4xx) are logged at

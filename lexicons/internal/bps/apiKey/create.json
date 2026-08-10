@@ -24,13 +24,18 @@
         "encoding": "application/json",
         "schema": {
           "type": "object",
-          "required": ["id", "label", "preview", "createdAt", "key"],
+          "required": ["id", "label", "preview", "createdAt", "status", "key"],
           "properties": {
             "id": { "type": "string" },
             "label": { "type": "string" },
             "preview": { "type": "string" },
             "createdAt": { "type": "string", "format": "datetime" },
             "expiresAt": { "type": "string", "format": "datetime" },
+            "status": {
+              "type": "string",
+              "knownValues": ["active", "expired", "future"],
+              "description": "Lifecycle of the key; a newly created key is active."
+            },
             "key": {
               "type": "string",
               "description": "The full secret. Shown once; not retrievable later."

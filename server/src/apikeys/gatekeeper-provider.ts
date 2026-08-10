@@ -1,34 +1,54 @@
 import { ulid } from 'ulid'
 import type { DidString } from '@atproto/syntax'
 import type { DB } from '../db/index.ts'
-import type { ApiKeyProvider, ApiKeyMeta, CreatedKey, Consumer } from './provider.ts'
+import type {
+  ApiKeyProvider,
+  ApiKeyMeta,
+  ApiKeyStatus,
+  CreatedKey,
+  Consumer,
+} from './provider.ts'
 import { LabelInUseError } from './provider.ts'
 import { encodeKeyName, parseKeyLabel } from './gatekeeper-name.ts'
-import { GatekeeperError, type GatekeeperClient, type GatekeeperKey } from './gatekeeper-client.ts'
+import {
+  GatekeeperError,
+  type GatekeeperClient,
+  type GatekeeperKey,
+  type GatekeeperSubjectKey,
+} from './gatekeeper-client.ts'
 
 // Preview mirrors key.ts's `jsk_…xxxx` convention: scheme prefix + last 4.
 function previewSecret(full: string): string {
   return `${full.slice(0, 3)}…${full.slice(-4)}`
 }
 
-function toMeta(key: GatekeeperKey): ApiKeyMeta {
+function toMeta(key: GatekeeperKey, status: ApiKeyStatus): ApiKeyMeta {
   return {
     id: key.id,
     label: parseKeyLabel(key.name),
     preview: previewSecret(key.key),
     createdAt: new Date(key.created_at),
     expiresAt: key.valid_until ? new Date(key.valid_until) : null,
+    status,
   }
+}
+
+// Trust Gatekeeper's server-side lifecycle classification (exactly one of
+// the four booleans is true) rather than re-deriving from timestamps with
+// our own clock. Revoked keys are handled (excluded) before this mapping.
+function statusOf(key: GatekeeperSubjectKey): ApiKeyStatus {
+  if (key.expired) return 'expired'
+  if (key.future) return 'future'
+  return 'active'
 }
 
 // ApiKeyProvider backed by Gatekeeper (bluesky-social/gatekeeper). Ownership
 // lives in Gatekeeper's first-class key `subject` (the DID); key `data` is a
 // pure Headwind policy document validated against the service's schema.
 //
-// NOTE: listKeys uses GET /v1/subjects/{did}/keys, which returns only
-// currently-usable keys — expired (and revoked) keys silently disappear from
-// the list. Accepted for v1; the lexicon/UI contract still treats expired
-// entries as possible so this can change later.
+// listKeys reflects Gatekeeper's full lifecycle view: active, expired, and
+// not-yet-valid keys are listed with a status; revoked (user-deleted) keys
+// are excluded.
 export function createGatekeeperApiKeyProvider(
   db: DB,
   client: GatekeeperClient,
@@ -36,9 +56,13 @@ export function createGatekeeperApiKeyProvider(
 ): ApiKeyProvider {
   const { service, defaultPolicy } = opts
 
-  const listServiceKeys = async (did: DidString): Promise<GatekeeperKey[]> => {
+  // The subject's keys in this service, revoked ones excluded — callers
+  // treat revoked keys as nonexistent (not listed, not re-revocable).
+  const listServiceKeys = async (
+    did: DidString,
+  ): Promise<GatekeeperSubjectKey[]> => {
     const groups = await client.listSubjectKeys(did)
-    return groups[service] ?? []
+    return (groups[service] ?? []).filter((key) => !key.revoked)
   }
 
   return {
@@ -53,7 +77,7 @@ export function createGatekeeperApiKeyProvider(
       // sequentially; any failure throws immediately (loud partial failure
       // beats silent continuation). The account row goes last so a partial
       // failure leaves the account intact and this call safely re-runnable —
-      // already-revoked keys vanish from the subject listing.
+      // listServiceKeys excludes already-revoked keys.
       for (const key of await listServiceKeys(did)) {
         await client.revokeKey(service, key.id)
       }
@@ -86,11 +110,15 @@ export function createGatekeeperApiKeyProvider(
         }
         throw err
       }
-      return { ...toMeta(created), full: created.key }
+      // A just-created key is always current: our API cannot set valid_from,
+      // and expiry is user-supplied future time.
+      return { ...toMeta(created, 'active'), full: created.key }
     },
 
     async listKeys(did): Promise<ApiKeyMeta[]> {
-      return (await listServiceKeys(did)).map(toMeta)
+      return (await listServiceKeys(did)).map((key) =>
+        toMeta(key, statusOf(key)),
+      )
     },
 
     async deleteKey(did, keyId): Promise<void> {

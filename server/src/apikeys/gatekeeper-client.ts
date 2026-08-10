@@ -17,6 +17,15 @@ export type GatekeeperKey = {
   fingerprint: string
 }
 
+// Subject lookups additionally classify each key's lifecycle server-side;
+// exactly one of these is true (revoked > expired > future > current).
+export type GatekeeperSubjectKey = GatekeeperKey & {
+  current: boolean
+  expired: boolean
+  revoked: boolean
+  future: boolean
+}
+
 type Problem = { type?: string; title?: string; detail?: string }
 
 export class GatekeeperError extends Error {
@@ -46,7 +55,9 @@ export type GatekeeperClient = {
       idempotencyKey: string
     },
   ): Promise<GatekeeperKey>
-  listSubjectKeys(subject: string): Promise<Record<string, GatekeeperKey[]>>
+  listSubjectKeys(
+    subject: string,
+  ): Promise<Record<string, GatekeeperSubjectKey[]>>
   revokeKey(service: string, keyId: string): Promise<void>
 }
 
@@ -103,7 +114,7 @@ export function createGatekeeperClient(cfg: {
       return (await request(
         'GET',
         `/v1/subjects/${encodeURIComponent(subject)}/keys`,
-      )) as Record<string, GatekeeperKey[]>
+      )) as Record<string, GatekeeperSubjectKey[]>
     },
 
     async revokeKey(service, keyId) {

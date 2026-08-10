@@ -2,12 +2,18 @@ import type { DidString } from '@atproto/syntax'
 
 export type Consumer = { did: DidString }
 
+// Lifecycle of a listed key. Revoked (user-deleted) keys are never listed.
+// 'future' = valid_from has not arrived yet (not currently creatable through
+// our API, but representable in the backing store).
+export type ApiKeyStatus = 'active' | 'expired' | 'future'
+
 export type ApiKeyMeta = {
   id: string
   label: string
   preview: string
   createdAt: Date
   expiresAt: Date | null
+  status: ApiKeyStatus
 }
 
 export type CreatedKey = ApiKeyMeta & { full: string } // full secret, returned ONCE

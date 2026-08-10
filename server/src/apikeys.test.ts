@@ -80,15 +80,21 @@ test('create → list → delete round-trip', async () => {
   }
   assert.ok(cj.key.startsWith('jsk_'), 'full secret returned once')
   assert.ok(cj.preview.includes('…'))
+  assert.equal(
+    (cj as { status?: string }).status,
+    'active',
+    'created key reports active status',
+  )
 
   const listed = await fetch(`${base}/xrpc/internal.bps.apiKey.list`, {
     headers: { cookie: c },
   })
   const lj = (await listed.json()) as {
-    keys: Array<{ id: string; preview: string }>
+    keys: Array<{ id: string; preview: string; status: string }>
   }
   assert.equal(lj.keys.length, 1)
   assert.equal(lj.keys[0].id, cj.id)
+  assert.equal(lj.keys[0].status, 'active', 'listed key carries its status')
   assert.ok(
     !JSON.stringify(lj).includes(cj.key),
     'list never returns the secret',
