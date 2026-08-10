@@ -18,6 +18,7 @@
  */
 
 import React, { useState, useEffect, useCallback } from 'react'
+import Link from '@docusaurus/Link'
 import { useAuth } from '@site/src/auth/AuthContext'
 import { LockIcon, CheckIcon, CopyIcon, EmptyKeysIcon } from './icons'
 import styles from './ApiKeysSection.module.css'
@@ -442,7 +443,19 @@ export default function ApiKeysSection() {
 
   return (
     <section aria-labelledby="api-keys-section-heading">
-      <SectionHeading id="api-keys-section-heading">API Keys</SectionHeading>
+      <SectionHeading id="api-keys-section-heading">
+        Jetstream API Keys
+      </SectionHeading>
+
+      <p className={styles.sectionIntro}>
+        These keys are for <Link to="/docs/jetstream">Jetstream</Link>.
+        Consuming the live event stream needs no key — a key is only required
+        for <Link to="/docs/jetstream-replay">network replay</Link> and{' '}
+        <Link to="/docs/jetstream-replay#snapshotting-a-point-in-time-copy">
+          snapshots
+        </Link>
+        , which serve history from the archive.
+      </p>
 
       {/* Copy-once secret reveal — rendered only when a new key was just created */}
       {newSecret !== null && (
