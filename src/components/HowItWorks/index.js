@@ -485,25 +485,32 @@ function AppGrid() {
   return (
     <div className="app-grid">
       {APPS.map((app) => (
-        <a
-          className="app-card"
-          key={app.name}
-          href={app.href}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        // The image is deliberately outside the link: this page renders inside
+        // `.markdown`, so medium-zoom (src/theme/Root.js) attaches to these
+        // screenshots. Wrapping the whole card in an <a> meant one click both
+        // opened the lightbox and navigated away in a new tab. Clicking the
+        // screenshot zooms; only the caption leaves the page.
+        <div className="app-card" key={app.name}>
           <img
             src={base + app.img.slice(1)}
             alt={`${app.name} screenshot`}
             loading="lazy"
           />
-          <span className="app-caption">
-            <span className="app-name">{app.name}</span>
+          <a
+            className="app-caption"
+            href={app.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="app-name">
+              {app.name}
+              <span aria-hidden="true"> ↗</span>
+            </span>
             <span className="app-lens">
               {app.lens} · {app.what}
             </span>
-          </span>
-        </a>
+          </a>
+        </div>
       ))}
     </div>
   )
