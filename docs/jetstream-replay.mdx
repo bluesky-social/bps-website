@@ -189,8 +189,9 @@ when the archive range is consumed:
 </Tabs>
 
 For **a raw archive mirror**, you need to use
-[`listSegments`](https://endpoints.bsky.app) and download each with
-[`getSegment`](https://endpoints.bsky.app).
+[`listSegments`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/GET/xrpc/network.bsky.jetstream.listSegments)
+and download each with
+[`getSegment`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/GET/xrpc/network.bsky.jetstream.getSegment).
 
 ## Segment files (`.jss`)
 
@@ -237,7 +238,8 @@ Replay is **stateless on the server**: there's no per-consumer cursor
 to manage, no subscription to register. In three steps:
 
 1. **Page a plan.** `POST` your filters to
-   [`planBackfill`](https://endpoints.bsky.app): `dids` (exact),
+   [`planBackfill`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/POST/xrpc/network.bsky.jetstream.planBackfill):
+   `dids` (exact),
    `collections` (exact NSIDs, or `app.bsky.feed.*`-style namespace wildcards),
    and an optional `afterSeq`/`beforeSeq` window. The first response reports the
    archive's current sealed tip. Pin this as `S = sealedTipSeq` for the whole
@@ -247,8 +249,9 @@ to manage, no subscription to register. In three steps:
    never floats as new data arrives.
 2. **Download the archive.** Each planned segment comes back in one of two
    modes: `mode: "segment"` (fetch the whole file with
-   [`getSegment`](https://endpoints.bsky.app)) or `mode: "blocks"` (fetch just
-   the listed block ranges with [`getBlock`](https://endpoints.bsky.app)).
+   [`getSegment`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/GET/xrpc/network.bsky.jetstream.getSegment))
+   or `mode: "blocks"` (fetch just the listed block ranges with
+   [`getBlock`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/GET/xrpc/network.bsky.jetstream.getBlock)).
    Responses are immutable, ETag'd, and CDN-cacheable, and `getSegment` supports
    HTTP `Range` requests, so downloads parallelize freely and resume exactly
    where they stopped. Decode each row and apply your exact filters.
@@ -304,7 +307,7 @@ accounts, events interleave).
 - **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints.
 - **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client for the
   live tail.
-- **[HTTP reference](https://endpoints.bsky.app)** — the `planBackfill`,
+- **[HTTP reference](https://endpoints.bsky.app/#jetstream)** — the `planBackfill`,
   `listSegments`, `getSegment`, and `getBlock` methods, with request and
   response schemas.
 - **[Running your own Jetstream](/docs/jetstream-self-host)** — the same
