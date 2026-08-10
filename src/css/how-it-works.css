@@ -575,17 +575,28 @@ html[data-theme='light'] .bps-hiw .app-card {
   object-position: top;
   border-bottom: 1px solid var(--bps-rule);
 }
+/* the caption is the only link in the card — the screenshot above it belongs
+ * to medium-zoom */
 .bps-hiw .app-caption {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   padding: 12px 16px;
+  text-decoration: none;
+  color: inherit;
+}
+.bps-hiw .app-caption:hover {
+  text-decoration: none;
+}
+.bps-hiw .app-caption:hover .app-name {
+  color: var(--bps-blue-dark);
 }
 .bps-hiw .app-name {
   font-size: 15px;
   font-weight: 700;
   color: var(--bps-ink);
+  transition: color 0.15s ease;
 }
 .bps-hiw .app-lens {
   font-family: var(--ifm-font-family-monospace);
