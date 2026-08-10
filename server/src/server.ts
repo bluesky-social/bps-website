@@ -5,6 +5,9 @@ import { createDb } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
 import { createOAuthClient } from './oauth/client.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
+import { createGatekeeperClient } from './apikeys/gatekeeper-client.ts'
+import { createGatekeeperApiKeyProvider } from './apikeys/gatekeeper-provider.ts'
+import { JETSTREAM_DEFAULT_POLICY } from './apikeys/jetstream-policy.ts'
 import { buildApp } from './app.ts'
 
 async function main() {
@@ -15,7 +18,20 @@ async function main() {
   await runMigrations(db)
 
   const client = await createOAuthClient(db, cfg)
-  const apiKeys = createPostgresApiKeyProvider(db)
+  // API keys live in Gatekeeper when configured; local Postgres otherwise
+  // (dev default). Service name + default policy are deliberately hardcoded
+  // here, not config — see jetstream-policy.ts. Future services add their own
+  // { service, defaultPolicy } pair (and an ApiKeyProvider interface change).
+  const apiKeys = cfg.gatekeeper
+    ? createGatekeeperApiKeyProvider(db, createGatekeeperClient(cfg.gatekeeper), {
+        service: 'jetstream',
+        defaultPolicy: JETSTREAM_DEFAULT_POLICY,
+      })
+    : createPostgresApiKeyProvider(db)
+  logger.info(
+    { provider: cfg.gatekeeper ? 'gatekeeper' : 'postgres' },
+    'api key provider selected',
+  )
   const app = buildApp({ db, config: cfg, client, apiKeys })
   const server = app.listen(cfg.port, () => {
     logger.info(`account server listening on :${cfg.port}`)

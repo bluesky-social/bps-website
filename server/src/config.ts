@@ -13,6 +13,11 @@ export type AppConfig = {
   cookieSameSite: 'lax' | 'none'
   devMode: boolean
   appViewUrl: string
+  gatekeeper: {
+    url: string
+    bearerToken: string
+    email: string
+  } | null
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -63,6 +68,20 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     env.BPS_APPVIEW_URL?.trim() || 'https://public.api.bsky.app'
   ).replace(/\/$/, '')
 
+  // --- Gatekeeper-backed API keys (optional, all-or-nothing group) ---
+  const gkUrl = env.BPS_GATEKEEPER_URL?.trim() || null
+  const gkToken = env.BPS_GATEKEEPER_BEARER_TOKEN?.trim() || null
+  const gkEmail = env.BPS_GATEKEEPER_EMAIL?.trim() || null
+  let gatekeeper: AppConfig['gatekeeper'] = null
+  if (gkUrl || gkToken || gkEmail) {
+    if (!gkUrl) errors.push('BPS_GATEKEEPER_URL is required when other BPS_GATEKEEPER_* vars are set')
+    if (!gkToken) errors.push('BPS_GATEKEEPER_BEARER_TOKEN is required when other BPS_GATEKEEPER_* vars are set')
+    if (!gkEmail) errors.push('BPS_GATEKEEPER_EMAIL is required when other BPS_GATEKEEPER_* vars are set')
+    if (gkUrl && gkToken && gkEmail) {
+      gatekeeper = { url: gkUrl.replace(/\/$/, ''), bearerToken: gkToken, email: gkEmail }
+    }
+  }
+
   if (errors.length > 0) {
     throw new Error(`Invalid configuration:\n  - ${errors.join('\n  - ')}`)
   }
@@ -82,5 +101,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     cookieSameSite,
     devMode: !isProd,
     appViewUrl,
+    gatekeeper,
   }
 }

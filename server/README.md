@@ -42,6 +42,14 @@ curl localhost:8080/_health                          # {"status":"ok"}
 - Lexicons are authored under repo-root `lexicons/` and committed; generated TS
   in `server/src/lexicons/` is git-ignored.
 
+### Gatekeeper env vars
+
+| Var | Required | Purpose |
+| --- | --- | --- |
+| `BPS_GATEKEEPER_URL` | optional | Gatekeeper base URL. When set, API keys are stored in Gatekeeper instead of local Postgres, and the other `BPS_GATEKEEPER_*` vars become required. |
+| `BPS_GATEKEEPER_BEARER_TOKEN` | with URL | Shared secret sent as `Authorization: Bearer` on every Gatekeeper request. |
+| `BPS_GATEKEEPER_EMAIL` | with URL | Identity sent as `X-Beyond-Email` (Gatekeeper direct-auth mode). |
+
 ## OAuth
 
 Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
@@ -106,8 +114,14 @@ All authed via the `bps_session` cookie.
 API keys are opaque (`jsk_<random>`), scoped to Jetstream (`jetstream:read`), stored
 as a SHA-256 hash + a masked preview — the plaintext is shown once and is not
 retrievable. Keys go through the `ApiKeyProvider` port (`src/apikeys/provider.ts`);
-the Postgres adapter is `src/apikeys/postgres-provider.ts` (a Kong adapter can
-replace it without changing callers).
+the Postgres adapter is `src/apikeys/postgres-provider.ts`, and a Gatekeeper
+adapter (`src/apikeys/gatekeeper-provider.ts`) can replace it without changing
+callers — see the Gatekeeper env vars above.
+
+Key listings carry a `status` (`active`, `expired`, or `future`); revoked
+(deleted) keys are never listed. Under the Gatekeeper provider the status
+comes from Gatekeeper's server-side lifecycle classification; the Postgres
+provider derives it from `expires_at` at read time.
 
 Note: `whoami` returns 401 if the cookie is valid but the account row no longer
 exists (e.g. after `account.delete`). Expected client errors (4xx) are logged at

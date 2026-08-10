@@ -11,7 +11,11 @@
           "type": "object",
           "required": ["label"],
           "properties": {
-            "label": { "type": "string", "maxLength": 200, "minLength": 1 },
+            "label": {
+              "type": "string",
+              "maxLength": 200,
+              "minLength": 1
+            },
             "expiresAt": {
               "type": "string",
               "format": "datetime",
@@ -24,16 +28,42 @@
         "encoding": "application/json",
         "schema": {
           "type": "object",
-          "required": ["id", "label", "preview", "createdAt", "key"],
+          "required": ["id", "label", "preview", "createdAt", "status", "key"],
           "properties": {
-            "id": { "type": "string" },
-            "label": { "type": "string" },
-            "preview": { "type": "string" },
-            "createdAt": { "type": "string", "format": "datetime" },
-            "expiresAt": { "type": "string", "format": "datetime" },
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            },
+            "preview": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "createdAt": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "datetime"
+            },
+            "status": {
+              "type": "string",
+              "knownValues": ["active", "expired", "future"],
+              "description": "Lifecycle of the key; a newly created key is active.",
+              "maxLength": 64
+            },
             "key": {
               "type": "string",
-              "description": "The full secret. Shown once; not retrievable later."
+              "description": "The full secret. Shown once; not retrievable later.",
+              "minLength": 1,
+              "maxLength": 256
             }
           }
         }

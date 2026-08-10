@@ -71,6 +71,20 @@ test('createKey stores expiresAt when provided', async () => {
   assert.equal(created.expiresAt?.toISOString(), exp.toISOString())
 })
 
+test('keys carry a lifecycle status: active until expiry passes, then expired', async () => {
+  const p = createPostgresApiKeyProvider(db)
+  await p.ensureConsumer(did)
+  const live = await p.createKey(did, { label: 'live', expiresAt: null })
+  assert.equal(live.status, 'active')
+  await p.createKey(did, {
+    label: 'stale',
+    expiresAt: new Date('2020-01-01T00:00:00Z'),
+  })
+  const byLabel = new Map((await p.listKeys(did)).map((k) => [k.label, k.status]))
+  assert.equal(byLabel.get('live'), 'active')
+  assert.equal(byLabel.get('stale'), 'expired')
+})
+
 test('deleteKey removes only that key for that DID', async () => {
   const p = createPostgresApiKeyProvider(db)
   await p.ensureConsumer(did)

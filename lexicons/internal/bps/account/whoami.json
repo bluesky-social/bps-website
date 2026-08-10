@@ -11,9 +11,18 @@
           "type": "object",
           "required": ["did"],
           "properties": {
-            "did": { "type": "string", "format": "did" },
-            "handle": { "type": "string", "format": "handle" },
-            "email": { "type": "string" }
+            "did": {
+              "type": "string",
+              "format": "did"
+            },
+            "handle": {
+              "type": "string",
+              "format": "handle"
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 512
+            }
           }
         }
       }

@@ -24,6 +24,19 @@ html[data-theme='dark'] .sectionHeading {
   color: #a0aab6;
 }
 
+/* ── Section intro ──────────────────────────────────────────────────────── */
+
+.sectionIntro {
+  font-size: var(--bps-text-md);
+  color: var(--ifm-color-emphasis-700);
+  line-height: 1.55;
+  margin: -0.5rem 0 1.5rem;
+}
+
+html[data-theme='dark'] .sectionIntro {
+  color: var(--bps-ink-soft);
+}
+
 /* ── Create form ────────────────────────────────────────────────────────── */
 
 .createForm {
