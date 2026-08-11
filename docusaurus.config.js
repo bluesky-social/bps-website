@@ -516,9 +516,9 @@ const config = {
         additionalLanguages: ["json"],
       },
       algolia: {
-        appId: "T5MN80JFZF",
+        appId: "B4TBHP034N",
         // Public API key: it is safe to commit it
-        apiKey: "fd8d166a53279da4c51abddb2f4a1269",
+        apiKey: "007bff92a10486dd87b999ec04d3d057",
         indexName: "wwwbsky",
         contextualSearch: false,
       },
