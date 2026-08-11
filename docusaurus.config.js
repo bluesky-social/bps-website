@@ -516,10 +516,10 @@ const config = {
         additionalLanguages: ["json"],
       },
       algolia: {
-        appId: "B4TBHP034N",
+        appId: "12GKLSO42L",
         // Public API key: it is safe to commit it
-        apiKey: "007bff92a10486dd87b999ec04d3d057",
-        indexName: "wwwbsky",
+        apiKey: "e70e22d5a7beebb61ef63f1a5ea0e425",
+        indexName: "BPS Docs",
         contextualSearch: false,
       },
     }),
