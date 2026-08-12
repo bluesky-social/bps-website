@@ -92,7 +92,7 @@ One thing worth knowing before you build the Document schema:
   web URLs, so you can't drop the document's `bskyPostRef.uri`
   (`at://…/app.bsky.feed.post/…`) straight in. Convert it to the `https`
   permalink instead. This is more useful for a reviewer anyway, since it's
-  clickable. That conversion is the one transform the bridge does.
+  clickable. The permalink conversion is the only transform the bridge applies.
 
 Once both types are created, copy each one's **ID** from the dashboard. You'll
 pass them as `typeId` on every item. Then create an **API key** under
@@ -100,8 +100,8 @@ pass them as `typeId` on every item. Then create an **API key** under
 
 ## The bridge
 
-This is the flow: read the collection off Jetstream, map each record
-onto the item type, and batch-`POST` to Coop's
+The bridge reads the collection off Jetstream, maps each record onto the
+item types, and batch-`POST`s to Coop's
 [Submit Items API](https://roostorg.github.io/coop/latest/api/items.html). It's
 asynchronous; Coop returns `202 Accepted` and runs your
 [proactive rules](https://roostorg.github.io/coop/latest/user/automated-enforcement.html)
@@ -233,11 +233,12 @@ looking them up by hand, Coop gives you two routes:
   they arrive.
 - **The [Report API](https://roostorg.github.io/coop/latest/api/report.html).**
   If your bridge already knows a document is worth a look, `POST` it to
-  `/api/v1/report` to create a Job directly. Same item type, same `data`.
+  `/api/v1/report` to create a Job directly, using the same item type and
+  `data` shape as ingest.
 
 Both feed Coop's **Review Console** queues, which is where moderators work
 through Jobs at volume. (Routing reports to a queue is a one-time Review Console
-setup — create a queue and a routing rule — separate from ingest.)
+setup, separate from ingest: create a queue and a routing rule.)
 
 ## Closing the loop: emitting a label
 
@@ -311,9 +312,9 @@ app.post("/coop/action", async (req, res) => {
 app.listen(3000);
 ```
 
-That's the full round trip: a document leaves the network through Jetstream,
-gets reviewed in Coop, and a label goes back onto it through your labeler, where
-any client that subscribes to your labeler will see it.
+The document has now made a full round trip: it left the network through
+Jetstream, was reviewed in Coop, and a label went back onto it through your
+labeler, where any client that subscribes to your labeler will see it.
 
 To stand up an atproto Labeler, refer to:
 

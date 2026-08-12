@@ -17,7 +17,7 @@ All of the limits described here are likely to evolve over time. Hopefully upwar
 
 The Bluesky PDS instances rate limit the number of repository record operations an individual account (DID) can make. These limits are on top of any related HTTP API requests. For example, `com.atproto.repo.applyWrites` can write to many records in a single API call; these limits sum up all of those individual record writes.
 
-**These limits shouldn’t affect typical Bluesky users!** They won’t affect the majority of developers either. But they will affect prolific bots, such as the ones that follow every other account or like every post on the network.
+**These limits shouldn't affect typical Bluesky users!** They won't affect the majority of developers either. But they will affect prolific bots, such as the ones that follow every other account or like every post on the network.
 
 The limit is 5,000 points per hour and 35,000 points per day. Points are counted as:
 
