@@ -17,11 +17,11 @@ Those accounts don't all live in one place. Each is hosted on a *Personal Data
 Server* (**PDS**): a server that stores some users' data and emits an event
 every time that data changes. There are thousands of them across the network.
 Rather than discovering and connecting to each PDS yourself, you connect to a
-relay — it crawls the PDSes for you, verifies what they send, and re-broadcasts
-everything as one ordered, de-duplicated stream.
+relay — it crawls the PDS hosts for you, verifies what they send, and
+re-broadcasts everything as one ordered, de-duplicated stream.
 
 ```
-  +---------+   +---------+   +---------+         thousands of PDSes,
+  +---------+   +---------+   +---------+         thousands of PDS hosts,
   |   PDS   |   |   PDS   |   |   PDS   | ...     each streaming its own
   +----+----+   +----+----+   +----+----+         repo events
        |             |             |
@@ -123,8 +123,8 @@ Reach for a Relay firehose directly when you need:
 ## Rate limits and abuse protection
 
 In addition to aggregating events, a relay enforces rate limits and abuse
-protections across the PDSes it crawls, which keeps the network available even
-when an individual host misbehaves. If you're consuming at scale, see
+protections across the PDS hosts it crawls, which keeps the network available
+even when an individual host misbehaves. If you're consuming at scale, see
 [Rate Limits](/docs/rate-limits) for the limits that apply to relay and PDS
 endpoints, and implement client-side backoff so a dropped connection doesn't
 turn into a thundering herd of reconnects.

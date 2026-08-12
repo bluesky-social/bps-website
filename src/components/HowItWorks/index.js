@@ -568,7 +568,7 @@ export default function HowItWorks() {
             into their repo.
           </p>
           <p>
-            It's addressable through that <code>at://</code> URI, and anyone
+            It's addressable through an <code>at://</code> URI, and anyone
             can fetch it.
           </p>
         </div>
@@ -583,14 +583,15 @@ export default function HowItWorks() {
         <div className="beat-copy">
           <span className="beat-num">02</span>
           <h2>
-            That <code>$type</code> is a Lexicon
+            The <code>$type</code> names a Lexicon
           </h2>
           <p>
-            <code>app.bsky.feed.post</code> is an <b>NSID</b>; a domain name,
-            reversed. Whoever owns the domain gets to publish a <b>Lexicon</b>;
-            a schema that says what records of that type look like. Bluesky
-            defines the <code>app.bsky.*</code> types, and other apps define
-            their own. All of them live in the same repos, on the same network.
+            <code>app.bsky.feed.post</code> is one <b>type of record</b>,
+            identified by a reversed domain name. Whoever owns the domain can
+            publish a <b>Lexicon</b>: a schema that says what records of that
+            type look like. Bluesky defines the <code>app.bsky.*</code> types,
+            and other apps define their own. All of them live in the same
+            repos, on the same network.
           </p>
         </div>
         <div className="beat-stage">
@@ -636,9 +637,9 @@ export default function HowItWorks() {
           <span className="beat-num">04</span>
           <h2>Filter by Lexicon, get your slice</h2>
           <p>
-            Lexicon types — namespaces — act as filters. Ask for one collection,
-            and the server sends only those records, decoded, typed, and ready to
-            use.
+            Every Lexicon type is a collection you can filter by. Ask for one
+            collection, and the server sends only those records, already
+            decoded and typed.
           </p>
           <p>
             This is <b>every blog post published anywhere on the network</b>, as
@@ -656,15 +657,16 @@ export default function HowItWorks() {
           <span className="beat-num">05</span>
           <h2>An app is a lens on the network</h2>
           <p>
-            That loop is how apps get built here: pick the Lexicons you care
-            about, index the records into a view, serve it. A new app doesn't
-            launch empty. It seeds its view straight from the network.
+            That is how apps get built here: pick the Lexicons you care
+            about, index those records into a view, and serve it. A new app
+            doesn't launch empty since it seeds its view from the open
+            network.
           </p>
           <p>
             Each of these is a different lens over the{' '}
-            <b>same repositories, the same accounts, the same stream</b>,
-            focused on its own slice of Lexicons. And everything they index
-            stays open to the next lens, including yours.
+            <b>same accounts, the same repositories, the same open network</b>,
+            focused on its own slice of Lexicons. And every record they index
+            or write stays open for the next app to build on, including yours.
           </p>
         </div>
         <div className="beat-stage">
