@@ -18,7 +18,7 @@ The easiest way to upload a video is to upload it as you would an image - use [`
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadBlob"
-    import { post } from "@bsky.app/sdk";
+    import { post } from "@bsky/sdk";
 
     const { body } = await client.uploadBlob(fs.readFileSync(videoPath), {
       encoding: "video/mp4",
@@ -56,8 +56,8 @@ Here is a code snippet for the full flow:
   <TabItem value="ts" label="TypeScript">
     ```typescript title="uploadVideo"
     import { Client, type BlobRef } from "@atproto/lex";
-    import { post } from "@bsky.app/sdk";
-    import { app, com } from "@bsky.app/sdk/lexicons";
+    import { post } from "@bsky/sdk";
+    import { app, com } from "@bsky/sdk/lexicons";
 
     // The service token audience is your PDS's DID. Your PDS host is listed
     // in the DID document returned when you logged in:

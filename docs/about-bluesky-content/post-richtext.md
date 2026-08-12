@@ -89,7 +89,7 @@ Strings in the network are UTF-8 encoded. Facet ranges are indexed using byte of
 :::warning
 It's important to pay attention to this when working with facets. Incorrect indexing will produce bad data.
 
-If you are using TypeScript/Javascript, you **cannot** use `.slice()` or any of the native methods. It's suggested you use a library that handles this for you, such as the `RichText` helper in [`@bsky.app/sdk`](https://www.npmjs.com/package/@bsky.app/sdk).
+If you are using TypeScript/Javascript, you **cannot** use `.slice()` or any of the native methods. It's suggested you use a library that handles this for you, such as the `RichText` helper in [`@bsky/sdk`](https://www.npmjs.com/package/@bsky/sdk).
 :::
 
 To understand this fully, let's look at some of the kinds of indexing that Unicode supports:
@@ -111,7 +111,7 @@ Here are two example parsers to help you understand this behavior, but do *not* 
 ```ts
 import TLDs from 'tlds'
 import { type DidString, type UriString } from '@atproto/lex'
-import { app } from '@bsky.app/sdk/lexicons'
+import { app } from '@bsky/sdk/lexicons'
 
 type Facet = app.bsky.richtext.facet.Main
 

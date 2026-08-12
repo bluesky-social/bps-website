@@ -23,7 +23,7 @@ import '../../css/how-it-works.css'
 // by") — the primitive-level story stays on atproto.com, which we link out to.
 //
 // Code samples use the same SDK surface as docs/jetstream-sdk.mdx
-// (bsky-jetstream-preview, `.live()`, the kind/operation guard) so anything a
+// (@bsky/jetstream, `.live()`, the kind/operation guard) so anything a
 // reader copies from here behaves exactly like the docs.
 // ---------------------------------------------------------------------------
 
@@ -413,12 +413,12 @@ function SliceSample() {
       <L>
         <Kw>import</Kw> {'{ '}
         <Cls>Jetstream</Cls>
-        {' }'} <Kw>from</Kw> <Str>'bsky-jetstream-preview'</Str>
+        {' }'} <Kw>from</Kw> <Str>'@bsky/jetstream'</Str>
       </L>
       <L />
       <L>
         <Kw>const</Kw> jetstream = <Kw>new</Kw> <Cls>Jetstream</Cls>(
-        <Str>'https://jetstream2.us-east.bsky.network'</Str>)
+        <Str>'https://jetstream.us-east.bsky.network'</Str>)
       </L>
       <L />
       <L>

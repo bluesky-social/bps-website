@@ -34,10 +34,10 @@ The examples below use TypeScript, Python, Go, and `curl`. These are a few of th
 
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
-    Install [@bsky.app/sdk](https://www.npmjs.com/package/@bsky.app/sdk) and the atproto client packages using your preferred package manager.
+    Install [@bsky/sdk](https://www.npmjs.com/package/@bsky/sdk) and the atproto client packages using your preferred package manager.
 
     ```
-    npm install @bsky.app/sdk @atproto/lex @atproto/lex-password-session
+    npm install @bsky/sdk @atproto/lex @atproto/lex-password-session
     ```
   </TabItem>
   <TabItem value="python" label="Python">
@@ -147,7 +147,7 @@ Now you can create a post by sending a POST request to the createRecord endpoint
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript
-    import { post } from '@bsky.app/sdk'
+    import { post } from '@bsky/sdk'
 
     await client.call(post, {
       text: 'Hello world! I posted this via the API.'

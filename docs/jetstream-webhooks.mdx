@@ -37,8 +37,8 @@ Discord webhooks are a good example here because they [do not require auth](http
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
     ```ts
-    // npm install bsky-jetstream-preview — see the Jetstream SDK page.
-    import { Jetstream } from 'bsky-jetstream-preview'
+    // npm install @bsky/jetstream — see the Jetstream SDK page.
+    import { Jetstream } from '@bsky/jetstream'
 
     // Server-side filter does all the work: only events produced by these DIDs,
     // only post records. Add more DIDs or collections as needed.
@@ -48,7 +48,7 @@ Discord webhooks are a good example here because they [do not require auth](http
     ]
     const WEBHOOK = 'https://discord.com/api/webhooks/...' // your webhook URL
 
-    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
     async function forward(did: string, rkey: string, text: string) {
       const url = `https://bsky.app/profile/${did}/post/${rkey}`
@@ -89,7 +89,7 @@ Discord webhooks are a good example here because they [do not require auth](http
         [f"wantedDids={did}" for did in WATCHLIST]
         + ["wantedCollections=app.bsky.feed.post"]
     )
-    JETSTREAM = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
+    JETSTREAM = f"wss://jetstream.us-east.bsky.network/subscribe?{params}"
     WEBHOOK = "https://discord.com/api/webhooks/..."  # your webhook URL
 
     async def forward(session, msg):

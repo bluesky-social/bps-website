@@ -36,13 +36,47 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Filter a
     Use the [**Jetstream SDK**](/docs/jetstream-sdk):
 
     ```ts
-    // npm install bsky-jetstream-preview — see the Jetstream SDK page.
-    import { Jetstream } from 'bsky-jetstream-preview'
+    // npm install @bsky/jetstream
+    import { Jetstream } from '@bsky/jetstream'
 
     const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
     for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
       console.log(evt)
+    }
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Use the [**Jetstream SDK**](/docs/jetstream-sdk):
+
+    ```go
+    // go get github.com/bluesky-social/jetstream
+    package main
+
+    import (
+    	"context"
+    	"fmt"
+
+    	"github.com/bluesky-social/jetstream"
+    )
+
+    func main() {
+    	client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	)
+    	if err != nil {
+    		panic(err)
+    	}
+    	defer client.Close()
+
+    	for batch, err := range client.Events(context.Background()) {
+    		if err != nil {
+    			continue // recoverable; iteration ends only when the context does
+    		}
+    		for _, evt := range batch.Events() {
+    			fmt.Println(evt.Seq, evt.DID, evt.Kind)
+    		}
+    	}
     }
     ```
   </TabItem>
@@ -63,7 +97,7 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Filter a
   </TabItem>
   <TabItem value="shell" label="Shell">
     ```shell
-    websocat "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
+    websocat "wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
     ```
   </TabItem>
 </Tabs>
@@ -75,6 +109,7 @@ creating, updating, or deleting a record — looks like this:
 {
   "did": "did:plc:eygmaihciaxprqvxpfvl6flk",
   "time_us": 1725911162329308,
+  "cursor": 2569835,
   "kind": "commit",
   "commit": {
     "rev": "3l3qo2vutsw2b",
@@ -95,8 +130,8 @@ creating, updating, or deleting a record — looks like this:
 ```
 
 The record arrives already decoded in the `record` field, so there's no second
-parsing step. Alongside `commit` events, the stream also carries `identity` and
-`account` events (handle changes, account status) for the same accounts.
+parsing step. Alongside `commit` events, the stream also carries `identity`,
+`account`, and `sync` events.
 
 ### Public endpoints
 
@@ -128,7 +163,7 @@ work for your client. Two filters are available, and they combine:
   multiple accounts.
 
 ```
-wss://jetstream2.us-east.bsky.network/subscribe
+wss://jetstream.us-east.bsky.network/subscribe
   ?wantedCollections=app.bsky.feed.post
   &wantedCollections=app.bsky.feed.like
   &wantedDids=did:plc:eygmaihciaxprqvxpfvl6flk
@@ -204,8 +239,8 @@ endpoints the way Bluesky's instances do.
 
 ## See also
 
-- **[Jetstream SDK](/docs/jetstream-sdk)**: a TypeScript client that opens the
-  socket, decodes and types events, and reconnects for you.
+- **[Jetstream SDK](/docs/jetstream-sdk)**: TypeScript and Go clients that open
+  the socket, decode and type events, and reconnect for you.
 - **[Network Replay](/docs/jetstream-replay)**: replay history and cut over to
   live through one interface.
 - **[HTTP reference](https://endpoints.bsky.app/#jetstream)**: the `network.bsky.jetstream.*`

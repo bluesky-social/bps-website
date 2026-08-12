@@ -63,7 +63,7 @@ There are two purposes:
     Call app.bsky.graph.getList to view a list and its members.
 
     ```ts
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     await client.call(app.bsky.graph.getList, {
       list: uri,
@@ -84,7 +84,7 @@ There are two purposes:
     Use the cursor to paginate through the full list.
 
     ```ts
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     let cursor: string | undefined
     let members: app.bsky.graph.defs.ListItemView[] = []
@@ -213,7 +213,7 @@ There are two purposes:
     Call app.bsky.graph.muteActorList to mute a list. The mute state is private.
 
     ```ts
-    import { muteActorList, unmuteActorList } from '@bsky.app/sdk'
+    import { muteActorList, unmuteActorList } from '@bsky/sdk'
 
     await client.call(muteActorList, { list: listUri })
     ```
@@ -235,7 +235,7 @@ There are two purposes:
     This is simplified for you with the `blockActorList` action:
 
     ```ts
-    import { blockActorList, unblockActorList } from '@bsky.app/sdk'
+    import { blockActorList, unblockActorList } from '@bsky/sdk'
 
     await client.call(blockActorList, { list: listUri })
     ```
@@ -256,7 +256,7 @@ There are two purposes:
 
     ```ts
     import { currentDatetimeString } from '@atproto/lex'
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     await client.create(app.bsky.graph.list, {
       purpose: 'app.bsky.graph.defs#curatelist',

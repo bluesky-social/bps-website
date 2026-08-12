@@ -23,7 +23,7 @@ The client sends every authenticated request to your PDS and splits the routing:
   lives on your PDS.
 
 ```typescript
-import { app, com } from '@bsky.app/sdk/lexicons'
+import { app, com } from '@bsky/sdk/lexicons'
 import { currentDatetimeString } from '@atproto/lex'
 
 // A session can be created from @atproto/lex-password-auth or @atproto/oauth-client-browser
@@ -73,7 +73,7 @@ naming its destination (sugar methods still target your PDS):
 
 ```typescript
 import { Client } from '@atproto/lex'
-import { api } from '@bsky.app/sdk'
+import { api } from '@bsky/sdk'
 
 // api.app.service === 'did:web:api.bsky.app#bsky_appview'
 const bskyClient = new Client(session, { service: api.app.service })
@@ -85,7 +85,7 @@ Every `client.call` and `client.xrpc` accepts a `service` option. Pass `null`
 to make a read or write against your PDS itself rather than the Bluesky API:
 
 ```typescript
-import { com } from '@bsky.app/sdk/lexicons'
+import { com } from '@bsky/sdk/lexicons'
 
 const res = await bskyClient.call(
   com.atproto.repo.listRecords,

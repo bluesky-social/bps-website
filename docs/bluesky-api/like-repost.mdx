@@ -18,7 +18,7 @@ The URI indicates the repository DID, collection, and record key. The CID is the
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="like"
-      import { like } from '@bsky.app/sdk'
+      import { like } from '@bsky/sdk'
 
       const { uri: likeUri } = await client.call(like, { uri, cid })
     ```
@@ -58,7 +58,7 @@ In the case of a Like, unliking the post means deleting the Like record.
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="deleteLike"
-      import { deleteLike } from '@bsky.app/sdk'
+      import { deleteLike } from '@bsky/sdk'
 
       await client.call(deleteLike, likeUri)
     ```
@@ -96,7 +96,7 @@ unliking.
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="repost"
-      import { repost } from '@bsky.app/sdk'
+      import { repost } from '@bsky/sdk'
 
       const { uri: repostUri } = await client.call(repost, { uri, cid })
     ```
@@ -136,7 +136,7 @@ we want to delete.
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="deleteRepost"
-      import { deleteRepost } from '@bsky.app/sdk'
+      import { deleteRepost } from '@bsky/sdk'
 
       await client.call(deleteRepost, repostUri)
     ```

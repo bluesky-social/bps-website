@@ -45,7 +45,7 @@ deletes.
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
     ```ts
-    // npm install bsky-jetstream-preview @duckdb/node-api
+    // npm install @bsky/jetstream @duckdb/node-api
     import { DuckDBInstance } from '@duckdb/node-api'
 
     const instance = await DuckDBInstance.create('posts.duckdb')
@@ -111,9 +111,9 @@ out typed against its schema. On top of that, note:
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
     ```ts
-    import { Jetstream } from 'bsky-jetstream-preview'
+    import { Jetstream } from '@bsky/jetstream'
     import { DuckDBInstance, listValue } from '@duckdb/node-api'
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     const COMMUNITY = [
       'did:plc:ragtjsm2j2vknwkz3zp4oxrd',
@@ -124,7 +124,7 @@ out typed against its schema. On top of that, note:
     const instance = await DuckDBInstance.create('posts.duckdb')
     const con = await instance.connect()
 
-    const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
     // Server-side filter: only these accounts, only post records with the Lexicon.
     for await (const evt of jetstream.live({
@@ -171,7 +171,7 @@ out typed against its schema. On top of that, note:
         [f"wantedDids={did}" for did in COMMUNITY]
         + ["wantedCollections=app.bsky.feed.post"]
     )
-    URI = f"wss://jetstream2.us-east.bsky.network/subscribe?{params}"
+    URI = f"wss://jetstream.us-east.bsky.network/subscribe?{params}"
 
     con = duckdb.connect("posts.duckdb")
 

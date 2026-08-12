@@ -16,7 +16,7 @@ both directions.
     Following a user is as easy as calling the `follow` action with the DID of the user you want to follow.
 
     ```typescript title="follow"
-      import { follow } from '@bsky.app/sdk'
+      import { follow } from '@bsky/sdk'
 
       const { uri } = await client.call(follow, { did })
     ```
@@ -58,7 +58,7 @@ a post](/docs/bluesky-api/like-repost).
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="deleteFollow"
-      import { deleteFollow } from '@bsky.app/sdk'
+      import { deleteFollow } from '@bsky/sdk'
 
       await client.call(deleteFollow, uri)
     ```
@@ -93,7 +93,7 @@ Muting a user hides their posts from your feeds. Mutes are private — like Book
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="muteActor"
-      import { muteActor } from '@bsky.app/sdk'
+      import { muteActor } from '@bsky/sdk'
 
       await client.call(muteActor, { actor: did })
     ```
@@ -121,7 +121,7 @@ Easy peasy:
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="unmuteActor"
-      import { unmuteActor } from '@bsky.app/sdk'
+      import { unmuteActor } from '@bsky/sdk'
 
       await client.call(unmuteActor, { actor: did })
     ```
@@ -152,7 +152,7 @@ Blocking users is as simple as muting, but requires creating a record directly.
   <TabItem value="ts" label="TypeScript">
     ```typescript title="client.create"
     import { currentDatetimeString } from '@atproto/lex'
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     const { uri } = await client.create(app.bsky.graph.block, {
       subject: blockingUserDid,

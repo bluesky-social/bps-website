@@ -91,7 +91,7 @@ A few params shape what consumers can ask of your instance:
   [replay flow](/docs/jetstream-replay) instead.
 - **`--plan-max-entries`** (default 1000), `--plan-max-dids`, and
   `--plan-max-collections` bound the per-page cost of
-  [`planBackfill`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/POST/xrpc/network.bsky.jetstream.planBackfill).
+  [`planSnapshot`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/POST/xrpc/network.bsky.jetstream.planSnapshot).
   Plans truncate cleanly and
   paginate, so limits never break clients.
 - **`--segment-cache-max-age`** sets the `Cache-Control` max-age on segment
@@ -103,9 +103,9 @@ Jetstream serves plain HTTP and unlike the Bluesky instances, self-hosting does 
 
 The **live tail is cheap** to serve; Bluesky's instances leave `/subscribe` open, and per-IP connection limits at the proxy go a long way.
 
-**Replay reads are the expensive path**. One `planBackfill` can touch a lot
+**Replay reads are the expensive path**. One `planSnapshot` can touch a lot
 of archive, and segment downloads move real bytes. Bluesky's hosted
-instances gate the four replay endpoints (`planBackfill`, `getSegment`,
+instances gate the four replay endpoints (`planSnapshot`, `getSegment`,
 `getBlock`, `listSegments`) with a proxy that requires an API key and
 [meters the bytes each key downloads](/docs/jetstream-replay#authentication-and-metering),
 while leaving everything else open. Any reverse proxy that can check a
