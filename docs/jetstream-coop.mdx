@@ -111,7 +111,7 @@ Coop's API isn't an atproto service, so this side is just a WebSocket (via the [
 authenticated `fetch`.
 
 ```typescript
-import { Jetstream } from "bsky-jetstream-preview"; // npm install bsky-jetstream-preview
+import { Jetstream } from "@bsky/jetstream"; // npm install @bsky/jetstream
 
 const COOP_URL = "http://localhost:8080/api/v1/items/async/";
 const API_KEY = "…"; // Settings → API Keys
@@ -188,7 +188,7 @@ async function submit(items: unknown[]) {
 }
 
 // The SDK owns the socket, decoding, and reconnects; the server-side filter does the rest.
-const jetstream = new Jetstream("https://jetstream2.us-east.bsky.network");
+const jetstream = new Jetstream("https://jetstream.us-east.bsky.network");
 
 let buffer: unknown[] = [];
 let lastFlush = Date.now();

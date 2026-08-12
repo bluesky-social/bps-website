@@ -25,7 +25,7 @@ The client you created in the [Bluesky API](/docs/bluesky-api) section can fetch
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="app.bsky.feed.getTimeline"
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     const { feed: postsArray, cursor: nextPage } = await client.call(
       app.bsky.feed.getTimeline,

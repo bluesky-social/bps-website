@@ -29,7 +29,7 @@ Each post requires these fields: `text` and `createdAt` (a timestamp).
     ```ts
     import { Client } from '@atproto/lex'
     import { PasswordSession } from '@atproto/lex-password-session'
-    import { post } from '@bsky.app/sdk'
+    import { post } from '@bsky/sdk'
 
     const session = await PasswordSession.login({
       service: 'https://bsky.social',
@@ -161,7 +161,7 @@ Learn about how mentions and links work under the hood with the [Link, mentions,
     Use the RichText API to detect links and mentions.
 
     ```ts
-    import { RichText } from '@bsky.app/sdk/richtext'
+    import { RichText } from '@bsky/sdk/richtext'
 
     // creating richtext
     const rt = new RichText({

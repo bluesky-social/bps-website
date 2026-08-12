@@ -35,13 +35,30 @@ and cutting over to live. Snapshotting is
 
 ## Quickstart: backfill, then live
 
-The client that ships in the [Jetstream
-repository](https://github.com/bluesky-social/jetstream) handles the whole flow —
-planning the backfill, downloading the archive in parallel, decoding, exact
-filtering, and the live cutover — behind one iterator. Give `Subscribe` a
-starting point and read:
+The [**Jetstream SDK**](/docs/jetstream-sdk) handles the whole flow — planning
+the backfill, downloading the archive in parallel, decoding, exact filtering,
+and the live cutover — behind one loop. Give it a starting point and read:
 
 <Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    // npm install @bsky/jetstream
+    import { Jetstream } from '@bsky/jetstream'
+
+    const jetstream = new Jetstream({
+      service: 'https://jetstream.us-west.bsky.network',
+      apiKey: process.env.JETSTREAM_API_KEY,
+    })
+
+    for await (const evt of jetstream.replay({
+      collections: ['app.bsky.feed.post'],
+      afterSeq: 0, // start from the beginning of the archive
+    })) {
+      console.log(evt.seq, evt.did, evt.kind)
+      // persist evt.seq to resume from here after a restart
+    }
+    ```
+  </TabItem>
   <TabItem value="go" label="Go">
     ```go
     // go get github.com/bluesky-social/jetstream
@@ -75,6 +92,9 @@ starting point and read:
     	}
     }
     ```
+
+    The Go client takes its API key through its `http.Client`; see
+    [Authentication and metering](#authentication-and-metering).
   </TabItem>
 </Tabs>
 
@@ -83,10 +103,11 @@ is consumed, the client connects the live WebSocket at the tip and events
 continue arriving through the same loop, with the seam deduplicated for you.
 Your code never needs to know whether an event is history or real time.
 
-A bare `Subscribe(host)` with no starting point is a pure live tail. To resume
-after a restart, persist `batch.LastCursor()` as you go and pass it back as
-`WithAfterSeq(lastCursor)` — the archive picks up from there no matter how
-long you were down.
+If you omit the starting point, you have a pure live tail; `live()` in TypeScript,
+a bare `Subscribe(host)` in Go. To resume after a restart, persist the last
+sequence number you handled and pass it back as `afterSeq` (or
+`WithAfterSeq`) — the archive picks up from there no matter how long you were
+down.
 
 On Bluesky-hosted instances, the HTTP side of replay requires an **API key**.
 See [Authentication and metering](#authentication-and-metering) for how to
@@ -141,6 +162,16 @@ every limit without losing work:
 The live WebSocket needs no key and is not metered. To attach your key:
 
 <Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    const jetstream = new Jetstream({
+      service: 'https://jetstream.us-west.bsky.network',
+      apiKey: process.env.JETSTREAM_API_KEY,
+    })
+    ```
+
+    The client sends `Authorization: Bearer <key>` on every HTTP call it makes.
+  </TabItem>
   <TabItem value="go" label="Go">
     ```go
     // The client sends whatever your http.Client sends, so attach the key
@@ -177,6 +208,18 @@ somewhere — run a bounded backfill with no cutover. The iterator ends
 when the archive range is consumed:
 
 <Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    // snapshot() is replay() without the cutover
+    for await (const evt of jetstream.snapshot({
+      collections: ['app.bsky.feed.post'],
+      afterSeq: 0,
+      beforeSeq: 2569835, // optional upper bound; omit to end at the archive tip
+    })) {
+      // ...
+    }
+    ```
+  </TabItem>
   <TabItem value="go" label="Go">
     ```go
     client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
@@ -238,13 +281,13 @@ Replay is **stateless on the server**: there's no per-consumer cursor
 to manage, no subscription to register. In three steps:
 
 1. **Page a plan.** `POST` your filters to
-   [`planBackfill`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/POST/xrpc/network.bsky.jetstream.planBackfill):
+   [`planSnapshot`](https://endpoints.bsky.app/#jetstream/tag/networkbskyjetstream/POST/xrpc/network.bsky.jetstream.planSnapshot):
    `dids` (exact),
    `collections` (exact NSIDs, or `app.bsky.feed.*`-style namespace wildcards),
    and an optional `afterSeq`/`beforeSeq` window. The first response reports the
    archive's current sealed tip. Pin this as `S = sealedTipSeq` for the whole
    backfill. Each page also reports `plannedThroughSeq`, the highest sequence
-   number it accounts for. While `plannedThroughSeq < S`, call `planBackfill`
+   number it accounts for. While `plannedThroughSeq < S`, call `planSnapshot`
    again with `afterSeq = plannedThroughSeq` and `beforeSeq = S`, so the range
    never floats as new data arrives.
 2. **Download the archive.** Each planned segment comes back in one of two
@@ -305,9 +348,9 @@ accounts, events interleave).
 ## See also
 
 - **[Jetstream](/docs/jetstream)** — the live tail, filtering, and endpoints.
-- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript client for the
-  live tail.
-- **[HTTP reference](https://endpoints.bsky.app/#jetstream)** — the `planBackfill`,
+- **[Jetstream SDK](/docs/jetstream-sdk)** — the TypeScript and Go clients,
+  which do all of the above for you.
+- **[HTTP reference](https://endpoints.bsky.app/#jetstream)** — the `planSnapshot`,
   `listSegments`, `getSegment`, and `getBlock` methods, with request and
   response schemas.
 - **[Running your own Jetstream](/docs/jetstream-self-host)** — the same

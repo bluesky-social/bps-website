@@ -20,7 +20,7 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     Call app.bsky.feed.getFeedGenerator to view a feedgen's description.
 
     ```ts
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri
@@ -175,7 +175,7 @@ Anybody can create a custom feed. See the [custom feed tutorial on atproto.com](
     Liking a feed is the same as liking any other item in the network. You just use the URI and CID of the feed generator to identify the feed.
 
     ```ts
-    import { like, deleteLike } from '@bsky.app/sdk'
+    import { like, deleteLike } from '@bsky/sdk'
 
     const { view } = await client.call(app.bsky.feed.getFeedGenerator, {
       feed: feedUri

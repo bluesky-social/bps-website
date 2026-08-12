@@ -1,6 +1,6 @@
 ---
 sidebar_label: Jetstream SDK
-description: A TypeScript client for Jetstream — open one WebSocket, pass a filter, and consume decoded, typed events as an async iterator. No JSON parsing, no reconnect loop.
+description: TypeScript and Go clients for Jetstream — construct a client, pass a filter, and read decoded, typed events from one loop. No JSON parsing, no reconnect logic.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,126 +10,311 @@ import TabItem from '@theme/TabItem';
 
 Jetstream is plain JSON over a WebSocket, so you never *need* an SDK; some of our examples use CLI tools like `websocat`. But you'll tend to write the same glue each time: filtering,
 reconnecting, deduping, and decoding events into typed records. For that, we
-provide a **Jetstream SDK**. You construct a client, pass a filter, and
-`for await` over decoded, typed events, and it handles the rest.
+provide a **Jetstream SDK** in TypeScript and in Go. You construct a client,
+pass a filter, and loop over decoded events; it handles the rest.
 
-It's a single client for all three ways to consume Jetstream behind the same iterator: the
-[live tail](/docs/jetstream), [replay](/docs/jetstream-replay), and
-snapshotting.
+The SDKs provide a single client for all three ways to consume Jetstream, behind the
+same loop: the [live tail](/docs/jetstream), [replay](/docs/jetstream-replay),
+and snapshotting.
 
 ## Install
 
-```shell
-npm install bsky-jetstream-preview
-```
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```shell
+    npm install @bsky/jetstream
+    ```
 
-It targets Node **22.12+** and is ESM-only. The examples below run TypeScript
-directly (`node index.ts`) with no build step.
+    The TypeScript SDK targets Node **22.15+**, is ESM-only, and runs in the browser too. On
+    current Node the TypeScript examples below run as-is (`node index.ts`),
+    with no build step.
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```shell
+    go get github.com/bluesky-social/jetstream
+    ```
+
+    The Go SDK needs Go **1.26+**, and lives in the same module as the Jetstream
+    server itself.
+  </TabItem>
+</Tabs>
 
 ## Quickstart: the live tail
 
-Construct a `Jetstream` pointed at an instance, then iterate `.live()` with a
-server-side `collections` filter. Each value is a decoded event; the record is
-already parsed, so there's no `JSON.parse` step:
+Construct a Jetstream client pointed at an instance, then read events with a server-side collection
+filter. Each value is a decoded event; the record is already parsed, so there's
+no JSON step of your own:
 
-```ts
-import { Jetstream } from 'bsky-jetstream-preview'
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    import { Jetstream } from '@bsky/jetstream'
 
-// https:// is upgraded to wss:// for you (a bare wss:// URL works too).
-const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
-for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
-  if (evt.kind === 'commit' && evt.commit.operation === 'create') {
-    console.log(evt.commit.collection, evt.commit.record)
-  }
-}
-```
+    for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
+      if (evt.kind === 'commit' && evt.commit.operation === 'create') {
+        console.log(evt.commit.collection, evt.commit.record)
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    package main
 
+    import (
+    	"context"
+    	"fmt"
+
+    	"github.com/bluesky-social/jetstream"
+    )
+
+    func main() {
+    	client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	)
+    	if err != nil {
+    		panic(err)
+    	}
+    	defer client.Close()
+
+    	for batch, err := range client.Events(context.Background()) {
+    		if err != nil {
+    			continue // recoverable; log and move on
+    		}
+    		for _, evt := range batch.Events() {
+    			if evt.Kind == jetstream.KindCommit && evt.Commit.Operation == jetstream.OpCreate {
+    				fmt.Println(evt.Commit.Collection, evt.Commit.Record)
+    			}
+    		}
+    	}
+    }
+    ```
+
+    Go delivers events in **batches** rather than one at a time.
+  </TabItem>
+</Tabs>
 
 ## Filtering
 
-`.live()` takes the same two server-side filters as the raw endpoint, so a
+Both clients take the same two server-side filters as the raw endpoint, so a
 narrow filter means less bandwidth and less work in your process:
 
-- **`collections`**: an array of [NSIDs](https://atproto.com/specs/nsid). The
-  server routes events by collection before they reach you.
-- **`dids`**: restrict the stream to specific accounts.
+- **collections**: [NSIDs](https://atproto.com/specs/nsid), or a
+  `app.bsky.feed.*`-style namespace wildcard. The server routes events by
+  collection before they reach you.
+- **DIDs**: restrict the stream to specific accounts.
 
-```ts
-for await (const evt of jetstream.live({
-  collections: ['app.bsky.feed.post', 'app.bsky.feed.like'],
-  dids: ['did:plc:ragtjsm2j2vknwkz3zp4oxrd'],
-})) {
-  // ...only posts and likes, only from that account
-}
-```
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    for await (const evt of jetstream.live({
+      collections: ['app.bsky.feed.post', 'app.bsky.feed.like'],
+      dids: ['did:plc:ragtjsm2j2vknwkz3zp4oxrd'],
+    })) {
+      // ...only posts and likes, only from that account
+    }
+    ```
+
+    TypeScript also takes a `kinds` filter, to get a
+    commits-only stream:
+
+    ```ts
+    jetstream.live({ collections: ['app.bsky.feed.post'], kinds: ['commit'] })
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    	jetstream.WithCollections([]string{"app.bsky.feed.post", "app.bsky.feed.like"}),
+    	jetstream.WithDIDs([]string{"did:plc:ragtjsm2j2vknwkz3zp4oxrd"}),
+    )
+    // ...only posts and likes, only from that account
+    ```
+  </TabItem>
+</Tabs>
+
+A collection filter constrains **commits only**: `identity`, `account`, and
+`sync` events bypass it and arrive regardless (a DID filter still applies to
+them). Those events are how a consumer learns an account was
+deleted and its records should go with it. See [folding the
+stream](/docs/jetstream-replay#folding-the-stream-eventually-consistent).
 
 ## Reacting to events
 
-Every event carries `did`, `seq` (a monotonically increasing cursor), and a
-`kind` of `commit`, `identity`, or `account`. [Lexicons](how-it-works) are used for typing, so `evt.commit.record`
-is typed once you've checked you're holding a `create`/`update`:
+Every event carries a DID, a `seq` (the monotonically increasing cursor), a
+timestamp, and a kind of `commit`, `identity`, `account`, or `sync`. Exactly one
+payload is populated, selected by the kind:
 
-```ts
-for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
-  switch (evt.kind) {
-    case 'commit':
-      if (evt.commit.operation === 'delete') {
-        console.log('deleted', evt.commit.rkey)
-      } else {
-        console.log('put', evt.commit.rkey, evt.commit.record)
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    ```ts
+    for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'] })) {
+      switch (evt.kind) {
+        case 'commit':
+          if (evt.commit.operation === 'delete') {
+            console.log('deleted', evt.commit.rkey)
+          } else {
+            console.log('put', evt.commit.rkey, evt.commit.record)
+          }
+          break
+        case 'identity':
+          console.log('handle change', evt.did, evt.identity.handle)
+          break
+        ...
       }
-      break
-    case 'identity':
-      console.log('handle change', evt.did, evt.identity.handle)
-      break
-    case 'account':
-      console.log('account status', evt.did, evt.account.active)
-      break
-  }
-}
-```
+    }
+    ```
+
+    You can combine the Jetstream SDK with [Lexicons](https://atproto.com/guides/lexicon) from the [Bluesky SDK](bluesky-api) to validate and type records:
+
+    ```ts
+    import { Jetstream } from '@bsky/jetstream'
+    import { app } from '@bsky/sdk/lexicons'
+
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
+
+    for await (const evt of jetstream.live({ collections: [app.bsky.feed.post] })) {
+      if (evt.kind === 'commit' && evt.commit.operation === 'create') {
+        console.log(evt.commit.collection, evt.commit.record.text)
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    ```go
+    for batch, err := range client.Events(ctx) {
+    	if err != nil {
+    		continue
+    	}
+    	for _, evt := range batch.Events() {
+    		switch evt.Kind {
+    		case jetstream.KindCommit:
+    			if evt.Commit.Operation == jetstream.OpDelete {
+    				fmt.Println("deleted", evt.Commit.Rkey)
+    			} else {
+    				fmt.Println("put", evt.Commit.Rkey, evt.Commit.Record)
+    			}
+    		case jetstream.KindIdentity:
+    			fmt.Println("handle change", evt.DID, evt.Identity.Handle)
+    		case jetstream.KindAccount:
+    			fmt.Println("account status", evt.DID, evt.Account.Active)
+    		case jetstream.KindSync:
+    			fmt.Println("repo resync", evt.DID, evt.Sync.Rev)
+    		}
+    	}
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 ## Stopping and shutdown
 
-Breaking out of the loop closes the socket for you. For shutdown driven from
-outside the loop, pass an `AbortSignal`:
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    Breaking out of the loop closes the socket for you. For shutdown driven from
+    outside the loop, pass an `AbortSignal`. Aborting technically **rejects** the
+    loop with an `AbortError`, so catch it if a signal is your normal exit path:
 
-```ts
-const controller = new AbortController()
-process.on('SIGINT', () => controller.abort())
+    ```ts
+    const controller = new AbortController()
+    process.on('SIGINT', () => controller.abort())
 
-for await (const evt of jetstream.live({
-  collections: ['app.bsky.feed.post'],
-  signal: controller.signal,
-})) {
-  // ...
-}
-```
+    try {
+      for await (const evt of jetstream.live({
+        collections: ['app.bsky.feed.post'],
+        signal: controller.signal,
+      })) {
+        // ...
+      }
+    } catch (err) {
+      if (controller.signal.aborted) return // expected: we asked it to stop
+      throw err
+    }
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Cancelling the context ends iteration; `Close` releases the client's
+    resources and is safe to call concurrently with a running `Events` loop:
+
+    ```go
+    ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+    defer cancel()
+
+    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    )
+    if err != nil {
+    	panic(err)
+    }
+    defer client.Close()
+
+    for batch, err := range client.Events(ctx) {
+    	// ...returns when ctx is done
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 ## Resuming where you left off
 
-Each event's `seq` is a cursor. The SDK reconnects and dedups within Jetstream's
-lookback window on its own, so a brief drop needs nothing from you. To resume
-across a process restart, persist the last `seq` you handled and pass the SDK a
-`CursorStore`. It starts the stream from just after that point:
+Each event's `seq` is a cursor. Both clients reconnect and dedupe within
+Jetstream's lookback window on their own, so a brief drop needs nothing from
+you. To resume across a process restart, persist the last `seq` you handled and
+hand it back at startup:
 
-```ts
-import { Jetstream, type CursorStore } from 'bsky-jetstream-preview'
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    Pass a `CursorStore`. The stream starts from just after the point it loads:
 
-// Persist `seq` wherever you like — this one is backed by a row in your DB.
-const cursor: CursorStore = {
-  load: async () => db.getCursor(),   // number | undefined
-  save: async (seq) => db.setCursor(seq),
-}
+    ```ts
+    import { Jetstream, type CursorStore } from '@bsky/jetstream'
 
-const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    // Persist `seq` wherever you like — this one is backed by a row in your DB.
+    const cursor: CursorStore = {
+      load: async () => db.getCursor(),   // number | undefined
+      save: async (seq) => db.setCursor(seq),
+    }
 
-for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'], cursor })) {
-  await handle(evt)
-  await cursor.save(evt.seq) // durably record progress
-}
-```
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
+
+    for await (const evt of jetstream.live({ collections: ['app.bsky.feed.post'], cursor })) {
+      await handle(evt)
+      await cursor.save(evt.seq) // durably record progress
+    }
+    ```
+  </TabItem>
+  <TabItem value="go" label="Go">
+    Persist `batch.LastCursor()` as you go and pass it back as
+    `WithLiveCursor`. The server delivers events with `seq` greater than it:
+
+    ```go
+    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	jetstream.WithLiveCursor(db.GetCursor()), // 0 means "from the current tip"
+    )
+    if err != nil {
+    	panic(err)
+    }
+    defer client.Close()
+
+    for batch, err := range client.Events(ctx) {
+    	if err != nil {
+    		continue
+    	}
+    	if err := handle(batch.Events()); err != nil {
+    		continue
+    	}
+    	db.SaveCursor(batch.LastCursor()) // durably record progress
+    }
+    ```
+
+    To resume from *any* point rather than only within the lookback window, use
+    `WithAfterSeq` instead: that's how [replay](/docs/jetstream-replay) works,
+    and it reads from the archive no matter how long you were down.
+  </TabItem>
+</Tabs>
 
 Delivery is **at-least-once**, so an event can arrive twice across a reconnect.
 Key your writes on the record's `at://` URI (`at://{did}/{collection}/{rkey}`)
@@ -137,34 +322,80 @@ and duplicates become harmless.
 
 ## Indexing workloads
 
-The SDK includes `LexIndexer` and `JetstreamRunner`. You
-register a handler per collection and the runner drives the stream, validating
-records against their [lexicon](https://atproto.com/guides/lexicon), preserving
-per-record order, and checkpointing the cursor for you:
+<Tabs groupId="lang">
+  <TabItem value="typescript" label="TypeScript">
+    The TypeScript SDK ships `LexIndexer` and `JetstreamRunner`. You register a
+    handler per collection and the runner drives the stream: validating records
+    against their [lexicon](https://atproto.com/guides/lexicon), preserving
+    per-record order under bounded concurrency, and checkpointing the cursor for
+    you.
 
-```ts
-import { Jetstream, LexIndexer, MemoryCursorStore } from 'bsky-jetstream-preview'
-import { app } from '@bsky.app/sdk/lexicons' // schema-typed collections
+    ```ts
+    import { Jetstream, LexIndexer, MemoryCursorStore } from '@bsky/jetstream'
+    import { app } from '@bsky/sdk/lexicons' // schema-typed collections
 
-const jetstream = new Jetstream('https://jetstream2.us-east.bsky.network')
+    const jetstream = new Jetstream('https://jetstream.us-east.bsky.network')
 
-const indexer = new LexIndexer()
-  .commit(app.bsky.feed.like, {
-    put: async (e) => console.log('index', e.uri, e.record),
-    del: async (e) => console.log('remove', e.uri),
-  })
-  .identity(async (e) => console.log('identity change', e.did, e.handle))
+    const indexer = new LexIndexer()
+      .commit(app.bsky.feed.like, {
+        put: async (e) => console.log('index', e.uri, e.record),
+        del: async (e) => console.log('remove', e.uri),
+      })
+      .identity(async (e) => console.log('identity change', e.did, e.handle))
 
-// Swap MemoryCursorStore for your own CursorStore to persist across restarts.
-await jetstream.runner(indexer).live({ cursor: new MemoryCursorStore() })
-```
+    // Swap MemoryCursorStore for your own CursorStore to persist across restarts.
+    await jetstream.runner(indexer).live({ cursor: new MemoryCursorStore() })
+    ```
 
-:::note
-`LexIndexer.commit()` keys off a lexicon schema (which is what types and
-validates the records it hands your `put` handler). Those schemas ship in the
-SDK's companion lexicons package. The live
-tail above needs none of that; plain collection strings are enough.
-:::
+    The runner asks the server only for the kinds the indexer has handlers for,
+    so register `.identity()`, `.account()`, or `.sync()` to receive them. The
+    same runner also drives `.replay()` and `.snapshot()`.
+
+    :::note
+    `LexIndexer.commit()` keys off a lexicon schema, which is what types and
+    validates the records it hands your `put` handler. Those schemas ship in the
+    [Bluesky SDK](https://www.npmjs.com/package/@bsky/sdk). The live tail above
+    needs none of that; plain collection strings are enough.
+    :::
+  </TabItem>
+  <TabItem value="go" label="Go">
+    In Go the batch is the unit of work: apply a batch, then checkpoint its
+    cursor. Committing your writes and the cursor together is what makes a
+    restart pick up exactly where it left off.
+
+    ```go
+    for batch, err := range client.Events(ctx) {
+    	if err != nil {
+    		continue
+    	}
+    	tx, err := db.Begin()
+    	if err != nil {
+    		continue
+    	}
+    	for _, evt := range batch.Events() {
+    		switch evt.Kind {
+    		case jetstream.KindCommit:
+    			uri := "at://" + evt.DID + "/" + evt.Commit.Collection + "/" + evt.Commit.Rkey
+    			if evt.Commit.Operation == jetstream.OpDelete {
+    				tx.DeleteRecord(uri)
+    			} else {
+    				tx.PutRecord(uri, evt.Commit.Record) // idempotent, keyed on the URI
+    			}
+    		case jetstream.KindAccount:
+    			if !evt.Account.Active && evt.Account.Status == "deleted" {
+    				tx.DeleteAccount(evt.DID) // drops all of that account's records
+    			}
+    		}
+    	}
+    	tx.SaveCursor(batch.LastCursor())
+    	tx.Commit()
+    }
+    ```
+
+    For a large backfill, decode into generated record types with
+    `jetstream.TypedEvents[T](ctx, client, collection)`.
+  </TabItem>
+</Tabs>
 
 ## See also
 
@@ -172,5 +403,8 @@ tail above needs none of that; plain collection strings are enough.
   with hand-rolled equivalents of what the SDK does for you.
 - **[Network Replay with Jetstream](/docs/jetstream-replay)** — replay history
   and cut over to live through one interface.
+- **[`@bsky/jetstream`](https://www.npmjs.com/package/@bsky/jetstream)** and
+  **[`github.com/bluesky-social/jetstream`](https://github.com/bluesky-social/jetstream)**
+  — the TypeScript and Go SDKs.
 - **[HTTP reference](https://endpoints.bsky.app/#jetstream)** — the `network.bsky.jetstream.*`
-  methods the v2 client is built on.
+  methods the v2 clients are built on.

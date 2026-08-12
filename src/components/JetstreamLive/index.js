@@ -14,7 +14,7 @@ import styles from './styles.module.css'
 // One public instance; the page documents both regions. We attach a
 // wantedCollections filter so the demo shows the four record types people
 // recognize (and to keep the byte/event rate sane vs. the unfiltered firehose).
-const ENDPOINT = 'wss://jetstream2.us-east.bsky.network/subscribe'
+const ENDPOINT = 'wss://jetstream.us-east.bsky.network/subscribe'
 const WANTED = [
   'app.bsky.feed.post',
   'app.bsky.feed.like',

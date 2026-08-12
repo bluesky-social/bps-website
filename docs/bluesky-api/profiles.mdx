@@ -24,7 +24,7 @@ feeds."
     To fetch a user's profile info, you can call the `app.bsky.actor.getProfile` endpoint.
 
     ```typescript title="app.bsky.actor.getProfile"
-    import { app } from '@bsky.app/sdk/lexicons'
+    import { app } from '@bsky/sdk/lexicons'
 
     const { did, displayName } = await client.call(app.bsky.actor.getProfile, {
       actor: 'did:plc:...',
@@ -106,7 +106,7 @@ and submit it with `comatproto.RepoPutRecord`).
 <Tabs groupId="sdk">
   <TabItem value="ts" label="TypeScript">
     ```typescript title="upsertProfile"
-    import { upsertProfile } from '@bsky.app/sdk'
+    import { upsertProfile } from '@bsky/sdk'
 
     await client.call(upsertProfile, existing => ({
       ...existing,
