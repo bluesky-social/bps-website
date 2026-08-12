@@ -17,7 +17,7 @@ The web URL endpoint is `https://bsky.app/intent/compose`, with the HTTP query p
 
 The mobile app URI endpoint is `bluesky://intent/compose`, with the same query parameter.
 
-For example, [Share These Docs](https://bsky.app/intent/compose?text=I%27m%20reading%20through%20the%20Bluesky%20API%20docs%21%20%F0%9F%A6%8B%0Ahttps%3A//docs.bsky.app)!
+For example, [Share These Docs](https://bsky.app/intent/compose?text=I%27m%20reading%20through%20the%20Bluesky%20API%20docs%21%20%F0%9F%A6%8B%0Ahttps%3A//bsky.network)!
 
 
 ## Button Styling

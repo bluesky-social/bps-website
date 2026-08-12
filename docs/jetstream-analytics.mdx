@@ -1,6 +1,6 @@
 ---
 sidebar_label: Analytics with a datastore
-description: Materialize a slice of Jetstream into a local datastore and answer questions that just-in-time event processing can't — distributions, trends, and aggregations — with plain SQL.
+description: Materialize a slice of Jetstream into a local datastore and use plain SQL to answer questions that just-in-time event processing can't.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -92,10 +92,10 @@ deletes.
 ## Ingesting from Jetstream
 
 The ingest loop is similar to the [Jetstream quickstart](/docs/jetstream#quickstart-live-tail):
-read messages, decode JSON, write to the table. The TS tab uses the
+it reads messages, decodes the JSON, and writes to the table. The TS tab uses the
 [Jetstream SDK](/docs/jetstream-sdk) and passes the post *lexicon schema* as the
 collection filter, so the socket and decoding are handled and each record comes
-out typed against its schema — no guessing at record shapes. On top of that, note:
+out typed against its schema. On top of that, note:
 
 - Write per event. A `wantedDids`-scoped stream only moves at the community's
   posting rate, so one awaited `INSERT` per event keeps up easily and the table
@@ -264,8 +264,8 @@ LIMIT 25;
 ```
 
 None of these are realistic to answer with a reactive script, because each
-needs the full corpus to compute. That's the motivation here; if a question needs *state*
-across many events, you want a query engine.
+needs the full corpus to compute. That's the motivation here: questions
+involving *state* across many events call for a query engine.
 
 ## Loading history alongside live
 

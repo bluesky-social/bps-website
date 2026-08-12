@@ -1,6 +1,6 @@
 ---
 sidebar_label: Network Replay
-description: Replay history and continue live through one interface — Jetstream is your buffer. The server holds the archive; the client backfills it and cuts over to the live tail with no gap.
+description: Replay a slice of the network and continue to live through a single interface.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -15,9 +15,8 @@ catch up after downtime, you want the records that already exist on the network
 
 Jetstream serves both from one place. It keeps a compressed archive of the whole
 network and replays it through the same JSON shape as the
-[live tail](/docs/jetstream), so the handoff from history to real time is the
-server's problem, not yours. **Jetstream is your buffer**; there's nothing to
-stage on the client.
+[live tail](/docs/jetstream), so the handoff from history to real time is handled
+entirely by Jetstream, transparent to your application.
 
 ## Three ways to consume Jetstream
 
@@ -116,9 +115,9 @@ attach it and what the limits look like.
 ## Folding the stream (eventually consistent)
 
 Replay delivers **every matching event at least once, in seq order**. Creates,
-updates, and deletes are all part of the same stream, the same way they happen on the network.
-The server doesn't hide superseded records for you; instead your handler
-**folds** the stream to converge on the current state:
+updates, and deletes all arrive in a single stream, just as they appear on the
+network. The server doesn't hide superseded records for you; instead your
+handler **folds** the stream to converge on the current state:
 
 - a `create` adds a record, an `update` replaces it,
 - a `delete` removes it,
