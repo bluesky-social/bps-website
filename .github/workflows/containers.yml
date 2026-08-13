@@ -11,11 +11,15 @@ name: containers
 # Trigger + push policy:
 # - on: [push]. Every branch push builds, so a broken Dockerfile surfaces
 #   before merge rather than after. No PR trigger, so no duplicate runs.
-# - Pushes to main publish to ECR. Other branch pushes build dry-run only.
-# - on: workflow_dispatch publishes from whatever ref it is run on. This is how
-#   a staging image gets built from an unmerged branch: run the workflow
-#   manually on that branch, deploy the resulting SHA. Manual by design — a
-#   branch shouldn't publish deployable images just by being pushed to.
+# - Two refs publish to ECR: main, and the staging branch
+#   divy/bps-preview-builds (named in the `push:` input at the bottom of this
+#   file, the one place the policy is expressed). Every other push is dry-run.
+# - The staging branch publishes on push, not by manual dispatch, because
+#   workflow_dispatch is unavailable to it: GitHub only registers that trigger
+#   from the copy of a workflow on the DEFAULT branch, and this branch is not
+#   landing on main. The trigger is declared anyway so it works the moment any
+#   version of this file does reach main — until then the "Run workflow" button
+#   does not exist and `gh workflow run` fails.
 # - Tags are skipped under every trigger (this repo has no image-for-tag
 #   semantics), so a dispatch on a tag ref is a deliberate no-op.
 #
@@ -29,13 +33,13 @@ name: containers
 # commit it runs. Both ECR repos are currently tag-MUTABLE, so re-running a
 # publishing build overwrites that SHA's image in place rather than failing.
 # Two consequences worth naming: a tag is not a permanent record of one
-# artifact, and dispatching on main after a preview build of the same commit
-# swaps the environment an existing tag refers to.
+# artifact, and rebuilding the same commit from a different ref swaps the
+# environment an existing tag refers to.
 #
 # Layer cache: the shared action exports to `buildkit-cache:<service>`, one tag
-# per service, and only when it is pushing. So a dispatched preview build does
-# overwrite the manifest that main's next build reads from — unlike a dry-run
-# branch build, which cannot. That is acceptable rather than ideal: the two
+# per service, and only when it is pushing. Now that the staging branch pushes,
+# its builds overwrite the manifest main's next build reads from — every staging
+# push, not just an occasional manual one. Acceptable rather than ideal: the two
 # flavors differ only in build args consumed by the final `npm run build` layer,
 # so the expensive `npm ci` layers still hit, and a cache miss costs time, never
 # correctness.
@@ -44,12 +48,17 @@ on:
   push:
   workflow_dispatch:
 
-# Superseded branch builds are pure waste; builds that publish must all complete
-# because each one produces a deployable image.
+# main never cancels: every commit there is a release candidate someone may
+# deploy, so each build must produce its image. The staging branch DOES cancel
+# superseded builds even though it now publishes — you iterate on it and deploy
+# the newest SHA, so serializing every intermediate build behind the last one
+# just makes the feedback loop slower. The cost is that a run cancelled while
+# uploading may leave its SHA without a tag; that shows up as a plain
+# image-not-found at deploy, not as a wrong image.
 #
 # The event name is part of the group so a dispatched build gets its own lane:
-# otherwise a routine push to the same branch — which does cancel its
-# predecessors — would cancel the manual publish running alongside it.
+# otherwise a routine push to the same branch would cancel the manual publish
+# running alongside it.
 concurrency:
   group: containers-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: >-
@@ -128,4 +137,14 @@ jobs:
           service: ${{ matrix.service }}
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
-          push: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+          # The publish policy, in one place. The staging branch is listed by
+          # name and is temporary: drop it here when bps-preview.bsky.network
+          # stops being fed from this branch. Leaving it costs nothing once the
+          # branch is gone (the condition simply never matches), but it is a
+          # standing grant for whoever can push to that ref.
+          # (Folded lines stay at one indent level: a deeper-indented line in a
+          # `>-` scalar keeps its newline instead of folding to a space.)
+          push: >-
+            ${{ github.ref == 'refs/heads/main'
+            || github.ref == 'refs/heads/divy/bps-preview-builds'
+            || github.event_name == 'workflow_dispatch' }}

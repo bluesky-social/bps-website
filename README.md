@@ -48,17 +48,20 @@ build context (each needs the top-level `lexicons/`):
 | `bps-website-api` | `server/Dockerfile` | the account server on port 8080 — see [server/README.md](server/README.md) |
 
 `.github/workflows/containers.yml` builds both on every branch push, and pushes
-them to ECR from `main` or from a manual `workflow_dispatch` run on any branch,
-tagged with the full commit SHA. It runs on the `arc` self-hosted runners and
-delegates the build to the org's shared
+them to ECR from two refs — `main` and the staging branch
+`divy/bps-preview-builds` — tagged with the full commit SHA. It runs on the `arc`
+self-hosted runners and delegates the build to the org's shared
 [`build-push-ecr`](https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md)
 action, which supplies ECR credentials, the Docker Hub pull-through cache, and
 the shared layer cache.
 
-The dispatch trigger is how a staging image gets built from an unmerged branch:
-run the workflow on that branch and deploy the SHA it publishes. Publishing is
-manual on purpose — pushing to a branch should not produce a deployable image on
-its own.
+The staging branch feeds `bps-preview.bsky.network` and publishes on push, which
+is a deliberate exception: it is how a deployable image gets built from work that
+has not landed. It publishes on push rather than on manual dispatch because
+`workflow_dispatch` is unavailable to an unmerged branch — GitHub only registers
+that trigger from the copy of a workflow on the default branch. The branch name
+is hardcoded in the workflow's `push:` input and should be dropped once the
+preview host stops being fed from it.
 
 The UI image is **environment-specific**: two origins are read by
 `docusaurus.config.js` and baked into the static output, so they are build
