@@ -2,7 +2,11 @@ import { test, before, after, describe } from 'node:test'
 import assert from 'node:assert/strict'
 import type { AddressInfo } from 'node:net'
 import express from 'express'
-import { JoseKey, NodeOAuthClient } from '@atproto/oauth-client-node'
+import {
+  JoseKey,
+  NodeOAuthClient,
+  requestLocalLock,
+} from '@atproto/oauth-client-node'
 import { createDb, type DB } from '../db/index.ts'
 import { loadConfig } from '../config.ts'
 import { createOAuthClient } from './client.ts'
@@ -55,6 +59,9 @@ describe('prod-style client (https apiOrigin + keyset)', () => {
       stateStore: createStateStore(db),
       sessionStore: createSessionStore(db),
       handleResolver: prodCfg.oauthHandleResolver,
+      // In-process lock: enough for a single-process test, and keeps the
+      // library's "credentials might get revoked" warning out of the output.
+      requestLock: requestLocalLock,
     })
     const app = express()
     mountOAuthRoutes(app, { client, config: prodCfg, db })
@@ -115,7 +122,7 @@ describe('dev loopback client', () => {
   })
 
   before(async () => {
-    const client = await createOAuthClient(db, devCfg)
+    const client = await createOAuthClient(db, devCfg, requestLocalLock)
     const app = express()
     mountOAuthRoutes(app, { client, config: devCfg, db })
     await new Promise<void>((r) => {

@@ -4,6 +4,7 @@ import { startOtel } from './otel.ts'
 import { createDb } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
 import { createOAuthClient } from './oauth/client.ts'
+import { createLockPool, createRequestLock } from './oauth/request-lock.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { createGatekeeperClient } from './apikeys/gatekeeper-client.ts'
 import { createGatekeeperApiKeyProvider } from './apikeys/gatekeeper-provider.ts'
@@ -14,10 +15,13 @@ async function main() {
   const cfg = loadConfig()
   const otel = await startOtel()
   const db = createDb(cfg.databaseUrl)
+  // Deliberately its own pool — a lock is held while its body queries the
+  // session store, so sharing the Kysely pool risks a starvation deadlock.
+  const lockPool = createLockPool(cfg.databaseUrl)
 
   await runMigrations(db)
 
-  const client = await createOAuthClient(db, cfg)
+  const client = await createOAuthClient(db, cfg, createRequestLock(lockPool))
   // The client_id document is published by the website build (see
   // oauth/client-metadata-doc.mjs), not served here. If it 404s, or its contents
   // differ from what this process holds, login fails at the PAR request — so log
@@ -55,6 +59,7 @@ async function main() {
     logger.info(`received ${signal}, shutting down`)
     await new Promise<void>((resolve) => server.close(() => resolve()))
     await db.destroy()
+    await lockPool.end()
     await otel.shutdown()
     process.exit(0)
   }

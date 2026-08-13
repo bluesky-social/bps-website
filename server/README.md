@@ -126,6 +126,27 @@ attempt.
 - **Production**: hosted-metadata + `private_key_jwt`. Set `BPS_OAUTH_PRIVATE_KEY`
   (PKCS8 PEM or JWK JSON) and `BPS_OAUTH_KEY_ID`.
 
+### Refresh lock
+
+Token refresh is serialized per account by a Postgres advisory lock
+(`src/oauth/request-lock.ts`). Two replicas refreshing the same session at once
+can get the refresh token revoked by the PDS, and the OAuth client's default lock
+is in-process only, so it does not cover the overlap in a rolling deploy. Without
+a lock the client also warns `No lock mechanism provided` at boot.
+
+The lock is a `pg_advisory_xact_lock` keyed on a 64-bit hash of the client's lock
+name (`@atproto-oauth-client-<did>`), held for the refresh and released by its
+transaction. It runs on its own connection pool rather than the Kysely one: the
+lock is held while its body reads `oauth_session`, so a single shared pool would
+let lock holders take every connection and then deadlock waiting for one to do
+their own work. Budget up to 20 Postgres connections per replica, 10 per pool.
+
+Waiting on a contended lock gives up after 30 seconds (`lock_timeout`) and fails
+the request instead of refreshing unlocked. Keep
+`idle_in_transaction_session_timeout` above that (Postgres and RDS both default
+to disabled): the lock lives in an open transaction, and killing that transaction
+mid-refresh releases the lock while the refresh is still in flight.
+
 ### Manual e2e smoke test
 
 The full authorization-code + PKCE + DPoP round-trip can't run in CI (needs a

@@ -6,6 +6,7 @@ import { sealData } from 'iron-session'
 import { createDb, type DB } from './db/index.ts'
 import { runMigrations } from './db/migrate.ts'
 import { loadConfig } from './config.ts'
+import { requestLocalLock } from '@atproto/oauth-client-node'
 import { createOAuthClient } from './oauth/client.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildApp } from './app.ts'
@@ -32,7 +33,7 @@ before(async () => {
   await runMigrations(db)
   await db.deleteFrom('account').where('did', '=', did).execute()
   await db.insertInto('account').values({ did, email: null }).execute()
-  const client = await createOAuthClient(db, cfg)
+  const client = await createOAuthClient(db, cfg, requestLocalLock)
   const apiKeys = createPostgresApiKeyProvider(db)
   const app = buildApp({ db, config: cfg, client, apiKeys })
   await new Promise<void>((r) => {
