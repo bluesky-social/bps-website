@@ -71,8 +71,9 @@ no JSON step of your own:
     )
 
     func main() {
-    	client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
-    		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	client, err := jetstream.Subscribe(
+    		"jetstream.us-east.bsky.network",
+    		jetstream.WithCollection("app.bsky.feed.post"),
     	)
     	if err != nil {
     		panic(err)
@@ -81,7 +82,7 @@ no JSON step of your own:
 
     	for batch, err := range client.Events(context.Background()) {
     		if err != nil {
-    			continue // recoverable; log and move on
+    			continue
     		}
     		for _, evt := range batch.Events() {
     			if evt.Kind == jetstream.KindCommit && evt.Commit.Operation == jetstream.OpCreate {
@@ -126,7 +127,8 @@ narrow filter means less bandwidth and less work in your process:
   </TabItem>
   <TabItem value="go" label="Go">
     ```go
-    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    client, err := jetstream.Subscribe(
+    	"jetstream.us-east.bsky.network",
     	jetstream.WithCollections([]string{"app.bsky.feed.post", "app.bsky.feed.like"}),
     	jetstream.WithDIDs([]string{"did:plc:ragtjsm2j2vknwkz3zp4oxrd"}),
     )
@@ -242,7 +244,8 @@ payload is populated, selected by the kind:
     ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
     defer cancel()
 
-    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    client, err := jetstream.Subscribe(
+    	"jetstream.us-east.bsky.network",
     	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
     )
     if err != nil {
@@ -290,7 +293,8 @@ hand it back at startup:
     `WithLiveCursor`. The server delivers events with `seq` greater than it:
 
     ```go
-    client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
+    client, err := jetstream.Subscribe(
+    	"jetstream.us-east.bsky.network",
     	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
     	jetstream.WithLiveCursor(db.GetCursor()), // 0 means "from the current tip"
     )
