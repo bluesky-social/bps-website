@@ -1,0 +1,87 @@
+name: containers
+
+# Builds the two production images: bps-website-ui (Docusaurus + nginx) and
+# bps-website-api (@bps/account-server).
+#
+# The heavy lifting is the org's shared composite action, which bakes in ECR
+# login via Pod Identity, buildx pointed at our Docker Hub pull-through cache,
+# SHA tagging, and the buildkit-cache layer cache:
+# https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md
+#
+# Trigger + push policy:
+# - on: [push]. Every branch push builds, so a broken Dockerfile surfaces
+#   before merge rather than after. Single trigger, no PR/push duplicate runs.
+# - Only pushes to main publish to ECR. `push: false` on branches also skips the
+#   cache export inside the action, so an unmerged branch cannot clobber the
+#   cache manifest that main's builds read from.
+# - Tag pushes skip entirely: this repo has no image-for-tag semantics.
+#
+# Images are tagged by full commit SHA only, so a deploy always names the exact
+# commit it runs. Both ECR repos are currently tag-MUTABLE, so re-running a main
+# build overwrites that SHA's image in place rather than failing — fine for a
+# rebuild of the same commit, but it does mean a tag is not a permanent record
+# of one artifact.
+
+on:
+  push:
+
+# Superseded branch builds are pure waste; main builds must all complete
+# because each one publishes a deployable image.
+concurrency:
+  group: containers-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    # Explicit, or the default name interpolates every matrix field — including
+    # the build args, which makes the check name change whenever the API origin
+    # does. Required-status-check rules match on this string.
+    name: build (${{ matrix.service }})
+    if: >
+      github.repository == 'bluesky-social/bps-website' &&
+      !startsWith(github.ref, 'refs/tags/')
+    runs-on: arc
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Both build from the repo root (the default context): each runs
+          # lexicon codegen against the top-level lexicons/.
+          - service: bps-website-ui
+            file: ./Dockerfile
+            # Baked into the JS bundle at build time — see the Dockerfile.
+            build_args: |
+              BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
+          - service: bps-website-api
+            file: ./server/Dockerfile
+            build_args: ""
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      # The UI bakes its API origin in at build time, so a missing variable
+      # would produce an image that points at localhost. The Dockerfile also
+      # refuses to build without it; this check just names the fix.
+      - name: Check UI build variables
+        if: matrix.service == 'bps-website-ui'
+        env:
+          BPS_PUBLIC_API_ORIGIN: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then
+            echo "::error::Repository variable BPS_PUBLIC_API_ORIGIN is not set." \
+                 "Set it under Settings > Secrets and variables > Actions > Variables" \
+                 "to the public origin of bps-website-api (e.g. https://api.bsky.network)."
+            exit 1
+          fi
+          echo "BPS_PUBLIC_API_ORIGIN=$BPS_PUBLIC_API_ORIGIN"
+
+      - uses: bluesky-social/.github/actions/build-push-ecr@v1
+        with:
+          service: ${{ matrix.service }}
+          file: ${{ matrix.file }}
+          build-args: ${{ matrix.build_args }}
+          push: ${{ github.ref == 'refs/heads/main' }}

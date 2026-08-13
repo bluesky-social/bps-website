@@ -27,9 +27,9 @@ test: ## Run all tests
 #	yarn verify
 
 .PHONY: nvm-setup
-nvm-setup: ## Use NVM to install and activate node+npm
-	nvm install 18
-	nvm use 18
+nvm-setup: ## Use NVM to install and activate node+npm (see .node-version)
+	nvm install 22
+	nvm use 22
 
 .PHONY: deps
 deps: ## Installs dependent libs using 'npm install'

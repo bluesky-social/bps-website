@@ -35,6 +35,25 @@ curl localhost:8080/_health                          # {"status":"ok"}
 - `npm run migrate` — apply migrations
 - `npm run lex:build` — regenerate lexicon TS from `../lexicons`
 
+## Container image
+
+Built by `.github/workflows/containers.yml` as `bps-website-api`. Build from the
+**repo root**, not `server/` — lexicon codegen reads `../lexicons`:
+
+```bash
+docker build -f server/Dockerfile -t bps-website-api .   # from the repo root
+docker build -f Dockerfile -t bps-website-api ..         # from server/
+```
+
+There is no compile step: Node 24 strips TS types at load, so `src/` ships as-is.
+The image runs as the non-root `node` user, sets `NODE_ENV=production` (which
+makes `BPS_OAUTH_PRIVATE_KEY` required — see below), and takes all config from
+the environment rather than an `.env` file.
+
+Migrations run automatically at boot (`src/server.ts`), so a deploy needs no
+separate migration step. Config is validated first and the process exits
+non-zero on anything missing, rather than starting up degraded.
+
 ## Conventions
 
 - App env vars are `BPS_`-prefixed; OTel/`OTEL_*` and `NODE_ENV` are not.
