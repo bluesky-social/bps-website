@@ -1,6 +1,9 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
+const fs = require("node:fs/promises");
+const path = require("node:path");
+
 const lightCodeTheme = require("prism-react-renderer").themes.github;
 
 // Dark code theme aligned with the homepage proof window (GitHub-dark token
@@ -327,6 +330,36 @@ const config = {
         ],
       },
     ],
+    // Publishes the site's OAuth client metadata document. This site hosts the
+    // document because an atproto `client_id` IS the URL the document is served
+    // from — so hosting it here is what puts the account login's client_id on
+    // this domain, which is the hostname users see on the consent screen. The
+    // endpoints it advertises (redirect_uri, jwks_uri) belong to the account API
+    // service and stay on its origin; the shape comes from the API's own
+    // builder so the two copies cannot drift.
+    //
+    // A generated file rather than one in static/ because it needs the API
+    // origin, which is per-environment. postBuild only runs on `docusaurus
+    // build`, never `start` — fine, because local dev uses the atproto loopback
+    // client, which has no hosted document at all.
+    () => ({
+      name: "oauth-client-metadata",
+      async postBuild({ outDir, siteConfig, i18n }) {
+        // Localized builds write into build/<locale>; one document, at the root.
+        if (i18n.currentLocale !== i18n.defaultLocale) return;
+        const { buildClientMetadataDoc } = await import(
+          "./server/src/oauth/client-metadata-doc.mjs"
+        );
+        const doc = buildClientMetadataDoc({
+          siteOrigin: siteConfig.url,
+          apiOrigin: siteConfig.customFields.apiOrigin,
+        });
+        await fs.writeFile(
+          path.join(outDir, "oauth-client-metadata.json"),
+          `${JSON.stringify(doc, null, 2)}\n`,
+        );
+      },
+    }),
   ],
 
   // The HTTP/XRPC endpoint reference is no longer generated into this site. It

@@ -13,10 +13,10 @@ type Deps = { client: NodeOAuthClient; config: AppConfig; db: DB }
 export function mountOAuthRoutes(app: Express, deps: Deps): void {
   const { client, config, db } = deps
 
-  app.get('/oauth-client-metadata.json', (_req: Request, res: Response) => {
-    res.json(client.clientMetadata)
-  })
-
+  // No /oauth-client-metadata.json here on purpose. client_id must equal the URL
+  // the document is fetched from, and client_id lives on the site origin — the
+  // site build publishes it as a static file (see client-metadata-doc.mjs). A
+  // copy served from this origin would be invalid at its own URL.
   app.get('/jwks.json', (_req: Request, res: Response) => {
     res.json(client.jwks)
   })

@@ -17,12 +17,10 @@ const url =
 
 // NOTE on jwks-in-dev: in dev mode, createOAuthClient uses the atproto loopback form
 // (client_id = 'http://localhost', token_endpoint_auth_method = 'none', no keyset).
-// This means client.jwks returns { keys: [] }, and client.clientMetadata.client_id is
-// 'http://localhost' — not a hosted URL ending in /oauth-client-metadata.json.
-// To exercise both the metadata and jwks routes meaningfully, the main test suite uses
-// a prod-style NodeOAuthClient (https apiOrigin + ephemeral ES256 key), which has a real
-// hosted client_id and a populated keyset. A separate describe block verifies the dev
-// loopback variant still serves 200 on both routes (with empty keys — that's correct per spec).
+// This means client.jwks returns { keys: [] }. To exercise the jwks route meaningfully,
+// the main test suite uses a prod-style NodeOAuthClient (https origins + ephemeral ES256
+// key), which has a populated keyset. A separate describe block verifies the dev loopback
+// variant still serves 200 (with empty keys — that's correct per spec).
 
 let db: DB
 
@@ -72,11 +70,13 @@ describe('prod-style client (https apiOrigin + keyset)', () => {
     await new Promise<void>((r) => server.close(() => r()))
   })
 
-  test('GET /oauth-client-metadata.json returns the client_id document', async () => {
+  // The client metadata document is published by the site build at the site
+  // origin, because client_id must equal the URL the document is fetched from.
+  // Serving a copy here would publish a document that is invalid at its own URL
+  // and is a live footgun if anyone configured it as the client_id.
+  test('GET /oauth-client-metadata.json is not served by the API', async () => {
     const res = await fetch(`${base}/oauth-client-metadata.json`)
-    assert.equal(res.status, 200)
-    const json = (await res.json()) as { client_id: string }
-    assert.match(json.client_id, /\/oauth-client-metadata\.json$/)
+    assert.equal(res.status, 404)
   })
 
   test('GET /jwks.json returns a JWKS with at least one key', async () => {
@@ -97,8 +97,8 @@ describe('prod-style client (https apiOrigin + keyset)', () => {
 
 // ── Dev loopback client (token_endpoint_auth_method = 'none', no keyset) ─────────────────────
 // In dev the loopback client_id is the special sentinel 'http://localhost' and there is
-// no keyset, so jwks.keys is []. Both routes must still return 200 — the route implementation
-// is the same; only the payload content differs.
+// no keyset, so jwks.keys is []. The route must still return 200 — the implementation is
+// the same; only the payload content differs.
 describe('dev loopback client', () => {
   let server: ReturnType<express.Express['listen']>
   let base: string
@@ -128,13 +128,6 @@ describe('dev loopback client', () => {
 
   after(async () => {
     await new Promise<void>((r) => server.close(() => r()))
-  })
-
-  test('GET /oauth-client-metadata.json returns 200 with a client_id', async () => {
-    const res = await fetch(`${base}/oauth-client-metadata.json`)
-    assert.equal(res.status, 200)
-    const json = (await res.json()) as { client_id: string }
-    assert.ok(typeof json.client_id === 'string' && json.client_id.length > 0)
   })
 
   test('GET /jwks.json returns 200 with a keys array (empty in dev loopback)', async () => {
