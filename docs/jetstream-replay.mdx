@@ -22,7 +22,7 @@ entirely by Jetstream, transparent to your application.
 
 | | Transport | Auth |
 | --- | --- | --- |
-| **Live** | WebSocket (`/subscribe`) | none |
+| **Live** | WebSocket (`subscribeEvents`) | none |
 | **Replay** | WebSocket **+** HTTP (plan + download, then tail) | API key on the HTTP calls |
 | **Snapshot** | HTTP only (download, no live tail) | API key |
 
@@ -169,7 +169,8 @@ The live WebSocket needs no key and is not metered. To attach your key:
     })
     ```
 
-    The client sends `Authorization: Bearer <key>` on every HTTP call it makes.
+    The client attaches `Authorization: Bearer <key>` to every request it makes —
+    the metered HTTP downloads, and the live handshake, which ignores it.
   </TabItem>
   <TabItem value="go" label="Go">
     ```go
@@ -297,7 +298,8 @@ to manage, no subscription to register. In three steps:
    Responses are immutable, ETag'd, and CDN-cacheable, and `getSegment` supports
    HTTP `Range` requests, so downloads parallelize freely and resume exactly
    where they stopped. Decode each row and apply your exact filters.
-3. **Tail live from the tip.** Connect `/subscribe` **once** at `?cursor=S`.
+3. **Tail live from the tip.** Connect the [live
+   tail](/docs/jetstream#quickstart-live-tail) **once** at `?cursor=S`.
    The cursor is inclusive — you'll receive the event at `S` again — so
    deduplicate by sequence number. Because the server itself replays the window
    between your plan and the live socket, there's no buffer to drain and no
@@ -336,7 +338,7 @@ is always admitted, so progress is guaranteed.
 
 **Slow backfills can't skip data.** If a backfill takes so long that `S`
 ages out of the live socket's lookback window (36 hours on Bluesky-hosted
-instances), the `/subscribe` connect fails with an explicit HTTP 400 carrying
+instances), the live-tail connect fails with an explicit HTTP 400 carrying
 the new floor. The client re-enters the plan loop from its last processed
 sequence number rather than losing the gap.
 

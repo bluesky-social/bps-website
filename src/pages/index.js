@@ -5,6 +5,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import Layout from '@theme/Layout'
 import Butterfly from '../components/Navbar/Butterfly'
 import BlueskyWordmark from '../components/Navbar/BlueskyWordmark'
+import { refTarget, streamCreates, subjectOf } from '../lib/jetstream-live'
 
 import '../css/landing.css'
 
@@ -83,31 +84,40 @@ const PROOF_GRAIN_HTML = `
   <rect width="1180" height="360" filter="url(#proof-grain)"/>
 </svg>`
 
-const PROOF_GUTTER_HTML = Array.from(
-  { length: 16 },
-  (_, i) => `<span class="ln code-ln">${i + 1}</span>`,
-).join('')
-
 // Pre-tokenized TS sample. Single-quoted lines so the literal backticks and
 // ${...} template-literal markers inside the code stay inert.
-const PROOF_CODE_HTML = [
-  '<span class="tk-kw">import</span> <span class="tk-pun">{</span> <span class="tk-cls">Jetstream</span><span class="tk-pun">,</span> <span class="tk-fn">isCreate</span> <span class="tk-pun">}</span> <span class="tk-kw">from</span> <span class="tk-str">\'@atproto/jetstream\'</span><span class="tk-pun">;</span>',
-  '<span class="tk-kw">import</span> <span class="tk-pun">{</span> <span class="tk-id">app</span> <span class="tk-pun">}</span> <span class="tk-kw">from</span> <span class="tk-str">\'@bsky/sdk/lexicons\'</span><span class="tk-pun">;</span>',
+//
+// This is the code the Run button actually runs: the same client, the same
+// collections, the same three branches, rendered into the output pane below by
+// useProof(). Keep the two in step — a "proof" window that prints something its
+// own code wouldn't is worse than no proof at all.
+const PROOF_CODE_LINES = [
+  '<span class="tk-kw">import</span> <span class="tk-pun">{</span> <span class="tk-cls">Jetstream</span> <span class="tk-pun">}</span> <span class="tk-kw">from</span> <span class="tk-str">\'@bsky/jetstream\'</span><span class="tk-pun">;</span>',
   '',
-  '<span class="tk-kw">const</span> <span class="tk-id">jetstream</span> <span class="tk-pun">=</span> <span class="tk-kw">new</span> <span class="tk-cls">Jetstream</span><span class="tk-pun">({</span>',
-  '  <span class="tk-id">collections</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">graph</span><span class="tk-pun">.</span><span class="tk-prop">follow</span><span class="tk-pun">,</span> <span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">feed</span><span class="tk-pun">.</span><span class="tk-prop">repost</span><span class="tk-pun">,</span> <span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">feed</span><span class="tk-pun">.</span><span class="tk-prop">post</span><span class="tk-pun">],</span>',
-  '<span class="tk-pun">});</span>',
+  '<span class="tk-kw">const</span> <span class="tk-id">jetstream</span> <span class="tk-pun">=</span> <span class="tk-kw">new</span> <span class="tk-cls">Jetstream</span><span class="tk-pun">(</span><span class="tk-str">\'https://jetstream.us-east.bsky.network\'</span><span class="tk-pun">);</span>',
+  '<span class="tk-kw">const</span> <span class="tk-id">collections</span> <span class="tk-pun">=</span> <span class="tk-pun">[</span><span class="tk-str">\'app.bsky.graph.follow\'</span><span class="tk-pun">,</span> <span class="tk-str">\'app.bsky.feed.repost\'</span><span class="tk-pun">,</span> <span class="tk-str">\'app.bsky.feed.post\'</span><span class="tk-pun">];</span>',
   '',
-  '<span class="tk-kw">for await</span> <span class="tk-pun">(</span><span class="tk-kw">const</span> <span class="tk-id">event</span> <span class="tk-kw">of</span> <span class="tk-id">jetstream</span><span class="tk-pun">) {</span>',
-  '  <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-fn">isCreate</span><span class="tk-pun">(</span><span class="tk-id">event</span><span class="tk-pun">,</span> <span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">graph</span><span class="tk-pun">.</span><span class="tk-prop">follow</span><span class="tk-pun">)) {</span>',
-  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`🌱  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  follows  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">commit</span><span class="tk-pun">.</span><span class="tk-prop">record</span><span class="tk-pun">.</span><span class="tk-prop">subject</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
-  '  <span class="tk-pun">}</span> <span class="tk-kw">else if</span> <span class="tk-pun">(</span><span class="tk-fn">isCreate</span><span class="tk-pun">(</span><span class="tk-id">event</span><span class="tk-pun">,</span> <span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">feed</span><span class="tk-pun">.</span><span class="tk-prop">repost</span><span class="tk-pun">)) {</span>',
-  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`♻️  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  reposts  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">commit</span><span class="tk-pun">.</span><span class="tk-prop">record</span><span class="tk-pun">.</span><span class="tk-prop">subject</span><span class="tk-pun">.</span><span class="tk-prop">uri</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
-  '  <span class="tk-pun">}</span> <span class="tk-kw">else if</span> <span class="tk-pun">(</span><span class="tk-fn">isCreate</span><span class="tk-pun">(</span><span class="tk-id">event</span><span class="tk-pun">,</span> <span class="tk-id">app</span><span class="tk-pun">.</span><span class="tk-prop">bsky</span><span class="tk-pun">.</span><span class="tk-prop">feed</span><span class="tk-pun">.</span><span class="tk-prop">post</span><span class="tk-pun">) &amp;&amp;</span> <span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">commit</span><span class="tk-pun">.</span><span class="tk-prop">record</span><span class="tk-pun">.</span><span class="tk-prop">reply</span><span class="tk-pun">) {</span>',
-  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`💭  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  replies  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">commit</span><span class="tk-pun">.</span><span class="tk-prop">record</span><span class="tk-pun">.</span><span class="tk-prop">reply</span><span class="tk-pun">.</span><span class="tk-prop">parent</span><span class="tk-pun">.</span><span class="tk-prop">uri</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
+  '<span class="tk-kw">for await</span> <span class="tk-pun">(</span><span class="tk-kw">const</span> <span class="tk-id">event</span> <span class="tk-kw">of</span> <span class="tk-id">jetstream</span><span class="tk-pun">.</span><span class="tk-fn">live</span><span class="tk-pun">({</span> <span class="tk-id">collections</span><span class="tk-pun">,</span> <span class="tk-id">kinds</span><span class="tk-pun">:</span> <span class="tk-pun">[</span><span class="tk-str">\'commit\'</span><span class="tk-pun">]</span> <span class="tk-pun">})) {</span>',
+  '  <span class="tk-kw">const</span> <span class="tk-pun">{</span> <span class="tk-id">operation</span><span class="tk-pun">,</span> <span class="tk-id">collection</span><span class="tk-pun">,</span> <span class="tk-id">record</span> <span class="tk-pun">}</span> <span class="tk-pun">=</span> <span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">commit</span><span class="tk-pun">;</span>',
+  '  <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-id">operation</span> <span class="tk-pun">!==</span> <span class="tk-str">\'create\'</span><span class="tk-pun">)</span> <span class="tk-kw">continue</span><span class="tk-pun">;</span>',
+  '',
+  '  <span class="tk-kw">if</span> <span class="tk-pun">(</span><span class="tk-id">collection</span> <span class="tk-pun">===</span> <span class="tk-str">\'app.bsky.graph.follow\'</span><span class="tk-pun">) {</span>',
+  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`🌱  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  follows  ${<span class="tk-tag"></span><span class="tk-id">record</span><span class="tk-pun">.</span><span class="tk-prop">subject</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
+  '  <span class="tk-pun">}</span> <span class="tk-kw">else if</span> <span class="tk-pun">(</span><span class="tk-id">collection</span> <span class="tk-pun">===</span> <span class="tk-str">\'app.bsky.feed.repost\'</span><span class="tk-pun">) {</span>',
+  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`♻️  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  reposts  ${<span class="tk-tag"></span><span class="tk-id">record</span><span class="tk-pun">.</span><span class="tk-prop">subject</span><span class="tk-pun">.</span><span class="tk-prop">uri</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
+  '  <span class="tk-pun">}</span> <span class="tk-kw">else if</span> <span class="tk-pun">(</span><span class="tk-id">record</span><span class="tk-pun">.</span><span class="tk-prop">reply</span><span class="tk-pun">) {</span>',
+  '    <span class="tk-id">console</span><span class="tk-pun">.</span><span class="tk-fn">log</span><span class="tk-pun">(</span><span class="tk-tmpl">`💭  ${<span class="tk-tag"></span><span class="tk-id">event</span><span class="tk-pun">.</span><span class="tk-prop">did</span><span class="tk-tag"></span>}  replies  ${<span class="tk-tag"></span><span class="tk-id">record</span><span class="tk-pun">.</span><span class="tk-prop">reply</span><span class="tk-pun">.</span><span class="tk-prop">parent</span><span class="tk-pun">.</span><span class="tk-prop">uri</span><span class="tk-tag"></span>}`</span><span class="tk-pun">);</span>',
   '  <span class="tk-pun">}</span>',
   '<span class="tk-pun">}</span>',
-].join('\n')
+]
+
+const PROOF_CODE_HTML = PROOF_CODE_LINES.join('\n')
+
+// Derived from the sample rather than hard-coded, so the gutter can't drift out
+// of step with the code when the sample is edited.
+const PROOF_GUTTER_HTML = PROOF_CODE_LINES.map(
+  (_, i) => `<span class="ln code-ln">${i + 1}</span>`,
+).join('')
 
 // ---------------------------------------------------------------------------
 // Product cards — wired to real docs / repos. Tweak these targets freely.
@@ -238,7 +248,27 @@ function AtprotoCard({ icon, title, what, href }) {
   )
 }
 
-// Port of the mockup's runnable-proof + copy-button behavior.
+// The collections the proof sample subscribes to — same list, same order as the
+// tokenized code above.
+const PROOF_COLLECTIONS = [
+  'app.bsky.graph.follow',
+  'app.bsky.feed.repost',
+  'app.bsky.feed.post',
+]
+
+// Retained output lines. Old lines are dropped from the top; the gutter keeps
+// counting up, so it reads like a log tail rather than a fixed-size box.
+const PROOF_MAX_LINES = 60
+// Append on a timer rather than per event, and take at most a few lines per
+// tick. The stream is far faster than this — at peak the three collections
+// above produce hundreds of events a second — but a pane scrolling that fast is
+// unreadable, so the display is sampled on purpose.
+const PROOF_FLUSH_MS = 150
+const PROOF_LINES_PER_FLUSH = 3
+
+// Runnable proof: streams real events from Jetstream through the same client
+// and the same three branches the sample above shows, plus the copy-button
+// behavior carried over from the design mockup.
 function useProof() {
   useEffect(() => {
     const proof = document.getElementById('proof')
@@ -248,87 +278,38 @@ function useProof() {
     const gutter = document.getElementById('proof-gutter')
     if (!proof || !runBtn || !out || !gutter) return
 
-    const DIDS = [
-      'did:plc:7iza6de2dwap2sbkpav7c6c6',
-      'did:plc:z72i7hdynmk6r22z27h6tvur',
-      'did:plc:ragtjsm2j2vknwkz3zp4oxrd',
-      'did:plc:ewvi7nxzyoun6zhxrhs64oiz',
-      'did:plc:oky5czdrnfjpqslsw2a5iclo',
-      'did:plc:44ybard66vv44zksje25o7dz',
-      'did:plc:wzsilnxf24ehtmmc3gssy5bu',
-      'did:plc:6z5jrxbpiwzljyq4yvxj7gxd',
-      'did:plc:lz7yu4xxzm2ndqecxw4qg2nd',
-      'did:plc:t1xq3w5pl9k2nvm6dcr7b8ux',
-      'did:plc:af0nxjk5cm2pq8whdtzs3l4r',
-      'did:plc:bn5xq8we4r2tk7m3djpz6vyc',
-    ]
-    const TIDS = [
-      '3kj2xq8wlmc24',
-      '3kl9pn4rt6s2v',
-      '3km4rx9pn8d3w',
-      '3kn8qm2vt5f4r',
-      '3kp7sj6wn9c8x',
-      '3kr2tk5xm7b9q',
-      '3ks5tn8vp9c4r',
-      '3kt9wj7xm6b2k',
-      '3ku4ql8nm5d9p',
-      '3kv2xn7wj6c8m',
-    ]
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)]
-    const pickPair = (arr) => {
-      const a = pick(arr)
-      let b
-      do {
-        b = pick(arr)
-      } while (b === a)
-      return [a, b]
-    }
-    const follow = () => {
-      const p = pickPair(DIDS)
-      return (
-        '<span class="line-follow"><b>🌱</b>  <span class="did">' +
-        p[0] +
-        '</span>  follows  <span class="did">' +
-        p[1] +
-        '</span></span>'
-      )
-    }
-    const repost = () => {
-      const p = pickPair(DIDS)
-      return (
-        '<span class="line-repost"><b>♻️</b>  <span class="did">' +
-        p[0] +
-        '</span>  reposts  <span class="uri">at://' +
-        p[1] +
-        '/app.bsky.feed.post/' +
-        pick(TIDS) +
-        '</span></span>'
-      )
-    }
-    const reply = () => {
-      const p = pickPair(DIDS)
-      return (
-        '<span class="line-reply"><b>💭</b>  <span class="did">' +
-        p[0] +
-        '</span>  replies  <span class="uri">at://' +
-        p[1] +
-        '/app.bsky.feed.post/' +
-        pick(TIDS) +
-        '</span></span>'
-      )
-    }
-    const nextLine = () => {
-      const r = Math.random()
-      if (r < 0.45) return follow()
-      if (r < 0.75) return repost()
-      return reply()
-    }
-
-    let streamId = null
+    let controller = null // AbortController for the running stream
+    let flushId = null
+    let buffer = [] // {variant, glyph, actor, verb, subject} awaiting a flush
     let lineCount = 0
 
-    const appendLine = () => {
-      out.insertAdjacentHTML('beforeend', nextLine() + '\n')
+    // Build one output line as DOM nodes, never as an HTML string: `actor` and
+    // `subject` come off the live network, so interpolating them into markup
+    // would be an injection vector. textContent makes that impossible.
+    const buildLine = ({ variant, glyph, actor, verb, subject }) => {
+      const line = document.createElement('span')
+      line.className = 'line-' + variant
+      const mark = document.createElement('b')
+      mark.textContent = glyph
+      line.append(mark, '  ')
+      const who = document.createElement('span')
+      who.className = 'did'
+      who.textContent = actor
+      line.append(who, `  ${verb}  `)
+      if (subject) {
+        const what = document.createElement('span')
+        what.className = subject.startsWith('at://') ? 'uri' : 'did'
+        what.textContent = subject
+        line.append(what)
+      }
+      // The newline lives inside the line's own node so that trimming the tail
+      // removes the break along with the text.
+      line.append('\n')
+      return line
+    }
+
+    const appendLine = (parts) => {
+      out.appendChild(buildLine(parts))
       lineCount += 1
       const ln = document.createElement('span')
       ln.className = 'ln out-ln'
@@ -337,34 +318,113 @@ function useProof() {
       const prev = gutter.querySelector('.out-ln.is-active')
       if (prev) prev.classList.remove('is-active')
       ln.classList.add('is-active')
+      // Drop from the top in lockstep so the gutter numbers stay aligned with
+      // the lines they label.
+      while (out.childElementCount > PROOF_MAX_LINES) {
+        out.firstElementChild.remove()
+        const firstLn = gutter.querySelector('.out-ln')
+        if (firstLn) firstLn.remove()
+      }
       out.scrollTop = out.scrollHeight
       gutter.scrollTop = gutter.scrollHeight
     }
-    const start = () => {
-      proof.classList.add('is-running')
-      runBtn.classList.add('is-running')
-      runBtn.querySelector('.run-label').textContent = 'Stop'
-      out.innerHTML = ''
-      Array.prototype.forEach.call(gutter.querySelectorAll('.out-ln'), (n) =>
-        n.remove(),
-      )
-      lineCount = 0
-      for (let i = 0; i < 6; i++) appendLine()
-      streamId = setInterval(appendLine, 180 + Math.round(Math.random() * 80))
+
+    // A one-line note in the output pane — used when the stream gives up, so a
+    // dead pane says why instead of just going quiet.
+    const appendNote = (text) => {
+      const note = document.createElement('span')
+      note.className = 'line-note'
+      note.textContent = text + '\n'
+      out.appendChild(note)
+      out.scrollTop = out.scrollHeight
     }
+
     const stop = () => {
-      if (streamId) {
-        clearInterval(streamId)
-        streamId = null
+      if (flushId) {
+        clearInterval(flushId)
+        flushId = null
       }
+      if (controller) {
+        controller.abort()
+        controller = null
+      }
+      buffer = []
       proof.classList.remove('is-running')
       runBtn.classList.remove('is-running')
-      runBtn.querySelector('.run-label').textContent = 'Run'
-      const prev = gutter.querySelector('.out-ln.is-active')
-      if (prev) prev.classList.remove('is-active')
+      const label = runBtn.querySelector('.run-label')
+      if (label) label.textContent = 'Run'
+      const active = gutter.querySelector('.out-ln.is-active')
+      if (active) active.classList.remove('is-active')
     }
+
+    const start = () => {
+      const ac = new AbortController()
+      controller = ac
+
+      proof.classList.add('is-running')
+      runBtn.classList.add('is-running')
+      const label = runBtn.querySelector('.run-label')
+      if (label) label.textContent = 'Stop'
+      out.textContent = ''
+      gutter.querySelectorAll('.out-ln').forEach((n) => n.remove())
+      lineCount = 0
+      buffer = []
+
+      flushId = setInterval(() => {
+        for (let i = 0; i < PROOF_LINES_PER_FLUSH && buffer.length; i++) {
+          appendLine(buffer.shift())
+        }
+        // Don't let an unread backlog grow while the pane is throttled: keep
+        // the freshest lines and drop the rest.
+        if (buffer.length > PROOF_LINES_PER_FLUSH * 4) {
+          buffer = buffer.slice(-PROOF_LINES_PER_FLUSH)
+        }
+      }, PROOF_FLUSH_MS)
+
+      streamCreates({
+        collections: PROOF_COLLECTIONS,
+        signal: ac.signal,
+        onCreate: ({ did, collection, record }) => {
+          // The same three branches as the sample: follows, reposts, and posts
+          // that are replies. A plain post prints nothing, exactly as the code
+          // above would.
+          if (collection === 'app.bsky.graph.follow') {
+            buffer.push({
+              variant: 'follow',
+              glyph: '🌱',
+              actor: did,
+              verb: 'follows',
+              subject: subjectOf(record, (d) => d),
+            })
+          } else if (collection === 'app.bsky.feed.repost') {
+            buffer.push({
+              variant: 'repost',
+              glyph: '♻️',
+              actor: did,
+              verb: 'reposts',
+              subject: subjectOf(record, (d) => d),
+            })
+          } else if (record && record.reply) {
+            buffer.push({
+              variant: 'reply',
+              glyph: '💭',
+              actor: did,
+              verb: 'replies',
+              subject: refTarget(record.reply.parent, (d) => d),
+            })
+          }
+        },
+      }).catch((err) => {
+        // Aborting rejects with an AbortError — that's our own Stop. Anything
+        // else means the client retried and still gave up; say so.
+        if (ac.signal.aborted) return
+        appendNote(`— stream ended: ${err && err.message ? err.message : err}`)
+        if (controller === ac) stop()
+      })
+    }
+
     const onRun = () => {
-      if (streamId) stop()
+      if (controller) stop()
       else start()
     }
     const onCopy = () => {
@@ -382,7 +442,7 @@ function useProof() {
     runBtn.addEventListener('click', onRun)
     if (copyBtn) copyBtn.addEventListener('click', onCopy)
     return () => {
-      if (streamId) clearInterval(streamId)
+      stop()
       runBtn.removeEventListener('click', onRun)
       if (copyBtn) copyBtn.removeEventListener('click', onCopy)
     }

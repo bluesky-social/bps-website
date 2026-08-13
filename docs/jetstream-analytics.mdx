@@ -27,7 +27,7 @@ approach transfers to ClickHouse, Postgres, BigQuery, and most column stores.
 ## Slice on the server, not in your process
 
 Before any of this: don't subscribe to more than you need. Jetstream filters
-the stream server-side via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice),
+the stream server-side via [`collections` and `dids`](/docs/jetstream#filtering-ask-for-just-your-slice),
 and those filters narrow both the live tail and any historical
 [replay](/docs/jetstream-replay) you do. A tightly-scoped subscription
 gets you a tightly-scoped dataset without scanning the full archive.
@@ -97,7 +97,7 @@ it reads messages, decodes the JSON, and writes to the table. The TS tab uses th
 collection filter, so the socket and decoding are handled and each record comes
 out typed against its schema. On top of that, note:
 
-- Write per event. A `wantedDids`-scoped stream only moves at the community's
+- Write per event. A `dids`-scoped stream only moves at the community's
   posting rate, so one awaited `INSERT` per event keeps up easily and the table
   is always current. If you need to batch writes with a larger slice, use
   [`LexIndexer`](/docs/jetstream-sdk#indexing-workloads), which parallelizes
@@ -130,6 +130,7 @@ out typed against its schema. On top of that, note:
     for await (const evt of jetstream.live({
       collections: [app.bsky.feed.post],
       dids: COMMUNITY,
+      kinds: ['commit'],
     })) {
       if (evt.kind !== 'commit') continue
       if (evt.commit.operation === 'delete') {
@@ -167,40 +168,48 @@ out typed against its schema. On top of that, note:
         # ...the rest of the accounts you want to analyze
     ]
 
-    params = "&".join(
-        [f"wantedDids={did}" for did in COMMUNITY]
-        + ["wantedCollections=app.bsky.feed.post"]
+    ENDPOINT = (
+        "wss://jetstream.us-east.bsky.network"
+        "/xrpc/network.bsky.jetstream.subscribeEvents"
     )
-    URI = f"wss://jetstream.us-east.bsky.network/subscribe?{params}"
+    COMMIT = "network.bsky.jetstream.subscribeEvents#commit"
+
+    params = "&".join(
+        [f"dids={did}" for did in COMMUNITY]
+        + ["collections=app.bsky.feed.post", "kinds=commit"]
+    )
+    URI = f"{ENDPOINT}?{params}"
 
     con = duckdb.connect("posts.duckdb")
 
     async def ingest():
         async with websockets.connect(URI) as ws:
             async for raw in ws:
-                msg = json.loads(raw)
-                if msg.get("kind") != "commit":
+                # Every event arrives under `payload`, tagged by its own $type.
+                # Skipping anything that isn't a commit also skips the server's
+                # occasional #info advisories.
+                event = json.loads(raw).get("payload", {})
+                if event.get("$type") != COMMIT:
                     continue
-                commit = msg["commit"]
-                if commit.get("operation") == "delete":
+                if event.get("operation") == "delete":
                     # Drop deleted posts
                     con.execute(
                         "DELETE FROM posts WHERE did = ? AND rkey = ?",
-                        (msg["did"], commit["rkey"]),
+                        (event["did"], event["rkey"]),
                     )
                     continue
-                record = commit["record"]
+                record = event["record"]
                 con.execute(
                     "INSERT OR IGNORE INTO posts VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     (
-                        msg["did"],
-                        commit["rkey"],
-                        commit["cid"],
+                        event["did"],
+                        event["rkey"],
+                        event["cid"],
                         record.get("createdAt"),
                         record.get("text"),
                         record.get("langs") or [],
                         (record.get("reply") or {}).get("root", {}).get("uri"),
-                        msg.get("cursor"),
+                        event["seq"],
                     ),
                 )
 
@@ -274,7 +283,7 @@ want to start from a real corpus (e.g., last month, last year, all time).
 
 Pair the ingest loop with [Network Replay with Jetstream](/docs/jetstream-replay).
 Replay streams history and live events through the same
-interface, scoped by the same `wantedDids`/`wantedCollections` filters, so
+interface, scoped by the same `dids`/`collections` filters, so
 the server uses its per-segment DID and collection indexes to skip most of
 the archive and only ships you the slice you asked for. The table fills with
 the past and stays fresh going forward without any extra cutover logic on

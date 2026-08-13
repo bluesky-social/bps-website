@@ -1,67 +1,46 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Link from '@docusaurus/Link'
+import {
+  JETSTREAM_SERVICE,
+  refTarget,
+  shortDid,
+  streamCreates,
+  subjectOf,
+} from '../../lib/jetstream-live'
 import styles from './styles.module.css'
 
-// Live Jetstream demo, ported from atproto.com's homepage firehose widget
-// (../atproto-website/src/components/home/Firehose.tsx) and restyled for these
-// docs. Where the atproto version pulls in the @skyware/jetstream client (which
-// imports the Node `ws` package at module scope and won't bundle cleanly under
-// Docusaurus's webpack), this connects to the public Jetstream endpoint with
-// the browser's native WebSocket — exactly the connection the Quickstart on
-// this page documents. Nothing touches `window` until the user hits Run, so the
-// component is safe to render during SSR.
+// Live Jetstream demo, driven by the real `@bsky/jetstream` client — the same
+// package and the same `live()` call the Jetstream docs teach. Earlier versions
+// of this widget hand-rolled a browser WebSocket against the legacy
+// `/subscribe` wire; running the actual client means the widget can't drift
+// from the docs, and it inherits the library's reconnect-and-resume behavior
+// instead of dying on the first blip. The connection itself lives in
+// src/lib/jetstream-live.js, shared with the homepage proof window.
 
-// One public instance; the page documents both regions. We attach a
-// wantedCollections filter so the demo shows the four record types people
-// recognize (and to keep the byte/event rate sane vs. the unfiltered firehose).
-const ENDPOINT = 'wss://jetstream.us-east.bsky.network/subscribe'
-const WANTED = [
+// The four record types people recognize. Also keeps the byte/event rate sane
+// next to the unfiltered firehose. A bare NSID string is the simplest filter
+// form — pass a lexicon instead when you want records validated and typed.
+const COLLECTIONS = [
   'app.bsky.feed.post',
   'app.bsky.feed.like',
   'app.bsky.feed.repost',
   'app.bsky.graph.follow',
 ]
-const SUBSCRIBE_URL =
-  ENDPOINT + '?' + WANTED.map((c) => 'wantedCollections=' + c).join('&')
 
 // Max rendered rows. Jetstream is firehose-fast; we keep a short tail and let
 // older lines fall off the top.
 const MAX_LINES = 40
-// Flush the incoming buffer to React state on a timer rather than per-message —
+// Flush the incoming buffer to React state on a timer rather than per-event —
 // at peak the network emits thousands of events/sec, far more than we can (or
 // want to) re-render. The buffer also lets us show a realistic events/sec rate.
 const FLUSH_MS = 120
 
-const DID_RE = /^did:[a-z]+:/
-
-// Shorten a DID for the stream view: keep the method + a head/tail of the
-// identifier so rows stay scannable without horizontal scrolling.
-function shortDid(did) {
-  if (typeof did !== 'string' || !DID_RE.test(did)) return did || '—'
-  const id = did.slice(did.lastIndexOf(':') + 1)
-  return id.length > 16 ? did.slice(0, did.lastIndexOf(':') + 1) + id.slice(0, 6) + '…' + id.slice(-4) : did
-}
-
-// Pull the subject identifier (a DID for follows, an at:// uri for likes /
-// reposts) out of a record, for the right-hand side of a line.
-function subjectOf(record) {
-  const s = record && record.subject
-  if (!s) return ''
-  if (typeof s === 'string') return s.startsWith('did:') ? shortDid(s) : s
-  if (s.uri) return s.uri
-  return ''
-}
-
-// Map a decoded commit event to a presentational line: an emoji, a CSS variant
-// class, and the actor / verb / subject pieces. Returns null for events we
-// don't surface (deletes, updates, identity/account events).
-function lineFor(event) {
-  if (event.kind !== 'commit') return null
-  const c = event.commit
-  if (!c || c.operation !== 'create') return null
-  const actor = shortDid(event.did)
-  const r = c.record || {}
-  switch (c.collection) {
+// Map a create to a presentational line: an emoji, a CSS variant class, and the
+// actor / verb / subject pieces. Returns null for collections we don't surface.
+function lineFor({ did, collection, record }) {
+  const actor = shortDid(did)
+  const r = record || {}
+  switch (collection) {
     case 'app.bsky.graph.follow':
       return { variant: 'follow', glyph: '🌱', actor, verb: 'follows', subject: subjectOf(r) }
     case 'app.bsky.feed.repost':
@@ -70,7 +49,7 @@ function lineFor(event) {
       return { variant: 'like', glyph: '❤️', actor, verb: 'likes', subject: subjectOf(r) }
     case 'app.bsky.feed.post':
       return r.reply
-        ? { variant: 'reply', glyph: '💬', actor, verb: 'replies', subject: subjectOf(r.reply.parent) }
+        ? { variant: 'reply', glyph: '💬', actor, verb: 'replies', subject: refTarget(r.reply.parent) }
         : { variant: 'post', glyph: '✍️', actor, verb: 'posts', subject: '' }
     default:
       return null
@@ -82,78 +61,53 @@ export default function JetstreamLive({ ctaHref, ctaLabel }) {
   const [hasRun, setHasRun] = useState(false)
   const [lines, setLines] = useState([])
   const [rate, setRate] = useState(0)
+  const [status, setStatus] = useState('idle') // idle | live | reconnecting
+  const [error, setError] = useState(null)
 
-  const wsRef = useRef(null)
+  const abortRef = useRef(null) // AbortController for the running stream
   const bufferRef = useRef([]) // formatted lines awaiting the next flush
   const idRef = useRef(0) // monotonic key source
   const windowCountRef = useRef(0) // events seen since the last rate sample
   const flushRef = useRef(null)
   const outRef = useRef(null)
 
+  // Tear down timers and signal the stream to end. Aborting the signal is what
+  // ends the `for await` loop and closes the socket — the client owns the
+  // connection, so there is no socket to close by hand.
   const teardown = useCallback(() => {
     if (flushRef.current) {
       clearInterval(flushRef.current)
       flushRef.current = null
     }
-    if (wsRef.current) {
-      // Drop our handlers before closing so a late onclose can't flip state back.
-      wsRef.current.onmessage = null
-      wsRef.current.onopen = null
-      wsRef.current.onclose = null
-      wsRef.current.onerror = null
-      try {
-        wsRef.current.close()
-      } catch (e) {
-        /* already closing */
-      }
-      wsRef.current = null
+    if (abortRef.current) {
+      abortRef.current.abort()
+      abortRef.current = null
     }
     bufferRef.current = []
   }, [])
 
-  // Safety net: close the socket if the component unmounts mid-stream.
+  // Safety net: end the stream if the component unmounts mid-run.
   useEffect(() => teardown, [teardown])
 
   const stop = useCallback(() => {
     teardown()
     setActive(false)
+    setStatus('idle')
     setRate(0)
   }, [teardown])
 
-  const start = useCallback(() => {
-    if (typeof window === 'undefined' || !('WebSocket' in window)) return
+  const start = useCallback(async () => {
+    if (typeof window === 'undefined') return
+    const controller = new AbortController()
+    abortRef.current = controller
+
     setActive(true)
     setHasRun(true)
+    setStatus('live')
+    setError(null)
     setLines([])
     bufferRef.current = []
     windowCountRef.current = 0
-
-    const ws = new WebSocket(SUBSCRIBE_URL)
-    wsRef.current = ws
-
-    ws.onmessage = (msg) => {
-      let event
-      try {
-        event = JSON.parse(msg.data)
-      } catch (e) {
-        return
-      }
-      const line = lineFor(event)
-      if (!line) return
-      windowCountRef.current += 1
-      bufferRef.current.push({ ...line, id: idRef.current++ })
-      // Keep the buffer bounded even if a flush is delayed.
-      if (bufferRef.current.length > MAX_LINES) {
-        bufferRef.current = bufferRef.current.slice(-MAX_LINES)
-      }
-    }
-    ws.onclose = () => {
-      // Server-side / network close (not our own stop()): reflect it in the UI.
-      if (wsRef.current === ws) stop()
-    }
-    ws.onerror = () => {
-      if (wsRef.current === ws) stop()
-    }
 
     // Drain the buffer into state at a fixed cadence and sample the event rate.
     flushRef.current = setInterval(() => {
@@ -165,6 +119,35 @@ export default function JetstreamLive({ ctaHref, ctaLabel }) {
       setRate(Math.round(windowCountRef.current / (FLUSH_MS / 1000)))
       windowCountRef.current = 0
     }, FLUSH_MS)
+
+    try {
+      await streamCreates({
+        collections: COLLECTIONS,
+        signal: controller.signal,
+        onStatus: setStatus,
+        onCreate: (create) => {
+          const line = lineFor(create)
+          if (!line) return
+          windowCountRef.current += 1
+          bufferRef.current.push({ ...line, id: idRef.current++ })
+          // Keep the buffer bounded even if a flush is delayed.
+          if (bufferRef.current.length > MAX_LINES) {
+            bufferRef.current = bufferRef.current.slice(-MAX_LINES)
+          }
+        },
+      })
+    } catch (err) {
+      // Aborting rejects the loop with an AbortError — that is our own Stop (or
+      // an unmount), not a failure. Anything else is real and worth showing:
+      // the client already retried, so reaching here means it gave up.
+      if (!controller.signal.aborted) {
+        setError(err && err.message ? err.message : String(err))
+      }
+    } finally {
+      // Only tear down if this run is still the current one; a Stop-then-Start
+      // has already installed a newer controller we must not clobber.
+      if (abortRef.current === controller) stop()
+    }
   }, [stop])
 
   const toggle = useCallback(() => {
@@ -181,15 +164,21 @@ export default function JetstreamLive({ ctaHref, ctaLabel }) {
     <div className={`${styles.widget} ${active ? styles.isRunning : ''}`}>
       <div className={styles.head}>
         <span className={styles.left}>
-          <span className={styles.dot} data-state={active ? 'live' : 'idle'} />
+          <span className={styles.dot} data-state={status} />
           <span className={styles.endpoint}>
-            <span className={styles.prompt}>$</span> websocat {ENDPOINT}
+            <span className={styles.prompt}>›</span> jetstream.live()
+            <span className={styles.host}> · jetstream.us-east.bsky.network</span>
           </span>
         </span>
         <span className={styles.right}>
           {active && (
-            <span className={styles.rate} aria-live="off">
-              {rate.toLocaleString()} evt/s
+            <span
+              className={`${styles.rate} ${status === 'reconnecting' ? styles.rateWarn : ''}`}
+              aria-live="off"
+            >
+              {status === 'reconnecting'
+                ? 'reconnecting…'
+                : `${rate.toLocaleString()} evt/s`}
             </span>
           )}
           <button
@@ -204,19 +193,27 @@ export default function JetstreamLive({ ctaHref, ctaLabel }) {
       </div>
 
       <div className={styles.filter} aria-hidden="true">
-        wantedCollections: {WANTED.join('  ·  ')}
+        collections: {COLLECTIONS.join('  ·  ')}
       </div>
 
       <div className={styles.out} ref={outRef} aria-live="polite">
         {!hasRun && (
           <div className={styles.placeholder}>
-            Real events from the live network. Press <b>Start stream</b> to open a
-            WebSocket to Jetstream and watch posts, likes, reposts, and follows
-            arrive in real time.
+            Real events from the live network, streamed by{' '}
+            <b>@bsky/jetstream</b>. Press <b>Start stream</b> to open a
+            connection and watch posts, likes, reposts, and follows arrive in
+            real time.
           </div>
         )}
-        {hasRun && lines.length === 0 && active && (
-          <div className={styles.placeholder}>Connecting to {ENDPOINT}…</div>
+        {hasRun && lines.length === 0 && active && !error && (
+          <div className={styles.placeholder}>
+            Connecting to {JETSTREAM_SERVICE}…
+          </div>
+        )}
+        {error && (
+          <div className={styles.placeholder}>
+            <b>Stream ended:</b> {error}
+          </div>
         )}
         {lines.map((l) => (
           <div key={l.id} className={`${styles.line} ${styles['v_' + l.variant]}`}>

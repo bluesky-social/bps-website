@@ -123,6 +123,26 @@ const config = {
   ],
   plugins: [
     "@docusaurus/plugin-ideal-image",
+    // Silence webpack's "Can't resolve 'bufferutil' / 'utf-8-validate'"
+    // warnings. Those come from `ws`, which reaches the SSR bundle through
+    // @bsky/jetstream's Node websocket transport (the browser bundle resolves
+    // the transport's `#transport` import to its native-WebSocket branch and
+    // never pulls `ws` in at all). Both packages are optional native
+    // accelerators that `ws` probes for inside a try/catch and does without;
+    // unresolved, they are noise rather than a problem. Left unfiltered they
+    // add four meaningless warnings per locale to every build, which is how
+    // real warnings end up getting ignored.
+    () => ({
+      name: "ignore-ws-optional-native-deps",
+      configureWebpack: () => ({
+        ignoreWarnings: [
+          (warning) =>
+            /Can't resolve '(bufferutil|utf-8-validate)'/.test(
+              warning.message ?? "",
+            ),
+        ],
+      }),
+    }),
     [
       // Two kinds of redirect live here:
       //
