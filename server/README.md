@@ -68,6 +68,23 @@ non-zero on anything missing, rather than starting up degraded.
 | `BPS_GATEKEEPER_URL` | optional | Gatekeeper base URL. When set, API keys are stored in Gatekeeper instead of local Postgres, and the other `BPS_GATEKEEPER_*` vars become required. |
 | `BPS_GATEKEEPER_BEARER_TOKEN` | with URL | Shared secret sent as `Authorization: Bearer` on every Gatekeeper request. |
 | `BPS_GATEKEEPER_EMAIL` | with URL | Identity sent as `X-Beyond-Email` (Gatekeeper direct-auth mode). |
+| `BPS_JETSTREAM_KEY_POLICY` | optional | Headwind policy document (JSON string) attached to newly created Jetstream keys. Replaces the built-in default outright — see below. |
+
+The built-in default policy lives in `src/apikeys/jetstream-policy.ts` and grants
+100 TiB per 30 days with a 64 GiB burst: high enough that no legitimate consumer
+meets it, low enough to still be a ceiling.
+
+`BPS_JETSTREAM_KEY_POLICY` overrides it per deployment. Two things to know:
+
+- It's a **full replacement**, not a merge. The document you set is exactly what
+  Gatekeeper receives, so it must be complete.
+- Only the JSON parse is checked at boot. Gatekeeper owns the schema, so a
+  well-formed document with the wrong shape boots fine and then fails the first
+  key creation with a 422 (surfaced as a deployment error, not a user error).
+  Duplicating Headwind's schema here would reject policies the server accepts.
+
+Only the Gatekeeper provider issues policies; the local Postgres provider used in
+dev ignores this var.
 
 ## OAuth
 

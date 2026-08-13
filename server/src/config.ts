@@ -18,6 +18,12 @@ export type AppConfig = {
     bearerToken: string
     email: string
   } | null
+  // Replaces the built-in default policy attached to newly created Jetstream
+  // API keys; null means use the built-in (see apikeys/jetstream-policy.ts).
+  // Deliberately untyped beyond "is a JSON object": Gatekeeper validates the
+  // document against the service's own schema, and duplicating those rules here
+  // would reject a policy the server would have accepted.
+  jetstreamKeyPolicy: Record<string, unknown> | null
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
@@ -82,6 +88,37 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     }
   }
 
+  // --- Default policy for new Jetstream API keys (optional) ---
+  // Set it and it fully replaces the built-in default — nothing is inherited,
+  // so the configured document is exactly what Gatekeeper receives. Only the
+  // JSON parse and an is-it-an-object check happen here; the schema is
+  // Gatekeeper's to enforce.
+  const policyRaw = env.BPS_JETSTREAM_KEY_POLICY?.trim() || null
+  let jetstreamKeyPolicy: AppConfig['jetstreamKeyPolicy'] = null
+  if (policyRaw) {
+    let parsed: unknown
+    try {
+      parsed = JSON.parse(policyRaw)
+    } catch (err) {
+      errors.push(
+        `BPS_JETSTREAM_KEY_POLICY must be valid JSON (${(err as Error).message})`,
+      )
+      parsed = undefined
+    }
+    if (parsed !== undefined) {
+      // Arrays and null are typeof 'object' too, and neither can be a policy.
+      if (
+        typeof parsed !== 'object' ||
+        parsed === null ||
+        Array.isArray(parsed)
+      ) {
+        errors.push('BPS_JETSTREAM_KEY_POLICY must be a JSON object')
+      } else {
+        jetstreamKeyPolicy = parsed as Record<string, unknown>
+      }
+    }
+  }
+
   if (errors.length > 0) {
     throw new Error(`Invalid configuration:\n  - ${errors.join('\n  - ')}`)
   }
@@ -102,5 +139,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     devMode: !isProd,
     appViewUrl,
     gatekeeper,
+    jetstreamKeyPolicy,
   }
 }

@@ -422,6 +422,8 @@
 .bps-home .proof pre.out .line-reply b  { color: var(--bps-blue-dark); }
 .bps-home .proof pre.out .did { color: #C9D1D9; }
 .bps-home .proof pre.out .uri { color: #8B949E; }
+/* Stream-ended notice: quiet and italic, clearly not one of the event lines. */
+.bps-home .proof pre.out .line-note { color: #8B949E; font-style: italic; }
 
 /* ============== PRODUCT GRID (2 rows × 3) ============== */
 .bps-home .prod-grid { padding: 0; }

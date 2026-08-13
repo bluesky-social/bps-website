@@ -101,7 +101,7 @@ A few params shape what consumers can ask of your instance:
 
 Jetstream serves plain HTTP and unlike the Bluesky instances, self-hosting does not include **built-in auth or rate limiting**.
 
-The **live tail is cheap** to serve; Bluesky's instances leave `/subscribe` open, and per-IP connection limits at the proxy go a long way.
+The **live tail is cheap** to serve; Bluesky's instances leave the live tail open, and per-IP connection limits at the proxy go a long way.
 
 **Replay reads are the expensive path**. One `planSnapshot` can touch a lot
 of archive, and segment downloads move real bytes. Bluesky's hosted
@@ -131,7 +131,7 @@ There is also a [Grafana dashboard](https://github.com/bluesky-social/jetstream/
 ## Migrating timestamps from an older indexer
 
 A fresh instance stamps every archived event with the time *it* witnessed the
-event — so during your backfill, a post from 2023 gets a `time_us` from today.
+event — so during your backfill, a post from 2023 gets a `time` from today.
 If you're replacing an existing indexer and have the original timestamps,
 Jetstream can import them: the operator stages a CSV of AT URIs and
 timestamps, and a bearer-gated endpoint

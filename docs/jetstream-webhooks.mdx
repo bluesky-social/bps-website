@@ -23,10 +23,10 @@ This is one of the lightest-weight things you can do with Jetstream. It fits sev
 ## Slice as much as you can on the server
 
 The biggest lever for keeping this (computationally) cheap is **not asking for more data
-than you need**. Every Jetstream subscription can technically filter both **Server-side**, via [`wantedCollections` and `wantedDids`](/docs/jetstream#filtering-ask-for-just-your-slice), and 
+than you need**. Every Jetstream subscription can technically filter both **Server-side**, via [`collections` and `dids`](/docs/jetstream#filtering-ask-for-just-your-slice), and 
 **Client-side**, when the server filters can't express what you need (e.g. matching the post `text` against a keyword).
 
-A subscription with `wantedDids=<10 accounts>&wantedCollections=app.bsky.feed.post`
+A subscription with `dids=<10 accounts>&collections=app.bsky.feed.post`
 is a couple of events per second instead of the full firehose. The receive
 loop barely does any work; almost everything you read is already a match.
 
@@ -62,6 +62,7 @@ Discord webhooks are a good example here because they [do not require auth](http
     for await (const evt of jetstream.live({
       collections: ['app.bsky.feed.post'],
       dids: WATCHLIST,
+      kinds: ['commit'],
     })) {
       if (evt.kind !== 'commit' || evt.commit.operation !== 'create') continue
       const record = evt.commit.record as { text?: string }
@@ -85,34 +86,43 @@ Discord webhooks are a good example here because they [do not require auth](http
         "did:plc:44ybard66vv44zksje25o7dz",
     ]
 
-    params = "&".join(
-        [f"wantedDids={did}" for did in WATCHLIST]
-        + ["wantedCollections=app.bsky.feed.post"]
+    ENDPOINT = (
+        "wss://jetstream.us-east.bsky.network"
+        "/xrpc/network.bsky.jetstream.subscribeEvents"
     )
-    JETSTREAM = f"wss://jetstream.us-east.bsky.network/subscribe?{params}"
+    COMMIT = "network.bsky.jetstream.subscribeEvents#commit"
+
+    params = "&".join(
+        [f"dids={did}" for did in WATCHLIST]
+        + ["collections=app.bsky.feed.post", "kinds=commit"]
+    )
+    JETSTREAM = f"{ENDPOINT}?{params}"
     WEBHOOK = "https://discord.com/api/webhooks/..."  # your webhook URL
 
-    async def forward(session, msg):
-        record = msg["commit"]["record"]
-        did = msg["did"]
-        rkey = msg["commit"]["rkey"]
-        url = f"https://bsky.app/profile/{did}/post/{rkey}"
+    async def forward(session, event):
+        record = event["record"]
+        url = f"https://bsky.app/profile/{event['did']}/post/{event['rkey']}"
         payload = {"content": f"New post: {url}\n> {record.get('text', '')[:280]}"}
         async with session.post(WEBHOOK, json=payload) as resp:
             await resp.read()
 
     async def main():
         async with aiohttp.ClientSession() as session:
-            async with websockets.connect(JETSTREAM) as ws:
+            async with websockets.connect(
+                JETSTREAM, subprotocols=["xrpc.v1.json"]
+            ) as ws:
                 async for raw in ws:
-                    msg = json.loads(raw)
-                    if msg.get("kind") != "commit":
+                    # Every event arrives under `payload`, tagged by its own
+                    # $type; anything that isn't a commit (including the
+                    # server's #info advisories) is skipped.
+                    event = json.loads(raw).get("payload", {})
+                    if event.get("$type") != COMMIT:
                         continue
-                    if msg["commit"].get("operation") != "create":
+                    if event.get("operation") != "create":
                         continue
                     # Don't await — let the forward happen in the background
                     # so a slow webhook never stalls the WebSocket read loop.
-                    asyncio.create_task(forward(session, msg))
+                    asyncio.create_task(forward(session, event))
 
     asyncio.run(main())
     ```
@@ -124,11 +134,11 @@ seconds of being created on the network.
 
 ## When the server filter isn't enough
 
-`wantedDids` and `wantedCollections` are the only server-side filters, so any
-predicate beyond "who produced it" and "what record type" has to run in your
-process. Keyword and content matching are the common cases. The shape is the
-same as above, but you keep the broad `wantedCollections` filter and add a
-check in the receive loop:
+`dids`, `collections`, and `kinds` are the only server-side filters, so any
+predicate beyond "who produced it", "what record type", and "what kind of event"
+has to run in your process. Keyword and content matching are the common cases.
+The shape is the same as above, but you keep the broad `collections` filter and
+add a check in the receive loop:
 
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
@@ -145,16 +155,16 @@ check in the receive loop:
     KEYWORDS = {"bluesky", "atproto"}
 
     # ...inside the receive loop, before asyncio.create_task(forward(...)):
-    text = msg["commit"]["record"].get("text", "")
+    text = event["record"].get("text", "")
     if not any(k.lower() in text.lower() for k in KEYWORDS):
         continue
     ```
   </TabItem>
 </Tabs>
 
-A `wantedCollections=app.bsky.feed.post` subscription still drops every like,
-follow, profile edit, list change, and identity event. It's a much smaller
-stream than the firehose, even without `wantedDids`. Push everything you can
+A `collections=app.bsky.feed.post&kinds=commit` subscription still drops every
+like, follow, profile edit, list change, and identity event. It's a much smaller
+stream than the firehose, even without `dids`. Push everything you can
 to the server first; only widen when the question you're asking
 needs the broader stream.
 
