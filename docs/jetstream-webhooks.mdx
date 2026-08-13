@@ -108,7 +108,9 @@ Discord webhooks are a good example here because they [do not require auth](http
 
     async def main():
         async with aiohttp.ClientSession() as session:
-            async with websockets.connect(JETSTREAM) as ws:
+            async with websockets.connect(
+                JETSTREAM, subprotocols=["xrpc.v1.json"]
+            ) as ws:
                 async for raw in ws:
                     # Every event arrives under `payload`, tagged by its own
                     # $type; anything that isn't a commit (including the

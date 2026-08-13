@@ -183,7 +183,7 @@ out typed against its schema. On top of that, note:
     con = duckdb.connect("posts.duckdb")
 
     async def ingest():
-        async with websockets.connect(URI) as ws:
+        async with websockets.connect(URI, subprotocols=["xrpc.v1.json"]) as ws:
             async for raw in ws:
                 # Every event arrives under `payload`, tagged by its own $type.
                 # Skipping anything that isn't a commit also skips the server's
