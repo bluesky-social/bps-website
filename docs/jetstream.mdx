@@ -92,7 +92,7 @@ Open a WebSocket to the `subscribeEvents` endpoint and start reading events. Fil
     )
 
     async def listen():
-      async with websockets.connect(URI) as ws:
+      async with websockets.connect(URI, subprotocols=["xrpc.v1.json"]) as ws:
         async for frame in ws:
           event = json.loads(frame)["payload"]
           if event["operation"] != "delete":
@@ -103,7 +103,7 @@ Open a WebSocket to the `subscribeEvents` endpoint and start reading events. Fil
   </TabItem>
   <TabItem value="shell" label="Shell">
     ```shell
-    websocat "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&kinds=commit"
+    websocat --protocol xrpc.v1.json "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&kinds=commit"
     ```
   </TabItem>
 </Tabs>
