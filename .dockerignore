@@ -1,0 +1,30 @@
+# Shared by both image builds — each uses the repo root as its build context,
+# because both packages generate TypeScript from the top-level `lexicons/`.
+#
+# Generated lexicon output is excluded deliberately: it is git-ignored, and
+# `npm run lex:build` regenerates it inside the image. Shipping a host copy
+# would let a stale local codegen silently win over the committed lexicons.
+
+.git
+.gitignore
+.github
+
+**/node_modules
+**/.env
+**/.env.*
+**/npm-debug.log*
+
+# Docusaurus build output + caches (the image builds its own)
+build
+.docusaurus
+.cache-loader
+
+# Generated lexicon TypeScript
+src/lexicons
+server/src/lexicons
+
+# Standalone HTML mockups — referenced only from CSS/JS comments
+prototypes
+
+.DS_Store
+.superpowers

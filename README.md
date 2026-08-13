@@ -25,7 +25,7 @@ Three things that used to live on this site now live elsewhere:
 
 This website is built using [Docusaurus](https://docusaurus.io/), a static website generator in JavaScript.
 
-To build the site, first you'll need node.js and `npm` installed locally. Run `npm install` to fetch dependencies.
+To build the site, first you'll need node.js and `npm` installed locally — Node 22 or newer, per `.node-version` (the lexicon codegen used by the build requires it). Run `npm install` to fetch dependencies.
 
 To run a local development server (which you can browse at <http://localhost:3000>):
 
@@ -36,6 +36,36 @@ To run a static build (output in `./build/`):
     npm run build
 
 The output can be served using any static contents hosting service.
+
+## Container images
+
+Two images are built for production deployment, both from the **repo root** as
+build context (each needs the top-level `lexicons/`):
+
+| Image | Dockerfile | Contents |
+| --- | --- | --- |
+| `bps-website-ui` | `Dockerfile` | the static site, served by nginx (`deploy/nginx.conf`) on port 80 |
+| `bps-website-api` | `server/Dockerfile` | the account server on port 8080 — see [server/README.md](server/README.md) |
+
+`.github/workflows/containers.yml` builds both on every branch push and pushes
+them to ECR only from `main`, tagged with the full commit SHA. It runs on the
+`arc` self-hosted runners and delegates the build to the org's shared
+[`build-push-ecr`](https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md)
+action, which supplies ECR credentials, the Docker Hub pull-through cache, and
+the shared layer cache.
+
+The UI image is **environment-specific**: `BPS_PUBLIC_API_ORIGIN` is read by
+`docusaurus.config.js` and baked into the JavaScript bundle, so it is a build
+argument with no runtime override, and the build fails if it is missing rather
+than falling back to the localhost default. In CI it comes from the
+`BPS_PUBLIC_API_ORIGIN` repository variable. (`ENDPOINTS_URL` is also passed as
+a build argument, but is inert today — nothing reads `customFields.endpointsUrl`
+and the homepage hardcodes the endpoints link.)
+
+    docker build -t bps-website-ui --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com .
+    docker run --rm -p 8080:80 bps-website-ui
+
+Both images answer `GET /_health` for container probes.
 
 ## Redirects
 
