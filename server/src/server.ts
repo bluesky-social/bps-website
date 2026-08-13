@@ -8,7 +8,7 @@ import { createLockPool, createRequestLock } from './oauth/request-lock.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { createGatekeeperClient } from './apikeys/gatekeeper-client.ts'
 import { createGatekeeperApiKeyProvider } from './apikeys/gatekeeper-provider.ts'
-import { JETSTREAM_DEFAULT_POLICY } from './apikeys/jetstream-policy.ts'
+import { resolveJetstreamPolicy } from './apikeys/jetstream-policy.ts'
 import { buildApp } from './app.ts'
 
 async function main() {
@@ -34,17 +34,27 @@ async function main() {
     'oauth client identity resolved',
   )
   // API keys live in Gatekeeper when configured; local Postgres otherwise
-  // (dev default). Service name + default policy are deliberately hardcoded
-  // here, not config — see jetstream-policy.ts. Future services add their own
+  // (dev default). The service name stays hardcoded here; the policy attached
+  // to new keys is the built-in default unless BPS_JETSTREAM_KEY_POLICY
+  // replaces it — see jetstream-policy.ts. Future services add their own
   // { service, defaultPolicy } pair (and an ApiKeyProvider interface change).
+  //
+  // The Postgres provider is a local stand-in that issues no policy at all, so
+  // a configured policy only takes effect on the Gatekeeper path.
+  const jetstreamPolicy = resolveJetstreamPolicy(cfg.jetstreamKeyPolicy)
   const apiKeys = cfg.gatekeeper
     ? createGatekeeperApiKeyProvider(db, createGatekeeperClient(cfg.gatekeeper), {
         service: 'jetstream',
-        defaultPolicy: JETSTREAM_DEFAULT_POLICY,
+        defaultPolicy: jetstreamPolicy.policy,
       })
     : createPostgresApiKeyProvider(db)
   logger.info(
-    { provider: cfg.gatekeeper ? 'gatekeeper' : 'postgres' },
+    {
+      provider: cfg.gatekeeper ? 'gatekeeper' : 'postgres',
+      // Source only, never the policy itself — enough to spot a deployment
+      // that isn't running the policy someone thinks it is.
+      keyPolicy: jetstreamPolicy.source,
+    },
     'api key provider selected',
   )
   const app = buildApp({ db, config: cfg, client, apiKeys })

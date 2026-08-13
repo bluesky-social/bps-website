@@ -115,6 +115,56 @@ test('gatekeeper config parses when all three vars are set', () => {
   })
 })
 
+test('jetstream key policy is null when unset (built-in default applies)', () => {
+  const cfg = loadConfig(valid)
+  assert.equal(cfg.jetstreamKeyPolicy, null)
+})
+
+test('a blank jetstream key policy is treated as unset, not as an error', () => {
+  const cfg = loadConfig({ ...valid, BPS_JETSTREAM_KEY_POLICY: '   ' })
+  assert.equal(cfg.jetstreamKeyPolicy, null)
+})
+
+test('jetstream key policy parses to the exact object it was given', () => {
+  const policy = {
+    version: 1,
+    limits: {
+      egress_bytes: {
+        default: { bytes: 1024, period_seconds: 60, burst_bytes: 512 },
+        overrides: [
+          { origin: 'example', limit: { bytes: 1, period_seconds: 1, burst_bytes: 1 } },
+        ],
+      },
+    },
+  }
+  const cfg = loadConfig({
+    ...valid,
+    BPS_JETSTREAM_KEY_POLICY: JSON.stringify(policy),
+  })
+  // Full replacement: what you configure is exactly what the provider sends,
+  // with nothing inherited from the built-in default.
+  assert.deepEqual(cfg.jetstreamKeyPolicy, policy)
+})
+
+test('malformed jetstream key policy JSON fails startup', () => {
+  assert.throws(
+    () => loadConfig({ ...valid, BPS_JETSTREAM_KEY_POLICY: '{not json' }),
+    /BPS_JETSTREAM_KEY_POLICY/,
+  )
+})
+
+test('a non-object jetstream key policy fails startup', () => {
+  // Valid JSON, but nothing that could be a policy document. Catches the
+  // common shell-quoting mistake at boot rather than at first key creation.
+  for (const raw of ['5', '"a string"', 'null', '[]', 'true']) {
+    assert.throws(
+      () => loadConfig({ ...valid, BPS_JETSTREAM_KEY_POLICY: raw }),
+      /BPS_JETSTREAM_KEY_POLICY/,
+      `expected ${raw} to be rejected`,
+    )
+  }
+})
+
 test('partial gatekeeper config fails startup (no silent fallback)', () => {
   assert.throws(
     () =>
