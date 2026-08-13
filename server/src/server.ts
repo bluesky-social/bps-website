@@ -18,6 +18,17 @@ async function main() {
   await runMigrations(db)
 
   const client = await createOAuthClient(db, cfg)
+  // The client_id document is published by the website build (see
+  // oauth/client-metadata-doc.mjs), not served here. If it 404s, or its contents
+  // differ from what this process holds, login fails at the PAR request — so log
+  // what we resolved to, to make that skew visible at deploy time.
+  logger.info(
+    {
+      clientId: client.clientMetadata.client_id,
+      redirectUri: client.clientMetadata.redirect_uris[0],
+    },
+    'oauth client identity resolved',
+  )
   // API keys live in Gatekeeper when configured; local Postgres otherwise
   // (dev default). Service name + default policy are deliberately hardcoded
   // here, not config — see jetstream-policy.ts. Future services add their own

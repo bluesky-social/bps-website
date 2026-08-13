@@ -79,8 +79,6 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 
 ### Endpoints
 
-- `GET /oauth-client-metadata.json` — OAuth client metadata; this URL is the
-  `client_id` (production / hosted-metadata mode).
 - `GET /jwks.json` — public signing keys (ES256, `private_key_jwt`). Empty in
   dev (loopback client uses `token_endpoint_auth_method: none`).
 - `GET /oauth-callback` — redirect_uri; finishes login, sets the cookie, 302s to
@@ -93,11 +91,38 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
   stored `email` mirrors the PDS account email (captured at login, refreshed
   opportunistically on whoami); it is not user-editable here.
 
+### The client_id document lives on the website, not here
+
+`client_id` is `${BPS_SITE_ORIGIN}/oauth-client-metadata.json`, and this service
+deliberately does not serve that path. An atproto `client_id` *is* the URL its
+document is fetched from — the authorization server rejects a document whose
+`client_id` disagrees with that URL — so putting it on the site origin is what
+gives the consent screen the public domain rather than the API hostname. The
+Docusaurus build writes the file (`oauth-client-metadata` plugin in
+`docusaurus.config.js`); `redirect_uris` and `jwks_uri` inside it still point
+here, which the atproto spec permits. Only `client_uri` is origin-constrained,
+and it tracks `client_id`.
+
+Both copies of the document — published and in-process — come from
+`src/oauth/client-metadata-doc.mjs`, so the shape cannot drift. **Config can
+still drift, and it breaks login outright.** Two invariants at deploy time:
+
+| Website build | must equal | This service |
+| --- | --- | --- |
+| `url` in `docusaurus.config.js` | | `BPS_SITE_ORIGIN` |
+| `BPS_PUBLIC_API_ORIGIN` build arg | | `BPS_API_ORIGIN` |
+
+The resolved `client_id` and `redirect_uri` are logged at boot
+(`oauth client identity resolved`) to make a mismatch visible without a login
+attempt.
+
 ### Dev vs production client
 
 - **Dev** (`NODE_ENV` ≠ `production` with an `http://` `BPS_API_ORIGIN`): uses the
   atproto **loopback** client — `client_id = http://localhost?redirect_uri=…`,
-  no hosted metadata, no signing key. Leave `BPS_OAUTH_PRIVATE_KEY` empty.
+  no hosted metadata, no signing key. Leave `BPS_OAUTH_PRIVATE_KEY` empty. The
+  published document is irrelevant in dev, which is why the site's build-only
+  plugin not running under `docusaurus start` costs nothing.
 - **Production**: hosted-metadata + `private_key_jwt`. Set `BPS_OAUTH_PRIVATE_KEY`
   (PKCS8 PEM or JWK JSON) and `BPS_OAUTH_KEY_ID`.
 

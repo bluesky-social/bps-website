@@ -62,6 +62,13 @@ than falling back to the localhost default. In CI it comes from the
 a build argument, but is inert today — nothing reads `customFields.endpointsUrl`
 and the homepage hardcodes the endpoints link.)
 
+That build argument now has a second consumer with a stricter contract: the site
+publishes the account login's OAuth client metadata document at
+`/oauth-client-metadata.json`, and its `redirect_uris`/`jwks_uri` are built from
+`BPS_PUBLIC_API_ORIGIN`. It must name the same origin the account server itself
+runs on (`BPS_API_ORIGIN`), or login fails — see
+[server/README.md](server/README.md#the-client_id-document-lives-on-the-website-not-here).
+
     docker build -t bps-website-ui --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com .
     docker run --rm -p 8080:80 bps-website-ui
 
