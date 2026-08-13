@@ -29,7 +29,7 @@ implemented in Go, and cheap to self-host. Read on to interact with Bluesky's pu
 
 ## Quickstart: live tail
 
-Open a WebSocket to the `/subscribe` endpoint and start reading events. Filter as needed:
+Open a WebSocket to the `subscribeEvents` endpoint and start reading events. Filter as needed:
 
 <Tabs groupId="lang">
   <TabItem value="typescript" label="TypeScript">
@@ -83,46 +83,54 @@ Open a WebSocket to the `/subscribe` endpoint and start reading events. Filter a
   <TabItem value="python" label="Python">
     ```python
     import asyncio
+    import json
     import websockets
 
-    uri = "wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
+    URI = (
+      "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents"
+      "?collections=app.bsky.feed.post&kinds=commit"
+    )
 
     async def listen():
-      async with websockets.connect(uri) as ws:
-        while True:
-          print(await ws.recv())
+      async with websockets.connect(URI, subprotocols=["xrpc.v1.json"]) as ws:
+        async for frame in ws:
+          event = json.loads(frame)["payload"]
+          if event["operation"] != "delete":
+            print(event["seq"], event["did"], event["record"]["text"])
 
     asyncio.run(listen())
     ```
   </TabItem>
   <TabItem value="shell" label="Shell">
     ```shell
-    websocat "wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
+    websocat --protocol xrpc.v1.json "wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&kinds=commit"
     ```
   </TabItem>
 </Tabs>
 
-Each message is a self-contained JSON object. A `commit` event — someone
-creating, updating, or deleting a record — looks like this:
+Each message is a self-contained JSON object: an envelope with the event under
+`payload`, tagged by a `$type`. A `commit` event — someone creating, updating,
+or deleting a record — looks like this:
 
 ```json
 {
-  "did": "did:plc:eygmaihciaxprqvxpfvl6flk",
-  "time_us": 1725911162329308,
-  "cursor": 2569835,
-  "kind": "commit",
-  "commit": {
-    "rev": "3l3qo2vutsw2b",
+  "$type": "message",
+  "payload": {
+    "$type": "network.bsky.jetstream.subscribeEvents#commit",
+    "did": "did:plc:7e6kocyzb77xkncplrkoojej",
+    "seq": 24664288881,
+    "time": "2026-08-13T06:47:43.959305Z",
     "operation": "create",
     "collection": "app.bsky.feed.like",
-    "rkey": "3l3qo2vuowo2b",
-    "cid": "bafyreidwaivazkwu67xztlmuobx35hs2lnfh3kolmgfmucldvhd3sgzcqi",
+    "rkey": "3msx2efqdxs27",
+    "rev": "3msx2efqjtc27",
+    "cid": "bafyreigwnxqttkhzha2ig4io6wwht3qiugtor4ruglceyfdbnyq53a55fe",
     "record": {
       "$type": "app.bsky.feed.like",
-      "createdAt": "2024-09-09T19:46:02.102Z",
+      "createdAt": "2026-08-13T06:47:44.859Z",
       "subject": {
-        "cid": "bafyreidc6sydkkbchcyg62v77wbhzvb2mvytlmsychqgwf2xojjtirmzj4",
-        "uri": "at://did:plc:wa7b35aakoll7hugkrjtf3xf/app.bsky.feed.post/3l3pte3p2e325"
+        "cid": "bafyreibfn4d6xedoe6jixkcl266v2fhiwga2x3zzsnq6yawnago2kb5ouu",
+        "uri": "at://did:plc:gdcz3s2rofr4bbom5bx3kqrr/app.bsky.feed.post/3mjfhkjsshs2q"
       }
     }
   }
@@ -130,71 +138,97 @@ creating, updating, or deleting a record — looks like this:
 ```
 
 The record arrives already decoded in the `record` field, so there's no second
-parsing step. Alongside `commit` events, the stream also carries `identity`,
-`account`, and `sync` events.
+parsing step. A `delete` carries no `record` or `cid` — just the `collection`
+and `rkey` that identify what went away. Alongside `commit` events, the stream
+also carries `identity`, `account`, and `sync` events, each with its own
+`$type` and a payload field of the same name.
 
 ### Public endpoints
 
-Bluesky runs two sets of public instances. The live tail works the same on
-both, with one addition on
-v2: each event also carries a `cursor` field (see
-[Resuming](#resuming-where-you-left-off)).
+Bluesky runs public **v2** instances in two regions. Use these for new
+projects — they serve the live tail shown above, plus
+[Replay](/docs/jetstream-replay) and Snapshotting.
 
-| Version | Endpoint | Region |
-| --- | --- | --- |
-| **v2** | `wss://jetstream.us-west.bsky.network` | US West |
-| **v2** | `wss://jetstream.us-east.bsky.network` | US East |
-| **v1** | `wss://jetstream1.us-west.bsky.network` | US West |
-| **v1** | `wss://jetstream2.us-east.bsky.network` | US East |
+| Endpoint | Region |
+| --- | --- |
+| `wss://jetstream.us-east.bsky.network` | US East |
+| `wss://jetstream.us-west.bsky.network` | US West |
 
-**Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides [legacy timestamps](#resuming-where-you-left-off).
+The live tail path on these hosts is
+`/xrpc/network.bsky.jetstream.subscribeEvents`, and its cursor is the `seq` on
+every event (see [Resuming](#resuming-where-you-left-off)).
 
 No authentication is required for the live tail; these
 instances serve the full network.
 
+:::note Legacy v1 instances
+The older `jetstream1` and `jetstream2` hosts in each region
+(e.g. `wss://jetstream1.us-east.bsky.network`) still serve the frozen **v1**
+wire at `/subscribe`, and the v2 hosts above serve it too so existing consumers
+keep working. v1 differs in ways that matter: it names its filters
+`wantedCollections` / `wantedDids`, nests commit fields under a `commit` object,
+has no `kinds` filter, identifies events by a `time_us` timestamp instead of a
+`seq`, and offers no replay or snapshotting. Prefer v2 unless you are
+maintaining something already written against v1.
+:::
+
 ## Filtering: ask for just your slice
 
 Filtering happens server-side, so a narrow filter means less bandwidth and less
-work for your client. Two filters are available, and they combine:
+work for your client. Three filters are available, and they combine:
 
-- **`wantedCollections`**: one or more [NSIDs](https://atproto.com/specs/nsid).
-  Repeat the parameter for multiple collections.
-- **`wantedDids`**: restrict the stream to specific accounts by DID. Repeat for
+- **`collections`**: one or more [NSIDs](https://atproto.com/specs/nsid), or an
+  `app.bsky.feed.*`-style namespace wildcard. Repeat the parameter for multiple
+  collections.
+- **`dids`**: restrict the stream to specific accounts by DID. Repeat for
   multiple accounts.
+- **`kinds`**: which event kinds to receive — `commit`, `identity`, `account`,
+  `sync`. Omit it for all four.
 
 ```
-wss://jetstream.us-east.bsky.network/subscribe
-  ?wantedCollections=app.bsky.feed.post
-  &wantedCollections=app.bsky.feed.like
-  &wantedDids=did:plc:eygmaihciaxprqvxpfvl6flk
+wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents
+  ?collections=app.bsky.feed.post
+  &collections=app.bsky.feed.like
+  &dids=did:plc:eygmaihciaxprqvxpfvl6flk
+  &kinds=commit
 ```
 
-:::tip Long filter lists
-If you're filtering on a large or changing set of collections or DIDs, send them
-in a `options_update` message after connecting (set `requireHello=true` on the
-URL to suppress events until your first update arrives) rather than stuffing
-everything into the query string.
+A collection filter constrains **commit** events only — `identity`, `account`,
+and `sync` events flow regardless — so a commits-only stream needs
+`kinds=commit` as well.
+
+:::tip Filter limits
+A single subscription accepts up to **100** collections and **10,000** DIDs.
+Exceeding either is rejected before the WebSocket upgrade, so a client that
+builds its filter list dynamically should bound it rather than discover the cap
+as a failed connection.
 :::
 
 ## Resuming where you left off
 
-On **v2** instances, every event carries a `cursor`, a monotonically
-increasing sequence number. If your consumer drops, reconnect with `?cursor=N`
-(the last value you processed) and Jetstream replays from there, within a
-bounded lookback window:
+Every event carries a `seq`, a monotonically increasing sequence number. If your
+consumer drops, reconnect with `?cursor=N` (the last value you processed) and
+Jetstream replays from there, within a bounded lookback window:
 
 ```
-wss://jetstream.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post&cursor=12345
+wss://jetstream.us-east.bsky.network/xrpc/network.bsky.jetstream.subscribeEvents?collections=app.bsky.feed.post&kinds=commit&cursor=12345
 ```
 
 The cursor is **inclusive** — you'll receive event `N` itself again — and
 delivery is **at-least-once**, so an event may arrive more than once across a
 reconnect. Make your handlers idempotent. Key on each record's `at://` URI, so duplicates are harmless.
 
-On **v1** instances there is no `cursor` field: use an event's `time_us`
-(microsecond timestamp) as the `?cursor=` value instead. v2 accepts both kinds
-of cursor on the same parameter, so a v1-style consumer keeps working after
-pointing at a v2 host.
+`cursor` also accepts a unix-microsecond timestamp, which the server recognizes
+by its magnitude (any value at or above `1e15`) and translates to the nearest
+`seq`. That's how you resume from a point in time rather than a specific event —
+and it's what lets a consumer written against v1's `time_us` keep working
+against a v2 host.
+
+:::warning Cursors are not portable between versions
+A v1 cursor is a `time_us` value and a v2 cursor is a `seq`. They are different
+number spaces, so never replay a cursor stored from one version against the
+other.
+:::
 
 ## Getting history, not just live
 

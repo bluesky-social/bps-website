@@ -856,13 +856,20 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
  * inside .markdown, so its links would otherwise pick up the prose underline),
  * and links inside .bps-hiw (the how-it-works page is a doc, so its component
  * renders inside .markdown, but it draws its own border-bottom underlines —
- * this rule would double-underline them). */
-.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(.bps-hiw a) {
+ * this rule would double-underline them), and .bpsJetstreamCta (the live
+ * widget's footer CTA is a button-style bar, not prose). */
+.markdown
+  a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(
+    .bps-hiw a
+  ):not(.bpsJetstreamCta) {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
 }
-.markdown a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(.bps-hiw a):hover {
+.markdown
+  a:not(.bpsDocCard):not(.hash-link):not(.table-of-contents__link):not(
+    .bps-hiw a
+  ):not(.bpsJetstreamCta):hover {
   text-decoration-color: var(--ifm-color-primary);
 }
 

@@ -193,7 +193,10 @@ const jetstream = new Jetstream("https://jetstream.us-east.bsky.network");
 let buffer: unknown[] = [];
 let lastFlush = Date.now();
 
-for await (const evt of jetstream.live({ collections: ["site.standard.document"] })) {
+for await (const evt of jetstream.live({
+  collections: ["site.standard.document"],
+  kinds: ["commit"],
+})) {
   if (evt.kind !== "commit") continue;
   if (!["create", "update"].includes(evt.commit.operation)) continue;
   buffer.push(...(await toItems(evt)));
@@ -212,7 +215,8 @@ Leave that running and Coop fills up with documents. Each submission is keyed on
 the record's `at://` URI, so [Jetstream's at-least-once
 delivery](/docs/jetstream#resuming-where-you-left-off) is harmless. Re-submitting
 the same URI updates the existing item rather than duplicating it. To survive a
-restart, persist the last `cursor` and reconnect with `?cursor=N`, exactly as in
+restart, persist the last `seq` you handled and hand it back through a
+[`CursorStore`](/docs/jetstream-sdk#resuming-where-you-left-off), exactly as in
 the other Jetstream guides.
 
 ## Watch it land

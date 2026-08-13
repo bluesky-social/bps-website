@@ -48,6 +48,11 @@
 .prompt {
   color: var(--bps-ink-faint);
 }
+/* The host, trailing the `jetstream.live()` call: present but secondary, and
+ * the first thing to go when the header runs out of room on narrow screens. */
+.host {
+  color: var(--bps-ink-faint);
+}
 .isRunning .endpoint {
   background: linear-gradient(90deg, #b87b1f, #ffd479);
   background-clip: text;
@@ -73,6 +78,17 @@
     box-shadow: 0 0 0 6px rgba(63, 185, 80, 0);
   }
 }
+/* The library retries on its own; amber says "troubled, not dead". */
+.dot[data-state='reconnecting'] {
+  background: var(--bps-ember-dark, #b87b1f);
+  box-shadow: 0 0 0 0 rgba(184, 123, 31, 0.6);
+  animation: pulseWarm 1.4s ease-out infinite;
+}
+@keyframes pulseWarm {
+  to {
+    box-shadow: 0 0 0 6px rgba(184, 123, 31, 0);
+  }
+}
 
 .rate {
   font-size: var(--bps-text-2xs);
@@ -82,6 +98,16 @@
   white-space: nowrap;
 }
 
+/* Matches the amber "reconnecting" dot, so the two read as one signal. */
+.rateWarn {
+  color: var(--bps-ember-dark, #b87b1f);
+}
+
+/* The two controls — Start stream and the footer CTA — are UI chrome, not code,
+ * so they take the site's UI mono (Atkinson) rather than the code mono the
+ * stream output uses. Same split as the nav mini-links and breadcrumbs; see the
+ * --bps-docs-mono note in custom.css. Atkinson sets wider than JetBrains, so
+ * the uppercase tracking comes down a notch to hold the same rhythm. */
 .run {
   display: inline-flex;
   align-items: center;
@@ -91,8 +117,9 @@
   color: #56d364;
   border-radius: var(--bps-radius-md);
   font: inherit;
+  font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-2xs);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 4px 11px;
   cursor: pointer;
@@ -220,10 +247,10 @@
   border-top: 1px solid var(--bps-rule);
   background: rgba(57, 148, 255, 0.08);
   color: var(--bps-blue-dark);
-  font-family: var(--ifm-font-family-monospace);
+  font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-xs);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
