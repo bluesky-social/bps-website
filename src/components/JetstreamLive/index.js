@@ -226,7 +226,11 @@ export default function JetstreamLive({ ctaHref, ctaLabel }) {
       </div>
 
       {ctaHref && (
-        <Link className={styles.cta} to={ctaHref}>
+        // The plain `bpsJetstreamCta` class alongside the hashed module class is
+        // what lets custom.css exempt this link from the prose underline — the
+        // widget renders inside .markdown on a doc page. Same device as
+        // .bpsDocCard; a CSS-module name can't be matched from there.
+        <Link className={`${styles.cta} bpsJetstreamCta`} to={ctaHref}>
           <span>{ctaLabel || 'Learn more'}</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
             strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

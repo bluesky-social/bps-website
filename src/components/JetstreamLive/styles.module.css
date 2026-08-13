@@ -103,6 +103,11 @@
   color: var(--bps-ember-dark, #b87b1f);
 }
 
+/* The two controls — Start stream and the footer CTA — are UI chrome, not code,
+ * so they take the site's UI mono (Atkinson) rather than the code mono the
+ * stream output uses. Same split as the nav mini-links and breadcrumbs; see the
+ * --bps-docs-mono note in custom.css. Atkinson sets wider than JetBrains, so
+ * the uppercase tracking comes down a notch to hold the same rhythm. */
 .run {
   display: inline-flex;
   align-items: center;
@@ -112,8 +117,9 @@
   color: #56d364;
   border-radius: var(--bps-radius-md);
   font: inherit;
+  font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-2xs);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 4px 11px;
   cursor: pointer;
@@ -241,10 +247,10 @@
   border-top: 1px solid var(--bps-rule);
   background: rgba(57, 148, 255, 0.08);
   color: var(--bps-blue-dark);
-  font-family: var(--ifm-font-family-monospace);
+  font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-xs);
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   text-decoration: none;
   transition: background 0.15s ease, color 0.15s ease;
