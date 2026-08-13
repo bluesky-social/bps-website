@@ -67,7 +67,8 @@ export async function streamCreates({
   onCreate,
   onStatus,
 }) {
-  const { Jetstream, websocketTransport } = await import('@bsky/jetstream')
+  const { Jetstream, isCreate, websocketTransport } =
+    await import('@bsky/jetstream')
   // The caller may have aborted while the chunk was in flight.
   if (signal.aborted) return
 
@@ -99,9 +100,10 @@ export async function streamCreates({
     // of being delivered. For a display widget that just means one fewer line.
     onError: () => {},
   })) {
-    // `kinds` already restricts this to commits; the guard keeps the property
-    // access honest for a non-commit that somehow arrives.
-    if (evt.kind !== 'commit' || evt.commit.operation !== 'create') continue
+    // `kinds` already restricts this to commits, so what this really filters is
+    // the operation — but isCreate() also narrows the event, which is what makes
+    // the property access below safe for a non-commit that somehow arrives.
+    if (!isCreate(evt)) continue
     // An event arriving is the proof that the connection recovered.
     report('live')
     onCreate({

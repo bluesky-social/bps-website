@@ -16,8 +16,8 @@
     "lex:build": "lex build --lexicons ./lexicons --out ./src/lexicons --clear --import-ext \"\""
   },
   "dependencies": {
-    "@atproto/lex": "^0.1.4",
-    "@bsky/jetstream": "^0.0.1-preview.0",
+    "@atproto/lex": "^0.3.6",
+    "@bsky/jetstream": "^1.0.0",
     "@docusaurus/core": "^3.6.2",
     "@docusaurus/plugin-client-redirects": "^3.6.2",
     "@docusaurus/plugin-content-docs": "^3.6.2",
