@@ -1,6 +1,7 @@
 import {
   NodeOAuthClient,
   buildAtprotoLoopbackClientMetadata,
+  type RuntimeLock,
 } from '@atproto/oauth-client-node'
 import type { DB } from '../db/index.ts'
 import type { AppConfig } from '../config.ts'
@@ -23,9 +24,13 @@ function buildDevClientMetadata(config: AppConfig) {
   })
 }
 
+// requestLock serializes token refresh per account across every replica. Omit it
+// and the client falls back to an in-process lock and warns that credentials
+// might get revoked — see oauth/request-lock.ts.
 export async function createOAuthClient(
   db: DB,
   config: AppConfig,
+  requestLock: RuntimeLock,
 ): Promise<NodeOAuthClient> {
   if (config.devMode) {
     // Loopback/dev: no keyset needed (token_endpoint_auth_method = 'none')
@@ -34,6 +39,7 @@ export async function createOAuthClient(
       stateStore: createStateStore(db),
       sessionStore: createSessionStore(db),
       handleResolver: config.oauthHandleResolver,
+      requestLock,
     })
   }
 
@@ -45,5 +51,6 @@ export async function createOAuthClient(
     stateStore: createStateStore(db),
     sessionStore: createSessionStore(db),
     handleResolver: config.oauthHandleResolver,
+    requestLock,
   })
 }

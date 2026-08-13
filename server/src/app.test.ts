@@ -4,6 +4,7 @@ import type { AddressInfo } from 'node:net'
 import type { Server } from 'node:http'
 import { createDb, type DB } from './db/index.ts'
 import { loadConfig } from './config.ts'
+import { requestLocalLock } from '@atproto/oauth-client-node'
 import { createOAuthClient } from './oauth/client.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildApp } from './app.ts'
@@ -28,7 +29,7 @@ before(async () => {
     BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
     NODE_ENV: 'development',
   })
-  const client = await createOAuthClient(db, cfg)
+  const client = await createOAuthClient(db, cfg, requestLocalLock)
   const apiKeys = createPostgresApiKeyProvider(db)
   const app = buildApp({ db, config: cfg, client, apiKeys })
   await new Promise<void>((resolve) => {

@@ -3,6 +3,7 @@ import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createDb, type DB } from './db/index.ts'
 import { loadConfig } from './config.ts'
+import { requestLocalLock } from '@atproto/oauth-client-node'
 import { createOAuthClient } from './oauth/client.ts'
 import { createPostgresApiKeyProvider } from './apikeys/postgres-provider.ts'
 import { buildRouter } from './router.ts'
@@ -31,7 +32,7 @@ test('router.fetch serves XRPC methods (whoami rejects without a cookie)', async
     BPS_OAUTH_HANDLE_RESOLVER: 'https://bsky.social',
     NODE_ENV: 'development',
   })
-  const client = await createOAuthClient(db, cfg)
+  const client = await createOAuthClient(db, cfg, requestLocalLock)
   const apiKeys = createPostgresApiKeyProvider(db)
   const router = buildRouter({ db, config: cfg, client, apiKeys })
   // No session cookie → the auth gate rejects. This proves router.fetch routes
