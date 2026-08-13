@@ -10,26 +10,50 @@ name: containers
 #
 # Trigger + push policy:
 # - on: [push]. Every branch push builds, so a broken Dockerfile surfaces
-#   before merge rather than after. Single trigger, no PR/push duplicate runs.
-# - Only pushes to main publish to ECR. `push: false` on branches also skips the
-#   cache export inside the action, so an unmerged branch cannot clobber the
-#   cache manifest that main's builds read from.
-# - Tag pushes skip entirely: this repo has no image-for-tag semantics.
+#   before merge rather than after. No PR trigger, so no duplicate runs.
+# - Pushes to main publish to ECR. Other branch pushes build dry-run only.
+# - on: workflow_dispatch publishes from whatever ref it is run on. This is how
+#   a staging image gets built from an unmerged branch: run the workflow
+#   manually on that branch, deploy the resulting SHA. Manual by design — a
+#   branch shouldn't publish deployable images just by being pushed to.
+# - Tags are skipped under every trigger (this repo has no image-for-tag
+#   semantics), so a dispatch on a tag ref is a deliberate no-op.
+#
+# The UI image is per-environment: it bakes in both the site's own host and the
+# API origin. The ref decides which environment — main builds production, any
+# other ref builds the bps-preview.bsky.network staging flavor. See the matrix
+# below; a preview image is not interchangeable with a production one even at
+# the same commit.
 #
 # Images are tagged by full commit SHA only, so a deploy always names the exact
-# commit it runs. Both ECR repos are currently tag-MUTABLE, so re-running a main
-# build overwrites that SHA's image in place rather than failing — fine for a
-# rebuild of the same commit, but it does mean a tag is not a permanent record
-# of one artifact.
+# commit it runs. Both ECR repos are currently tag-MUTABLE, so re-running a
+# publishing build overwrites that SHA's image in place rather than failing.
+# Two consequences worth naming: a tag is not a permanent record of one
+# artifact, and dispatching on main after a preview build of the same commit
+# swaps the environment an existing tag refers to.
+#
+# Layer cache: the shared action exports to `buildkit-cache:<service>`, one tag
+# per service, and only when it is pushing. So a dispatched preview build does
+# overwrite the manifest that main's next build reads from — unlike a dry-run
+# branch build, which cannot. That is acceptable rather than ideal: the two
+# flavors differ only in build args consumed by the final `npm run build` layer,
+# so the expensive `npm ci` layers still hit, and a cache miss costs time, never
+# correctness.
 
 on:
   push:
+  workflow_dispatch:
 
-# Superseded branch builds are pure waste; main builds must all complete
-# because each one publishes a deployable image.
+# Superseded branch builds are pure waste; builds that publish must all complete
+# because each one produces a deployable image.
+#
+# The event name is part of the group so a dispatched build gets its own lane:
+# otherwise a routine push to the same branch — which does cancel its
+# predecessors — would cancel the manual publish running alongside it.
 concurrency:
-  group: containers-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  group: containers-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: >-
+    ${{ github.ref != 'refs/heads/main' && github.event_name != 'workflow_dispatch' }}
 
 jobs:
   build:
@@ -49,8 +73,22 @@ jobs:
           # lexicon codegen against the top-level lexicons/.
           - service: bps-website-ui
             file: ./Dockerfile
-            # Baked into the JS bundle at build time — see the Dockerfile.
+            # Baked into the static output at build time — see the Dockerfile.
+            #
+            # BPS_SITE_URL is the site's own host, and it is what makes an image
+            # environment-specific beyond the API origin: it becomes the OAuth
+            # client_id, which the authorization server checks against the URL
+            # it fetched the document from. Hardcoded per ref rather than read
+            # from a repository variable, because a variable is a single value
+            # and this needs to differ between main and every other ref.
+            #
+            # The API origin is shared: staging points at the same
+            # bps-api.bsky.network deployment. That deployment answers for one
+            # site origin only (BPS_SITE_ORIGIN — it gates CORS and the
+            # post-login redirect), so whichever site it names is the one that
+            # can log in.
             build_args: |
+              BPS_SITE_URL=${{ github.ref == 'refs/heads/main' && 'https://bsky.network/' || 'https://bps-preview.bsky.network' }}
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
@@ -65,10 +103,16 @@ jobs:
       # The UI bakes its API origin in at build time, so a missing variable
       # would produce an image that points at localhost. The Dockerfile also
       # refuses to build without it; this check just names the fix.
+      #
+      # The echo dumps the resolved matrix args rather than re-deriving them:
+      # the run log then records exactly which environment this SHA was built
+      # for, and there is no second copy of the site-URL expression to drift
+      # from the one the image is actually built with.
       - name: Check UI build variables
         if: matrix.service == 'bps-website-ui'
         env:
           BPS_PUBLIC_API_ORIGIN: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+          BUILD_ARGS: ${{ matrix.build_args }}
         run: |
           set -euo pipefail
           if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then
@@ -77,11 +121,11 @@ jobs:
                  "to the public origin of bps-website-api (e.g. https://api.bsky.network)."
             exit 1
           fi
-          echo "BPS_PUBLIC_API_ORIGIN=$BPS_PUBLIC_API_ORIGIN"
+          echo "$BUILD_ARGS"
 
       - uses: bluesky-social/.github/actions/build-push-ecr@v1
         with:
           service: ${{ matrix.service }}
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: ${{ github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}

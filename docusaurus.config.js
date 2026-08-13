@@ -68,11 +68,21 @@ const config = {
   tagline: "High scale open social, unlocked for every builder.",
   favicon: "img/favicon.png",
 
-  // Set the production url of your site here. This site replaces docs.bsky.app,
-  // which now serves a path-preserving 301 wildcard here (see
-  // deploy/docs.bsky.app.conf) — so canonicals and the sitemap must advertise
-  // bsky.network, not the retired host.
-  url: "https://bsky.network/",
+  // The host this build is served from. It feeds canonicals and the sitemap —
+  // this site replaces docs.bsky.app, which now serves a path-preserving 301
+  // wildcard here (see deploy/docs.bsky.app.conf), so those must advertise
+  // bsky.network and not the retired host.
+  //
+  // It also feeds the OAuth client_id document written below, where the
+  // contract is stricter than "advertise the right host": an atproto client_id
+  // IS the URL its document is served from, so a build whose url does not match
+  // its serving host publishes a document the authorization server rejects, and
+  // account login fails at the consent screen. BPS_SITE_URL exists so a staging
+  // build (bps-preview.bsky.network) can be its own client rather than claiming
+  // production's identity. Defaulted, not required, so local builds and
+  // `docusaurus start` need no environment; the container build requires it
+  // explicitly (see Dockerfile).
+  url: process.env.BPS_SITE_URL || "https://bsky.network/",
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",

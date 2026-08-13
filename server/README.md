@@ -109,12 +109,19 @@ still drift, and it breaks login outright.** Two invariants at deploy time:
 
 | Website build | must equal | This service |
 | --- | --- | --- |
-| `url` in `docusaurus.config.js` | | `BPS_SITE_ORIGIN` |
+| `BPS_SITE_URL` build arg (`url` in `docusaurus.config.js`) | | `BPS_SITE_ORIGIN` |
 | `BPS_PUBLIC_API_ORIGIN` build arg | | `BPS_API_ORIGIN` |
 
 The resolved `client_id` and `redirect_uri` are logged at boot
 (`oauth client identity resolved`) to make a mismatch visible without a login
 attempt.
+
+`BPS_SITE_ORIGIN` is singular here, and not only for the document: it also gates
+CORS (`src/cors.ts`) and is where a completed login redirects. So one deployment
+of this service answers for exactly one site. Staging shares the
+`bps-api.bsky.network` deployment rather than running its own, which means
+pointing `BPS_SITE_ORIGIN` at `https://bps-preview.bsky.network` — and while it
+is pointed there, production cannot log in.
 
 ### Dev vs production client
 

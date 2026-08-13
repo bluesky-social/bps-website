@@ -47,29 +47,50 @@ build context (each needs the top-level `lexicons/`):
 | `bps-website-ui` | `Dockerfile` | the static site, served by nginx (`deploy/nginx.conf`) on port 80 |
 | `bps-website-api` | `server/Dockerfile` | the account server on port 8080 — see [server/README.md](server/README.md) |
 
-`.github/workflows/containers.yml` builds both on every branch push and pushes
-them to ECR only from `main`, tagged with the full commit SHA. It runs on the
-`arc` self-hosted runners and delegates the build to the org's shared
+`.github/workflows/containers.yml` builds both on every branch push, and pushes
+them to ECR from `main` or from a manual `workflow_dispatch` run on any branch,
+tagged with the full commit SHA. It runs on the `arc` self-hosted runners and
+delegates the build to the org's shared
 [`build-push-ecr`](https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md)
 action, which supplies ECR credentials, the Docker Hub pull-through cache, and
 the shared layer cache.
 
-The UI image is **environment-specific**: `BPS_PUBLIC_API_ORIGIN` is read by
-`docusaurus.config.js` and baked into the JavaScript bundle, so it is a build
-argument with no runtime override, and the build fails if it is missing rather
-than falling back to the localhost default. In CI it comes from the
-`BPS_PUBLIC_API_ORIGIN` repository variable. (`ENDPOINTS_URL` is also passed as
-a build argument, but is inert today — nothing reads `customFields.endpointsUrl`
-and the homepage hardcodes the endpoints link.)
+The dispatch trigger is how a staging image gets built from an unmerged branch:
+run the workflow on that branch and deploy the SHA it publishes. Publishing is
+manual on purpose — pushing to a branch should not produce a deployable image on
+its own.
 
-That build argument now has a second consumer with a stricter contract: the site
-publishes the account login's OAuth client metadata document at
-`/oauth-client-metadata.json`, and its `redirect_uris`/`jwks_uri` are built from
-`BPS_PUBLIC_API_ORIGIN`. It must name the same origin the account server itself
-runs on (`BPS_API_ORIGIN`), or login fails — see
+The UI image is **environment-specific**: two origins are read by
+`docusaurus.config.js` and baked into the static output, so they are build
+arguments with no runtime override, and the build fails if either is missing
+rather than falling back.
+
+| Build argument | Value | Fallback we refuse to inherit |
+| --- | --- | --- |
+| `BPS_PUBLIC_API_ORIGIN` | public origin of `bps-website-api` | localhost, which sends account requests to `127.0.0.1` |
+| `BPS_SITE_URL` | the host this build is served from | `https://bsky.network/`, production's own identity |
+
+In CI `BPS_PUBLIC_API_ORIGIN` comes from the repository variable of the same
+name, while `BPS_SITE_URL` is chosen by the ref: `main` builds production,
+any other ref builds the `bps-preview.bsky.network` staging flavor. Two flavors
+share the `bps-website-ui` ECR repo and are distinguished only by commit, so a
+preview image is not interchangeable with a production one — the run log echoes
+both origins to keep that recoverable. (`ENDPOINTS_URL` is also passed as a build
+argument, but is inert today — nothing reads `customFields.endpointsUrl` and the
+homepage hardcodes the endpoints link.)
+
+Both origins have a second consumer with a stricter contract than "advertise the
+right host": the site publishes the account login's OAuth client metadata
+document at `/oauth-client-metadata.json`. Its `client_id` is built from
+`BPS_SITE_URL` and must match the URL the document is served from, and its
+`redirect_uris`/`jwks_uri` are built from `BPS_PUBLIC_API_ORIGIN` and must name
+the origin the account server itself runs on (`BPS_API_ORIGIN`). Either mismatch
+fails login while leaving the rest of the site working — see
 [server/README.md](server/README.md#the-client_id-document-lives-on-the-website-not-here).
 
-    docker build -t bps-website-ui --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com .
+    docker build -t bps-website-ui \
+      --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com \
+      --build-arg BPS_SITE_URL=https://www.example.com .
     docker run --rm -p 8080:80 bps-website-ui
 
 Both images answer `GET /_health` for container probes.
@@ -81,7 +102,7 @@ Inbound links are preserved in two layers, and both are needed:
 1. **`deploy/docs.bsky.app.conf`** — a draft nginx config for docs.bsky.app that 301s every path to this host, plus a rule sending the retired `/docs/api/*` endpoint reference to endpoints.bsky.app. The wildcard **must preserve the request path**: the redirects in layer 2 are served by *this* site, so they can only fire if the legacy pathname actually arrives here.
 2. **The `redirects` block in `docusaurus.config.js`** — per-page moves, covering both the legacy docs.bsky.app URL set (sourced from that site's last sitemap) and renames internal to this site. These are client-side redirects, so each one is a small generated HTML page; anything that needs a real server 301, or a whole URL prefix, belongs in layer 1 instead.
 
-When you rename or remove a page, add an entry to layer 2. Note that `url` in `docusaurus.config.js` feeds the sitemap and social-card URLs, so it must name the host the site is actually served from.
+When you rename or remove a page, add an entry to layer 2. Note that `url` in `docusaurus.config.js` feeds the sitemap and social-card URLs, so it must name the host the site is actually served from — override it with `BPS_SITE_URL` for any build served somewhere other than bsky.network.
 
 ## Translations
 
