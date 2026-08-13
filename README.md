@@ -25,7 +25,10 @@ Three things that used to live on this site now live elsewhere:
 
 This website is built using [Docusaurus](https://docusaurus.io/), a static website generator in JavaScript.
 
-To build the site, first you'll need node.js and `npm` installed locally — Node 22 or newer, per `.node-version` (the lexicon codegen used by the build requires it). Run `npm install` to fetch dependencies.
+To build the site, first you'll need node.js and `npm` installed locally — Node 22 or newer, per `.node-version` (the lexicon codegen used by the build requires it). Install the dependencies and generate the lexicon client code:
+
+    npm install
+    npm run lex:build
 
 To run a local development server (which you can browse at <http://localhost:3000>):
 

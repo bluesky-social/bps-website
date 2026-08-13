@@ -66,12 +66,15 @@ and the live cutover — behind one loop. Give it a starting point and read:
     import (
     	"context"
     	"fmt"
+    	"os"
 
     	"github.com/bluesky-social/jetstream"
     )
 
     func main() {
-    	client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    	client, err := jetstream.Subscribe(
+    		"jetstream.us-west.bsky.network",
+    		jetstream.WithAPIKey(os.Getenv("JETSTREAM_API_KEY")),
     		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
     		jetstream.WithAfterSeq(0), // start from the beginning of the archive
     	)
@@ -92,8 +95,7 @@ and the live cutover — behind one loop. Give it a starting point and read:
     }
     ```
 
-    The Go client takes its API key through its `http.Client`; see
-    [Authentication and metering](#authentication-and-metering).
+    Pass the raw API key to `WithAPIKey`; the client handles authentication.
   </TabItem>
 </Tabs>
 
@@ -143,9 +145,10 @@ account being deleted, handle those events rather than dropping them.
 On Bluesky-hosted instances, the replay HTTP endpoints are **metered**. The behavior is designed so that a well-behaved client can recover from
 every limit without losing work:
 
-- **To Auth, use an API key** ([create one here](/account#api-keys-section-heading))
-  sent as `Authorization: Bearer <key>` on every HTTP call. A response with a missing,
-  malformed, or revoked key will return a `401` with a body of 
+- **Use an API key** ([create one here](/account#api-keys-section-heading)).
+  Pass the raw key to the SDK's API key option; the SDK handles the
+  `Authorization: Bearer <key>` header. A response with a missing, malformed,
+  or revoked key returns `401` with a body of
   `{"error":"invalid bearer credential"}`.
 - **Usage is metered in bytes, not requests.** What counts is the response
   bytes you download (compressed, as sent on the wire); headers and request
@@ -169,32 +172,21 @@ The live WebSocket needs no key and is not metered. To attach your key:
     })
     ```
 
-    The client attaches `Authorization: Bearer <key>` to every request it makes —
-    the metered HTTP downloads, and the live handshake, which ignores it.
+    Pass the raw key through the `apiKey` option; no custom header setup is
+    required.
   </TabItem>
   <TabItem value="go" label="Go">
     ```go
-    // The client sends whatever your http.Client sends, so attach the key
-    // with a small transport:
-    type withKey struct {
-    	key string
-    	rt  http.RoundTripper
-    }
-
-    func (w withKey) RoundTrip(req *http.Request) (*http.Response, error) {
-    	req = req.Clone(req.Context())
-    	req.Header.Set("Authorization", "Bearer "+w.key)
-    	return w.rt.RoundTrip(req)
-    }
-
-    client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    client, err := jetstream.Subscribe(
+    	"jetstream.us-west.bsky.network",
+    	jetstream.WithAPIKey(os.Getenv("JETSTREAM_API_KEY")),
     	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
     	jetstream.WithAfterSeq(0),
-    	jetstream.WithHTTPClient(&http.Client{
-    		Transport: withKey{key: os.Getenv("JETSTREAM_API_KEY"), rt: http.DefaultTransport},
-    	}),
     )
     ```
+
+    Pass the raw key, without a `Bearer ` prefix. The client sends it only on
+    authenticated archive requests; the live WebSocket remains unauthenticated.
   </TabItem>
 </Tabs>
 
@@ -222,10 +214,12 @@ when the archive range is consumed:
   </TabItem>
   <TabItem value="go" label="Go">
     ```go
-    client, err := jetstream.Subscribe("jetstream.us-west.bsky.network",
+    client, err := jetstream.Subscribe(
+    	"jetstream.us-west.bsky.network",
+    	jetstream.WithAPIKey(os.Getenv("JETSTREAM_API_KEY")),
     	jetstream.WithCollections([]string{"app.bsky.feed.post"}),
     	jetstream.WithAfterSeq(0),
-    	jetstream.WithBackfillOnly(), // no live cutover; ends at the archive tip
+    	jetstream.WithSnapshotOnly(), // no live cutover; ends at the archive tip
     )
     ```
   </TabItem>
@@ -271,7 +265,8 @@ ETag:
 }
 ```
 
-For more information, see the [Jetstream repository](https://github.com/bluesky-social/jetstream).
+For more information, see the [Jetstream repository](https://github.com/bluesky-social/jetstream), specifically
+the [documentation on data layout](https://github.com/bluesky-social/jetstream/tree/main/docs#3-data-layout).
 
 ## How replay works
 

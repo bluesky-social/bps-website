@@ -61,8 +61,9 @@ Open a WebSocket to the `subscribeEvents` endpoint and start reading events. Fil
     )
 
     func main() {
-    	client, err := jetstream.Subscribe("jetstream.us-east.bsky.network",
-    		jetstream.WithCollections([]string{"app.bsky.feed.post"}),
+    	client, err := jetstream.Subscribe(
+    		"jetstream.us-east.bsky.network",
+    		jetstream.WithCollection("app.bsky.feed.post"),
     	)
     	if err != nil {
     		panic(err)
@@ -71,7 +72,7 @@ Open a WebSocket to the `subscribeEvents` endpoint and start reading events. Fil
 
     	for batch, err := range client.Events(context.Background()) {
     		if err != nil {
-    			continue // recoverable; iteration ends only when the context does
+    			continue
     		}
     		for _, evt := range batch.Events() {
     			fmt.Println(evt.Seq, evt.DID, evt.Kind)
@@ -218,21 +219,13 @@ The cursor is **inclusive** — you'll receive event `N` itself again — and
 delivery is **at-least-once**, so an event may arrive more than once across a
 reconnect. Make your handlers idempotent. Key on each record's `at://` URI, so duplicates are harmless.
 
-`cursor` also accepts a unix-microsecond timestamp, which the server recognizes
-by its magnitude (any value at or above `1e15`) and translates to the nearest
-`seq`. That's how you resume from a point in time rather than a specific event —
-and it's what lets a consumer written against v1's `time_us` keep working
+For the live tail only, `cursor` also accepts a unix-microsecond timestamp, which the server recognizes
+by its magnitude and translates to the nearest `seq`. That's how you resume from a point in time
+rather than a specific event — and it's what lets a consumer written against v1's `time_us` keep working
 against a v2 host.
-
-:::warning Cursors are not portable between versions
-A v1 cursor is a `time_us` value and a v2 cursor is a `seq`. They are different
-number spaces, so never replay a cursor stored from one version against the
-other.
-:::
 
 ## Getting history, not just live
 
-The cursor window above is meant for short reconnects, not for loading the past.
 When you also need historical data — e.g., every `app.bsky.feed.post` from the
 last month, then live updates from there — Jetstream **replays** the archive over
 HTTP and cuts over to this live tail at the tip. The server holds the archive, so
