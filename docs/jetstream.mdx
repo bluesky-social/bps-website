@@ -146,32 +146,22 @@ also carries `identity`, `account`, and `sync` events, each with its own
 
 ### Public endpoints
 
-Bluesky runs public **v2** instances in two regions. Use these for new
-projects — they serve the live tail shown above, plus
-[Replay](/docs/jetstream-replay) and Snapshotting.
+Bluesky runs two sets of public instances. The live tail works the same on
+both, with one addition on
+v2: each event also carries a `cursor` field (see
+[Resuming](#resuming-where-you-left-off)).
 
-| Endpoint | Region |
-| --- | --- |
-| `wss://jetstream.us-east.bsky.network` | US East |
-| `wss://jetstream.us-west.bsky.network` | US West |
+| Version | Endpoint | Region |
+| --- | --- | --- |
+| **v2** | `wss://jetstream.us-west.bsky.network` | US West |
+| **v2** | `wss://jetstream.us-east.bsky.network` | US East |
+| **v1** | `wss://jetstream1.us-west.bsky.network` | US West |
+| **v1** | `wss://jetstream2.us-east.bsky.network` | US East |
 
-The live tail path on these hosts is
-`/xrpc/network.bsky.jetstream.subscribeEvents`, and its cursor is the `seq` on
-every event (see [Resuming](#resuming-where-you-left-off)).
+**Jetstream v2** is recommended for new projects. [Replay](/docs/jetstream-replay) and Snapshotting are only available on Jetstream v2. **Jetstream v1** provides [legacy timestamps](#resuming-where-you-left-off).
 
 No authentication is required for the live tail; these
 instances serve the full network.
-
-:::note Legacy v1 instances
-The older `jetstream1` and `jetstream2` hosts in each region
-(e.g. `wss://jetstream1.us-east.bsky.network`) still serve the frozen **v1**
-wire at `/subscribe`, and the v2 hosts above serve it too so existing consumers
-keep working. v1 differs in ways that matter: it names its filters
-`wantedCollections` / `wantedDids`, nests commit fields under a `commit` object,
-has no `kinds` filter, identifies events by a `time_us` timestamp instead of a
-`seq`, and offers no replay or snapshotting. Prefer v2 unless you are
-maintaining something already written against v1.
-:::
 
 ## Filtering: ask for just your slice
 
