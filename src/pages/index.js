@@ -563,8 +563,8 @@ export default function Home() {
               More building.
             </h2>
             <p>
-              No API keys, no signup, no waiting to get started.{' '}
-              <b>Free and open.</b>
+              Open endpoints, no waiting to get started.{' '}
+              <b>Free and hostable.</b>
             </p>
             <h2 className="next">
               Backed by
