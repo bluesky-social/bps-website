@@ -12,6 +12,10 @@ inputs:
     description: Newline-separated Docker build arguments.
     required: false
     default: ""
+  bps-public-api-origin:
+    description: Public API origin baked into the UI image.
+    required: false
+    default: ""
   push:
     description: Whether to publish the image.
     required: true
@@ -23,7 +27,7 @@ runs:
       if: inputs.service == 'bps-website-ui'
       shell: bash
       env:
-        BPS_PUBLIC_API_ORIGIN: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+        BPS_PUBLIC_API_ORIGIN: ${{ inputs.bps-public-api-origin }}
       run: |
         set -euo pipefail
         if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then
@@ -32,7 +36,7 @@ runs:
                "to the public origin of bps-website-api (e.g. https://api.bsky.network)."
           exit 1
         fi
-        echo "BPS_PUBLIC_API_ORIGIN=$BPS_PUBLIC_API_ORIGIN"
+        echo "BPS_PUBLIC_API_ORIGIN is set."
 
     - uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
 

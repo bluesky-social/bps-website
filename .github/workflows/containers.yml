@@ -41,6 +41,7 @@ jobs:
           service: ${{ matrix.service }}
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
+          bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
           push: "false"
 
   publish:
@@ -81,6 +82,7 @@ jobs:
           service: ${{ matrix.service }}
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
+          bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
           push: "true"
 
       # GHCR packages default to private. The images contain only artifacts
