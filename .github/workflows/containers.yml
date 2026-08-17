@@ -85,28 +85,9 @@ jobs:
           bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
           push: "true"
 
-      # GHCR packages default to private. The images contain only artifacts
-      # built from this public repository, and public visibility lets deployers
-      # pull by SHA without distributing a long-lived registry credential.
-      - name: Make package public
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          for attempt in 1 2 3 4 5; do
-            if gh api \
-              --method PATCH \
-              "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${{ matrix.service }}" \
-              -f visibility=public; then
-              exit 0
-            fi
-            if [ "$attempt" -eq 5 ]; then
-              echo "::error::Published package could not be made public."
-              exit 1
-            fi
-            sleep 2
-          done
-
+      # Fail closed if the package does not inherit public visibility from this
+      # public repository. Changing package visibility requires administrative
+      # credentials that this publishing workflow deliberately does not have.
       - name: Verify anonymous pull
         env:
           IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ github.sha }}
