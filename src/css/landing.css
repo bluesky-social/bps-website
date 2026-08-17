@@ -269,7 +269,7 @@
 .bps-home .proof .cta p {
   margin: 0 0 18px;
   font-family: var(--bps-font-sans);
-  font-size: 15px; line-height: 1.55; color: var(--bps-ink-soft);
+  font-size: 16px; line-height: 1.55; color: var(--bps-ink-soft);
 }
 .bps-home .proof .cta p b { color: var(--bps-ink); font-weight: 700; }
 .bps-home .proof .cta a.more {
@@ -290,7 +290,7 @@
   border-bottom: 1px solid var(--bps-rule);
   background: var(--bps-paper-2);
   font-family: var(--bps-font-mono-ui);
-  font-size: 10px; letter-spacing: 0.04em; text-transform: none;
+  font-size: 11px; letter-spacing: 0.04em; text-transform: none;
   color: var(--bps-rule-soft); font-weight: 400;
 }
 .bps-home .proof .head .left  { display: flex; align-items: center; gap: 14px; }
@@ -303,12 +303,12 @@
   border: 1px solid #16171A;
   border-radius: var(--bps-radius-sm);
   padding: 2px 7px;
-  font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
 }
 .bps-home .proof .head .btn {
   border: 1px solid #3A3B40; background: rgba(255,255,255,0.02); color: #DFDFE0;
   border-radius: var(--bps-radius-md);
-  font: inherit; font-size: 10px; padding: 4px 11px; cursor: pointer;
+  font: inherit; font-size: 11px; padding: 4px 11px; cursor: pointer;
   letter-spacing: 0.08em; text-transform: uppercase;
   display: inline-flex; align-items: center; gap: 6px;
   transition: color .15s ease, border-color .15s ease, background .15s ease;
@@ -467,18 +467,19 @@
 .bps-home .prod-grid .cell.prod .endpoint {
   margin-top: 4px;
   font-family: var(--bps-font-mono-ui);
-  font-size: 10.5px; letter-spacing: 0.04em;
+  font-size: 11px; letter-spacing: 0.04em;
   color: var(--bps-rule-soft);
 }
 .bps-home .prod-grid .cell.prod .what {
   margin: 14px 0 0;
   font-family: var(--bps-font-sans);
-  font-size: 14.5px; line-height: 1.55;
+  font-size: 16px; line-height: 1.55;
   color: var(--bps-ink-soft);
   max-width: 36ch;
 }
 .bps-home .prod-grid .cell.prod .more {
   margin-top: auto;
+  padding-top: 20px;
   margin-bottom: 28px;
   font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
@@ -513,12 +514,13 @@
 .bps-home .prod-grid .cell.friendly .what {
   margin: 12px 0 0;
   font-family: var(--bps-font-sans);
-  font-size: 14.5px; line-height: 1.55;
+  font-size: 16px; line-height: 1.55;
   color: var(--bps-ink-soft);
   max-width: 36ch;
 }
 .bps-home .prod-grid .cell.friendly .more {
   margin-top: auto;
+  padding-top: 20px;
   margin-bottom: 28px;
   font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
@@ -644,12 +646,13 @@
 .bps-home .prod-grid .cell.atproto .what {
   margin: 12px 0 0;
   font-family: var(--bps-font-sans);
-  font-size: 14.5px; line-height: 1.55;
+  font-size: 16px; line-height: 1.55;
   color: var(--bps-ink-soft);
   max-width: 36ch;
 }
 .bps-home .prod-grid .cell.atproto .more {
   margin-top: auto;
+  padding-top: 20px;
   margin-bottom: 28px;
   font-family: var(--bps-font-mono-ui);
   font-size: 12px; font-weight: 700;
@@ -748,7 +751,6 @@
 @media screen and (max-width: 900px) {
   .bps-home .proof { grid-template-columns: 1fr; padding-left: 30px; padding-right: 30px; }
   .bps-home .proof .cta h2 { font-size: 24px; }
-  .bps-home .proof .cta p { font-size: 14px; }
   .bps-home .prod-grid .cells { grid-template-columns: 1fr; }
   /* shorter logo/decor cells on mobile; clear the desktop column pin so they
    * follow DOM order (logo cell first) in the single-column stack */
@@ -759,16 +761,11 @@
     grid-column: auto;
   }
   .bps-home .prod-grid .cell.decor .repeat { font-size: 36px; }
-  /* the six content cells — shorter, smaller body copy on mobile */
+  /* the six content cells — shorter on mobile */
   .bps-home .prod-grid .cell.prod,
   .bps-home .prod-grid .cell.friendly:not(.logocard),
   .bps-home .prod-grid .cell.atproto:not(.globecard) {
     min-height: 210px;
-  }
-  .bps-home .prod-grid .cell.prod .what,
-  .bps-home .prod-grid .cell.friendly .what,
-  .bps-home .prod-grid .cell.atproto .what {
-    font-size: 13px;
   }
 
   /* 5rem 0 1.5rem, composed from the spacing scale */
@@ -807,6 +804,6 @@
     font-size: 18px;
     padding: var(--bps-space-sm) var(--bps-space-xl);
   }
-  .bps-home .quote cite { margin-top: 28px; font-size: 10px; }
+  .bps-home .quote cite { margin-top: 28px; }
   .bps-home .quote cite .desktopOnly { display: none; }
 }

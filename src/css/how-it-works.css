@@ -231,7 +231,7 @@ html[data-theme='light'] .bps-hiw .app-card {
 }
 .bps-hiw .beat-copy p {
   margin: 0 0 14px;
-  font-size: 15.5px;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--bps-ink-soft);
   max-width: 52ch;
@@ -284,7 +284,7 @@ html[data-theme='light'] .bps-hiw .app-card {
   border-bottom: 1px solid var(--bps-rule);
   background: var(--bps-paper-2);
   font-family: var(--bps-docs-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--bps-ink-muted);
 }
@@ -294,7 +294,7 @@ html[data-theme='light'] .bps-hiw .app-card {
   border: 1px solid #16171a;
   border-radius: var(--bps-radius-sm);
   padding: 2px 7px;
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
@@ -317,7 +317,7 @@ html[data-theme='light'] .bps-hiw .app-card {
   background: transparent;
   color: #e6edf3;
   font-family: var(--ifm-font-family-monospace);
-  font-size: 12.5px;
+  font-size: 13.5px;
   line-height: 1.6;
   white-space: pre;
   overflow-x: auto;
@@ -372,7 +372,7 @@ html[data-theme='light'] .bps-hiw .app-card {
 .bps-hiw .stage-caption {
   margin: 12px 4px 0;
   font-family: var(--bps-docs-mono);
-  font-size: 10.5px;
+  font-size: 11.5px;
   letter-spacing: 0.05em;
   color: var(--bps-ink-muted);
 }
@@ -424,7 +424,7 @@ html[data-theme='light'] .bps-hiw .app-card {
 }
 .bps-hiw .lex-nsid {
   font-family: var(--ifm-font-family-monospace);
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--bps-ink);
   word-break: break-all;
 }
@@ -432,17 +432,18 @@ html[data-theme='light'] .bps-hiw .app-card {
   color: var(--bps-ink-muted);
 }
 .bps-hiw .lex-what {
-  font-size: 13.5px;
+  font-size: 15px;
   line-height: 1.45;
   color: var(--bps-ink-soft);
 }
 .bps-hiw .lex-app {
   margin-top: auto;
+  padding-top: 8px;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   font-family: var(--bps-docs-mono);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -524,7 +525,7 @@ html[data-theme='light'] .bps-hiw .app-card {
   background: transparent;
   color: #e6edf3;
   font-family: var(--ifm-font-family-monospace);
-  font-size: 11.5px;
+  font-size: 12.5px;
   line-height: 1.75;
   white-space: pre;
   overflow: hidden;
@@ -593,7 +594,7 @@ html[data-theme='light'] .bps-hiw .app-card {
   color: var(--bps-blue-dark);
 }
 .bps-hiw .app-name {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--bps-ink);
   transition: color 0.15s ease;

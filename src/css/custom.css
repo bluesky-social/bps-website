@@ -104,11 +104,11 @@
    * (the .markdown heading ramp, and the ~1.0–1.3rem one-offs) and em-relative
    * sizes are deliberately NOT in the scale — they're single-use or
    * context-relative. The bespoke px masthead/homepage keep their own sizes. */
-  --bps-text-2xs: 0.66rem; /* micro mono labels, eyebrows, admonition headings */
-  --bps-text-xs: 0.72rem; /* captions, mono metadata, small mono buttons */
-  --bps-text-sm: 0.78rem; /* secondary buttons, notes */
-  --bps-text-md: 0.82rem; /* descriptive body text */
-  --bps-text-base: 0.875rem; /* inputs, primary body, sidebar/footer links */
+  --bps-text-2xs: 0.6875rem; /* micro mono labels, eyebrows, admonition headings */
+  --bps-text-xs: 0.75rem; /* captions, mono metadata, small mono buttons */
+  --bps-text-sm: 0.8125rem; /* secondary buttons, notes */
+  --bps-text-md: 0.875rem; /* descriptive body text */
+  --bps-text-base: 0.9375rem; /* inputs, primary body, sidebar/footer links */
 
   /* Spacing scale — for SINGLE-AXIS spacing (gap, and single-value margin /
    * padding). Steps follow a ~4px grid; the low end keeps the 6px/10px stops
@@ -142,9 +142,9 @@
   --ifm-heading-font-family: var(--ifm-font-family-base);
 
   /* heading scale — Inter, title case, tight tracking */
-  --ifm-h1-font-size: 2rem;       /* ~32px page title via article h1 (see §2 width note) */
+  --ifm-h1-font-size: 2rem;
   --ifm-heading-font-weight: 680;
-  --ifm-font-size-base: 16px;
+  --ifm-font-size-base: 100%;
   --ifm-line-height-base: 1.65;
 
   /* UI mono accent — Atkinson Hyperlegible Mono — used for the mono "sprinkle"
@@ -171,10 +171,19 @@ html[data-theme='dark'] {
 
 /* Per-heading sizing/tracking for the docs article body. Scoped to
  * .markdown so it doesn't affect navbar/footer/landing. */
-.markdown h1 { font-size: 1.95rem; font-weight: 680; letter-spacing: -0.02em; }
-.markdown h2 { font-size: 1.45rem; font-weight: 660; letter-spacing: -0.015em; }
-.markdown h3 { font-size: 1.18rem; font-weight: 620; letter-spacing: -0.012em; }
-.markdown h4 { font-size: 1.02rem; font-weight: 620; letter-spacing: -0.01em; }
+.markdown,
+.markdown h1:first-child,
+.markdown > h2,
+.markdown > h3 {
+  --ifm-h1-font-size: 2.4rem;
+  --ifm-h2-font-size: 1.75rem;
+  --ifm-h3-font-size: 1.35rem;
+  --ifm-h4-font-size: 1.1rem;
+}
+.markdown h1 { font-size: var(--ifm-h1-font-size); font-weight: 680; letter-spacing: -0.02em; }
+.markdown h2 { font-size: var(--ifm-h2-font-size); font-weight: 660; letter-spacing: -0.015em; }
+.markdown h3 { font-size: var(--ifm-h3-font-size); font-weight: 620; letter-spacing: -0.012em; }
+.markdown h4 { font-size: var(--ifm-h4-font-size); font-weight: 620; letter-spacing: -0.01em; }
 
 .screen-reader-only {
   border: 0;
@@ -427,7 +436,7 @@ html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: ur
   align-items: center;
   gap: 5px;
   font-family: var(--bps-docs-mono);
-  font-size: 11px; font-weight: 700;
+  font-size: 12px; font-weight: 700;
   letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--bps-nav-ink-soft);
   text-decoration: none;
@@ -1039,7 +1048,7 @@ html[data-theme='dark']
  * .theme-doc-sidebar-menu root IS the first .menu__list, so children sit one
  * .menu__list deep, not two. */
 .theme-doc-sidebar-menu .theme-doc-sidebar-item-link-level-2 > .menu__link {
-  font-size: var(--bps-text-sm); font-weight: 600;
+  font-size: var(--bps-text-md); font-weight: 600;
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
