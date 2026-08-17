@@ -109,6 +109,7 @@
   --bps-text-sm: 0.8125rem; /* secondary buttons, notes */
   --bps-text-md: 0.875rem; /* descriptive body text */
   --bps-text-base: 0.9375rem; /* inputs, primary body, sidebar/footer links */
+  --bps-text-lg: 1rem; /* section labels that head a list of base-size items */
 
   /* Spacing scale — for SINGLE-AXIS spacing (gap, and single-value margin /
    * padding). Steps follow a ~4px grid; the low end keeps the 6px/10px stops
@@ -1023,7 +1024,7 @@ div[class*='codeBlockTitle_'] {
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: var(--bps-text-base); font-weight: 500;
+  font-size: var(--bps-text-lg); font-weight: 600;
   letter-spacing: -0.005em;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
