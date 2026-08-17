@@ -1,87 +1,123 @@
 name: containers
 
-# Builds the two production images: bps-website-ui (Docusaurus + nginx) and
-# bps-website-api (@bps/account-server).
-#
-# The heavy lifting is the org's shared composite action, which bakes in ECR
-# login via Pod Identity, buildx pointed at our Docker Hub pull-through cache,
-# SHA tagging, and the buildkit-cache layer cache:
-# https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md
-#
-# Trigger + push policy:
-# - on: [push]. Every branch push builds, so a broken Dockerfile surfaces
-#   before merge rather than after. Single trigger, no PR/push duplicate runs.
-# - Only pushes to main publish to ECR. `push: false` on branches also skips the
-#   cache export inside the action, so an unmerged branch cannot clobber the
-#   cache manifest that main's builds read from.
-# - Tag pushes skip entirely: this repo has no image-for-tag semantics.
-#
-# Images are tagged by full commit SHA only, so a deploy always names the exact
-# commit it runs. Both ECR repos are currently tag-MUTABLE, so re-running a main
-# build overwrites that SHA's image in place rather than failing — fine for a
-# rebuild of the same commit, but it does mean a tag is not a permanent record
-# of one artifact.
-
+# Every branch push builds both images so Dockerfile failures surface before
+# merge. Only main publishes: branch workflows receive no package-write token,
+# and fork pull requests cannot reach this push-only workflow in the base repo.
 on:
   push:
 
-# Superseded branch builds are pure waste; main builds must all complete
-# because each one publishes a deployable image.
+# Superseded branch builds are pure waste; main builds publish full-commit-SHA
+# tags and must all complete.
 concurrency:
   group: containers-${{ github.ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  build:
-    # Explicit, or the default name interpolates every matrix field — including
-    # the build args, which makes the check name change whenever the API origin
-    # does. Required-status-check rules match on this string.
+  validate:
     name: build (${{ matrix.service }})
     if: >
       github.repository == 'bluesky-social/bps-website' &&
+      github.ref != 'refs/heads/main' &&
       !startsWith(github.ref, 'refs/tags/')
-    runs-on: arc
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Both build from the repo root (the default context): each runs
-          # lexicon codegen against the top-level lexicons/.
           - service: bps-website-ui
             file: ./Dockerfile
-            # Baked into the JS bundle at build time — see the Dockerfile.
             build_args: |
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
             file: ./server/Dockerfile
             build_args: ""
-    permissions:
-      contents: read
-      id-token: write
     steps:
-      - uses: actions/checkout@v6
-
-      # The UI bakes its API origin in at build time, so a missing variable
-      # would produce an image that points at localhost. The Dockerfile also
-      # refuses to build without it; this check just names the fix.
-      - name: Check UI build variables
-        if: matrix.service == 'bps-website-ui'
-        env:
-          BPS_PUBLIC_API_ORIGIN: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
-        run: |
-          set -euo pipefail
-          if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then
-            echo "::error::Repository variable BPS_PUBLIC_API_ORIGIN is not set." \
-                 "Set it under Settings > Secrets and variables > Actions > Variables" \
-                 "to the public origin of bps-website-api (e.g. https://api.bsky.network)."
-            exit 1
-          fi
-          echo "BPS_PUBLIC_API_ORIGIN=$BPS_PUBLIC_API_ORIGIN"
-
-      - uses: bluesky-social/.github/actions/build-push-ecr@v1
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ./.github/actions/build-container
         with:
           service: ${{ matrix.service }}
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: "false"
+
+  publish:
+    # Keep this distinct from the branch-validation check: duplicate check
+    # names can let a skipped job satisfy a required status check.
+    name: publish (${{ matrix.service }})
+    if: >
+      github.repository == 'bluesky-social/bps-website' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: bps-website-ui
+            file: ./Dockerfile
+            build_args: |
+              BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
+          - service: bps-website-api
+            file: ./server/Dockerfile
+            build_args: ""
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: ./.github/actions/build-container
+        with:
+          service: ${{ matrix.service }}
+          file: ${{ matrix.file }}
+          build-args: ${{ matrix.build_args }}
+          push: "true"
+
+      # GHCR packages default to private. The images contain only artifacts
+      # built from this public repository, and public visibility lets deployers
+      # pull by SHA without distributing a long-lived registry credential.
+      - name: Make package public
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if gh api \
+              --method PATCH \
+              "/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${{ matrix.service }}" \
+              -f visibility=public; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::Published package could not be made public."
+              exit 1
+            fi
+            sleep 2
+          done
+
+      - name: Verify anonymous pull
+        env:
+          IMAGE: ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          docker logout ghcr.io
+          for attempt in 1 2 3 4 5; do
+            if docker buildx imagetools inspect "$IMAGE" >/dev/null; then
+              exit 0
+            fi
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::$IMAGE is not anonymously pullable."
+              exit 1
+            fi
+            sleep 2
+          done

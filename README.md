@@ -50,12 +50,16 @@ build context (each needs the top-level `lexicons/`):
 | `bps-website-ui` | `Dockerfile` | the static site, served by nginx (`deploy/nginx.conf`) on port 80 |
 | `bps-website-api` | `server/Dockerfile` | the account server on port 8080 — see [server/README.md](server/README.md) |
 
-`.github/workflows/containers.yml` builds both on every branch push and pushes
-them to ECR only from `main`, tagged with the full commit SHA. It runs on the
-`arc` self-hosted runners and delegates the build to the org's shared
-[`build-push-ecr`](https://github.com/bluesky-social/.github/blob/main/actions/build-push-ecr/README.md)
-action, which supplies ECR credentials, the Docker Hub pull-through cache, and
-the shared layer cache.
+`.github/workflows/containers.yml` builds both on GitHub-hosted runners for
+every branch push. Only `main` receives `packages: write` and publishes the
+public images to GHCR, tagged with the full commit SHA:
+
+- `ghcr.io/bluesky-social/bps-website-ui:<commit-sha>`
+- `ghcr.io/bluesky-social/bps-website-api:<commit-sha>`
+
+BuildKit layers use the GitHub Actions cache. The workflow verifies after each
+publish that the exact SHA-tagged image can be resolved without registry
+credentials.
 
 The UI image is **environment-specific**: `BPS_PUBLIC_API_ORIGIN` is read by
 `docusaurus.config.js` and baked into the JavaScript bundle, so it is a build
