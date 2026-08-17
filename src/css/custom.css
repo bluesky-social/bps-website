@@ -1105,14 +1105,6 @@ html[data-theme='dark']
   color: var(--ifm-color-primary);
   font-weight: 600;
 }
-/* A top-level LEAF (e.g. Get Started) keeps the level-1 label weight (500) when
- * selected — active top-level CATEGORIES don't bold, so the leaf shouldn't
- * either. The 600 above is meant for active level-2 children, not level-1. */
-.theme-doc-sidebar-menu
-  > .theme-doc-sidebar-item-link-level-1
-  > .menu__link--active {
-  font-weight: 500;
-}
 /* The category's inner <a> must stay transparent — its tint lives on the
  * wrapper above. (The leaf active <a>, by contrast, carries its own tint, so it
  * is deliberately NOT zeroed here.) */
