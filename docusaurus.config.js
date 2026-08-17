@@ -59,6 +59,7 @@ const config = {
         "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Bluesky_Logo.svg/330px-Bluesky_Logo.svg.png",
       "data-modal-title": "Bluesky Docs AI",
       "data-button-hide": "true",
+      "data-color-scheme-selector": "[data-theme='dark']",
       "data-modal-ask-ai-input-placeholder":
         "Find solutions from the docs, Github, forums, and more...",
       async: true,
