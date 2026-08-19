@@ -104,12 +104,12 @@
    * (the .markdown heading ramp, and the ~1.0–1.3rem one-offs) and em-relative
    * sizes are deliberately NOT in the scale — they're single-use or
    * context-relative. The bespoke px masthead/homepage keep their own sizes. */
-  --bps-text-2xs: 0.6875rem; /* micro mono labels, eyebrows, admonition headings */
-  --bps-text-xs: 0.75rem; /* captions, mono metadata, small mono buttons */
-  --bps-text-sm: 0.8125rem; /* secondary buttons, notes */
-  --bps-text-md: 0.875rem; /* descriptive body text */
-  --bps-text-base: 0.9375rem; /* inputs, primary body, sidebar/footer links */
-  --bps-text-lg: 1rem; /* section labels that head a list of base-size items */
+  --bps-text-2xs: 0.75rem; /* micro mono labels, eyebrows, admonition headings */
+  --bps-text-xs: 0.8125rem; /* captions, mono metadata, small mono buttons */
+  --bps-text-sm: 0.875rem; /* secondary buttons, notes */
+  --bps-text-md: 0.9375rem; /* descriptive body text */
+  --bps-text-base: 1rem; /* inputs, primary body, sidebar/footer links */
+  --bps-text-lg: 1.125rem; /* section labels that head a list of base-size items */
 
   /* Spacing scale — for SINGLE-AXIS spacing (gap, and single-value margin /
    * padding). Steps follow a ~4px grid; the low end keeps the 6px/10px stops
@@ -176,15 +176,15 @@ html[data-theme='dark'] {
 .markdown h1:first-child,
 .markdown > h2,
 .markdown > h3 {
-  --ifm-h1-font-size: 2.4rem;
-  --ifm-h2-font-size: 1.75rem;
-  --ifm-h3-font-size: 1.35rem;
-  --ifm-h4-font-size: 1.1rem;
+  --ifm-h1-font-size: 1.875rem;
+  --ifm-h2-font-size: 1.5rem;
+  --ifm-h3-font-size: 1.125rem;
+  --ifm-h4-font-size: 1rem;
 }
-.markdown h1 { font-size: var(--ifm-h1-font-size); font-weight: 680; letter-spacing: -0.02em; }
-.markdown h2 { font-size: var(--ifm-h2-font-size); font-weight: 660; letter-spacing: -0.015em; }
-.markdown h3 { font-size: var(--ifm-h3-font-size); font-weight: 620; letter-spacing: -0.012em; }
-.markdown h4 { font-size: var(--ifm-h4-font-size); font-weight: 620; letter-spacing: -0.01em; }
+.markdown h1 { font-size: var(--ifm-h1-font-size); font-weight: 600; letter-spacing: -0.02em; }
+.markdown h2 { font-size: var(--ifm-h2-font-size); font-weight: 600; letter-spacing: -0.015em; }
+.markdown h3 { font-size: var(--ifm-h3-font-size); font-weight: 600; letter-spacing: -0.012em; }
+.markdown h4 { font-size: var(--ifm-h4-font-size); font-weight: 600; letter-spacing: -0.01em; }
 
 .screen-reader-only {
   border: 0;
@@ -823,7 +823,7 @@ article:has(.bpsDocHero) > .theme-doc-toc-mobile {
 }
 
 /* Right-hand TOC: quiet it. */
-.table-of-contents { font-size: var(--bps-text-md); }
+.table-of-contents { font-size: var(--bps-text-sm); }
 .table-of-contents__left-border { border-left-color: var(--ifm-toc-border-color); }
 .table-of-contents__link { color: var(--ifm-color-emphasis-700); line-height: 1.5; }
 .table-of-contents__link--active,
@@ -1009,22 +1009,18 @@ div[class*='codeBlockTitle_'] {
   font-size: var(--bps-text-xs);
 }
 /* code body uses the mono stack already via --ifm-font-family-monospace */
-.theme-code-block pre code { font-size: var(--bps-text-base); line-height: 1.6; }
+.theme-code-block pre code { font-size: var(--bps-text-xs); line-height: 1.6; }
 
 /* =====================================================================
  * DOCS READING SURFACE — left sidebar (§4)
  * Scoped to .theme-doc-sidebar-menu so it never touches the navbar drawer.
  * ===================================================================== */
-.theme-doc-sidebar-menu { font-size: var(--bps-text-base); }
+.theme-doc-sidebar-menu { font-size: var(--bps-text-sm); }
 
-/* Top-level labels → sans, larger + semi-bold. Covers both collapsible
- * CATEGORY labels and top-level LINK items (e.g. Tutorials, HTTP Reference,
- * which are theme-doc-sidebar-item-link-level-1, not categories) so all
- * first-level siblings share the same heading style. */
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible > .menu__link,
 .theme-doc-sidebar-menu > .theme-doc-sidebar-item-link-level-1 > .menu__link {
   font-family: var(--ifm-font-family-base);
-  font-size: var(--bps-text-lg); font-weight: 600;
+  font-size: var(--bps-text-base); font-weight: 500;
   letter-spacing: -0.005em;
   /* darker than the old emphasis-600 — aligns with the item link color so the
    * headings don't read as low-contrast in light mode. */
@@ -1049,7 +1045,7 @@ html[data-theme='dark']
  * .theme-doc-sidebar-menu root IS the first .menu__list, so children sit one
  * .menu__list deep, not two. */
 .theme-doc-sidebar-menu .theme-doc-sidebar-item-link-level-2 > .menu__link {
-  font-size: var(--bps-text-md); font-weight: 600;
+  font-size: var(--bps-text-sm); font-weight: 500;
 }
 
 /* Collapse/expand caret: smaller icon (1.25rem) and square off the upper/lower
@@ -1103,7 +1099,7 @@ html[data-theme='dark']
 .theme-doc-sidebar-menu .menu__link--active:not(.menu__link--sublist),
 .theme-doc-sidebar-menu .menu__list-item-collapsible--active > .menu__link {
   color: var(--ifm-color-primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 /* The category's inner <a> must stay transparent — its tint lives on the
  * wrapper above. (The leaf active <a>, by contrast, carries its own tint, so it
