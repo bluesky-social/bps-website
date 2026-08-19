@@ -41,7 +41,7 @@
   margin-bottom: var(--bps-space-md);
 }
 .title {
-  font-size: 2.25rem; font-weight: 600; letter-spacing: -0.024em;
+  font-size: 2.25rem; font-weight: 500; letter-spacing: -0.024em;
   line-height: 1.1; margin: 0 0 0.6rem;
 }
 .lede {
