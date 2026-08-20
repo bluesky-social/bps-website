@@ -47,9 +47,10 @@ jobs:
           push: "false"
 
   publish:
-    # Keep this distinct from the branch-validation check: duplicate check
-    # names can let a skipped job satisfy a required status check.
-    name: publish (${{ matrix.service }})
+    # GitHub evaluates this job's `if` before expanding its matrix. Keep the
+    # name static so skipped branch runs don't display a literal matrix
+    # expression. It remains distinct from the branch-validation check.
+    name: publish
     if: >
       github.repository == 'bluesky-social/bps-website' &&
       github.ref == 'refs/heads/main'
