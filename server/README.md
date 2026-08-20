@@ -121,9 +121,9 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 - XRPC `internal.bps.account.whoami` (authed) — `{ did, handle?, email? }`. The
   stored `email` mirrors the PDS account email (captured at login, refreshed
   opportunistically on whoami); it is not user-editable here.
-- XRPC `internal.bps.spacesInvite.create` (POST, authed) — creates a one-use
+- XRPC `internal.bps.spacesAlpha.createInvite` (POST, authed) — creates a one-use
   Spaces alpha invite for the caller through the configured invite authority.
-- XRPC `internal.bps.spacesInvite.list` (authed) — lists only the caller's
+- XRPC `internal.bps.spacesAlpha.listInvites` (authed) — lists only the caller's
   Spaces alpha invites after server-side filtering.
 
 ### The client_id document lives on the website, not here

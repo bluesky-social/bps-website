@@ -1,6 +1,6 @@
 {
   "lexicon": 1,
-  "id": "internal.bps.spacesInvite.create",
+  "id": "internal.bps.spacesAlpha.createInvite",
   "defs": {
     "main": {
       "type": "procedure",

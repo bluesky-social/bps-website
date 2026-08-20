@@ -117,7 +117,7 @@ export default function SpacesInvitesSection() {
     setLoadStatus('loading')
     setLoadError(null)
     try {
-      const result = await client.spacesInviteList()
+      const result = await client.spacesAlphaListInvites()
       setCodes(result.codes ?? [])
       setLoadStatus('loaded')
     } catch (err) {
@@ -134,7 +134,7 @@ export default function SpacesInvitesSection() {
     setCreating(true)
     setCreateError(null)
     try {
-      const result = await client.spacesInviteCreate()
+      const result = await client.spacesAlphaCreateInvite()
       setNewInvite({ code: result.code })
       await loadCodes()
     } catch (err) {

@@ -165,7 +165,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
   // admin credential stays server-side. Listing uses the admin endpoint too;
   // it has no subject parameter, so the client paginates and filters before
   // any code crosses this API boundary.
-  router.add(internal.bps.spacesInvite.create, {
+  router.add(internal.bps.spacesAlpha.createInvite, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const created = await spacesRequest(() =>
@@ -176,7 +176,7 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     },
   })
 
-  router.add(internal.bps.spacesInvite.list, {
+  router.add(internal.bps.spacesAlpha.listInvites, {
     auth: requireSession,
     handler: async ({ credentials }) => {
       const codes = await spacesRequest(() =>

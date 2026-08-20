@@ -1,6 +1,6 @@
 {
   "lexicon": 1,
-  "id": "internal.bps.spacesInvite.list",
+  "id": "internal.bps.spacesAlpha.listInvites",
   "defs": {
     "main": {
       "type": "query",

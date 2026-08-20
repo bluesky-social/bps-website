@@ -42,8 +42,10 @@ export function buildClient(service: string) {
       }),
     apiKeyDelete: (id: string) =>
       client.call(internal.bps.apiKey.delete, { id }),
-    spacesInviteList: () => client.call(internal.bps.spacesInvite.list),
-    spacesInviteCreate: () => client.call(internal.bps.spacesInvite.create),
+    spacesAlphaListInvites: () =>
+      client.call(internal.bps.spacesAlpha.listInvites),
+    spacesAlphaCreateInvite: () =>
+      client.call(internal.bps.spacesAlpha.createInvite),
     accountDelete: () => client.call(internal.bps.account.delete),
   }
 }
