@@ -84,8 +84,13 @@ const config = {
   projectName: "bsky-docs", // Usually your repo name.
 
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
   onBrokenAnchors: "ignore",
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
 
   // Even if you don't use internalization, you can use this field to set useful
   // metadata like html lang. For example, if your site is Chinese, you may want
@@ -119,6 +124,13 @@ const config = {
         rel: "preconnect",
         href: "https://fonts.gstatic.com",
         crossorigin: "true",
+      },
+    },
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'algolia-site-verification',
+        content: 'BE3503F41D92DB4B',
       },
     },
   ],

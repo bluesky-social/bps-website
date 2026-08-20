@@ -18,7 +18,6 @@ Three things that used to live on this site now live elsewhere:
 - `src/` — theme customizations, React components, and the landing page
 - `lexicons/` — Lexicon schemas for the account server's API, compiled into `src/lexicons/` by `npm run lex:build`
 - `server/` — the backend for the authenticated account section of the site (Node + Express + Postgres). It has its own [README](server/README.md) and is deployed separately from the static site.
-- `prototypes/` — standalone landing-page mockups, not part of the build. Serve them with `python3 -m http.server 8000 --directory prototypes`.
 - `deploy/` — deployment configuration that is not applied by anything in this repo; currently the draft nginx config for the docs.bsky.app redirect
 
 ## Building the docs
