@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import { useAuth } from '@site/src/auth/AuthContext'
 import { CheckIcon, CopyIcon, TicketIcon } from './icons'
+import CopyableReveal from './CopyableReveal'
 import styles from './SpacesInvitesSection.module.css'
 import Link from '@docusaurus/Link'
 
@@ -54,63 +55,21 @@ function CopyButton({ code }) {
 }
 
 function NewInviteReveal({ code, onDone }) {
-  const [copied, setCopied] = useState(false)
-  const [copyError, setCopyError] = useState(false)
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(code)
-      setCopied(true)
-      setCopyError(false)
-    } catch {
-      setCopyError(true)
-    }
-  }
-
   return (
-    <div className={styles.newInvite} role="alert" aria-live="assertive">
-      <div className={styles.newInviteHeader}>
-        <span className={styles.newInviteBadge} aria-hidden="true">
-          <TicketIcon />
-        </span>
-        <span className={styles.newInviteTitle}>Your new invite code</span>
-      </div>
-
-      <p className={styles.newInviteMessage}>
-        <strong>Invite created.</strong> Copy this code to sign up for an
-        atproto spaces alpha account.
-      </p>
-
-      <div className={styles.newInviteRow}>
-        <input
-          type="text"
-          readOnly
-          value={code}
-          onFocus={(event) => event.target.select()}
-          className={styles.newInviteValue}
-          aria-label="Your new invite code"
-        />
-        <button
-          type="button"
-          className={`${styles.newInviteCopy}${copied ? ` ${styles.newInviteCopyDone}` : ''}`}
-          onClick={copy}
-          aria-label={copied ? 'Invite code copied' : 'Copy invite code'}
-        >
-          {copied ? <CheckIcon /> : <CopyIcon />}
-          {copied ? 'Copied' : 'Copy'}
-        </button>
-      </div>
-
-      {copyError && (
-        <p className={styles.newInviteCopyError} role="alert">
-          Clipboard write failed — select and copy the code manually.
-        </p>
-      )}
-
-      <button type="button" className={styles.newInviteDone} onClick={onDone}>
-        Done
-      </button>
-    </div>
+    <CopyableReveal
+      icon={<TicketIcon />}
+      title="Your new invite code"
+      value={code}
+      valueLabel="Your new invite code"
+      copyLabel="Copy invite code"
+      copiedLabel="Invite code copied"
+      copyErrorMessage="Clipboard write failed — select and copy the code manually."
+      doneLabel="Done"
+      onDone={onDone}
+    >
+      <strong>Invite created.</strong> Copy this code to sign up for an atproto
+      spaces alpha account.
+    </CopyableReveal>
   )
 }
 
@@ -130,7 +89,10 @@ function InviteRow({ invite }) {
           </span>
         </div>
         <span className={styles.created}>
-          Created {formatDate(invite.createdAt)}
+          <span className={styles.createdLabel}>Created</span>
+          <span className={styles.createdValue}>
+            {formatDate(invite.createdAt)}
+          </span>
         </span>
       </div>
       <CopyButton code={invite.code} />

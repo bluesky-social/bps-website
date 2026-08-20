@@ -47,218 +47,9 @@ html[data-theme='dark'] .intro {
   opacity: 0.45;
 }
 
-.newInvite {
-  margin-bottom: var(--bps-space-2xl);
-  padding: 1rem 1.125rem;
-  border: 1.5px solid
-    color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
-  border-radius: var(--bps-radius-lg);
-  background: color-mix(in srgb, var(--ifm-color-primary) 5%, transparent);
-}
-
-html[data-theme='dark'] .newInvite {
-  border-color: color-mix(in srgb, var(--bps-blue-dark) 28%, transparent);
-  background: color-mix(in srgb, var(--bps-blue-dark) 6%, transparent);
-}
-
-.newInviteHeader {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: var(--bps-space-sm);
-}
-
-.newInviteBadge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: var(--ifm-color-primary);
-}
-
-html[data-theme='dark'] .newInviteBadge {
-  color: var(--bps-blue-dark);
-}
-
-.newInviteBadge svg {
-  width: 100%;
-  height: 100%;
-}
-
-.newInviteTitle {
-  color: var(--ifm-color-primary);
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-html[data-theme='dark'] .newInviteTitle {
-  color: var(--bps-blue-dark);
-}
-
-.newInviteMessage {
-  margin: 0 0 0.75rem;
-  color: var(--ifm-color-emphasis-800);
-  font-size: var(--bps-text-md);
-  line-height: 1.55;
-}
-
-html[data-theme='dark'] .newInviteMessage {
-  color: var(--bps-ink-soft);
-}
-
-.newInviteMessage strong {
-  color: var(--ifm-color-emphasis-900);
-  font-weight: 700;
-}
-
-html[data-theme='dark'] .newInviteMessage strong {
-  color: var(--bps-ink);
-}
-
 .accountLink {
   color: var(--ifm-link-color);
   font-weight: inherit;
-}
-
-.newInviteRow {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-  margin-bottom: 0.85rem;
-}
-
-.newInviteValue {
-  flex: 1;
-  min-width: 0;
-  height: 40px;
-  padding: 0 11px;
-  overflow: hidden;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--bps-radius-md);
-  outline: none;
-  background: var(--ifm-background-surface-color, var(--bps-white));
-  color: var(--ifm-color-emphasis-900);
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-sm);
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  cursor: text;
-  user-select: all;
-}
-
-html[data-theme='light'] .newInviteValue {
-  border-color: var(--bps-rule-light-2);
-  background: var(--bps-surface-light-2);
-}
-
-html[data-theme='dark'] .newInviteValue {
-  border-color: var(--bps-rule-3);
-  background: var(--bps-paper);
-  color: var(--bps-ink-2);
-}
-
-.newInviteCopy {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  height: 40px;
-  padding: 0 14px;
-  border: none;
-  border-radius: var(--bps-radius-md);
-  background: var(--ifm-color-primary-darkest);
-  color: var(--bps-white);
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-sm);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    opacity 0.15s ease,
-    background 0.15s ease,
-    transform 0.1s ease;
-}
-
-.newInviteCopy svg {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
-.newInviteCopy:hover {
-  opacity: 0.88;
-}
-
-.newInviteCopy:active {
-  transform: translateY(1px);
-}
-
-.newInviteCopyDone {
-  background: var(--bps-success);
-}
-
-html[data-theme='dark'] .newInviteCopyDone {
-  background: var(--bps-success-dark);
-  color: var(--bps-paper);
-}
-
-.newInviteCopyError {
-  margin: -0.3rem 0 0.5rem;
-  color: var(--bps-danger-text);
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-xs);
-  line-height: 1.4;
-}
-
-html[data-theme='dark'] .newInviteCopyError {
-  color: var(--bps-danger-text-dark);
-}
-
-.newInviteDone {
-  display: block;
-  width: 100%;
-  padding: 8px 0;
-  border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--bps-radius-md);
-  background: none;
-  color: var(--ifm-color-emphasis-700);
-  font-family: var(--bps-docs-mono);
-  font-size: var(--bps-text-sm);
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-align: center;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-
-.newInviteDone:hover {
-  border-color: var(--ifm-color-emphasis-500);
-  background: var(--ifm-color-emphasis-100);
-  color: var(--ifm-color-emphasis-900);
-}
-
-html[data-theme='dark'] .newInviteDone {
-  border-color: var(--bps-rule-2);
-  color: var(--bps-ink-muted);
-}
-
-html[data-theme='dark'] .newInviteDone:hover {
-  border-color: var(--bps-rule-3);
-  background: var(--bps-surface-3);
-  color: var(--bps-ink-soft);
 }
 
 .code {
@@ -278,10 +69,15 @@ html[data-theme='dark'] .code {
 .inviteList {
   margin: 0;
   padding: 0;
-  border: 1px solid var(--bps-rule-light);
+  border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: var(--bps-radius-lg);
   list-style: none;
   overflow: hidden;
+}
+
+html[data-theme='light'] .inviteList {
+  border-color: var(--bps-rule-light);
+  background: var(--bps-white);
 }
 
 html[data-theme='dark'] .inviteList {
@@ -292,21 +88,30 @@ html[data-theme='dark'] .inviteList {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.9rem 1rem;
-  background: var(--ifm-background-surface-color, var(--bps-white));
+  gap: var(--bps-space-xl);
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  transition: background 0.1s ease;
 }
 
-.inviteRow + .inviteRow {
-  border-top: 1px solid var(--bps-rule-light);
+html[data-theme='light'] .inviteRow {
+  border-bottom-color: var(--bps-rule-light);
 }
 
 html[data-theme='dark'] .inviteRow {
-  background: var(--bps-paper-2);
+  border-bottom-color: var(--bps-rule-2);
 }
 
-html[data-theme='dark'] .inviteRow + .inviteRow {
-  border-color: var(--bps-rule-2);
+.inviteRow:last-child {
+  border-bottom: none;
+}
+
+.inviteRow:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+html[data-theme='dark'] .inviteRow:hover {
+  background: var(--bps-surface-3);
 }
 
 .inviteMain {
@@ -340,20 +145,44 @@ html[data-theme='dark'] .statusAvailable {
   color: #58c878;
 }
 
-.statusInactive,
-.created {
+.statusInactive {
   color: var(--ifm-color-emphasis-600);
 }
 
-html[data-theme='dark'] .statusInactive,
-html[data-theme='dark'] .created {
+html[data-theme='dark'] .statusInactive {
   color: var(--bps-ink-muted);
 }
 
 .created {
-  display: block;
+  display: flex;
+  align-items: baseline;
+  gap: var(--bps-space-2xs);
   margin-top: 0.35rem;
+}
+
+.createdLabel {
+  color: var(--ifm-color-emphasis-500);
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+html[data-theme='dark'] .createdLabel {
+  color: var(--bps-ink-faint);
+}
+
+.createdValue {
+  color: var(--ifm-color-emphasis-800);
+  font-family: var(--bps-docs-mono);
   font-size: var(--bps-text-xs);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+html[data-theme='dark'] .createdValue {
+  color: var(--bps-ink-muted);
 }
 
 .copyWrap {
@@ -382,6 +211,8 @@ html[data-theme='dark'] .created {
   gap: 0.35rem;
   height: 32px;
   padding: 0 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .copyButton svg {
@@ -436,28 +267,6 @@ html[data-theme='dark'] .empty {
 
 .retry {
   padding: 0.25rem 0.6rem;
-}
-
-@media (max-width: 600px) {
-  .newInviteRow {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .newInviteValue {
-    height: auto;
-    min-height: 40px;
-    padding: 8px 11px;
-    overflow-wrap: break-word;
-    white-space: normal;
-    word-break: break-all;
-  }
-
-  .newInviteCopy {
-    justify-content: center;
-    width: 100%;
-    height: 38px;
-  }
 }
 
 @media (max-width: 560px) {
