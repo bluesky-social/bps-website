@@ -75,8 +75,8 @@ function SecretReveal({ secret, onDone }) {
       copyLabel="Copy API key to clipboard"
       copiedLabel="API key copied"
       copyErrorMessage="Clipboard write failed — please select and copy the key manually."
-      doneLabel="Done — I've copied it"
-      onDone={onDone}
+      actionLabel="Done — I've copied it"
+      onAction={onDone}
     >
       <strong>Copy this key now.</strong> For security, it won't be shown again
       after you dismiss this.

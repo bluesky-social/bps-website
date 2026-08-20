@@ -169,8 +169,11 @@ html[data-theme='dark'] .copyError {
   color: var(--bps-danger-text-dark);
 }
 
-.doneButton {
-  display: block;
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   width: 100%;
   padding: 8px 0;
   border: 1px solid var(--ifm-color-emphasis-300);
@@ -183,6 +186,7 @@ html[data-theme='dark'] .copyError {
   font-weight: 600;
   letter-spacing: 0.03em;
   text-align: center;
+  text-decoration: none;
   text-transform: uppercase;
   transition:
     border-color 0.15s ease,
@@ -190,21 +194,33 @@ html[data-theme='dark'] .copyError {
     background 0.15s ease;
 }
 
-.doneButton:hover {
+.action:hover {
   border-color: var(--ifm-color-emphasis-500);
   background: var(--ifm-color-emphasis-100);
   color: var(--ifm-color-emphasis-900);
+  text-decoration: none;
 }
 
-html[data-theme='dark'] .doneButton {
+html[data-theme='dark'] .action {
   border-color: var(--bps-rule-2);
   color: var(--bps-ink-muted);
 }
 
-html[data-theme='dark'] .doneButton:hover {
+html[data-theme='dark'] .action:hover {
   border-color: var(--bps-rule-3);
   background: var(--bps-surface-3);
   color: var(--bps-ink-soft);
+}
+
+.actionIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionIcon svg {
+  width: 14px;
+  height: 14px;
 }
 
 @media (max-width: 600px) {
