@@ -115,6 +115,40 @@ test('gatekeeper config parses when all three vars are set', () => {
   })
 })
 
+test('Spaces PDS config is null when unset', () => {
+  const cfg = loadConfig(valid)
+  assert.equal(cfg.spacesPds, null)
+})
+
+test('Spaces PDS config parses as an all-or-nothing credential pair', () => {
+  const cfg = loadConfig({
+    ...valid,
+    BPS_SPACES_PDS_URL: 'https://spaces-pds.example/',
+    BPS_SPACES_PDS_ADMIN_PASSWORD: 'spaces-secret',
+  })
+  assert.deepEqual(cfg.spacesPds, {
+    url: 'https://spaces-pds.example',
+    adminPassword: 'spaces-secret',
+  })
+
+  assert.throws(
+    () =>
+      loadConfig({
+        ...valid,
+        BPS_SPACES_PDS_URL: 'https://spaces-pds.example',
+      }),
+    /BPS_SPACES_PDS_ADMIN_PASSWORD/,
+  )
+  assert.throws(
+    () =>
+      loadConfig({
+        ...valid,
+        BPS_SPACES_PDS_ADMIN_PASSWORD: 'spaces-secret',
+      }),
+    /BPS_SPACES_PDS_URL/,
+  )
+})
+
 test('jetstream key policy is null when unset (built-in default applies)', () => {
   const cfg = loadConfig(valid)
   assert.equal(cfg.jetstreamKeyPolicy, null)

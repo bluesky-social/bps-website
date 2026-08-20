@@ -30,6 +30,7 @@ jobs:
             file: ./Dockerfile
             build_args: |
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              BPS_SPACES_PDS_URL=${{ vars.BPS_SPACES_PDS_URL }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
             file: ./server/Dockerfile
@@ -42,6 +43,7 @@ jobs:
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
           bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+          bps-spaces-pds-url: ${{ vars.BPS_SPACES_PDS_URL }}
           push: "false"
 
   publish:
@@ -63,6 +65,7 @@ jobs:
             file: ./Dockerfile
             build_args: |
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              BPS_SPACES_PDS_URL=${{ vars.BPS_SPACES_PDS_URL }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
             file: ./server/Dockerfile
@@ -83,6 +86,7 @@ jobs:
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
           bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+          bps-spaces-pds-url: ${{ vars.BPS_SPACES_PDS_URL }}
           push: "true"
 
       # Fail closed if the package does not inherit public visibility from this

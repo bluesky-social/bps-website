@@ -3,7 +3,7 @@ import {
   LexServerError,
   LexServerAuthError,
 } from '@atproto/lex-server'
-import type { l } from '@atproto/lex'
+import { XrpcError, type l } from '@atproto/lex'
 import { upgradeWebSocket } from '@atproto/lex-server/nodejs'
 import type { NodeOAuthClient } from '@atproto/oauth-client-node'
 import type { DidString } from '@atproto/syntax'
@@ -17,6 +17,7 @@ import { clearCookieHeader } from './session/cookie.ts'
 import * as internal from './lexicons/internal.ts'
 import { fetchProfile } from './account/profile.ts'
 import { refreshEmailIfStale } from './account/refresh-email.ts'
+import { createSpacesInviteClient } from './spaces/invite-client.ts'
 
 export type RouterDeps = {
   db: DB
@@ -28,6 +29,27 @@ export type RouterDeps = {
 export function buildRouter(deps: RouterDeps): LexRouter {
   const { db, config, client, apiKeys } = deps
   const requireSession = makeRequireSession(config)
+  const spacesInvites = config.spacesPds
+    ? createSpacesInviteClient(config.spacesPds)
+    : null
+
+  const spacesRequest = async <T>(request: () => Promise<T>): Promise<T> => {
+    if (!spacesInvites) {
+      throw new LexServerError(503, {
+        error: 'SpacesAlphaUnavailable',
+        message: 'Atproto spaces alpha invites are not configured.',
+      })
+    }
+    try {
+      return await request()
+    } catch (err) {
+      if (err instanceof XrpcError) {
+        const downstream = err.toDownstreamError()
+        throw new LexServerError(downstream.status, downstream.body)
+      }
+      throw err
+    }
+  }
 
   const router = new LexRouter({
     upgradeWebSocket,
@@ -135,6 +157,32 @@ export function buildRouter(deps: RouterDeps): LexRouter {
     handler: async ({ credentials }) => {
       const profile = await fetchProfile(config.appViewUrl, credentials.did)
       return { body: profile }
+    },
+  })
+
+  // Spaces alpha invite codes are issued by the configured destination PDS
+  // (or its Entryway invite authority), not by the user's current PDS. The
+  // admin credential stays server-side. Listing uses the admin endpoint too;
+  // it has no subject parameter, so the client paginates and filters before
+  // any code crosses this API boundary.
+  router.add(internal.bps.spacesInvite.create, {
+    auth: requireSession,
+    handler: async ({ credentials }) => {
+      const created = await spacesRequest(() =>
+        spacesInvites!.createInvite(credentials.did),
+      )
+      const accountUrl = new URL('/account', config.spacesPds!.url).toString()
+      return { body: { ...created, accountUrl: accountUrl as l.UriString } }
+    },
+  })
+
+  router.add(internal.bps.spacesInvite.list, {
+    auth: requireSession,
+    handler: async ({ credentials }) => {
+      const codes = await spacesRequest(() =>
+        spacesInvites!.listInvites(credentials.did),
+      )
+      return { body: { codes } }
     },
   })
 

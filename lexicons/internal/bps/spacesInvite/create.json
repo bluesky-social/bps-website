@@ -1,0 +1,25 @@
+{
+  "lexicon": 1,
+  "id": "internal.bps.spacesInvite.create",
+  "defs": {
+    "main": {
+      "type": "procedure",
+      "description": "Create a one-use atproto spaces alpha invite for the caller.",
+      "output": {
+        "encoding": "application/json",
+        "schema": {
+          "type": "object",
+          "required": ["code", "accountUrl"],
+          "properties": {
+            "code": { "type": "string", "minLength": 1, "maxLength": 2048 },
+            "accountUrl": {
+              "type": "string",
+              "format": "uri",
+              "description": "Account signup URL on the configured Spaces PDS."
+            }
+          }
+        }
+      }
+    }
+  }
+}

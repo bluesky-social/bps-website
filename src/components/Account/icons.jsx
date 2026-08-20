@@ -11,7 +11,7 @@
 
 import React from 'react'
 
-// ── ApiKeysSection ─────────────────────────────────────────────────────────────
+// ── API keys and Spaces invites ────────────────────────────────────────────────
 
 export function LockIcon({ className, ...props }) {
   return (
@@ -28,6 +28,25 @@ export function LockIcon({ className, ...props }) {
     >
       <rect x="3" y="7" width="10" height="8" rx="1.5" />
       <path d="M5 7V5a3 3 0 0 1 6 0v2" />
+    </svg>
+  )
+}
+
+export function TicketIcon({ className, ...props }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      {...props}
+    >
+      <path d="M2 3h12v3a2 2 0 0 0 0 4v3H2v-3a2 2 0 0 0 0-4V3Z" />
+      <path d="M9.5 4.5v1M9.5 7.5v1M9.5 10.5v1" />
     </svg>
   )
 }

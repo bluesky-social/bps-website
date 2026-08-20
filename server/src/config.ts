@@ -18,6 +18,10 @@ export type AppConfig = {
     bearerToken: string
     email: string
   } | null
+  spacesPds: {
+    url: string
+    adminPassword: string
+  } | null
   // Replaces the built-in default policy attached to newly created Jetstream
   // API keys; null means use the built-in (see apikeys/jetstream-policy.ts).
   // Deliberately untyped beyond "is a JSON object": Gatekeeper validates the
@@ -88,6 +92,32 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     }
   }
 
+  // --- ATProto Spaces invite authority (optional, all-or-nothing group) ---
+  // This may point at a standalone PDS or at the Entryway that owns invites
+  // for a PDS cluster. The admin credential never leaves this server.
+  const spacesPdsUrl = env.BPS_SPACES_PDS_URL?.trim() || null
+  const spacesPdsAdminPassword =
+    env.BPS_SPACES_PDS_ADMIN_PASSWORD?.trim() || null
+  let spacesPds: AppConfig['spacesPds'] = null
+  if (spacesPdsUrl || spacesPdsAdminPassword) {
+    if (!spacesPdsUrl) {
+      errors.push(
+        'BPS_SPACES_PDS_URL is required when BPS_SPACES_PDS_ADMIN_PASSWORD is set',
+      )
+    }
+    if (!spacesPdsAdminPassword) {
+      errors.push(
+        'BPS_SPACES_PDS_ADMIN_PASSWORD is required when BPS_SPACES_PDS_URL is set',
+      )
+    }
+    if (spacesPdsUrl && spacesPdsAdminPassword) {
+      spacesPds = {
+        url: spacesPdsUrl.replace(/\/$/, ''),
+        adminPassword: spacesPdsAdminPassword,
+      }
+    }
+  }
+
   // --- Default policy for new Jetstream API keys (optional) ---
   // Set it and it fully replaces the built-in default — nothing is inherited,
   // so the configured document is exactly what Gatekeeper receives. Only the
@@ -139,6 +169,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     devMode: !isProd,
     appViewUrl,
     gatekeeper,
+    spacesPds,
     jetstreamKeyPolicy,
   }
 }
