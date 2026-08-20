@@ -3,6 +3,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import { useAuth } from '@site/src/auth/AuthContext'
 import { CheckIcon, CopyIcon, TicketIcon } from './icons'
 import CopyableReveal from './CopyableReveal'
+import ExternalLinkIcon from '../ExternalLinkIcon'
 import styles from './SpacesInvitesSection.module.css'
 import Link from '@docusaurus/Link'
 
@@ -54,7 +55,7 @@ function CopyButton({ code }) {
   )
 }
 
-function NewInviteReveal({ code, onDone }) {
+function NewInviteReveal({ code, signupUrl }) {
   return (
     <CopyableReveal
       icon={<TicketIcon />}
@@ -64,8 +65,9 @@ function NewInviteReveal({ code, onDone }) {
       copyLabel="Copy invite code"
       copiedLabel="Invite code copied"
       copyErrorMessage="Clipboard write failed — select and copy the code manually."
-      doneLabel="Done"
-      onDone={onDone}
+      actionLabel="Sign up"
+      actionHref={signupUrl}
+      actionIcon={<ExternalLinkIcon />}
     >
       <strong>Invite created.</strong> Copy this code to sign up for an atproto
       spaces alpha account.
@@ -168,10 +170,7 @@ export default function SpacesInvitesSection() {
       </p>
 
       {newInvite && (
-        <NewInviteReveal
-          code={newInvite.code}
-          onDone={() => setNewInvite(null)}
-        />
+        <NewInviteReveal code={newInvite.code} signupUrl={signupUrl} />
       )}
 
       <button

@@ -2,6 +2,7 @@ import React from 'react'
 import Link from '@docusaurus/Link'
 import { useLocation } from '@docusaurus/router'
 import {useNavbarMobileSidebar} from '@docusaurus/theme-common/internal'
+import ExternalLinkIcon from '../ExternalLinkIcon'
 
 // Mono masthead nav link, modeled on the landing-bsky prototype's "nav-mini"
 // entries (uppercase JetBrains mono). Used for "Learn" (internal `to`)
@@ -11,23 +12,6 @@ import {useNavbarMobileSidebar} from '@docusaurus/theme-common/internal'
 // Desktop: renders in the top bar (the mono masthead style). Mobile: renders as
 // a standard menu link inside the hamburger drawer, so the drawer's main menu
 // isn't empty (the bar collapses these away at mobile widths via CSS).
-function ExternalArrow() {
-  return (
-    <svg
-      className="bpsNav__extIcon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M7 17 17 7M9 7h8v8" />
-    </svg>
-  )
-}
-
 export default function NavCustomLink({ mobile, label, to, href, external }) {
   // Close the mobile drawer when a drawer link is tapped (Docusaurus doesn't
   // auto-close for these custom items the way it does for its own menu links).
@@ -47,7 +31,7 @@ export default function NavCustomLink({ mobile, label, to, href, external }) {
   const content = (
     <>
       <span className="bpsNav__label">{label}</span>
-      {external && <ExternalArrow />}
+      {external && <ExternalLinkIcon className="bpsNav__extIcon" />}
     </>
   )
   const anchor = href ? (

@@ -10,8 +10,10 @@ export default function CopyableReveal({
   copyLabel,
   copiedLabel,
   copyErrorMessage,
-  doneLabel,
-  onDone,
+  actionLabel,
+  actionHref,
+  actionIcon,
+  onAction,
   children,
 }) {
   const [copied, setCopied] = useState(false)
@@ -64,9 +66,26 @@ export default function CopyableReveal({
         </p>
       )}
 
-      <button type="button" className={styles.doneButton} onClick={onDone}>
-        {doneLabel}
-      </button>
+      {actionHref ? (
+        <a
+          className={styles.action}
+          href={actionHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {actionLabel}
+          {actionIcon && (
+            <span className={styles.actionIcon}>{actionIcon}</span>
+          )}
+        </a>
+      ) : onAction ? (
+        <button type="button" className={styles.action} onClick={onAction}>
+          {actionLabel}
+          {actionIcon && (
+            <span className={styles.actionIcon}>{actionIcon}</span>
+          )}
+        </button>
+      ) : null}
     </div>
   )
 }
