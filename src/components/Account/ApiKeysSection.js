@@ -20,7 +20,8 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from '@docusaurus/Link'
 import { useAuth } from '@site/src/auth/AuthContext'
-import { LockIcon, CheckIcon, CopyIcon, EmptyKeysIcon } from './icons'
+import CopyableReveal from './CopyableReveal'
+import { LockIcon, EmptyKeysIcon } from './icons'
 import styles from './ApiKeysSection.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -65,72 +66,21 @@ function SectionHeading({ id, children }) {
 // ── Copy-once secret reveal ──────────────────────────────────────────────────
 
 function SecretReveal({ secret, onDone }) {
-  const [copied, setCopied] = useState(false)
-  const [copyError, setCopyError] = useState(false)
-
-  async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(secret)
-      setCopied(true)
-      setCopyError(false)
-    } catch {
-      setCopyError(true)
-    }
-  }
-
   return (
-    <div className={styles.secretReveal} role="alert" aria-live="assertive">
-      <div className={styles.secretHeader}>
-        <span className={styles.secretBadge} aria-hidden="true">
-          <LockIcon />
-        </span>
-        <span className={styles.secretTitle}>Your new API key</span>
-      </div>
-
-      <p className={styles.secretWarning}>
-        <strong>Copy this key now.</strong> For security, it won't be shown
-        again after you dismiss this.
-      </p>
-
-      <div className={styles.secretRow}>
-        <input
-          type="text"
-          readOnly
-          value={secret}
-          onFocus={(e) => e.target.select()}
-          className={styles.secretValue}
-          aria-label="Your new API key"
-        />
-        <button
-          type="button"
-          className={`${styles.copyBtn}${copied ? ` ${styles.copyBtnDone}` : ''}`}
-          onClick={handleCopy}
-          aria-label={copied ? 'Copied!' : 'Copy API key to clipboard'}
-        >
-          {copied ? (
-            <>
-              <CheckIcon />
-              Copied
-            </>
-          ) : (
-            <>
-              <CopyIcon />
-              Copy
-            </>
-          )}
-        </button>
-      </div>
-
-      {copyError && (
-        <p className={styles.copyErrNote}>
-          Clipboard write failed — please select and copy the key manually.
-        </p>
-      )}
-
-      <button type="button" className={styles.secretDoneBtn} onClick={onDone}>
-        Done — I've copied it
-      </button>
-    </div>
+    <CopyableReveal
+      icon={<LockIcon />}
+      title="Your new API key"
+      value={secret}
+      valueLabel="Your new API key"
+      copyLabel="Copy API key to clipboard"
+      copiedLabel="API key copied"
+      copyErrorMessage="Clipboard write failed — please select and copy the key manually."
+      doneLabel="Done — I've copied it"
+      onDone={onDone}
+    >
+      <strong>Copy this key now.</strong> For security, it won't be shown again
+      after you dismiss this.
+    </CopyableReveal>
   )
 }
 

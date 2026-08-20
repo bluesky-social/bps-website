@@ -16,8 +16,8 @@ RUN npm ci
 
 COPY . .
 
-# Both values are read by docusaurus.config.js and BAKED INTO the static
-# output, so this image is environment-specific: one build per API origin.
+# These values are read by docusaurus.config.js and BAKED INTO the static
+# output, so this image is environment-specific.
 #
 # BPS_PUBLIC_API_ORIGIN has a localhost dev fallback in the config. We refuse
 # to inherit it here — an image built with that fallback looks fine and sends
@@ -27,10 +27,15 @@ COPY . .
 # customFields.endpointsUrl, and the homepage hardcodes endpoints.bsky.app. The
 # build arg exists so the seam still works if that card is ever wired back up.
 ARG BPS_PUBLIC_API_ORIGIN
+ARG BPS_SPACES_PDS_URL
 ARG ENDPOINTS_URL
 RUN if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then \
       echo "ERROR: --build-arg BPS_PUBLIC_API_ORIGIN=https://... is required." >&2; \
       echo "       It is baked into the static build; there is no runtime override." >&2; \
+      exit 1; \
+    elif [ -z "$BPS_SPACES_PDS_URL" ]; then \
+      echo "ERROR: --build-arg BPS_SPACES_PDS_URL=https://... is required." >&2; \
+      echo "       It is baked into the Spaces alpha account links." >&2; \
       exit 1; \
     fi
 

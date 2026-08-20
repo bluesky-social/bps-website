@@ -391,6 +391,8 @@ const config = {
   customFields: {
     endpointsUrl: process.env.ENDPOINTS_URL || null,
     apiOrigin: process.env.BPS_PUBLIC_API_ORIGIN || 'http://127.0.0.1:8080',
+    spacesPdsUrl:
+      process.env.BPS_SPACES_PDS_URL?.replace(/\/+$/, '') || null,
   },
   presets: [
     [

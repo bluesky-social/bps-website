@@ -4,7 +4,7 @@
  * Consumes useAuth() and switches on status:
  *   resolving → skeleton screen
  *   anon      → sign-in prompt (reuses the same handle-entry pattern as BpsAccount)
- *   authed    → ProfileCard (identity + email) + ApiKeysSection + DangerZone
+ *   authed    → profile + Jetstream keys + Spaces invites + danger zone
  *
  * This component is ONLY ever rendered inside a <BrowserOnly> subtree (via
  * account.js), so it's safe to call useAuth() here without SSR guards.
@@ -13,6 +13,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '@site/src/auth/AuthContext'
 import ProfileCard from './ProfileCard'
+import SpacesInvitesSection from './SpacesInvitesSection'
 import ApiKeysSection from './ApiKeysSection'
 import DangerZone from './DangerZone'
 import styles from './AccountApp.module.css'
@@ -52,6 +53,7 @@ function SkeletonScreen() {
 
         <div className={styles.divider} />
 
+        <SkeletonSection lines={2} />
         <SkeletonSection lines={2} />
         <SkeletonSection lines={3} />
       </div>
@@ -143,6 +145,8 @@ function AuthedView() {
         <ProfileCard />
         <div className={styles.divider} />
         <ApiKeysSection />
+        <div className={styles.divider} />
+        <SpacesInvitesSection />
         <div className={styles.divider} />
         <DangerZone />
       </div>

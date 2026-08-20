@@ -86,6 +86,20 @@ meets it, low enough to still be a ceiling.
 Only the Gatekeeper provider issues policies; the local Postgres provider used in
 dev ignores this var.
 
+### ATProto Spaces invite env vars
+
+| Var | Required | Purpose |
+| --- | --- | --- |
+| `BPS_SPACES_PDS_URL` | optional | Base URL of the Spaces PDS or Entryway that owns alpha invite codes. |
+| `BPS_SPACES_PDS_ADMIN_PASSWORD` | with URL | Admin password used with HTTP Basic auth for the invite Lexicons. Never sent to the browser. |
+
+The account page creates a one-use code through
+`com.atproto.server.createInviteCode`, setting `forAccount` to the logged-in
+DID. It lists codes by paginating `com.atproto.admin.getInviteCodes` and
+filtering to that DID on the BPS server. The unfiltered admin response never
+crosses the browser API boundary. The destination PDS remains responsible for
+invite eligibility and limits.
+
 ## OAuth
 
 Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
@@ -107,6 +121,10 @@ Login uses atproto OAuth (`@atproto/oauth-client-node`). Two session concepts:
 - XRPC `internal.bps.account.whoami` (authed) — `{ did, handle?, email? }`. The
   stored `email` mirrors the PDS account email (captured at login, refreshed
   opportunistically on whoami); it is not user-editable here.
+- XRPC `internal.bps.spacesAlpha.createInvite` (POST, authed) — creates a one-use
+  Spaces alpha invite for the caller through the configured invite authority.
+- XRPC `internal.bps.spacesAlpha.listInvites` (authed) — lists only the caller's
+  Spaces alpha invites after server-side filtering.
 
 ### The client_id document lives on the website, not here
 
@@ -128,6 +146,7 @@ still drift, and it breaks login outright.** Two invariants at deploy time:
 | --- | --- | --- |
 | `url` in `docusaurus.config.js` | | `BPS_SITE_ORIGIN` |
 | `BPS_PUBLIC_API_ORIGIN` build arg | | `BPS_API_ORIGIN` |
+| `BPS_SPACES_PDS_URL` build arg | | `BPS_SPACES_PDS_URL` |
 
 The resolved `client_id` and `redirect_uri` are logged at boot
 (`oauth client identity resolved`) to make a mismatch visible without a login

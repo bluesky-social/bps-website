@@ -30,6 +30,7 @@ jobs:
             file: ./Dockerfile
             build_args: |
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              BPS_SPACES_PDS_URL=${{ vars.BPS_SPACES_PDS_URL }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
             file: ./server/Dockerfile
@@ -42,12 +43,14 @@ jobs:
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
           bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+          bps-spaces-pds-url: ${{ vars.BPS_SPACES_PDS_URL }}
           push: "false"
 
   publish:
-    # Keep this distinct from the branch-validation check: duplicate check
-    # names can let a skipped job satisfy a required status check.
-    name: publish (${{ matrix.service }})
+    # GitHub evaluates this job's `if` before expanding its matrix. Keep the
+    # name static so skipped branch runs don't display a literal matrix
+    # expression. It remains distinct from the branch-validation check.
+    name: publish
     if: >
       github.repository == 'bluesky-social/bps-website' &&
       github.ref == 'refs/heads/main'
@@ -63,6 +66,7 @@ jobs:
             file: ./Dockerfile
             build_args: |
               BPS_PUBLIC_API_ORIGIN=${{ vars.BPS_PUBLIC_API_ORIGIN }}
+              BPS_SPACES_PDS_URL=${{ vars.BPS_SPACES_PDS_URL }}
               ENDPOINTS_URL=${{ vars.ENDPOINTS_URL }}
           - service: bps-website-api
             file: ./server/Dockerfile
@@ -83,6 +87,7 @@ jobs:
           file: ${{ matrix.file }}
           build-args: ${{ matrix.build_args }}
           bps-public-api-origin: ${{ vars.BPS_PUBLIC_API_ORIGIN }}
+          bps-spaces-pds-url: ${{ vars.BPS_SPACES_PDS_URL }}
           push: "true"
 
       # Fail closed if the package does not inherit public visibility from this

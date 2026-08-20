@@ -34,6 +34,11 @@ To run a local development server (which you can browse at <http://localhost:300
 
     npm start
 
+To include the Spaces alpha account link in the account UI, provide the same
+public PDS URL used by the account server when starting or building the UI:
+
+    BPS_SPACES_PDS_URL=https://spaces.example.com npm start
+
 To run a static build (output in `./build/`):
 
     npm run build
@@ -61,13 +66,13 @@ BuildKit layers use the GitHub Actions cache. The workflow verifies after each
 publish that the exact SHA-tagged image can be resolved without registry
 credentials.
 
-The UI image is **environment-specific**: `BPS_PUBLIC_API_ORIGIN` is read by
-`docusaurus.config.js` and baked into the JavaScript bundle, so it is a build
-argument with no runtime override, and the build fails if it is missing rather
-than falling back to the localhost default. In CI it comes from the
-`BPS_PUBLIC_API_ORIGIN` repository variable. (`ENDPOINTS_URL` is also passed as
-a build argument, but is inert today — nothing reads `customFields.endpointsUrl`
-and the homepage hardcodes the endpoints link.)
+The UI image is **environment-specific**: `BPS_PUBLIC_API_ORIGIN` and
+`BPS_SPACES_PDS_URL` are read by `docusaurus.config.js` and baked into
+the JavaScript bundle, so they are build arguments with no runtime override.
+The container build fails if either is missing. In CI they come from repository
+variables with the same names. (`ENDPOINTS_URL` is also passed as a build
+argument, but is inert today — nothing reads `customFields.endpointsUrl` and the
+homepage hardcodes the endpoints link.)
 
 That build argument now has a second consumer with a stricter contract: the site
 publishes the account login's OAuth client metadata document at
@@ -76,7 +81,9 @@ publishes the account login's OAuth client metadata document at
 runs on (`BPS_API_ORIGIN`), or login fails — see
 [server/README.md](server/README.md#the-client_id-document-lives-on-the-website-not-here).
 
-    docker build -t bps-website-ui --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com .
+    docker build -t bps-website-ui \
+      --build-arg BPS_PUBLIC_API_ORIGIN=https://api.example.com \
+      --build-arg BPS_SPACES_PDS_URL=https://spaces.example.com .
     docker run --rm -p 8080:80 bps-website-ui
 
 Both images answer `GET /_health` for container probes.
