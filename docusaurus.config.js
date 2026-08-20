@@ -121,6 +121,13 @@ const config = {
         crossorigin: "true",
       },
     },
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'algolia-site-verification',
+        content: 'BE3503F41D92DB4B',
+      },
+    },
   ],
   plugins: [
     "@docusaurus/plugin-ideal-image",
