@@ -71,6 +71,7 @@ const sidebars = {
         'about-bluesky-content/thread-gates',
         'oembed',
         'intent-links',
+        'about-bluesky-content/visibility-preferences',
         'about-bluesky-content/app-integrations',
       ],
     },
