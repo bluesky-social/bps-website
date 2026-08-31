@@ -85,6 +85,11 @@ const config = {
 
   onBrokenLinks: "throw",
   onBrokenAnchors: "ignore",
+  // A legacy /blog redirect that collides with a route we now generate is
+  // dropped by the redirects plugin with a log line at this level. Warnings
+  // scroll past in CI, and the failure mode is a URL quietly changing meaning,
+  // so it fails the build instead. See the /blog redirect block below.
+  onDuplicateRoutes: "throw",
 
   markdown: {
     hooks: {
@@ -304,15 +309,25 @@ const config = {
             from: `/blog/${oldSlug}`,
             to: `https://atproto.com/blog/${newSlug}`,
           })),
-          // Posts that did not make the move, plus the index, pagination,
-          // archive, authors and tag pages: land on the blog index.
+          // Posts that did not make the move, plus the leftover tag pages: land
+          // on the blog index.
+          //
+          // The aggregate paths that used to be listed here — /blog,
+          // /blog/page/N, /blog/archive and /blog/authors — are gone: this site
+          // publishes a blog at /blog again and generates each of them itself.
+          //
+          // What remains is the namespace we do NOT generate today: the tag
+          // pages. Posts carry no tags at present, so /blog/tags and all twelve
+          // legacy per-tag paths still belong to the old blog.
+          //
+          // A redirect and a real route cannot both own a path, and the
+          // redirects plugin resolves that by silently dropping its own entry —
+          // so `onDuplicateRoutes: 'throw'` above turns the overlap into a
+          // build failure instead. Tagging a post again will therefore fail the
+          // build until the lines it collides with are deleted here, starting
+          // with /blog/tags.
           ...[
-            "/blog",
-            "/blog/archive",
-            "/blog/authors",
-            "/blog/page/2",
-            "/blog/page/3",
-            "/blog/page/4",
+            "/blog/tags",
             "/blog/api-v0-14-0-release-notes",
             "/blog/blueskys-moderation-architecture",
             "/blog/contact-import-rfc",
@@ -322,7 +337,6 @@ const config = {
             "/blog/rate-limits-pds-v3",
             "/blog/skygaze-hackathon",
             "/blog/ts-api-refactor",
-            "/blog/tags",
             ...[
               "community",
               "feature",
@@ -416,9 +430,42 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl: "https://github.com/bluesky-social/bps-website/tree/main/",
         },
-        // The blog has been removed from this site; its posts now live on
-        // atproto.com. Disabling the preset's blog plugin entirely.
-        blog: false,
+        // The blog covers this site's own services. Protocol-level writing —
+        // lexicon design, specification work — stays on atproto.com, which is
+        // also where every post published before this one lives; the /blog
+        // redirect block above keeps those old permalinks pointing there.
+        blog: {
+          blogTitle: "Protocol Services blog",
+          blogDescription:
+            "Service changes, deprecations, and operational notes for Bluesky Protocol Services.",
+          blogSidebarTitle: "Recent posts",
+          blogSidebarCount: 10,
+          postsPerPage: 10,
+          showReadingTime: true,
+          // No editUrl: the blog carries no "Edit this page" link. Combined
+          // with posts having no tags, BlogPostItem/Footer then renders nothing
+          // at all on a post page — which is why hiding those two needs no
+          // swizzle of its own.
+          //
+          // Posts currently carry no tags, and the byline is hidden in
+          // src/theme/BlogPostItem/Header — but authors are still declared in
+          // blog/authors.yml, because the feeds and article:author metadata
+          // come from there. Inline values remain an error: a typo is how a
+          // nameless author or a one-post tag becomes a live page. Untruncated
+          // posts get the same treatment — without a truncate marker a post
+          // dumps its full body onto the index.
+          onInlineAuthors: "throw",
+          onInlineTags: "throw",
+          onUntruncatedBlogPosts: "throw",
+          feedOptions: {
+            type: "all",
+            xslt: true,
+            title: "Bluesky Protocol Services",
+            description:
+              "Service changes, deprecations, and operational notes for Bluesky Protocol Services.",
+            copyright: `Copyright © ${new Date().getFullYear()} Bluesky PBC`,
+          },
+        },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
         },
@@ -477,16 +524,33 @@ const config = {
             to: "/docs/protocol-services",
           },
           {
-            // Middot separator between the two masthead links.
+            // Middot separator between the masthead links.
             type: "custom-navSep",
             position: "right",
             variant: "sep",
           },
           {
-            // "AT Protocol" → the broader protocol site, outbound.
+            // "Blog" → this site's own blog. The only masthead link with an
+            // `icon`: it keeps its place in the bar at mobile widths as a news
+            // glyph rather than collapsing into the hamburger drawer with Get
+            // Started and Atproto (see NavCustomLink).
             type: "custom-navLink",
             position: "right",
-            label: "AT Protocol",
+            label: "Blog",
+            to: "/blog",
+            icon: "news",
+          },
+          {
+            type: "custom-navSep",
+            position: "right",
+            variant: "sep",
+          },
+          {
+            // "Atproto" → the broader protocol site, outbound. Shortened from
+            // "AT Protocol" to buy back the width the Blog link costs.
+            type: "custom-navLink",
+            position: "right",
+            label: "Atproto",
             href: "https://atproto.com",
             external: true,
           },
@@ -567,7 +631,7 @@ const config = {
               },
               {
                 label: "Blog",
-                href: "https://atproto.com/blog",
+                to: "/blog",
               },
             ],
           },

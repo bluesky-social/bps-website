@@ -302,7 +302,7 @@ html[data-theme='light']:not(:has(.bps-home)) .navbar::before {
 /* right group = the prototype's "nav-mini" cluster: search · Get Started ·
  * GitHub↗ · theme toggle, baseline-aligned with comfortable gaps. */
 .navbar__items--right {
-  gap: 22px;
+  gap: 18px;
   align-items: center;
 }
 /* keep right-side controls legible on the bar (both themes) */
@@ -348,7 +348,7 @@ html:has(.bps-home) .navbar-sidebar [class*='colorModeToggle'] {
  * the FAR right: [...links] → colorModeToggle → account icon.
  * Use flex `order` to place the colorModeToggle at 1 and the account slot at 2
  * so it renders last regardless of DOM order. All other items stay at 0.
- * The gap:22px on .navbar__items--right gives even spacing throughout.
+ * The gap:18px on .navbar__items--right gives even spacing throughout.
  * The stable global class `bpsAccountSlot` is added by BpsAccount.js to allow
  * targeting from global CSS without relying on the hashed CSS-module class.
  * Desktop only — mobile hides the slot and uses the drawer instead. */
@@ -451,6 +451,20 @@ html[data-theme='light']:not(:has(.bps-home)) .bpsBrand__pulse circle { fill: ur
   margin: 14px 0;
   background: var(--bps-nav-divider);
 }
+/* Glyph face of an icon link (Blog). Hidden on desktop, where the mono label
+ * is shown instead; the mobile block below swaps them. Both faces are always in
+ * the markup — see NavCustomLink. */
+.bpsNav__navIcon {
+  display: none;
+  /* Matches the 18px sparkle beside it. The news glyph is a thin outline with
+   * interior detail, so unlike the closed-shape megaphone it replaced it does
+   * not read heavy at that size — and its three text lines need the room to
+   * stay separated. See src/components/Navbar/NewsIcon.js. */
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
 /* outbound-arrow icon on external links (GitHub) */
 .bpsNav__extIcon {
   width: 11px; height: 11px;
@@ -580,7 +594,7 @@ html[data-theme='dark']:root {
 
   /* hide the bar's link cluster + dividers + separator + toggle + locale picker
    * — these move to the drawer. Search stays (as an icon). */
-  .navbar__items--right > .bpsNav--link,
+  .navbar__items--right > .bpsNav--link:not(.bpsNav--iconLink),
   .navbar__items--right > .bpsNav__divider,
   .navbar__items--right > .bpsNav__sep,
   .navbar__items--right > [class*='colorModeToggle'],
@@ -588,9 +602,37 @@ html[data-theme='dark']:root {
   .navbar__items--right > .dropdown:has(> .bpsMainMenuLocale) {
     display: none;
   }
-  /* Two controls now live in the mobile bar (search icon + account slot); give
-   * them breathing room so they don't overlap. */
-  .navbar__items--right { gap: 10px; }
+  /* Four controls now live in the mobile bar: search icon, Ask AI, Blog, and
+   * the account slot. At 10px the cluster plus the brand lockup overran a
+   * 375px viewport, so the gap tightens as the bar fills up. If more controls
+   * are ever added here, the next lever is the lockup's second line
+   * (.bpsBrand__w2), not a smaller gap. */
+  .navbar__items--right { gap: 8px; }
+
+  /* Icon links (Blog) stay in the bar and take the same 2rem circular hit area
+   * as the search, Ask AI and account controls beside them, so the compact bar
+   * reads as one row of icon buttons. Mirrors AskAiButton.module.css. */
+  .navbar__items--right > .bpsNav--iconLink {
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    transition:
+      background var(--ifm-transition-fast),
+      color 0.15s ease;
+    -webkit-tap-highlight-color: color-mix(
+      in srgb,
+      var(--bps-nav-hover) 14%,
+      transparent
+    );
+  }
+  .navbar__items--right > .bpsNav--iconLink:hover {
+    background: color-mix(in srgb, var(--bps-nav-hover) 14%, transparent);
+  }
+  /* Swap the mono label for the glyph. The link keeps aria-label/title, so its
+   * accessible name survives the swap. */
+  .navbar__items--right > .bpsNav--iconLink .bpsNav__label { display: none; }
+  .navbar__items--right > .bpsNav--iconLink .bpsNav__navIcon { display: block; }
 
   /* collapse the search box to a circular icon button (placeholder + keys hidden) */
   .navbar [class*='navbarSearchContainer'] {
@@ -1327,4 +1369,67 @@ html:has(.bps-home) .footer {
 .medium-zoom-overlay,
 .medium-zoom-image--opened {
   z-index: 300;
+}
+
+/* =====================================================================
+ * Blog
+ *
+ * The post header is ours: src/theme/BlogPostItem/Header renders the title
+ * and the date/reading-time line only, and hands both a stable class. The
+ * theme's own classes here are hashed CSS-module names, so they are not
+ * something to select on.
+ *
+ * Authors, tags and "Edit this page" are absent rather than hidden — the
+ * byline by not being rendered, the other two because posts carry no tags and
+ * the blog sets no editUrl (see docusaurus.config.js). Nothing here needs to
+ * hide them.
+ * ===================================================================== */
+
+/* Secondary treatment for "August 30, 2026 · One min read": the mono metadata
+ * voice used elsewhere in the site (nav links, key caps, footer copyright),
+ * sized by --bps-text-xs, whose own comment names this exact use.
+ *
+ * The colour is a local pair rather than Infima's --ifm-color-content-secondary,
+ * which is unusable here: in dark mode Infima sets it to pure white, brighter
+ * than body text. The --bps-ink-* tokens are no good either — they are defined
+ * once with dark-mode values, for the always-dark navbar and landing page. */
+:root {
+  --bps-blog-meta: #5a6473;
+}
+html[data-theme='dark'] {
+  --bps-blog-meta: #8893a2;
+}
+
+/* (0,2,0) so it beats the theme's own .container {font-size: 0.9rem}, which is
+ * (0,1,0) — a bare .bpsBlogInfo would tie it and leave the winner to stylesheet
+ * order, which is not ours to depend on. */
+.bpsBlogHeader .bpsBlogInfo {
+  font-family: var(--bps-docs-mono);
+  font-size: var(--bps-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bps-blog-meta);
+}
+
+/* Titles. The theme sets 3rem for both the post <h1> and the list <h2> from one
+ * shared rule; these split them, so the index reads as a list of links rather
+ * than a stack of headlines the same size as the post it links to. Element +
+ * class again, to clear the theme's (0,1,0). */
+h1.bpsBlogTitle {
+  font-size: 2.5rem;
+}
+h2.bpsBlogTitle {
+  font-size: 1.75rem;
+}
+/* Matches the theme's own blog-title breakpoint. Without this the list <h2>
+ * would jump UP to the theme's 2rem on small screens, overtaking its desktop
+ * size. */
+@media (max-width: 576px) {
+  h1.bpsBlogTitle {
+    font-size: 2rem;
+  }
+  h2.bpsBlogTitle {
+    font-size: 1.5rem;
+  }
 }
