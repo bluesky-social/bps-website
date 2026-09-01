@@ -1374,18 +1374,18 @@ html:has(.bps-home) .footer {
 /* =====================================================================
  * Blog
  *
- * The post header is ours: src/theme/BlogPostItem/Header renders the title
- * and the date/reading-time line only, and hands both a stable class. The
+ * The post header is ours: src/theme/BlogPostItem/Header renders the title, the
+ * date, and — on post pages only — a byline, and hands each a stable class. The
  * theme's own classes here are hashed CSS-module names, so they are not
  * something to select on.
  *
- * Authors, tags and "Edit this page" are absent rather than hidden — the
- * byline by not being rendered, the other two because posts carry no tags and
- * the blog sets no editUrl (see docusaurus.config.js). Nothing here needs to
- * hide them.
+ * Reading time, tags and "Edit this page" are absent rather than hidden: the
+ * first because showReadingTime is false, the other two because posts carry no
+ * tags and the blog sets no editUrl (see docusaurus.config.js). Nothing here
+ * needs to hide them.
  * ===================================================================== */
 
-/* Secondary treatment for "August 30, 2026 · One min read": the mono metadata
+/* Secondary treatment for the date line: the mono metadata
  * voice used elsewhere in the site (nav links, key caps, footer copyright),
  * sized by --bps-text-xs, whose own comment names this exact use.
  *
@@ -1409,6 +1409,52 @@ html[data-theme='dark'] {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: var(--bps-blog-meta);
+}
+
+/* Byline. Deliberately NOT the mono metadata voice above: a person's name is
+ * content, and setting it in the same uppercase mono as the timestamp would
+ * read as a second piece of metadata rather than as the author. Body font,
+ * normal weight, ordinary size.
+ *
+ * The theme gives .bpsBlogInfo a margin-vert--md, so the space above the byline
+ * is already there; only the gap below it needs setting. */
+.bpsBlogHeader .bpsBlogByline {
+  margin-bottom: 1.5rem;
+}
+
+/* Multiple authors stack. Two names run together would be ambiguous about which
+ * title belongs to which, so each gets its own block with a gap between. */
+.bpsBlogHeader .bpsBlogBylineAuthor + .bpsBlogBylineAuthor {
+  margin-top: 0.6rem;
+}
+
+.bpsBlogHeader .bpsBlogBylineName,
+.bpsBlogHeader .bpsBlogBylineTitle {
+  display: block;
+  line-height: 1.35;
+}
+
+.bpsBlogHeader .bpsBlogBylineName {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Underline on hover only. The name sits directly under the date and above the
+ * body copy; a permanently underlined link there reads as a call to action in a
+ * place where nothing is being asked of the reader. */
+.bpsBlogHeader .bpsBlogBylineName a {
+  color: inherit;
+  text-decoration: none;
+}
+.bpsBlogHeader .bpsBlogBylineName a:hover,
+.bpsBlogHeader .bpsBlogBylineName a:focus-visible {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.bpsBlogHeader .bpsBlogBylineTitle {
+  font-size: var(--bps-text-sm);
   color: var(--bps-blog-meta);
 }
 

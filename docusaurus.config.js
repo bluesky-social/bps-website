@@ -441,7 +441,10 @@ const config = {
           blogSidebarTitle: "Recent posts",
           blogSidebarCount: 10,
           postsPerPage: 10,
-          showReadingTime: true,
+          // The post header shows a byline where the reading time used to be;
+          // see src/theme/BlogPostItem/Header. Off at the source rather than
+          // hidden in CSS, so Info renders the date alone on the index too.
+          showReadingTime: false,
           // No editUrl: the blog carries no "Edit this page" link. Combined
           // with posts having no tags, BlogPostItem/Footer then renders nothing
           // at all on a post page — which is why hiding those two needs no

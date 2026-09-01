@@ -76,8 +76,8 @@ Posts are Markdown files in `blog/`, named `YYYY-MM-DD-name.md`. Front matter:
 
     ---
     slug: welcome
-    title: A blog for Protocol Services
-    date: 2026-08-30
+    title: A blog for Bluesky Protocol Services
+    date: 2026-09-01
     authors: [bluesky]
     description: Where service changes, deprecations, and operational notes get written down.
     head_meta:
@@ -90,8 +90,9 @@ Posts are Markdown files in `blog/`, named `YYYY-MM-DD-name.md`. Front matter:
 | `title` | yes | |
 | `date` | for Sequoia | Docusaurus reads the date from the filename prefix, but Sequoia does not — see [Publishing to the AT Protocol](#publishing-to-the-at-protocol). Write it out. |
 | `authors` | yes | Keys from `blog/authors.yml`. |
-| `description` | yes | Feeds, `og:description`, and the Bluesky post Sequoia can make. |
+| `description` | yes | The blog index entry, the feeds, `og:description`, and the Bluesky post Sequoia can make. Docusaurus falls back to the excerpt when it is missing, so the index is never blank — but write one. |
 | `head_meta` | no | Extra `<head>` tags; see below. |
+| `atUri` | no | Written by `sequoia publish` — do not edit by hand. See [Publishing to the AT Protocol](#publishing-to-the-at-protocol). |
 
 Three front-matter mistakes fail the build rather than degrading quietly, all
 set in `docusaurus.config.js`:
@@ -101,14 +102,35 @@ set in `docusaurus.config.js`:
   `authors.yml` first.
 - **A tag declared inline** (`onInlineTags: 'throw'`). Posts carry no tags at
   present; a one-post tag page is almost always a typo.
-- **A post with no truncate marker** (`onUntruncatedBlogPosts: 'throw'`).
-  Without `{/* truncate */}` a post dumps its whole body onto the index.
+- **A post with no truncate marker** (`onUntruncatedBlogPosts: 'throw'`). The
+  index shows the `description` rather than the excerpt, so a missing marker no
+  longer dumps the body onto it — but the marker still bounds the excerpt that
+  `description` falls back to when a post declares none.
 
-Post pages show the title and the date/reading-time only. There is no byline,
-no tags and no "Edit this page" link — the byline is hidden in
-`src/theme/BlogPostItem/Header`, and the other two are absent because the blog
-sets no `editUrl` and posts carry no tags, which leaves `BlogPostItem/Footer`
-rendering nothing at all.
+A post page shows the title, the date, and a byline: the author's name linked
+to their profile, with their `title` from `authors.yml` beneath it. All three
+come from `src/theme/BlogPostItem/Header`, which is ejected rather than wrapped
+because it drops the theme's own avatar byline and renames the parts it keeps.
+The byline itself is `src/components/BlogByline` — not a theme component, since
+it shadows nothing.
+
+There is no reading time, no tags and no "Edit this page" link. Reading time is
+off at the source (`showReadingTime: false`), so the date stands alone rather
+than being hidden in CSS; the other two are absent because the blog sets no
+`editUrl` and posts carry no tags, which leaves `BlogPostItem/Footer` rendering
+nothing at all.
+
+**The blog index shows each post's `description`, not the excerpt.** The theme
+renders the same truncated MDX in both places, which makes an index entry a
+fragment that starts mid-argument and stops mid-sentence; the description is
+written to be read on its own, and already feeds the RSS/Atom/JSON feeds and
+`og:description`. `src/theme/BlogPostItem/Content` wraps the theme component to
+make the swap — the post page delegates to the original untouched, so the
+`blogPostContainerID` the feed generator looks for is preserved. The byline is
+post-pages-only, so index entries stay title, date and description.
+
+Descriptions run at whatever length the front matter gives them; nothing clamps
+them to a fixed number of lines.
 
 #### `head_meta`
 
@@ -144,70 +166,90 @@ The blog is also published to the ATmosphere as
 `site.standard.publication` record, so that AT Protocol aggregators can index
 the blog as first-class content rather than by scraping HTML.
 
-The publishing account is **`bsky-network.bsky.social`**
-(`did:plc:vjmzeyaqcg4aav2txasemfgj`).
+| | |
+| --- | --- |
+| Publishing account | `bsky-network.bsky.social` (`did:plc:vjmzeyaqcg4aav2txasemfgj`) |
+| PDS | `https://brittlegill.us-west.host.bsky.network` |
+| Publication record | `at://did:plc:vjmzeyaqcg4aav2txasemfgj/site.standard.publication/3muhzfi5rsp2p` |
 
 Sequoia is a `devDependency` (`sequoia-cli`), so run it through `npx` rather
 than installing it globally as its own docs suggest:
 
     npx sequoia --help
 
-> **Not set up yet.** As of this writing the account holds no
-> `site.standard.publication` record and the repo has no `sequoia.json`, so the
-> one-time setup below has not been run. Everything after it describes the
-> intended workflow, not a workflow this repo has exercised.
+The one-time setup below is **already done** — the publication record exists,
+`sequoia.json` and `.sequoia-state.json` are committed, and the `.well-known`
+files are in `static/`. It is written down because the settings are not
+obvious, and because a future migration to another account would repeat it.
 
-#### One-time setup
+#### Configuration
 
-Authenticate, then initialize. OAuth is preferred; `npx sequoia auth` takes an
-app password instead, which is what CI needs.
-
-    npx sequoia login
-    npx sequoia init
-
-`init` asks a series of questions. The answers for this repo:
-
-| Prompt | Answer |
-| --- | --- |
-| Site URL | `https://bsky.network` |
-| Content directory | `./blog` |
-| Cover images directory | `./static/img` |
-| Public/static directory | `./static` |
-| Build output directory | `./build` |
-| URL path prefix for posts | `/blog` |
-
-It then asks for front-matter field mappings, and finally whether to create a
-publication. Creating one writes a `site.standard.publication` record to the
-account's PDS, a `sequoia.json` in the repo root, and the publication's AT URI
-to `static/.well-known/site.standard.publication`.
-
-Two settings need to be right in `sequoia.json` afterwards, because the
-defaults do not match Docusaurus's file layout:
+`sequoia init` writes `sequoia.json` from an interactive questionnaire. Four of
+its settings carry real consequences, and the defaults are wrong for a
+Docusaurus blog:
 
     {
+      "siteUrl": "https://bsky.network/blog",
+      "pathPrefix": "",
+      "publicDir": "./static",
       "stripDatePrefix": true,
       "frontmatter": {
+        "publishDate": "date",
         "slugField": "slug",
         "coverImage": "image"
       }
     }
 
-`slugField` makes Sequoia take the slug from front matter, matching the URL
-Docusaurus actually serves. `stripDatePrefix` is the fallback for a post with
-no `slug` in its front matter: without it, `2026-08-30-welcome.md` becomes the
-slug `2026-08-30-welcome` and the record points at a URL that does not exist.
-`coverImage` maps to Docusaurus's `image` front-matter field, which Sequoia
-otherwise looks for under the name `ogImage`.
+**`siteUrl` is the blog, not the site.** It becomes the publication record's
+`url`, and the publication here is the blog rather than all of bsky.network.
+With `siteUrl` carrying the `/blog` path, `pathPrefix` must be empty or the
+prefix appears twice in every document URL.
 
-Commit `sequoia.json`, `static/.well-known/site.standard.publication` and
-`.sequoia-state.json`. The state file holds the AT URI and a content hash for
-each post, which is how a later `publish` knows to update a record rather than
-create a second one.
+**`frontmatter.slugField` must be `slug`.** Without it, Sequoia derives the
+slug from the filename, so `2026-08-30-welcome.md` yields the path
+`/2026-08-30-welcome` while Docusaurus serves the post at `/blog/welcome` from
+its `slug:` front matter. The record then points at a URL that does not exist,
+and document verification cannot succeed. (This is not hypothetical — the
+first publish did exactly that, and the record had to be corrected.)
+`stripDatePrefix` is the backstop for a post that omits `slug:`.
+
+**`frontmatter.coverImage` must be `image`.** Sequoia looks for `ogImage` by
+default; Docusaurus names the field `image`.
+
+**`publicDir` must be `./static`, not `./build`.** This is where the
+publication verification file is written, and `/build` is gitignored — a copy
+placed there is absent from every fresh clone and every CI build. Under
+`static/` it is version-controlled, and Docusaurus copies it into the build
+because copy-webpack-plugin globs static directories with `dot: true`.
+
+`publishContent` is `false`, so records carry title, description, dates and a
+canonical URL, but not the post body. Readers follow the link to the site.
+
+#### Publication verification
+
+A `site.standard.publication` record is verified by serving its AT URI from a
+`.well-known` endpoint on the domain it claims. This blog is a **non-root**
+publication (`https://bsky.network/blog`), and the
+[spec](https://standard.site/docs/verification) says a non-root publication
+appends its path to the endpoint. Sequoia instead writes the file under the
+publication's own path. The two disagree, so the repo serves both:
+
+| Path | Origin |
+| --- | --- |
+| `/.well-known/site.standard.publication/blog` | what the Standard.site spec prescribes for a non-root publication |
+| `/blog/.well-known/site.standard.publication` | where Sequoia writes it |
+
+Both hold the same AT URI, both live under `static/`, and nginx serves them
+because `deploy/nginx.conf` has no rule denying dotfiles. Serving the pair
+costs two small files and avoids betting on which one an indexer reads.
+**Confirm against [site-validator.fly.dev](https://site-validator.fly.dev/)
+after the next deploy, and delete whichever is dead weight.**
 
 #### Per-release workflow
 
 Order matters. Publishing first is what gives the build something to inject.
 
+    npx sequoia login                # once per machine; OAuth in the browser
     npx sequoia publish --dry-run    # what would be created or updated
     npx sequoia publish              # write the records
     npm run build                    # build the site
@@ -218,17 +260,19 @@ Order matters. Publishing first is what gives the build something to inject.
 records for changed ones, writes `.sequoia-state.json`, and adds an `atUri`
 field to each post's front matter. Posts with `draft: true` are skipped.
 
-`inject` adds `<link rel="site.standard.document" href="at://...">` to the
-`<head>` of each built post page. This is what makes a document *verified*:
-an aggregator follows the record's URL, finds the link tag pointing back at
-the record, and trusts the pair. The publication half of verification is the
-`.well-known` file, which reaches `build/.well-known/` because Docusaurus
-copies static directories with dotfiles included, and which nginx serves
-because `deploy/nginx.conf` has no rule denying dotfiles.
+Change detection is by content hash, so a change that leaves the body alone —
+editing `sequoia.json`, renaming a file — will not trigger an update on its
+own. Use `npx sequoia publish --force` to rewrite every record.
 
-Verify a deployed post at
-[site-validator.fly.dev](https://site-validator.fly.dev/), which checks both
-the record schema and the Standard.site verification requirements.
+`inject` adds `<link rel="site.standard.document" href="at://...">` to the
+`<head>` of each built post page. That link is what verifies a document: an
+aggregator follows the record's canonical URL, finds the tag pointing back at
+the record, and trusts the pair.
+
+Commit `sequoia.json`, `.sequoia-state.json`, the `.well-known` files under
+`static/`, and the `atUri` front matter that `publish` writes. The state file
+maps each post to its AT URI and content hash, which is how a later publish
+updates a record instead of creating a second one.
 
 #### Automating it
 
@@ -248,21 +292,22 @@ duplicate records.
 #### Known rough edges
 
 - **Docusaurus is not on Sequoia's [supported frameworks
-  list](https://sequoia.pub/supported-frameworks).** Nothing here is known to
-  break, but this pairing is untested upstream.
+  list](https://sequoia.pub/supported-frameworks).** The pairing works, but it
+  is untested upstream, which is why the slug and `publicDir` settings above
+  had to be worked out by hand.
 - **`date` in front matter is not optional.** Sequoia looks for `publishDate`,
-  `pubDate`, `date`, `createdAt` or `created_at` and has no fallback to the
-  filename's date prefix, which is where Docusaurus gets it from.
-  `blog/2026-08-30-welcome.md` currently has no `date` field.
+  `pubDate`, `date`, `createdAt` or `created_at`, and has no fallback to the
+  filename's date prefix — which is where Docusaurus gets it from. A post
+  without an explicit `date:` publishes with the wrong date or none at all.
 - **The `ja` locale duplicates every post** at `/ja/blog/<slug>`. Those pages
   are not the record's canonical URL, so whether `inject` leaves them alone has
   not been checked.
 - **An alternative to `inject`** would be to extend the
   `src/theme/BlogPostPage/Metadata` wrapper, which today emits `<meta>` tags
   from `head_meta` only, to also emit a `<link rel="site.standard.document">`
-  from the `atUri` front-matter field that `publish` writes. That keeps
-  verification inside the build rather than in a post-build step, at the cost
-  of a slightly larger swizzle.
+  from the `atUri` front matter that `publish` writes. That keeps verification
+  inside the build rather than in a post-build step, at the cost of a slightly
+  larger swizzle.
 
 ## Container images
 

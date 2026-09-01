@@ -169,7 +169,7 @@ for (const post of headMetaPosts) {
 }
 
 // ---- Blog post chrome ----------------------------------------------------
-// The post header shows title and date/reading-time only. Authors, tags and the
+// The post header shows title, date and byline. Reading time, tags and the
 // "Edit this page" row are all deliberately absent — see
 // src/theme/BlogPostItem/Header and the blog options in docusaurus.config.js.
 check('post header carries our title and meta classes', () => {
@@ -178,16 +178,184 @@ check('post header carries our title and meta classes', () => {
   if (!article.includes('bpsBlogTitle'))
     return 'title is missing the bpsBlogTitle class'
   if (!article.includes('bpsBlogInfo'))
-    return 'date/reading-time is missing the bpsBlogInfo class'
+    return 'the date is missing the bpsBlogInfo class'
   return null
 })
-check('post does not show an author byline', () => {
+// The byline is post-pages-only, so it needs assertions on both sides: present
+// on the post, absent from the index.
+//
+// Derived from blog/authors.yml and the post's own front matter rather than
+// hardcoded, for the same reason the head_meta checks are: reassigning a post
+// to a different author should not silently stop testing the byline. Matching
+// on a name alone would not do anyway — the authors are Bluesky people and the
+// organisation itself, so their names turn up in post titles and prose. The
+// profile link is the marker only a byline emits.
+function readAuthorsYml() {
+  const file = path.resolve(import.meta.dirname, '..', 'blog', 'authors.yml')
+  const authors = {}
+  let current = null
+  for (const line of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
+    if (/^\s*(#|$)/.test(line)) continue
+    const top = /^([A-Za-z0-9_-]+):\s*$/.exec(line)
+    if (top) {
+      current = top[1]
+      authors[current] = {}
+      continue
+    }
+    const field = /^\s+([a-z_]+):\s*(.+?)\s*$/.exec(line)
+    if (field && current) authors[current][field[1]] = field[2]
+  }
+  return authors
+}
+
+// The authors of blog/<slug>.md, resolved against authors.yml.
+function authorsOfPost(slug) {
+  const blogDir = path.resolve(import.meta.dirname, '..', 'blog')
+  const all = readAuthorsYml()
+  for (const file of fs.readdirSync(blogDir)) {
+    if (!/\.mdx?$/.test(file)) continue
+    const src = fs.readFileSync(path.join(blogDir, file), 'utf8')
+    const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(src)
+    if (!fm || /^slug:\s*(.+)$/m.exec(fm[1])?.[1].trim() !== slug) continue
+    const keys = /^authors:\s*\[(.+?)\]\s*$/m.exec(fm[1])?.[1]
+    if (!keys) return []
+    return keys
+      .split(',')
+      .map((k) => k.trim())
+      .map((k) => all[k])
+      .filter(Boolean)
+  }
+  return []
+}
+
+const welcomeAuthors = authorsOfPost('welcome')
+
+check('the byline check has an author to assert on', () =>
+  welcomeAuthors.length > 0
+    ? null
+    : 'blog/welcome resolves to no author in blog/authors.yml, so the byline is untested',
+)
+
+check('post shows an author byline', () => {
   const article = articleOf('blog/welcome/index.html')
   if (article === null) return 'no <article> in blog/welcome/index.html'
-  return article.includes('Bluesky Protocol Services')
-    ? 'the author name is rendered in the post body'
+  if (!article.includes('bpsBlogByline'))
+    return 'the byline is missing the bpsBlogByline class'
+  for (const author of welcomeAuthors) {
+    if (!article.includes(author.name))
+      return `the byline omits the author name "${author.name}"`
+    // Both optional in authors.yml, so only asserted when the entry has them.
+    if (author.title && !article.includes(author.title))
+      return `the byline omits the author title "${author.title}"`
+    if (author.url && !article.includes(author.url))
+      return `the byline does not link the author to ${author.url}`
+  }
+  return null
+})
+
+// The byline belongs to the post page. The index is a list of links, and a
+// byline under every entry would crowd it — see src/theme/BlogPostItem/Header,
+// which renders it only when useBlogPost().isBlogPostPage is true. Without this
+// check, a refactor could leak the byline onto the index unnoticed.
+check('blog index does not show the byline', () => {
+  const article = articleOf('blog/index.html')
+  if (article === null) return 'no <article> in blog/index.html'
+  return article.includes('bpsBlogByline')
+    ? 'a byline is rendered on the blog index'
     : null
 })
+
+// ---- Blog index summaries ------------------------------------------------
+// The index shows each post's front-matter `description`, not the excerpt that
+// runs up to its truncate marker — see src/theme/BlogPostItem/Content.
+//
+// Only posts that actually declare a description are asserted on: Docusaurus
+// computes `description = frontMatter.description ?? excerpt`, so a post
+// without one legitimately falls back to its body text and would fail the
+// absence check below for the right reason.
+function readPostSummaries() {
+  const blogDir = path.resolve(import.meta.dirname, '..', 'blog')
+  const posts = []
+  for (const file of fs.readdirSync(blogDir)) {
+    if (!/\.mdx?$/.test(file)) continue
+    const src = fs.readFileSync(path.join(blogDir, file), 'utf8')
+    const fm = /^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/.exec(src)
+    if (!fm) continue
+    const description = /^description:\s*(.+)$/m
+      .exec(fm[1])?.[1]
+      .trim()
+      .replace(/^["']|["']$/g, '')
+    if (!description) continue
+
+    // A probe for body text that must NOT reach the index: the run of plain
+    // prose that opens the first paragraph, cut before any Markdown that would
+    // become a tag in the rendered HTML and break a substring match.
+    const firstPara = fm[2]
+      .split(/\r?\n\s*\r?\n/)
+      .map((para) => para.trim())
+      .find((para) => para && !/^(#|<|import |\{\/\*|:::|```)/.test(para))
+    const leadIn = firstPara?.split(/[[`*_<]/)[0].trim()
+
+    posts.push({ file, description, leadIn })
+  }
+  return posts
+}
+
+const summaryPosts = readPostSummaries()
+
+check('the index summary checks have posts to assert on', () =>
+  summaryPosts.length > 0
+    ? null
+    : 'no blog post declares a description, so the index summary is untested',
+)
+
+check('blog index shows each post description', () => {
+  const article = articleOf('blog/index.html')
+  if (article === null) return 'no <article> in blog/index.html'
+  if (!article.includes('bpsBlogSummary'))
+    return 'the index summary is missing the bpsBlogSummary class'
+  for (const post of summaryPosts) {
+    if (!article.includes(post.description))
+      return `${post.file}: the description is not on the index`
+  }
+  return null
+})
+
+// The description alone is not enough to prove the swap: it could render while
+// the excerpt still sat beneath it. This is the half that pins the behaviour.
+check('blog index does not show post body text', () => {
+  const article = articleOf('blog/index.html')
+  if (article === null) return 'no <article> in blog/index.html'
+  for (const post of summaryPosts) {
+    // Too short a lead-in would match by coincidence and fail for no reason.
+    if (!post.leadIn || post.leadIn.length < 25) continue
+    if (article.includes(post.leadIn))
+      return `${post.file}: body text ("${post.leadIn.slice(0, 40)}…") is on the index`
+  }
+  return null
+})
+
+// The post page still renders the body, not the description standing in for it.
+check('post page still renders its body', () => {
+  const article = articleOf('blog/welcome/index.html')
+  if (article === null) return 'no <article> in blog/welcome/index.html'
+  const welcome = summaryPosts.find((post) => /welcome/.test(post.file))
+  if (!welcome?.leadIn) return 'no lead-in probe for the welcome post'
+  return article.includes(welcome.leadIn)
+    ? null
+    : 'the post body is missing from the post page'
+})
+
+// showReadingTime is false in docusaurus.config.js: the byline replaced it.
+// Checked on both, because the option feeds the index and the post alike.
+for (const rel of ['blog/welcome/index.html', 'blog/index.html']) {
+  check(`${rel}: no reading time`, () => {
+    const article = articleOf(rel)
+    if (article === null) return `no <article> in ${rel}`
+    return /min read/.test(article) ? 'a reading time is rendered' : null
+  })
+}
+
 check('post does not show tags', () => {
   const article = articleOf('blog/welcome/index.html')
   if (article === null) return 'no <article> in blog/welcome/index.html'
@@ -202,11 +370,17 @@ check('post does not offer "Edit this page"', () => {
     ? 'the edit link is rendered on the post'
     : null
 })
-// The author is still credited in the feed and page metadata — hiding the
-// byline is a display choice, not a decision to publish anonymously.
-check('feed still credits the author', () =>
-  contains('blog/rss.xml', 'Bluesky Protocol Services'),
-)
+// The feeds credit the author too, from the same blog/authors.yml entry the
+// byline reads. Atom rather than RSS: RSS omits an author with no email, and
+// the feed's own title would match a bare name search regardless.
+check('feed still credits the author', () => {
+  if (welcomeAuthors.length === 0) return 'no author to look for'
+  for (const author of welcomeAuthors) {
+    const problem = contains('blog/atom.xml', author.name)
+    if (problem) return problem
+  }
+  return null
+})
 
 // ---- Legacy /blog redirects ----------------------------------------------
 // The per-post slugs still belong to atproto.com; reclaiming /blog must not

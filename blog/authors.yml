@@ -10,3 +10,9 @@ bluesky:
   url: https://bsky.app/profile/bsky.app
   image_url: /img/favicon.png
   page: false
+
+jimray:
+  name: Jim Ray
+  title: Bluesky DevRel
+  url: https://bsky.app/profile/did:plc:lysqukqdu6hsrhet5v2brjgo
+  page: false
