@@ -31,3 +31,5 @@ yarn-error.log*
 
 # Generated site-side lexicon client types
 /src/lexicons
+
+.sequoia-state.json

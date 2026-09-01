@@ -1,0 +1,13 @@
+{
+  "$schema": "https://tangled.org/stevedylan.dev/sequoia/raw/main/sequoia.schema.json",
+  "siteUrl": "https://bsky.network/blog",
+  "contentDir": "./blog",
+  "publicDir": "./build",
+  "outputDir": "./build",
+  "pathPrefix": "/blog",
+  "publicationUri": "at://did:plc:vjmzeyaqcg4aav2txasemfgj/site.standard.publication/3muhzfi5rsp2p",
+  "frontmatter": {
+    "publishDate": "date"
+  },
+  "publishContent": false
+}
