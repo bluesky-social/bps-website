@@ -11,7 +11,7 @@
  * That client module is deliberately not ported here.)
  *
  * Desktop: "ASK AI" in plain mono text, matching the masthead links ("GET
- *   STARTED", "AT PROTOCOL") rather than the search box's bordered surface.
+ *   STARTED", "ATPROTO") rather than the search box's bordered surface.
  *   Spelled out because a bare "AI" read as a label for something rather than an
  *   action you can take.
  * Mobile (≤996px): a 2rem circular hit area holding a monotone sparkle glyph —

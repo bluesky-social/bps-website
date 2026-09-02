@@ -1,0 +1,18 @@
+# Global blog authors. Referenced from post front matter by key:
+#   authors: [bluesky]
+#
+# `onInlineAuthors: 'throw'` in docusaurus.config.js means a post cannot invent
+# an author inline — an unknown key fails the build rather than quietly
+# producing a one-off author with no page. Add people here first.
+bluesky:
+  name: Bluesky Protocol Services
+  title: Bluesky PBC
+  url: https://bsky.app/profile/bsky.app
+  image_url: /img/favicon.png
+  page: false
+
+jimray:
+  name: Jim Ray
+  title: Bluesky DevRel
+  url: https://bsky.app/profile/did:plc:lysqukqdu6hsrhet5v2brjgo
+  page: false

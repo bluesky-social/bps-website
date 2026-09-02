@@ -3,7 +3,7 @@
  *
  * Sits immediately right of the search box. Desktop styling deliberately
  * matches the mono masthead links (.bpsNav--link in custom.css — "GET STARTED",
- * "AT PROTOCOL") rather than the search box's bordered surface: it's a nav
+ * "ATPROTO") rather than the search box's bordered surface: it's a nav
  * action, not an input affordance, so borrowing the search chrome read as an odd
  * second search control. Plain mono text keeps the masthead light.
  *

@@ -3,6 +3,14 @@ import Link from '@docusaurus/Link'
 import { useLocation } from '@docusaurus/router'
 import {useNavbarMobileSidebar} from '@docusaurus/theme-common/internal'
 import ExternalLinkIcon from '../ExternalLinkIcon'
+import NewsIcon from './NewsIcon'
+
+// Glyphs available to the `icon` prop. Keyed by name because these items are
+// configured from docusaurus.config.js, which can only carry data — not a
+// component reference.
+const ICONS = {
+  news: NewsIcon,
+}
 
 // Mono masthead nav link, modeled on the landing-bsky prototype's "nav-mini"
 // entries (uppercase JetBrains mono). Used for "Learn" (internal `to`)
@@ -12,7 +20,14 @@ import ExternalLinkIcon from '../ExternalLinkIcon'
 // Desktop: renders in the top bar (the mono masthead style). Mobile: renders as
 // a standard menu link inside the hamburger drawer, so the drawer's main menu
 // isn't empty (the bar collapses these away at mobile widths via CSS).
-export default function NavCustomLink({ mobile, label, to, href, external }) {
+//
+// `icon` opts a link out of that collapse. An icon link keeps its place in the
+// bar at every width, swapping its mono label for the glyph — the same trick
+// AskAiButton uses, with both faces in the markup and the breakpoint choosing
+// one, so nothing is measured and nothing can mismatch at hydration. Such a
+// link renders nothing into the drawer, since it never left the bar; listing it
+// in both places would be a duplicate entry, not a fallback.
+export default function NavCustomLink({ mobile, label, to, href, external, icon }) {
   // Close the mobile drawer when a drawer link is tapped (Docusaurus doesn't
   // auto-close for these custom items the way it does for its own menu links).
   const mobileSidebar = useNavbarMobileSidebar()
@@ -22,24 +37,54 @@ export default function NavCustomLink({ mobile, label, to, href, external }) {
   // <Link> doesn't track this on its own (unlike the built-in NavLink items),
   // so we mark it ourselves to match the rest of the masthead.
   const active = !external && !!to && (pathname === to || pathname.startsWith(to + '/'))
+  const Icon = icon ? ICONS[icon] : undefined
+  // A misspelled icon name would otherwise degrade into a label-only link that
+  // vanishes at mobile widths — visible only to whoever happens to load the
+  // site on a phone. Fail where it is introduced instead.
+  if (icon && !Icon) {
+    throw new Error(
+      `NavCustomLink: unknown icon "${icon}" for "${label}". Known icons: ${Object.keys(ICONS).join(', ')}.`,
+    )
+  }
+  // Icon links stay in the bar at every width, so they contribute nothing to
+  // the drawer's menu list.
+  if (mobile && Icon) return null
+
   // In the mobile drawer, render as a plain Docusaurus menu link so the main
   // menu is populated (Learn, GitHub). Desktop uses the mono bar style.
   const base = mobile ? 'menu__link' : 'bpsNav bpsNav--link'
   const activeCls = active ? (mobile ? ' menu__link--active' : ' bpsNav--link--active') : ''
-  const cls = base + activeCls
+  const cls = base + activeCls + (Icon ? ' bpsNav--iconLink' : '')
   const onClick = mobile ? () => mobileSidebar.toggle() : undefined
   const content = (
     <>
       <span className="bpsNav__label">{label}</span>
       {external && <ExternalLinkIcon className="bpsNav__extIcon" />}
+      {Icon && <Icon className="bpsNav__navIcon" />}
     </>
   )
+  // The label is hidden at mobile widths on an icon link, so the accessible
+  // name has to come from somewhere that survives the swap.
+  const naming = Icon ? { 'aria-label': label, title: label } : {}
   const anchor = href ? (
-    <a className={cls} href={href} target="_blank" rel="noopener noreferrer" onClick={onClick}>
+    <a
+      className={cls}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={onClick}
+      {...naming}
+    >
       {content}
     </a>
   ) : (
-    <Link className={cls} to={to} aria-current={active ? 'page' : undefined} onClick={onClick}>
+    <Link
+      className={cls}
+      to={to}
+      aria-current={active ? 'page' : undefined}
+      onClick={onClick}
+      {...naming}
+    >
       {content}
     </Link>
   )

@@ -15,8 +15,22 @@ build: ## Build the website, output in ./build/
 	npm run build
 
 .PHONY: test
-test: ## Run all tests
-	npx docusaurus-mdx-checker
+test: ## Run all tests (run 'make build' first — check-build reads ./build)
+	# Scoped to the content dirs. The checker's own ignore list has a bare
+	# "node_modules" entry, which globby matches only at the top level — so run
+	# from the repo root it descends into server/node_modules and fails on
+	# dependencies' READMEs. That made `make test` fail regardless of anything
+	# in this repo.
+	#
+	# Each run also globs ../docs relative to its -c dir (a convenience for
+	# website/-style monorepos), so the reported file counts overlap: every
+	# invocation below re-checks docs/ as well as its own directory. Harmless,
+	# but it is why the numbers do not match the file counts.
+	npx docusaurus-mdx-checker -c docs
+	npx docusaurus-mdx-checker -c blog
+	npx docusaurus-mdx-checker -c src/pages
+	npx docusaurus-mdx-checker -c i18n
+	node scripts/check-build.mjs
 
 #.PHONY: fmt
 #fmt: ## Run syntax re-formatting
