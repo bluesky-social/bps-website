@@ -27,7 +27,14 @@ const ICONS = {
 // one, so nothing is measured and nothing can mismatch at hydration. Such a
 // link renders nothing into the drawer, since it never left the bar; listing it
 // in both places would be a duplicate entry, not a fallback.
-export default function NavCustomLink({ mobile, label, to, href, external, icon }) {
+//
+// `drawer: false` opts a link out of the drawer for the other reason: the
+// drawer already reaches that destination by another route, so a masthead copy
+// would be a second row pointing at the same page. It applies to a bar link
+// whose target is also a docs sidebar entry — the drawer gets those from the
+// sidebar itself (DocsMenu on non-docs routes, the real sidebar pane on docs
+// routes), so the link stays desktop-only.
+export default function NavCustomLink({ mobile, label, to, href, external, icon, drawer = true }) {
   // Close the mobile drawer when a drawer link is tapped (Docusaurus doesn't
   // auto-close for these custom items the way it does for its own menu links).
   const mobileSidebar = useNavbarMobileSidebar()
@@ -47,8 +54,9 @@ export default function NavCustomLink({ mobile, label, to, href, external, icon 
     )
   }
   // Icon links stay in the bar at every width, so they contribute nothing to
-  // the drawer's menu list.
-  if (mobile && Icon) return null
+  // the drawer's menu list. `drawer: false` links are excluded from it too,
+  // because the drawer already lists their target (see the header comment).
+  if (mobile && (Icon || !drawer)) return null
 
   // In the mobile drawer, render as a plain Docusaurus menu link so the main
   // menu is populated (Learn, GitHub). Desktop uses the mono bar style.

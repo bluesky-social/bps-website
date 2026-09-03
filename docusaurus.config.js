@@ -141,6 +141,14 @@ const config = {
   ],
   plugins: [
     "@docusaurus/plugin-ideal-image",
+    [
+      // Publishes the tutorialSidebar item tree as global data, which is what
+      // lets the mobile hamburger render the real sidebar on non-docs routes
+      // (see plugins/docs-sidebar-nav.js and src/components/Navbar/DocsMenu.js).
+      // sidebars.js is the single source of truth; nothing mirrors it by hand.
+      require.resolve("./plugins/docs-sidebar-nav.js"),
+      { sidebarId: "tutorialSidebar" },
+    ],
     // Silence webpack's "Can't resolve 'bufferutil' / 'utf-8-validate'"
     // warnings. Those come from `ws`, which reaches the SSR bundle through
     // @bsky/jetstream's Node websocket transport (the browser bundle resolves
@@ -521,10 +529,15 @@ const config = {
           },
           {
             // "Get Started" → the Protocol Services docs landing page.
+            // `drawer: false`: this is the docs sidebar's first entry, so the
+            // hamburger already lists it (via DocsMenu off docs routes, via
+            // the sidebar pane on them) — a masthead copy would be a second
+            // row pointing at the same page.
             type: "custom-navLink",
             position: "right",
             label: "Get Started",
             to: "/docs/protocol-services",
+            drawer: false,
           },
           {
             // Middot separator between the masthead links.
@@ -566,10 +579,13 @@ const config = {
           },
           {
             // Sits last so it lands beside the auto-appended color-mode toggle.
-            // On mobile this same item would also render into the drawer's main
-            // menu list; `bpsMainMenuLocale` lets CSS hide that copy there, since
-            // the picker is surfaced inside the Documentation group / docs
-            // sidebar instead (see DocsMenu + DocSidebar/Mobile swizzles).
+            // `bpsMainMenuLocale` does double duty: it styles the desktop
+            // picker as an icon-only button (custom.css), and it marks this
+            // copy as bar-only so it isn't rendered into the mobile drawer,
+            // where the picker is already surfaced inside the Documentation
+            // group / docs sidebar (see the localeDropdown wrapper in
+            // src/theme/NavbarItem/ComponentTypes.js, plus DocsMenu and the
+            // DocSidebar/Mobile swizzle).
             type: "localeDropdown",
             position: "right",
             className: "bpsMainMenuLocale",

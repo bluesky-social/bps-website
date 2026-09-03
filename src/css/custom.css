@@ -726,13 +726,16 @@ html[data-theme='dark']:root {
 /* smaller close (X) button, snug against the toggle */
 .navbar-sidebar__close { padding: 4px; margin-left: 0; }
 .navbar-sidebar__close svg { width: 18px; height: 18px; }
-/* Hide the standalone locale switcher in the drawer's main menu list — it's
- * surfaced inside the Documentation group / docs sidebar instead. Scoped to
- * the mobile drawer, so the desktop top-bar picker is unaffected. The
- * className lands on the dropdown's inner link, so hide its list item. */
-.navbar-sidebar__items .menu__list-item:has(> .bpsMainMenuLocale) {
-  display: none;
-}
+/* The standalone locale switcher is kept out of the drawer's main menu list —
+ * it's surfaced inside the Documentation group / docs sidebar instead — by not
+ * rendering it there at all (the `bpsMainMenuLocale` marker is honored by the
+ * localeDropdown wrapper in src/theme/NavbarItem/ComponentTypes.js, so this
+ * class is now a bar-only marker as well as a style hook). It used to be
+ * hidden here with
+ * `.menu__list-item:has(> .bpsMainMenuLocale)`, which quietly stopped matching
+ * when Docusaurus wrapped mobile dropdown links in
+ * `.menu__list-item-collapsible`, leaving a duplicate "Languages" row on the
+ * homepage. Don't reintroduce a structural selector for this. */
 /* Desktop top-bar locale switcher as an icon-only button: the current-locale
  * label ("English" / "日本語") is a bare text node after the icon, so collapse
  * it with font-size:0. The link isn't natively flex, so make it an explicit
