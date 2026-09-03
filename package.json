@@ -13,7 +13,8 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
-    "lex:build": "lex build --lexicons ./lexicons --out ./src/lexicons --clear --import-ext \"\""
+    "lex:build": "lex build --lexicons ./lexicons --out ./src/lexicons --clear --import-ext \"\"",
+    "inject": "node scripts/inject-standard-site.mjs"
   },
   "dependencies": {
     "@atproto/lex": "^0.3.6",

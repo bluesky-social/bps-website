@@ -32,4 +32,6 @@ yarn-error.log*
 # Generated site-side lexicon client types
 /src/lexicons
 
-.sequoia-state.json
+# NOT ignored: .sequoia-state.json is the slug -> AT-URI ledger that
+# `sequoia inject` reads (it does not read post front matter), and the image
+# build runs inject. Absent from a CI checkout, the site ships unverifiable.

@@ -41,6 +41,16 @@ RUN if [ -z "$BPS_PUBLIC_API_ORIGIN" ]; then \
 
 RUN npm run lex:build && npm run build
 
+# Standard.site verification tags. The final build happens here, not on a
+# developer's machine, so `sequoia inject` has to run inside the image — a local
+# inject writes into a ./build that never reaches production.
+#
+# The wrapper scopes inject to the default locale and fails the build when it
+# would otherwise no-op; see scripts/inject-standard-site.mjs. Offline: it reads
+# .sequoia-state.json (committed) and rewrites HTML. Publishing the records is
+# still a deliberate local step.
+RUN npm run inject
+
 
 FROM nginx:1.27-alpine
 
