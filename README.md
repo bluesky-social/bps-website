@@ -20,6 +20,7 @@ Three things that used to live on this site now live elsewhere:
 - `lexicons/` — Lexicon schemas for the account server's API, compiled into `src/lexicons/` by `npm run lex:build`
 - `server/` — the backend for the authenticated account section of the site (Node + Express + Postgres). It has its own [README](server/README.md) and is deployed separately from the static site.
 - `deploy/` — deployment configuration that is not applied by anything in this repo; currently the draft nginx config for the docs.bsky.app redirect
+- `scripts/` — build-adjacent tooling: `check-build.mjs` (assertions `make test` runs against `./build`) and `inject-standard-site.mjs` (Standard.site tags, run by the UI image build)
 
 ## Building the docs
 
@@ -247,14 +248,15 @@ after the next deploy, and delete whichever is dead weight.**
 
 #### Per-release workflow
 
-Order matters. Publishing first is what gives the build something to inject.
+The two halves run in different places. **You publish; CI injects.**
+
+Publishing writes to a PDS and needs credentials, so it stays a deliberate
+local step:
 
     npx sequoia login                # once per machine; OAuth in the browser
     npx sequoia publish --dry-run    # what would be created or updated
     npx sequoia publish              # write the records
-    npm run build                    # build the site
-    npx sequoia inject               # add <link> tags to ./build
-    # deploy ./build as usual
+    # commit the changes publish made, then push
 
 `publish` hashes each post's content, creates records for new posts, updates
 records for changed ones, writes `.sequoia-state.json`, and adds an `atUri`
@@ -264,15 +266,31 @@ Change detection is by content hash, so a change that leaves the body alone —
 editing `sequoia.json`, renaming a file — will not trigger an update on its
 own. Use `npx sequoia publish --force` to rewrite every record.
 
+Commit `sequoia.json`, `.sequoia-state.json`, the `.well-known` files under
+`static/`, and the `atUri` front matter that `publish` writes.
+
+**`.sequoia-state.json` must stay tracked.** It is the slug → AT-URI ledger,
+and it is the *only* place `inject` reads that map from — it does not look at
+the `atUri` front matter. It is also how a later publish updates a record
+instead of creating a second one.
+
+Injection then happens inside the image build, because that is where the
+deployed HTML is actually produced — see [Container
+images](#container-images). A local `npx sequoia inject` writes into a `./build`
+that never reaches production, which is a confusing way to spend an afternoon.
+
 `inject` adds `<link rel="site.standard.document" href="at://...">` to the
 `<head>` of each built post page. That link is what verifies a document: an
 aggregator follows the record's canonical URL, finds the tag pointing back at
 the record, and trusts the pair.
 
-Commit `sequoia.json`, `.sequoia-state.json`, the `.well-known` files under
-`static/`, and the `atUri` front matter that `publish` writes. The state file
-maps each post to its AT URI and content hash, which is how a later publish
-updates a record instead of creating a second one.
+To see locally what will ship:
+
+    make build
+    make inject
+
+`make build` overwrites `./build` and drops the tags, so that order matters and
+the tags do not survive the next build. It is for inspection, not for deploying.
 
 #### Automating it
 
@@ -299,9 +317,12 @@ duplicate records.
   `pubDate`, `date`, `createdAt` or `created_at`, and has no fallback to the
   filename's date prefix — which is where Docusaurus gets it from. A post
   without an explicit `date:` publishes with the wrong date or none at all.
-- **The `ja` locale duplicates every post** at `/ja/blog/<slug>`. Those pages
-  are not the record's canonical URL, so whether `inject` leaves them alone has
-  not been checked.
+- **The `ja` locale duplicates every post** at `/ja/blog/<slug>`, and `inject`
+  tags them: it matches `<dir>/index.html` by the name of the parent directory,
+  so the Japanese copy resolves to the same slug and gets the same `atUri`.
+  Two URLs would then assert they are the same document while the record's
+  `canonicalUrl` names only one. `scripts/inject-standard-site.mjs` strips the
+  tags back out of every non-default locale.
 - **An alternative to `inject`** would be to extend the
   `src/theme/BlogPostPage/Metadata` wrapper, which today emits `<meta>` tags
   from `head_meta` only, to also emit a `<link rel="site.standard.document">`
@@ -318,6 +339,20 @@ build context (each needs the top-level `lexicons/`):
 | --- | --- | --- |
 | `bps-website-ui` | `Dockerfile` | the static site, served by nginx (`deploy/nginx.conf`) on port 80 |
 | `bps-website-api` | `server/Dockerfile` | the account server on port 8080 — see [server/README.md](server/README.md) |
+
+The UI image runs `npm run inject` after the site build. This is the deployed
+HTML, so it is the only place the Standard.site verification tags can usefully
+be added — see [Publishing to the AT
+Protocol](#publishing-to-the-at-protocol). The step is offline: it reads the
+committed `.sequoia-state.json` and rewrites files. It does not talk to a PDS,
+and it needs no credentials.
+
+`scripts/inject-standard-site.mjs` wraps the Sequoia CLI rather than calling it
+directly, for two reasons. It scopes the tags to the default locale, reading the
+locale list from `docusaurus.config.js` so a new locale cannot be missed. And it
+turns two silent successes into build failures: `sequoia inject` exits 0 when
+`.sequoia-state.json` is absent, and again when every post is skipped, either of
+which would ship an unverifiable site behind a green build.
 
 `.github/workflows/containers.yml` builds both on GitHub-hosted runners for
 every branch push. Only `main` receives `packages: write` and publishes the
