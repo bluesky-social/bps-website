@@ -14,6 +14,12 @@ help: ## Print info about all commands
 build: ## Build the website, output in ./build/
 	npm run build
 
+.PHONY: inject
+inject: ## Add Standard.site verification tags to ./build (run after 'build')
+	# The image build runs this too (see Dockerfile). Run it locally only to
+	# inspect what ships; `npm run build` overwrites ./build and drops the tags.
+	npm run inject
+
 .PHONY: test
 test: ## Run all tests (run 'make build' first — check-build reads ./build)
 	# Scoped to the content dirs. The checker's own ignore list has a bare
