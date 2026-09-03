@@ -1,0 +1,20 @@
+{
+  "posts": {
+    "blog/2026-08-30-welcome.md": {
+      "contentHash": "7033406f076e5f49ebd8de7a591643a7df132a4729b0611e91271176910ce95f",
+      "atUri": "at://did:plc:vjmzeyaqcg4aav2txasemfgj/site.standard.document/3mui52d3jsr25",
+      "lastPublished": "2026-09-02T21:35:57.929Z",
+      "slug": "welcome"
+    },
+    "blog/2026-09-01-algo-viz.md": {
+      "contentHash": "da2401d91f56b960ce68e21d9aa20c338e9d0caf61f59ffb5b8d2384109a2112",
+      "atUri": "at://did:plc:vjmzeyaqcg4aav2txasemfgj/site.standard.document/3mukvd42p7x2w",
+      "lastPublished": "2026-09-02T21:35:57.723Z",
+      "slug": "content-visibility-declaration"
+    }
+  },
+  "publication": {
+    "cid": "bafyreib6fm6lfcvrk327rl5yf6syf6tiktkw3xjx3xkbpkixoc33frxx3u",
+    "uri": "at://did:plc:vjmzeyaqcg4aav2txasemfgj/site.standard.publication/3muhzfi5rsp2p"
+  }
+}
