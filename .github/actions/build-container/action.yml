@@ -63,6 +63,7 @@ runs:
       with:
         context: .
         file: ${{ inputs.file }}
+        pull: true
         build-args: ${{ inputs.build-args }}
         push: ${{ inputs.push }}
         tags: ${{ steps.metadata.outputs.tags }}
