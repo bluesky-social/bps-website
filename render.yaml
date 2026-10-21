@@ -1,0 +1,54 @@
+# Render blueprint for the staging deploy of the static site.
+#
+# Staging only. Production is the container images built by
+# .github/workflows/containers.yml and served by deploy/nginx.conf — see the
+# README. Nothing here is production-hardened, and it is not meant to be.
+#
+# Why a static site rather than the repo's Dockerfile: that image deliberately
+# refuses to build without BPS_PUBLIC_API_ORIGIN and BPS_SPACES_PDS_URL, because
+# they are baked into the bundle and a wrong value silently points logged-in
+# account requests at localhost. `npm run build` has no such guard — the config
+# falls back (docusaurus.config.js customFields). Staging wants exactly that
+# fallback: the account UI and the Spaces alpha link are expected to be dead
+# here, so the build should not demand credentials for services it cannot reach.
+
+services:
+  - type: web
+    # `runtime: static` is the current spelling; older blueprints said
+    # `env: static`. If Render rejects one, it wants the other.
+    runtime: static
+    name: bps-website-staging
+
+    # main, deliberately. A feature branch as the tracked branch makes whichever
+    # branch happens to be in flight the canonical one; PR previews below are
+    # how a branch gets looked at.
+    branch: main
+
+    # lex:build is not optional. It generates src/lexicons/ from lexicons/, the
+    # site imports it, and it is gitignored — so a fresh checkout has to make it
+    # before Docusaurus can resolve the import.
+    buildCommand: npm ci && npm run lex:build && npm run build
+    staticPublishPath: ./build
+
+    # Every PR gets its own build at its own URL, which is the point of this
+    # service. Note that Render creates previews for PRs opened or UPDATED after
+    # previews are switched on: an already-open PR needs a push (or a
+    # close/reopen) before its first preview appears.
+    previews:
+      generation: automatic
+
+# Node comes from .node-version (22.11.0), kept as the single source of truth so
+# this file cannot drift from what the Dockerfile and CI build with. The atproto
+# lex codegen requires >=22, so an older default fails at lex:build with a
+# version error rather than anything subtle. If Render ever ignores
+# .node-version here, add NODE_VERSION to envVars above to match it.
+#
+# No routes/rewrites on purpose. Docusaurus emits a real file tree
+# (docs/foo/index.html), so directory serving is all it needs; a catch-all
+# rewrite to /index.html would break 404.html and every generated redirect page.
+#
+# Known rough edge: docusaurus.config.js hardcodes `url: "https://bsky.network/"`,
+# which feeds canonical tags, og: URLs, sitemap.xml and the blog's RSS/Atom/JSON
+# feed links. Previews therefore advertise production URLs, so a feed link
+# followed from a preview lands on the live site. Fixing it means making `url`
+# read RENDER_EXTERNAL_URL, which is a change to that file rather than this one.
