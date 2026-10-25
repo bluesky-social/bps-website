@@ -135,3 +135,49 @@ test('applies the limits to the OAuth client', { timeout: 15_000 }, async () => 
     await server.close()
   }
 })
+
+test('does not follow a redirect for a caller that did not ask for one', async () => {
+  // The shape @atproto/oauth-client uses for the PAR/token/revocation requests:
+  // a Request, no init — and a Request's own redirect mode defaults to 'follow'.
+  const seen: string[] = []
+  const server = await startServer((req, res) => {
+    seen.push(req.url ?? '')
+    if (req.url === '/start') {
+      res.writeHead(302, { location: '/next' })
+      res.end()
+      return
+    }
+    res.writeHead(200, { 'content-type': 'application/json' })
+    res.end('{"request_uri":"https://example.test/x"}')
+  })
+  try {
+    const fetch = createOAuthFetch({ ssrfProtection: false })
+    const res = await fetch(new Request(`${server.url}/start`, { method: 'POST' }))
+    assert.equal(res.status, 302)
+    assert.deepEqual(seen, ['/start'])
+  } finally {
+    await server.close()
+  }
+})
+
+test('follows a redirect when the caller asks for it', async () => {
+  const seen: string[] = []
+  const server = await startServer((req, res) => {
+    seen.push(req.url ?? '')
+    if (req.url === '/start') {
+      res.writeHead(302, { location: '/next' })
+      res.end()
+      return
+    }
+    res.writeHead(200, { 'content-type': 'application/json' })
+    res.end('{"ok":true}')
+  })
+  try {
+    const fetch = createOAuthFetch({ ssrfProtection: false })
+    const res = await fetch(`${server.url}/start`, { redirect: 'follow' })
+    assert.equal(res.status, 200)
+    assert.deepEqual(seen, ['/start', '/next'])
+  } finally {
+    await server.close()
+  }
+})

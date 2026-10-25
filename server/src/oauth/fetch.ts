@@ -4,8 +4,8 @@ import { safeFetchWrap } from '@atproto-labs/fetch-node'
 // (DID document, resource metadata, authorization-server metadata, PAR) follow
 // whatever the user typed into the login form, so apply the same guards the
 // handle resolver already uses: a timeout, a response size limit and no private
-// addresses. Redirects are made explicit because the client's DPoP-bound
-// requests otherwise follow them, and the checks only apply to the first URL.
+// addresses. Redirects are not followed unless a caller asks for one: the checks
+// apply to the URL that was passed in, not to wherever it points.
 export const OAUTH_FETCH_TIMEOUT_MS = 10_000
 
 // 512 KiB is safeFetchWrap's own default, and ~300x the largest document on
@@ -37,9 +37,11 @@ export function createOAuthFetch({
   })
 
   return (input, init) => {
-    const redirect =
-      init?.redirect ??
-      (input instanceof Request ? input.redirect : 'manual')
+    // Only an explicit mode from the caller counts. A Request carries a default
+    // of 'follow', and @atproto/oauth-client's DPoP wrapper passes one of those
+    // for the PAR/token/revocation requests, so reading the mode off the Request
+    // would quietly re-enable redirects for exactly those.
+    const redirect = init?.redirect ?? 'manual'
     return safe(input, { ...init, redirect })
   }
 }
