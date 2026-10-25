@@ -15,6 +15,7 @@
     "lex:build": "lex build --lexicons ../lexicons --out ./src/lexicons --clear --import-ext .ts"
   },
   "dependencies": {
+    "@atproto-labs/fetch-node": "^0.4.3",
     "@atproto/jwk-jose": "^0.1.6",
     "@atproto/lex": "^0.1.4",
     "@atproto/lex-server": "^0.1.2",
