@@ -7,6 +7,7 @@ import type { DB } from '../db/index.ts'
 import type { AppConfig } from '../config.ts'
 import { loadKeyset } from './keyset.ts'
 import { buildClientMetadata } from './client-metadata.ts'
+import { createOAuthFetch } from './fetch.ts'
 import { createStateStore } from './state-store.ts'
 import { createSessionStore } from './session-store.ts'
 
@@ -32,6 +33,9 @@ export async function createOAuthClient(
   config: AppConfig,
   requestLock: RuntimeLock,
 ): Promise<NodeOAuthClient> {
+  // Bounded fetch; see oauth/fetch.ts.
+  const fetch = createOAuthFetch({ ssrfProtection: !config.devMode })
+
   if (config.devMode) {
     // Loopback/dev: no keyset needed (token_endpoint_auth_method = 'none')
     return new NodeOAuthClient({
@@ -40,6 +44,7 @@ export async function createOAuthClient(
       sessionStore: createSessionStore(db),
       handleResolver: config.oauthHandleResolver,
       requestLock,
+      fetch,
     })
   }
 
@@ -52,5 +57,6 @@ export async function createOAuthClient(
     sessionStore: createSessionStore(db),
     handleResolver: config.oauthHandleResolver,
     requestLock,
+    fetch,
   })
 }
