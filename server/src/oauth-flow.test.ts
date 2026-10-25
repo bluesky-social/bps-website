@@ -73,7 +73,7 @@ test('whoami returns the did (no email when none is set) with a valid cookie', a
 test('logout returns ok and an expiring Set-Cookie', async () => {
   const res = await fetch(`${base}/xrpc/internal.bps.oauth.logout`, {
     method: 'POST',
-    headers: { cookie: await cookie() },
+    headers: { cookie: await cookie(), origin: 'http://localhost:3000' },
   })
   assert.equal(res.status, 200)
   const setCookie = res.headers.get('set-cookie') ?? ''

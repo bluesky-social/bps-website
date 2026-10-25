@@ -7,6 +7,7 @@ import type { ApiKeyProvider } from './apikeys/provider.ts'
 import { buildRouter } from './router.ts'
 import { mountOAuthRoutes } from './oauth/routes.ts'
 import { corsMiddleware } from './cors.ts'
+import { csrfGuard } from './csrf.ts'
 
 export type AppDeps = {
   db: DB
@@ -21,6 +22,9 @@ export function buildApp(deps: AppDeps): express.Express {
   // Credentialed CORS for the static site origin must be the first middleware
   // so preflight and headers apply to every route including /_health and XRPC.
   app.use(corsMiddleware(deps.config))
+
+  // Must run before the XRPC router; see csrf.ts.
+  app.use(csrfGuard(deps.config))
 
   // Plain liveness route (no XRPC envelope) for infra probes.
   app.get('/_health', (_req, res) => {
