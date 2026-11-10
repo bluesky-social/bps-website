@@ -28,7 +28,7 @@ We encourage developers to build their own apps for Bluesky!
 
 Bluesky is built on the [AT Protocol](https://atproto.com/), and there are many AT Protocol apps that do not use the Bluesky name and are not primarily associated with Bluesky or Bluesky content. These apps are collectively called the **Atmosphere**. You can publish your own AT Protocol app at any time, with no involvement from Bluesky — we encourage it!
 
-If you want to make an app that is *specifically associated with Bluesky*, we have some additional guidance, to satisfy both our trademark policies and to facilitate review on app marketplaces which may proactively flag trademark issues. Namely:
+If you want to make an app that is *specifically associated with Bluesky*, we have some additional guidance, to both satisfy our trademark policies and to facilitate review on app marketplaces which may proactively flag trademark issues. Namely:
 
 *We consider uses that are purely descriptive and that lead with the third-party app name acceptable, like "[App Name] for Bluesky" or "[App Name] on Bluesky" etc. We consider uses of our name as part of the third party branding to be confusing, like "Bluesky-[App Name]."*
 
