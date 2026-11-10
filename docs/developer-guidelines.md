@@ -21,3 +21,15 @@ Developers who federate their apps or services on the AT Protocol must adhere to
 7. Failure to respond appropriately to known violations of Bluesky Social's [Terms of Service](https://blueskyweb.xyz/support/tos), [Privacy Policy](https://blueskyweb.xyz/support/privacy-policy) or [Community Guidelines](https://blueskyweb.xyz/support/community-guidelines) may result in suspension of access to services or features run on Bluesky's infrastructure. Developers should keep records of all reports of violations and their responses, and Bluesky may at any time request such data to ensure compliance with its policies.
 
 You can find this policy listed on Bluesky's website [here](https://blueskyweb.xyz/support/community-guidelines).
+
+## Community-Developed Apps
+
+We encourage developers to build their own apps for Bluesky!
+
+Bluesky is built on the [AT Protocol](https://atproto.com/), and there are many AT Protocol apps that do not use the Bluesky name and are not primarily associated with Bluesky or Bluesky content. These apps are collectively called the **Atmosphere**. You can publish your own AT Protocol app at any time, with no involvement from Bluesky — we encourage it!
+
+If you want to make an app that is *specifically associated with Bluesky*, we have some additional guidance, to both satisfy our trademark policies and to facilitate review on app marketplaces which may proactively flag trademark issues. Namely:
+
+*We consider uses that are purely descriptive and that lead with the third-party app name acceptable, like "[App Name] for Bluesky" or "[App Name] on Bluesky" etc. We consider uses of our name as part of the third party branding to be confusing, like "Bluesky-[App Name]."*
+
+If you, as a developer, run into an app marketplace rejection you believe is not valid, you should file an appeal citing these guidelines.
