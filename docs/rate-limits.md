@@ -89,3 +89,5 @@ The Bluesky API applies the following limits to all labeling services (eg, Ozone
 - 5 per second
 - 10,000 per hour
 - 100,000 per day (24 hour period)
+
+These limits are intended to limit abuse while leaving room for most labeling services. Labelers doing high-volume mechanical labeling (for example, alt-text or accessibility labels computed only from record fields) can outgrow them; if the default limits cause problems for your labeling service, please reach out and they can be raised.
