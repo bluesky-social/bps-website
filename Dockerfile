@@ -52,7 +52,7 @@ RUN npm run lex:build && npm run build
 RUN npm run inject
 
 
-FROM nginx:1.27-alpine
+FROM nginx:1.31.9-alpine
 
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/build /usr/share/nginx/html
